@@ -4,4 +4,5 @@
   user: root
 
   roles:
+    - foreman-network-setup
     - openstack-foreman-installer

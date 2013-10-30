@@ -1,0 +1,5 @@
+NETWORKING=yes
+HOSTNAME={{ net_hostname }}
+GATEWAY={{ net_defaultgw }}
+DNS1={{ networks.dns[0] }}
+DNS2={{ networks.dns[1] }}

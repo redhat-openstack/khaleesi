@@ -1,3 +1,0 @@
----
-- name: reboot
-  command: /sbin/shutdown -r +5 "Reboot is triggered by Ansible"

@@ -1,0 +1,9 @@
+---
+net_hostname: 'foreman.example.com'
+net_defaultgw: '{{ default_gateway }}'
+net_privateif: 'eth1'
+net_publicif: 'eth2'
+net_interfaces: [ 'eth1', 'eth2' ]
+net_config:
+        'eth1': { hwaddr: "{{ ansible_eth1.macaddress }}", X_network: 'private', X_hostipaddr: '20', bootproto: 'static', onboot: 'yes' }
+        'eth2': { hwaddr: "{{ ansible_eth2.macaddress }}", X_network: 'public', X_hostipaddr: '20', bootproto: 'static', onboot: 'yes' }

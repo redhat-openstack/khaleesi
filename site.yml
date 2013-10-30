@@ -1,2 +1,8 @@
 ---
+- hosts: all
+  user: root
+  roles:
+  - common
+
 - include: foreman.yml
+- include: controller.yml

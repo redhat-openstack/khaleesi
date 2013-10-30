@@ -5,20 +5,38 @@
 - name: Install openstack-foreman-installer rpm
   yum: name=openstack-foreman-installer state=present
 
+- name: Make /etc/hosts proper
+  lineinfile: dest=/etc/hosts regexp='.*{{item}}$' line='${hostvars.${item}.ansible_eth1.ipv4.address} ${item}' state=present
+  with_items: '{{groups.foreman}}'
+
 - name: Deactivate iptables
   service: name=iptables enabled=no state=stopped
 
 - name: Specify foreman environment
-  template: src=foreman_env dest=/tmp/foreman_env mode=0644
+  template: src=foreman_env.j2 dest=/tmp/foreman_env mode=0644
 
-- name: Ensure optional repo
-  command: /usr/bin/yum-config-manager --enable rhel-6-server-optional-rpms
+- name: Check for SecureRandom
+  shell: grep 'SecureRandom.hex' /usr/share/openstack-foreman-installer/bin/seeds.rb
+  ignore_errors: True
+  register: random_passwords
 
 - name: Make passwords the same for foreman environment
-  command: /bin/sed -i -e 's/SecureRandom.hex/"redhat"/' /usr/share/openstack-foreman-installer/bin/seeds.rb
+  shell: "/bin/sed -i -e 's/SecureRandom.hex/\"redhat\"/' {{ item }}"
+  with_items: '/usr/share/openstack-foreman-installer/bin/seeds.rb'
+  when: random_passwords.rc == 0
 
 - name: Remove the prompt in foreman_server.sh
-  command: "/bin/sed -i -e 's/^\\(read.*\\)//' /usr/share/openstack-foreman-installer/bin/foreman_server.sh"
+  lineinfile: dest=/usr/share/openstack-foreman-installer/bin/foreman_server.sh
+              regexp='^read .*'
+              state=absent
 
 - name: Run the installer
-  shell: "source /tmp/foreman_env && cd /usr/share/openstack-foreman-installer/bin && bash -x ./foreman_server.sh"
+  shell: chdir=/usr/share/openstack-foreman-installer/bin
+         creates=/tmp/foreman_client.sh
+         source /tmp/foreman_env && bash -x ./foreman_server.sh
+
+- name: Put the client installer into foreman public dir
+  action: command /bin/cp /tmp/foreman_client.sh /var/lib/foreman/public
+
+- name: Set the perms on foreman_client
+  file: path=/var/lib/foreman/public/foreman_client.sh owner=foreman group=foreman state=file

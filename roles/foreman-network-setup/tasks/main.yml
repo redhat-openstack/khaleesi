@@ -1,0 +1,14 @@
+---
+- name: Setup networking (general)
+  template: src=../templates/etc/sysconfig/network dest=/etc/sysconfig/network owner=root group=root mode=644
+
+- name: Setup networking (interfaces)
+  template: src=../templates/etc/sysconfig/network-scripts/ifcfg-interface dest=/etc/sysconfig/network-scripts/ifcfg-${item} owner=root group=root mode=644
+  with_items: $net_interfaces
+  notify:
+      - reboot
+      - Wait for host to stop
+      - Wait for host to come back
+
+- meta: flush_handlers
+- action: setup
