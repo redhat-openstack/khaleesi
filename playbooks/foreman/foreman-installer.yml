@@ -4,7 +4,9 @@
   user: root
   roles:
     - ../../../roles/foreman-common
+    - ../../../roles/foreman-network-setup
 
 - include: foreman-host.yml
 - include: foreman-controller.yml
 - include: foreman-compute.yml
+- include: foreman-networker.yml

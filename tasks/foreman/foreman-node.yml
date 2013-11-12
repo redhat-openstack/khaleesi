@@ -14,6 +14,9 @@
 - name: Pause because puppet does not exit as quickly as it should
   pause: seconds=5
 
+- name: Stop the puppet service
+  service: name=puppet state=stopped
+
 - name: Get {{ foreman_node_hostgroup }} hostgroup
   action: >
         uri url=https://foreman.example.com/api/hostgroups?search=name=\"{{ foreman_node_hostgroup_param }}\"

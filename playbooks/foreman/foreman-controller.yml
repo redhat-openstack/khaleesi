@@ -4,5 +4,4 @@
   user: root
 
   roles:
-    - ../../../roles/foreman-network-setup
     - ../../../roles/foreman-openstack-controller

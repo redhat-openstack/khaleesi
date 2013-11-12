@@ -1,0 +1,5 @@
+---
+- include: ../../../tasks/foreman/foreman-node.yml
+  vars:
+      foreman_node_hostgroup: OpenStack Neutron Networker
+      foreman_node_hostgroup_param: OpenStack+Neutron+Networker
