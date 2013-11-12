@@ -1,4 +1,10 @@
 ---
+- name: Ensure httplib2
+  yum: name=python-httplib2 state=present
+  
+- name: Ensure libselinux-python
+  yum: name=libselinux-python
+
 - name: be sure ntp is installed
   yum: pkg=ntp state=installed
   tags: ntp
