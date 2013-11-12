@@ -1,0 +1,10 @@
+---
+- name: Foreman installer
+  hosts: foreman_installer
+  user: root
+  roles:
+    - ../../../roles/foreman-common
+
+- include: foreman-host.yml
+- include: foreman-controller.yml
+- include: foreman-compute.yml

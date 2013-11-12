@@ -4,5 +4,5 @@
   roles:
   - common
 
-- include: foreman.yml
-- include: controller.yml
+- include: playbooks/foreman/foreman-installer.yml
+

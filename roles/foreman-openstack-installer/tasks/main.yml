@@ -35,8 +35,5 @@
          creates=/tmp/foreman_client.sh
          source /tmp/foreman_env && bash -x ./foreman_server.sh
 
-- name: Put the client installer into foreman public dir
-  action: command /bin/cp /tmp/foreman_client.sh /var/lib/foreman/public
-
-- name: Set the perms on foreman_client
-  file: path=/var/lib/foreman/public/foreman_client.sh owner=foreman group=foreman state=file
+- name: Fetch the client installer
+  fetch: src=/tmp/foreman_client.sh dest=/tmp/foreman/ flat=yes

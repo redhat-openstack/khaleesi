@@ -1,0 +1,8 @@
+---
+- name: Ensure optional repo
+  ini_file: dest=/etc/yum.repos.d/redhat.repo section=rhel-6-server-optional-rpms option=enabled value=1
+  when: ansible_distribution == "RedHat"
+
+- name: Ensure httplib2
+  yum: name=python-httplib2 state=present
+

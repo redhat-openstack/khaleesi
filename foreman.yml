@@ -1,8 +1,0 @@
----
-- name: Create foreman openstack environment
-  hosts: foreman
-  user: root
-
-  roles:
-    - foreman-network-setup
-    - openstack-foreman-installer
