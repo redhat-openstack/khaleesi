@@ -5,11 +5,12 @@ aio_config_options:
       - { option: 'CONFIG_USE_EPEL', value: 'y' }
       - { option: 'CONFIG_NOVA_NETWORK_FIXEDRANGE', value: '192.168.32.0/24' }
       - { option: 'CONFIG_NOVA_NETWORK_FLOATRANGE', value: '10.3.4.0/24'}
-      - { option: 'CONFIG_NEUTRON_INSTALL', value: 'CONFIG_NEUTRON_INSTALL=y'}
-      - { option: 'CONFIG_SWIFT_INSTALL', value: 'CONFIG_SWIFT_INSTALL=y'}
-      - { option: 'CONFIG_CEILOMETER_INSTALL', value: 'CONFIG_CEILOMETER_INSTALL=y'}
-      - { option: 'CONFIG_HEAT_INSTALL', value: 'CONFIG_HEAT_INSTALL=y'}
-      - { option: 'CONFIG_NEUTRON_USE_NAMESPACES', value: 'CONFIG_NEUTRON_USE_NAMESPACES=y'}
-      - { option: 'CONFIG_PROVISION_ALL_IN_ONE_OVS_BRIDGE', value: 'CONFIG_PROVISION_ALL_IN_ONE_OVS_BRIDGE=y'}
-      - { option: 'CONFIG_NOVA_COMPUTE_PRIVIF', value: 'CONFIG_NOVA_COMPUTE_PRIVIF=eth0'}
-      - { option: 'CONFIG_NOVA_NETWORK_PRIVIF', value: 'CONFIG_NOVA_NETWORK_PRIVIF=eth0'}
+      - { option: 'CONFIG_NEUTRON_INSTALL', value: 'y'}
+      - { option: 'CONFIG_SWIFT_INSTALL', value: 'y'}
+      - { option: 'CONFIG_CEILOMETER_INSTALL', value: 'y'}
+      - { option: 'CONFIG_HEAT_INSTALL', value: 'y'}
+      - { option: 'CONFIG_HEAT_CFN_INSTALL', value: 'y'}
+      - { option: 'CONFIG_NEUTRON_USE_NAMESPACES', value: 'y'}
+      - { option: 'CONFIG_PROVISION_ALL_IN_ONE_OVS_BRIDGE', value: 'y'}
+      - { option: 'CONFIG_NOVA_COMPUTE_PRIVIF', value: 'eth0'}
+      - { option: 'CONFIG_NOVA_NETWORK_PRIVIF', value: 'eth0'}
