@@ -1,0 +1,16 @@
+---
+  - name: yum -y update to latest packages
+    yum: name=* state=latest
+
+  - name: create ssh keys
+    shell: ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa creates=/root/.ssh/id_rsa
+
+  - name: add id_rsa to authorized_keys
+    shell: cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+
+  - name: ensure authorized_keys file has correct permissions
+    file: path=/root/.ssh/authorized_keys owner=root group=root mode=0600
+
+  - name: Ensure optional repo
+    ini_file: dest=/etc/yum.repos.d/redhat.repo section=rhel-6-server-optional-rpms option=enabled value=1
+    when: ansible_distribution == "RedHat"
