@@ -1,0 +1,10 @@
+---
+- hosts: test_servers
+  roles: 
+    - ../../../roles/common
+    - ../../../roles/packstack-common
+    - ../../../roles/rdo
+  tasks: 
+    - include: ../../handlers/reboot.yml
+      vars:
+        reboot_delay: +1

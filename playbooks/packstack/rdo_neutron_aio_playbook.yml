@@ -1,0 +1,9 @@
+---
+- hosts: test_servers
+  roles:
+    - ../../../roles/common
+    - ../../../roles/packstack-common
+    - ../../../roles/rdo
+    - ../../../roles/packstack-neutron-aio
+    - ../../../roles/packstack-installer
+

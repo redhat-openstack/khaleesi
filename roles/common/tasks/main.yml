@@ -1,4 +1,10 @@
 ---
+- name: Ensure httplib2
+  yum: name=python-httplib2 state=present
+  
+- name: Ensure libselinux-python
+  yum: name=libselinux-python
+
 - name: be sure ntp is installed
   yum: pkg=ntp state=installed
   tags: ntp
@@ -12,3 +18,10 @@
 - name: be sure ntpd is running and enabled
   service: name=ntpd state=running enabled=yes
   tags: ntp
+
+- name: yum -y update to latest packages
+  yum: name=* state=latest
+
+- include: ../../../handlers/reboot.yml
+  vars:
+    reboot_delay: 0
