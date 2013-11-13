@@ -1,4 +1,7 @@
 ---
+- name: Add packstack puppet modules
+  yum: name=http://kojipkgs.fedoraproject.org/packages/openstack-packstack/2013.2.1/0.14.dev846.el6/noarch/packstack-modules-puppet-2013.2.1-0.14.dev846.el6.noarch.rpm state=present
+
 - name: Add RDO/RHOS repos
   yum: name={{ openstack_foreman_installer_repo_rpm }}
 

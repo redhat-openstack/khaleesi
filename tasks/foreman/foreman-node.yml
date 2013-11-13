@@ -55,3 +55,6 @@
 
 - name: Apply {{ foreman_node_hostgroup }} via puppet
   action: command /usr/bin/puppet agent --onetime --verbose --ignorecache --no-daemonize --no-usecacheonfailure --no-splay --show_diff
+
+- name: Restart the puppet service
+  service: name=puppet state=started

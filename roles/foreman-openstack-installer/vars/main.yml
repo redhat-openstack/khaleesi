@@ -1,8 +1,8 @@
 ---
 openstack_foreman_installer_repo_rpm: http://repos.fedorapeople.org/repos/openstack/openstack-havana/rdo-release-havana-7.noarch.rpm
-private_controller_ip: 192.168.200.10
+private_controller_ip: 192.168.200.2
 private_interface: eth1
 private_netmask: 255.255.255.0
-public_controller_ip: 192.168.201.10
+public_controller_ip: 192.168.201.2
 public_interface: eth2
 public_netmask: 255.255.255.0
