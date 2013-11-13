@@ -5,6 +5,4 @@
     - ../../../roles/packstack-common
     - ../../../roles/rdo
     - ../../../roles/packstack-nova-aio
-  tasks: 
-    - name: install openstack
-      command: /usr/bin/packstack --debug --answer-file={{ packstack_config }} 
+    - ../../../roles/packstack-installer
