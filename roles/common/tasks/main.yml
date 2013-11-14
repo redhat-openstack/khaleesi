@@ -1,7 +1,7 @@
 ---
 - name: Ensure httplib2
   yum: name=python-httplib2 state=present
-  
+
 - name: Ensure libselinux-python
   yum: name=libselinux-python
 
@@ -21,7 +21,10 @@
 
 - name: yum -y update to latest packages
   yum: name=* state=latest
+  notify:
+      - reboot
+      - Wait for host to stop
+      - Wait for host to come back
+      - Reload facts
 
-- include: ../../../handlers/reboot.yml
-  vars:
-    reboot_delay: 0
+- meta: flush_handlers

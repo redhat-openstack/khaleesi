@@ -8,3 +8,5 @@
 - name: Wait for host to come back
   local_action: wait_for host=${inventory_hostname} port=22 delay=30 timeout=600
 
+- name: Reload facts
+  action: setup

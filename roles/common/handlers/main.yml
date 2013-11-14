@@ -1,3 +1,7 @@
 ---
 - name: restart ntpd
   service: name=ntpd state=restarted
+
+- include: ../../../handlers/reboot.yml
+  vars:
+      reboot_delay: +1

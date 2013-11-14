@@ -5,6 +5,7 @@
       - reboot
       - Wait for host to stop
       - Wait for host to come back
+      - Reload facts
 
 - name: Setup networking (interfaces)
   template: src=../templates/etc/sysconfig/network-scripts/ifcfg-interface dest=/etc/sysconfig/network-scripts/ifcfg-${item} owner=root group=root mode=644
@@ -13,7 +14,6 @@
       - reboot
       - Wait for host to stop
       - Wait for host to come back
+      - Reload facts
 
 - meta: flush_handlers
-- name: Reload facts
-  action: setup
