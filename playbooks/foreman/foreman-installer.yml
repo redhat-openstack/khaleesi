@@ -10,3 +10,4 @@
 - include: foreman-controller.yml
 - include: foreman-compute.yml
 - include: foreman-networker.yml
+- include: foreman-createrc.yml

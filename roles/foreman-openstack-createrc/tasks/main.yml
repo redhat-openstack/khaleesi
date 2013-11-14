@@ -1,0 +1,3 @@
+---
+- name: Create keystonerc_admin
+  template: src=keystonerc_admin.j2 dest=/root/keystonerc_admin
