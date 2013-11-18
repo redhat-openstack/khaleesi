@@ -1,7 +1,7 @@
-export PRIVATE_CONTROLLER_IP={{ private_controller_ip }}
+export PRIVATE_CONTROLLER_IP={{ hostvars[controller_name].ansible_eth1.ipv4.address }}
 export PRIVATE_INTERFACE={{ private_interface }}
 export PRIVATE_NETMASK={{ private_netmask }}
-export PUBLIC_CONTROLLER_IP={{ public_controller_ip }}
+export PUBLIC_CONTROLLER_IP={{ hostvars[controller_name].ansible_eth2.ipv4.address }}
 export PUBLIC_INTERFACE={{ public_interface }}
 export PUBLIC_NETMASK={{ public_netmask }}
 export FOREMAN_GATEWAY=false

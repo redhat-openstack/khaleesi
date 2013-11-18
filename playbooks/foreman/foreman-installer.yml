@@ -3,6 +3,7 @@
   hosts: foreman_installer
   user: root
   roles:
+    - ../../../roles/common
     - ../../../roles/foreman-common
     - ../../../roles/foreman-network-setup
 

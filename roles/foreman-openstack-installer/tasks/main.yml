@@ -8,9 +8,11 @@
 - name: Install openstack-foreman-installer rpm
   yum: name=openstack-foreman-installer state=present
 
+- include: ../../../checkvars.yml
+
 - name: Make /etc/hosts proper
-  lineinfile: dest=/etc/hosts regexp='.*{{item}}$' line='${hostvars.${item}.ansible_eth1.ipv4.address} ${item}' state=present
-  with_items: '{{groups.foreman}}'
+  lineinfile: "dest=/etc/hosts regexp='.*{{item}}$' line='{{ hostvars[item].ansible_eth1.ipv4.address }} {{ hostvars[item].fqdn }}' state=present"
+  with_items: groups.foreman
 
 - name: Deactivate iptables
   service: name=iptables enabled=no state=stopped

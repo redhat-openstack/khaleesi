@@ -1,11 +1,4 @@
 ---
-dns1: "{{ lookup('env', 'FOREMAN_DNS1') }}"
-dns2: "{{ lookup('env', 'FOREMAN_DNS2') }}"
-default_gateway: "{{ lookup('env', 'FOREMAN_DEFAULT_GATEWAY') }}"
-private_netrange: "{{ lookup('env', 'FOREMAN_PRIVATE_NETRANGE') }}"
-public_netrange: "{{ lookup('env', 'FOREMAN_PUBLIC_NETRANGE') }}"
-networks:
-  private:  { netrange: '{{ private_netrange }}', prefix: '24', gateway: '1' }
-  public:   { netrange: '{{ public_netrange }}', prefix: '24', gateway: '1' }
-  dns:      [ '{{ dns1 }}', '{{ dns2 }}' ]
-
+net_interfaces:
+    - { interface: 'eth1', ip_var: 'foreman_private_ip', ansible_var: 'ansible_eth1' }
+    - { interface: 'eth2', ip_var: 'foreman_public_ip', ansible_var: 'ansible_eth2' }

@@ -1,15 +1,14 @@
 ---
 - name: Make /etc/hosts proper
-  lineinfile: dest=/etc/hosts regexp='.*{{item}}$' line='${hostvars.${item}.ansible_eth1.ipv4.address} ${item}' state=present
-  with_items: '{{ groups.foreman_installer }}'
+  lineinfile: "dest=/etc/hosts regexp='.*{{item}}$' line='{{ hostvars[item].ansible_eth1.ipv4.address }} {{ hostvars[item].ansible_fqdn }} {{ hostvars[item].ansible_hostname }}' state=present"
+  with_items: groups.foreman_installer
 
 # Using copy then shell instead of script directly, since script does not support create
 - name: Copy the client script
   copy: src=/tmp/foreman/foreman_client.sh dest=/tmp/foreman_client.sh mode=0755
 
 - name: Register this host with foreman
-  action: shell /tmp/foreman_client.sh
-        creates=/var/lib/puppet/ssl/certs/{{ inventory_hostname }}.pem
+  shell: "/tmp/foreman_client.sh creates=/var/lib/puppet/ssl/certs/{{ inventory_hostname }}.pem"
 
 - name: Pause because puppet does not exit as quickly as it should
   pause: seconds=5
@@ -18,8 +17,8 @@
   service: name=puppet state=stopped
 
 - name: Get {{ foreman_node_hostgroup }} hostgroup
-  action: >
-        uri url=https://foreman.example.com/api/hostgroups?search=name=\"{{ foreman_node_hostgroup_param }}\"
+  uri: >
+        url=https://{{ foreman_fqdn }}/api/hostgroups?search=name=\"{{ foreman_node_hostgroup_param }}\"
         method=GET
         user=admin
         password=changeme
@@ -30,8 +29,8 @@
   register: hostgroup_json
 
 - name: Get the host back from foreman
-  action: >
-        uri url=https://foreman.example.com/api/hosts?search=name=\"{{ inventory_hostname }}\"
+  uri: >
+        url=https://{{ foreman_fqdn }}/api/hosts?search=name=\"{{ hostvars[inventory_hostname].fqdn }}\"
         method=GET
         user=admin
         password=changeme
@@ -42,8 +41,8 @@
   register: host_json
 
 - name: Set the hostgroup
-  action: >
-        uri url=https://foreman.example.com/api/hosts/{{host_json.json[0].host.id}}
+  uri: >
+        url=https://{{ foreman_fqdn }}/api/hosts/{{host_json.json[0].host.id}}
         body='{"host": {"id": "{{ host_json.json[0].host.id }}", "hostgroup_id": "{{ hostgroup_json.json[0].hostgroup.id }}"}}'
         method=PUT
         user=admin
@@ -54,7 +53,7 @@
         HEADER_Accepts="application/json"
 
 - name: Apply {{ foreman_node_hostgroup }} via puppet
-  action: command /usr/bin/puppet agent --onetime --verbose --ignorecache --no-daemonize --no-usecacheonfailure --no-splay --show_diff
+  command: /usr/bin/puppet agent --onetime --verbose --ignorecache --no-daemonize --no-usecacheonfailure --no-splay --show_diff
 
 - name: Restart the puppet service
   service: name=puppet state=started

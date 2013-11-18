@@ -1,0 +1,5 @@
+#jinja2: trim_blocks: False
+DEVICE="{{ item.interface }}"
+IPADDR="{{ hostvars[inventory_hostname][item.ip_var] }}"
+HWADDR="{{ hostvars[inventory_hostname][item.ansible_var].macaddress }}"
+NETMASK="255.255.255.0"

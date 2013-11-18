@@ -1,0 +1,3 @@
+---
+controller_name: "{{ node_prefix }}controller"
+controller_fqdn: "{{ hostvars[controller_name].fqdn }}"

@@ -1,2 +1,13 @@
 ---
 ntp_server: ntp.example.com
+os_auth_url: 'http://openstack.example.com:5000/v2.0/'
+os_username: user
+os_password: password
+os_tenant_name: tenant_name
+node_prefix: myprefix_
+network_ids:
+  - net-id: 3721f603-3234-4c14-b8c7-e230f592eb15
+  - net-id: 56871378-b6b9-4c41-b2ad-a976d1515793
+  - net-id: 839eaacf-e834-4dd3-b7c5-04e90fcc5bfa
+image_id: dabd0a88-0903-458f-8c09-d71d3e864c75
+ssh_private_key: /path/to/openstack/private/key

@@ -1,0 +1,9 @@
+---
+- name: Nova compute test
+  hosts: local
+  gather_facts: False
+  roles:
+    - get_nodes
+
+- include: playbooks/set_facts.yml
+- include: playbooks/foreman/foreman-installer.yml
