@@ -11,7 +11,7 @@
 - include: ../../../checkvars.yml
 
 - name: Make /etc/hosts proper
-  lineinfile: "dest=/etc/hosts regexp='.*{{item}}$' line='{{ hostvars[item].ansible_eth1.ipv4.address }} {{ hostvars[item].fqdn }}' state=present"
+  lineinfile: "dest=/etc/hosts regexp='.*{{ hostvars[item].fqdn }}$' line='{{ hostvars[item].ansible_eth1.ipv4.address }} {{ hostvars[item].fqdn }}' state=present"
   with_items: groups.foreman
 
 - name: Deactivate iptables
