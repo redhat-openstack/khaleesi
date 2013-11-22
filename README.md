@@ -6,7 +6,7 @@ Installation:
 
 1. virtualenv ansible
 2. ansible/bin/activate
-3. pip install -e 'git+https://github.com/ansible/ansible.git@devel#egg=Ansible'
+3. pip install 'git+https://github.com/ansible/ansible.git@devel#egg=ansible'
 
 The current code requires the devel version (1.4) of ansible, as there is a bug in
 1.34 in with_together. Will update this when 1.4 is released (which I think is due
