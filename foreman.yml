@@ -6,4 +6,5 @@
     - get_nodes
 
 - include: playbooks/set_facts.yml
+- include: playbooks/wait_for_nodes.yml
 - include: playbooks/foreman/foreman-installer.yml
