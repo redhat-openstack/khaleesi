@@ -1,7 +1,8 @@
---- 
+---
   - name: install openstack
     command: /usr/bin/packstack --debug --answer-file={{ packstack_config }}
-
-  - include: ../../handlers/reboot.yml
-      vars:
-        reboot_delay: +1
+    notify:
+      - reboot
+      - Wait for host to stop
+      - Wait for host to come back
+      - Reload facts
