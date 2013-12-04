@@ -1,7 +1,0 @@
----
-- name: Create openstack controller via foreman
-  hosts: controller
-  user: root
-
-  roles:
-    - ../../../roles/foreman-openstack-controller

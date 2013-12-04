@@ -1,6 +1,0 @@
----
-- name: Foreman create keystonerc_admin on all nodes
-  hosts: foreman_installer
-  user: root
-  roles:
-    - ../../../roles/foreman-openstack-createrc

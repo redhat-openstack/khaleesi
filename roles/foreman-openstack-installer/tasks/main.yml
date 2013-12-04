@@ -1,8 +1,6 @@
 ---
 - name: Install openstack-foreman-installer rpm
-  yum: name=openstack-foreman-installer state=present
-
-- include: ../../../checkvars.yml
+  yum: name={{ openstack_foreman_installer_rpm }} state=present
 
 - name: Make /etc/hosts proper
   lineinfile: "dest=/etc/hosts regexp='.*{{hostvars[item].ansible_hostname}}$' line='{{ hostvars[item].ansible_eth1.ipv4.address }} {{ hostvars[item].fqdn }}' state=present"
@@ -33,10 +31,10 @@
     creates=/tmp/foreman_client.sh
     bash -x ./foreman_server.sh
   environment:
-    PRIVATE_CONTROLLER_IP: "{{ hostvars[controller_name].ansible_eth1.ipv4.address }}"
+    PRIVATE_CONTROLLER_IP: "{{ hostvars[controller_name].foreman_private_ip }}"
     PRIVATE_INTERFACE: "{{ private_interface }}"
     PRIVATE_NETMASK: "{{ private_netmask }}"
-    PUBLIC_CONTROLLER_IP: "{{ hostvars[controller_name].ansible_eth2.ipv4.address }}"
+    PUBLIC_CONTROLLER_IP: "{{ hostvars[controller_name].foreman_public_ip }}"
     PUBLIC_INTERFACE: "{{ public_interface }}"
     PUBLIC_NETMASK: "{{ public_netmask }}"
     FOREMAN_GATEWAY: "false"

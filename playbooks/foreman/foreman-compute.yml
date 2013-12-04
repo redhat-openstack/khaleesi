@@ -1,7 +1,0 @@
----
-- name: Create openstack compute via foreman
-  hosts: compute
-  user: root
-
-  roles:
-    - ../../../roles/foreman-openstack-compute

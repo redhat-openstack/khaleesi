@@ -20,7 +20,7 @@
   register: host_json_test
 
 - name: Register this host with foreman
-  shell: "/tmp/foreman_client.sh creates=/var/lib/puppet/ssl/certs/{{ inventory_hostname }}.pem"
+  shell: "/tmp/foreman_client.sh creates=/var/lib/puppet/ssl/certs/{{ hostvars[inventory_hostname].fqdn }}.pem"
   when: host_json_test.json[0] is not defined
 
 - name: Stop the puppet service

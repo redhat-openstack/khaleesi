@@ -1,5 +1,5 @@
 ---
-- name: Nova compute test
+- name: Get nodes from nova
   hosts: local
   gather_facts: False
   roles:
@@ -7,5 +7,17 @@
 
 - include: playbooks/set_facts.yml
 - include: playbooks/wait_for_nodes.yml
-- include: playbooks/foreman/foreman-installer.yml
-- include: playbooks/tempest/tempest.yml
+
+- name: Perform Foreman install
+  hosts: foreman_installer
+  user: root
+  roles:
+    - { role: common }
+    - { role: foreman-common }
+    - { role: foreman-network-setup }
+    - { role: foreman-openstack-installer, when: "'foreman' in group_names" }
+    - { role: foreman-openstack-controller, when: "'controller' in group_names" }
+    - { role: foreman-openstack-compute, when: "'compute' in group_names" }
+    - { role: foreman-openstack-networker, when: "'networker' in group_names" }
+    - { role: foreman-openstack-createrc }
+    - { role: tempest, when: "'controller' in group_names" }

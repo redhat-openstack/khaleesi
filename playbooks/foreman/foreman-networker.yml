@@ -1,7 +1,0 @@
----
-- name: Create openstack networker via foreman
-  hosts: networker
-  user: root
-
-  roles:
-    - ../../../roles/foreman-openstack-networker
