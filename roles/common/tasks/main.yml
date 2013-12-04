@@ -6,10 +6,10 @@
   command: rm -f /etc/yum.repos.d/*.repo
 
 - name: Create the RHEL Repositories
-  template: src=rhel.repo.j2 dest=/tmp/rhel.repo
+  template: src=rhel.repo.j2 dest=/etc/yum.repos.d/rhel.repo
 
 - name: Create the EPEL Repository
-  template: src=epel.repo.j2 dest=/tmp/epel.repo
+  template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
 
 - name: Yum clean all
   command: yum clean all
@@ -41,9 +41,3 @@
       - Wait for host to stop
       - Wait for host to come back
       - Reload facts
-
-- name: Remove the EPEL Repository.
-  command: rm -f /etc/yum.repos.d/epel.repo
-
-- name: Yum clean all
-  command: yum clean all
