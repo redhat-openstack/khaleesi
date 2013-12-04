@@ -1,0 +1,14 @@
+---
+- name: Ensure fedora-release
+  yum: name=fedora-release state=present
+
+- name: Remove all yum repositories
+  #file: path=/etc/yum.repos.d/*.repo state=absent
+  raw: rm -Rf /etc/yum.repos.d/*.repo
+
+- name: Create the Fedora Repositories
+  template: src=fedora.repo.j2 dest=/etc/yum.repos.d/fedora.repo
+
+#WORKAROUND
+- name: Ensure iptables-services
+  yum: name=iptables-services state=present

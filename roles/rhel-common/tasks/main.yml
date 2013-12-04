@@ -1,0 +1,15 @@
+---
+- name: Ensure redhat-release-server
+  yum: name=redhat-release-server state=present
+
+- name: Remove all yum repositories
+  file: path=/etc/yum.repos.d/*.repo state=absent
+
+- name: Create the RHEL Repositories
+  template: src=rhel.repo.j2 dest=/etc/yum.repos.d/rhel.repo
+
+- name: Create the EPEL Repository
+  template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
+
+- name: Yum clean all
+  command: yum clean all

@@ -1,0 +1,7 @@
+---
+epel_repo: download.fedoraproject.org/pub/epel/6/
+rhel_os_repo: download.eng.rdu2.redhat.com/sysrepos/rhel6-server-core-x86_64/RPMS.os/
+rhel_updates_repo: download.eng.rdu2.redhat.com/sysrepos/rhel6-server-core-x86_64/RPMS.updates/
+rhel_optional_repo: download.eng.rdu2.redhat.com/sysrepos/rhel6-server-core-x86_64/RPMS.optional/
+reboot_delay: +1
+gpg_check: 0

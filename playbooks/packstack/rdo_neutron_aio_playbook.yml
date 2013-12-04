@@ -1,9 +1,12 @@
 ---
-- hosts: undefined
+- name: packstack
+  hosts: test
   roles:
-    - ../../../roles/common
-    - ../../../roles/packstack-common
-    - ../../../roles/rdo
-    - ../../../roles/packstack-neutron-aio
-    - ../../../roles/packstack-installer
+    - { role: ../../../roles/rhel-common, when: ansible_distribution == 'RedHat' }
+    - { role: ../../../roles/fedora-common, when: ansible_distribution == 'Fedora' }
+    - { role: ../../../roles/common }
+    - { role: ../../../roles/packstack-common }
+    - { role: ../../../roles/rdo }
+    - { role: ../../../roles/packstack-neutron-aio }
+    - { role: ../../../roles/packstack-installer }
 
