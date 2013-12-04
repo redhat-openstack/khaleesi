@@ -12,6 +12,11 @@ Installation
 
 Now, copy group_vars/all.sample to group_vars/all. Set the variables for your environment. These can also be set on the command-line. See 
 http://www.ansibleworks.com/docs/playbooks_variables.html#passing-variables-on-the-command-line
+Host Key Checking:
+To disable host key checking:
+ - create a ~/.ansible.cfg with the following setting
+ [defaults]
+ host_key_checking = False
 
 To execute the foreman install with nodes from an existing OpenStack:
 
