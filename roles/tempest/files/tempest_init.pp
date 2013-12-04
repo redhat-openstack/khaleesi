@@ -1,0 +1,18 @@
+class { 'tempest':
+  tempest_repo_uri  => 'https://github.com/redhat-openstack/tempest.git',
+  tempest_repo_revision => 'master',
+  neutron_available     => true,
+  nova_available        => true,
+  cinder_available      => true,
+  glance_available      => true,
+  tenant_name           => 'demo',
+  username              => 'demo',
+  password              => 'redhat',
+  admin_username        => 'admin',
+  admin_password        => 'redhat',
+  configure_images      => true,
+  configure_networks    => true,
+  image_name            => 'cirros',
+  image_name_alt        => 'cirros',
+  public_network_name   => 'public',
+}

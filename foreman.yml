@@ -8,3 +8,4 @@
 - include: playbooks/set_facts.yml
 - include: playbooks/wait_for_nodes.yml
 - include: playbooks/foreman/foreman-installer.yml
+- include: playbooks/tempest/tempest.yml

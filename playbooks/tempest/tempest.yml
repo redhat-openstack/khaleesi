@@ -1,0 +1,7 @@
+---
+- name: Run tempest on controller
+  hosts: controller
+  user: root
+
+  roles:
+    - ../../../roles/tempest

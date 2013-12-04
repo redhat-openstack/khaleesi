@@ -1,0 +1,6 @@
+---
+openstack_foreman_installer_repo_rpm: http://repos.fedorapeople.org/repos/openstack/openstack-havana/rdo-release-havana-7.noarch.rpm
+rhscl_10_repo: download.devel.redhat.com/rel-eng/RHSCL/1.0/latest/
+rhscl_11_repo: download.devel.redhat.com/nightly/latest-RHSCL-1-RHEL-6/compose/Server/
+mrg_23_repo: download.devel.redhat.com/released/RHEL-6-MRG/2.3/
+rh_common_repo: ayanami.boston.devel.redhat.com/poodles/RH-Common/6.5/2013-11-15.14/RH-Common-6.5/
