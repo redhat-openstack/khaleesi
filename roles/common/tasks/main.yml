@@ -50,3 +50,5 @@
       - Wait for host to stop
       - Wait for host to come back
       - Reload facts
+
+- meta: flush_handlers

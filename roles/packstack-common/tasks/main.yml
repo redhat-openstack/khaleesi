@@ -1,6 +1,6 @@
 ---
   - name: Remove the EPEL Repository.
-    command: rm -f /etc/yum.repos.d/epel.repo
+    yum: name=epel-release state=removed
 
   - name: Yum clean all
     command: yum clean all
@@ -13,3 +13,6 @@
 
   - name: ensure authorized_keys file has correct permissions
     file: path=/root/.ssh/authorized_keys owner=root group=root mode=0600
+
+  - name: ensure iptables is running 
+    service: name=iptables state=started
