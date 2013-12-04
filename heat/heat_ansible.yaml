@@ -1,0 +1,120 @@
+HeatTemplateFormatVersion: '2012-12-12'
+Description: 'Heat ansible template'
+Parameters:
+  nova_ini:
+    Description: nova.ini file required for inventory
+    Type: String
+  rdo_baseurl:
+    Description: baseurl to install rdo openstack
+    Type: String
+  InstanceType:
+    Description: WebServer EC2 instance type
+    Type: String
+    Default: m1.small
+    AllowedValues: [m1.tiny, m1.small, m1.medium]
+    ConstraintDescription: must be a valid EC2 instance type.
+Mappings:
+  InstanceTypeToImage:
+    m1.tiny: {Image: 'rhel64-custom'}
+    m1.small: {Image: 'rhel64-custom'}
+    m1.medium: {Image: 'rhel64-custom'}
+Resources:
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: 'Enable HTTP access via port 80 plus SSH access'
+      SecurityGroupIngress:
+      - IpProtocol: icmp
+        FromPort: '-1'
+        ToPort: '-1'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '1'
+        ToPort: '65535'
+        CidrIp: 0.0.0.0/0
+  server0:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+        config:
+          group: test_servers
+    Properties:
+      ImageId:
+        Fn::FindInMap:
+        - InstanceTypeToImage
+        - {Ref: InstanceType}
+        - Image
+      InstanceType: m1.small
+      SecurityGroups: [{"Ref" : "WebServerSecurityGroup"}]
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+          - ''
+          - - '#!/bin/bash -v'
+            - '
+
+              '
+            - touch /root/test_start
+            - '
+
+              ' 
+            - export NOVA_INI=
+            - {Ref: nova_ini}
+            - '
+
+              '
+            - export RDO_BASEURL=
+            - {Ref: rdo_baseurl}
+            - '
+
+              '
+            - export ANSIBLE_HOST_KEY_CHECKING=false
+            - '
+
+              '
+            - wget $NOVA_INI -O ~/nova.ini
+            - '
+
+              '
+            - yum -y install git gcc python-devel
+            - '
+
+              '
+            - git clone https://github.com/weshayutin/khaleesi.git /root/khaleesi
+            - '
+
+              '
+            - easy_install virtualenv; mkdir /root/ansible_env; virtualenv /root/ansible_env 
+            - '
+
+              '
+            - source /root/ansible_env/bin/activate; pip install ansible python-novaclient
+            - '
+
+              '
+            - ansible-playbook /root/khaleesi/playbooks/packstack/rdo_neutron_aio_playbook.yml -i /root/khaleesi/nova.py --extra-vars "baseurl=$RDO_BASEURL" -u root
+            - '
+
+              '
+
+  server1:
+    Type: AWS::EC2::Instance
+    Metadata:
+      AWS::CloudFormation::Init:
+    Properties:
+      ImageId:
+        Fn::FindInMap:
+        - InstanceTypeToImage
+        - {Ref: InstanceType}
+        - Image
+      InstanceType: {Ref: InstanceType}
+      SecurityGroups: [{"Ref" : "WebServerSecurityGroup"}]
+
+Outputs:
+  server0_ip:
+    Value:
+      Fn::Join:
+      - ''
+      - - ''
+        - Fn::GetAtt: [server0, PrivateIp]
+    Description: private_ip

@@ -134,6 +134,7 @@ import re
 import os
 import ConfigParser
 from novaclient import client as nova_client
+import socket, struct, fcntl
 
 try:
     import json
@@ -160,6 +161,18 @@ def nova_load_config_file():
         return None
     return p
 
+def get_local_ip(iface = 'eth0'):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sockfd = sock.fileno()
+    SIOCGIFADDR = 0x8915
+    ifreq = struct.pack('16sH14s', iface, socket.AF_INET, '\x00'*14)
+    try:
+        res = fcntl.ioctl(sockfd, SIOCGIFADDR, ifreq)
+    except:
+        return None
+    ip = struct.unpack('16sH2x4s8x', res)[2]
+    return socket.inet_ntoa(ip)
+
 config = nova_load_config_file()
 
 client = nova_client.Client(
@@ -175,9 +188,13 @@ if len(sys.argv) == 2 and (sys.argv[1] == '--list'):
     groups = {}
 
     # Cycle on servers
+    #print("local ip: " + str(get_local_ip()))
     for f in client.servers.list():
-	private = [ x['addr'] for x in getattr(f, 'addresses').itervalues().next() if x['OS-EXT-IPS:type'] == 'fixed']
+	private = [ x['addr'] for x in getattr(f, 'addresses').itervalues().next()
+            if x['OS-EXT-IPS:type'] == 'fixed'
+            if x['addr'] != str(get_local_ip())]
 	public  = [ x['addr'] for x in getattr(f, 'addresses').itervalues().next() if x['OS-EXT-IPS:type'] == 'floating']
+    
 
 	# Define group (or set to empty string)
         group = f.metadata['group'] if f.metadata.has_key('group') else 'undefined'

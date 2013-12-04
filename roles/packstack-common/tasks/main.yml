@@ -7,7 +7,3 @@
 
   - name: ensure authorized_keys file has correct permissions
     file: path=/root/.ssh/authorized_keys owner=root group=root mode=0600
-
-  - name: Ensure optional repo
-    ini_file: dest=/etc/yum.repos.d/redhat.repo section=rhel-6-server-optional-rpms option=enabled value=1
-    when: ansible_distribution == "RedHat"
