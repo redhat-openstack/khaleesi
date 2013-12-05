@@ -1,0 +1,4 @@
+---
+- include: ../../../../handlers/reboot.yml
+  vars:
+      reboot_delay: +1

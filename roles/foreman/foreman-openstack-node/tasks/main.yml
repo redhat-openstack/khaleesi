@@ -1,13 +1,13 @@
 ---
-- name: Make /etc/hosts proper
-  lineinfile: "dest=/etc/hosts regexp='.*{{hostvars[item].ansible_hostname}}$' line='{{ hostvars[item].ansible_eth1.ipv4.address }} {{ hostvars[item].ansible_fqdn }} {{ hostvars[item].ansible_hostname }}' state=present"
+- name: Make /etc/hosts proper - {{ foreman_node_hostgroup }}
+  lineinfile: "dest=/etc/hosts regexp='.*{{hostvars[item].ansible_hostname}}$' line='{{ hostvars[item].foreman_private_ip }} {{ hostvars[item].ansible_fqdn }} {{ hostvars[item].ansible_hostname }}' state=present"
   with_items: groups.foreman_installer
 
 # Using copy then shell instead of script directly, since script does not support create
 - name: Copy the client script
   copy: src=/tmp/foreman/foreman_client.sh dest=/tmp/foreman_client.sh mode=0755
 
-- name: Get the host from foreman
+- name: Get the host from foreman - {{ foreman_node_hostgroup }}
   uri: >
         url=https://{{ foreman_fqdn }}/api/hosts?search=name=\"{{ hostvars[inventory_hostname].fqdn }}\"
         method=GET
@@ -19,19 +19,19 @@
         HEADER_Accepts="application/json"
   register: host_json_test
 
-- name: Register this host with foreman
+- name: Register this host with foreman - {{ foreman_node_hostgroup }}
   shell: "/tmp/foreman_client.sh creates=/var/lib/puppet/ssl/certs/{{ hostvars[inventory_hostname].fqdn }}.pem"
   when: host_json_test.json[0] is not defined
 
-- name: Stop the puppet service
+- name: Stop the puppet service - {{ foreman_node_hostgroup }}
   service: name=puppet state=stopped
 
-- name: Pause because puppet does not exit as quickly as it should
+- name: Pause because puppet does not exit as quickly as it should - {{ foreman_node_hostgroup }}
   pause: seconds=10
 
-- name: Get {{ foreman_node_hostgroup }} hostgroup
+- name: Get hostgroup - {{ foreman_node_hostgroup }}
   uri: >
-        url=https://{{ foreman_fqdn }}/api/hostgroups?search=name=\"{{ foreman_node_hostgroup_param }}\"
+        url=https://{{ foreman_fqdn }}/api/hostgroups?search=name=\"{{ foreman_node_hostgroup|replace(' ', '+') }}\"
         method=GET
         user=admin
         password=changeme
@@ -41,7 +41,7 @@
         HEADER_Accepts="application/json"
   register: hostgroup_json
 
-- name: Get the host back from foreman
+- name: Get the host back from foreman - {{ foreman_node_hostgroup }}
   uri: >
         url=https://{{ foreman_fqdn }}/api/hosts?search=name=\"{{ hostvars[inventory_hostname].fqdn }}\"
         method=GET
@@ -53,7 +53,7 @@
         HEADER_Accepts="application/json"
   register: host_json
 
-- name: Set the hostgroup
+- name: Set the hostgroup - {{ foreman_node_hostgroup }}
   uri: >
         url=https://{{ foreman_fqdn }}/api/hosts/{{host_json.json[0].host.id}}
         body='{"host": {"id": "{{ host_json.json[0].host.id }}", "hostgroup_id": "{{ hostgroup_json.json[0].hostgroup.id }}"}}'
@@ -65,8 +65,8 @@
         HEADER_Content-Type="application/json"
         HEADER_Accepts="application/json"
 
-- name: Apply {{ foreman_node_hostgroup }} via puppet
+- name: Apply hostgroup via puppet - {{ foreman_node_hostgroup }}
   command: /usr/bin/puppet agent --onetime --verbose --ignorecache --no-daemonize --no-usecacheonfailure --no-splay --show_diff
 
-- name: Restart the puppet service
+- name: Restart the puppet service - {{ foreman_node_hostgroup }}
   service: name=puppet state=started

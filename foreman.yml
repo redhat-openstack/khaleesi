@@ -13,11 +13,22 @@
   user: root
   roles:
     - { role: common }
-    - { role: foreman-common }
-    - { role: foreman-network-setup }
-    - { role: foreman-openstack-installer, when: "'foreman' in group_names" }
-    - { role: foreman-openstack-controller, when: "'controller' in group_names" }
-    - { role: foreman-openstack-compute, when: "'compute' in group_names" }
-    - { role: foreman-openstack-networker, when: "'networker' in group_names" }
-    - { role: foreman-openstack-createrc }
-    - { role: tempest, when: "'controller' in group_names" }
+    - { role: foreman/foreman-common }
+    - { role: foreman/foreman-network-setup }
+    - { role: foreman/foreman-openstack-installer, when: "'foreman' in group_names" }
+    - { role: foreman/foreman-openstack-node,
+        foreman_node_hostgroup: OpenStack Neutron Controller,
+        when: "'controller' in group_names" }
+    - { role: foreman/foreman-openstack-node,
+        foreman_node_hostgroup: OpenStack Neutron Compute,
+        when: "'compute' in group_names" }
+    - { role: foreman/foreman-openstack-node,
+        foreman_node_hostgroup: OpenStack Neutron Networker,
+        when: "'networker' in group_names" }
+    - { role: foreman/foreman-openstack-createrc }
+
+- name: Run tempest
+  hosts: controller
+  user: root
+  roles:
+    - { role: tempest }
