@@ -1,6 +1,10 @@
 Prereqs
 -------
 
+The guest, instance or machine that ansible is making calls to must have the following rpms initially available.
+- libselinux-python.$arch.rpm
+- ntp.$arch.rpm 
+
 Virtualenv
 
 Installation

@@ -1,4 +1,6 @@
 ---
+#RHEL
+
 - name: Ensure redhat-release-server
   yum: name=redhat-release-server state=present
 
@@ -13,3 +15,13 @@
 
 - name: Yum clean all
   command: yum clean all
+
+- name: Ensure httplib2
+  yum: name=python-httplib2 state=present
+
+#WORKAROUND
+- name: Ensure /etc/sysconfig/iptables-services
+  copy: src=iptables dest=/etc/sysconfig/iptables owner=root group=root mode=0600 force=no
+
+- name: Ensure iptables
+  yum: name=iptables state=present

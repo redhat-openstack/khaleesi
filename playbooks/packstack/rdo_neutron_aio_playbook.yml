@@ -3,9 +3,10 @@
   hosts: test
   user: root
   roles:
+    #- { role: ../../../playpen/roles/cleanup }
+    - { role: ../../../roles/common }
     - { role: ../../../roles/linux/rhel-common, when: ansible_distribution == 'RedHat' }
     - { role: ../../../roles/linux/fedora-common, when: ansible_distribution == 'Fedora' }
-    - { role: ../../../roles/common }
     - { role: ../../../roles/packstack/packstack-common }
     - { role: ../../../roles/packstack/rdo }
     - { role: ../../../roles/packstack/packstack-neutron-aio }

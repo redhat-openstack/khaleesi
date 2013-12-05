@@ -1,4 +1,6 @@
 ---
+#FEDORA
+
 - name: Ensure fedora-release
   yum: name=fedora-release state=present
 
@@ -8,6 +10,9 @@
 
 - name: Create the Fedora Repositories
   template: src=fedora.repo.j2 dest=/etc/yum.repos.d/fedora.repo
+
+- name: Ensure httplib2
+  yum: name=python-httplib2 state=present
 
 #WORKAROUND
 - name: Ensure iptables-services
