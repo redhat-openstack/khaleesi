@@ -11,3 +11,5 @@
     - { role: ../../../roles/packstack/rdo }
     - { role: ../../../roles/packstack/packstack-nova-aio }
     - { role: ../../../roles/packstack/packstack-installer }
+    - { role: ../../../roles/tempest }
+
