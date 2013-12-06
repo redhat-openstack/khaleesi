@@ -1,0 +1,10 @@
+---
+- name: hello_world
+  hosts: local
+  gather_facts: False
+  user: root
+  roles:
+    #- { role: roles/cleanup }
+    #- { role: roles/common }
+    - { role: get_nodes }
+

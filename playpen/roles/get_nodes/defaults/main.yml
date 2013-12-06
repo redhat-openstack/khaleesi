@@ -1,0 +1,10 @@
+---
+floating_network_name: public
+nodes:
+    - name: "{{ node_prefix }}test"
+      image_id: "{{ image_id }}"
+      key_name: whayutin_oslab
+      flavor_id: 2
+      network_ids: "{{ network_ids }}"
+      hostname: test.example.com
+      groups: "test"
