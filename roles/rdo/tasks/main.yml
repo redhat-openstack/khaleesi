@@ -5,6 +5,9 @@
   - name: set baseurl for rdo environment
     lineinfile: dest=/etc/yum.repos.d/rdo-release.repo regexp=^baseurl= line=baseurl={{ baseurl }}
 
+  - name: Yum clean all
+    command: yum clean all    
+
   - name: yum install openstack-packstack
     yum: name=openstack-packstack state=latest
 
