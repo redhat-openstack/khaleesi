@@ -14,18 +14,18 @@ nodes:
       flavor_id: 2
       network_ids: "{{ network_ids }}"
       hostname: controller.example.com
-      groups: "controller,foreman_installer"
+      groups: "controller,foreman_installer,foreman_node"
     - name: "{{ node_prefix }}compute"
       image_id: "{{ image_id }}"
       key_name: foreman-ci
       flavor_id: 2
       network_ids: "{{ network_ids }}"
       hostname: compute.example.com
-      groups: "compute,foreman_installer"
+      groups: "compute,foreman_installer,foreman_node"
     - name: "{{ node_prefix }}networker"
       image_id: "{{ image_id }}"
       key_name: foreman-ci
       flavor_id: 2
       network_ids: "{{ network_ids }}"
       hostname: networker.example.com
-      groups: "networker,foreman_installer"
+      groups: "networker,foreman_installer,foreman_node"

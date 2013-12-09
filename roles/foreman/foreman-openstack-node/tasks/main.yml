@@ -1,12 +1,4 @@
 ---
-- name: Make /etc/hosts proper - {{ foreman_node_hostgroup }}
-  lineinfile: "dest=/etc/hosts regexp='.*{{hostvars[item].ansible_hostname}}$' line='{{ hostvars[item].foreman_private_ip }} {{ hostvars[item].ansible_fqdn }} {{ hostvars[item].ansible_hostname }}' state=present"
-  with_items: groups.foreman_installer
-
-# Using copy then shell instead of script directly, since script does not support create
-- name: Copy the client script
-  copy: src=/tmp/foreman/foreman_client.sh dest=/tmp/foreman_client.sh mode=0755
-
 - name: Get the host from foreman - {{ foreman_node_hostgroup }}
   uri: >
         url=https://{{ foreman_fqdn }}/api/hosts?search=name=\"{{ hostvars[inventory_hostname].fqdn }}\"

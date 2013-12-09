@@ -8,14 +8,25 @@
 - include: playbooks/set_facts.yml
 - include: playbooks/wait_for_nodes.yml
 
-- name: Perform Foreman install
+- name: Prepare for Foreman install
   hosts: foreman_installer
   user: root
   roles:
     - { role: common }
     - { role: foreman/foreman-common }
     - { role: foreman/foreman-network-setup }
-    - { role: foreman/foreman-openstack-installer, when: "'foreman' in group_names" }
+
+- name: Install Foreman
+  hosts: foreman
+  user: root
+  roles:
+    - { role: foreman/foreman-openstack-installer }
+
+- name: Install OpenStack nodes
+  hosts: foreman_node
+  user: root
+  roles:
+    - { role: foreman/foreman-openstack-node-common }
     - { role: foreman/foreman-openstack-node,
         foreman_node_hostgroup: OpenStack Neutron Controller,
         when: "'controller' in group_names" }
