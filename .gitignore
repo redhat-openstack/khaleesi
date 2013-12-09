@@ -1,6 +1,7 @@
 hosts
 group_vars/all
 nova.ini
+nosetests.xml
 
 # Sublime projects
 *.sublime-*
