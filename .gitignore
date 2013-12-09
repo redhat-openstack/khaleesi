@@ -1,2 +1,6 @@
 hosts
 group_vars/all
+nova.ini
+
+# Sublime projects
+*.sublime-*
