@@ -19,6 +19,14 @@
   with_items: '/usr/share/openstack-foreman-installer/bin/seeds.rb'
   when: random_passwords.rc == 0
 
+- name: Enable neutron
+  lineinfile: >
+    dest=/usr/share/openstack-foreman-installer/bin/seeds.rb
+    regexp='^(.*"neutron"[ ]*=> )"false",'
+    line='\1"true",'
+    backrefs=yes
+    state=present
+
 - name: Remove the prompt in foreman_server.sh
   lineinfile: >
     dest=/usr/share/openstack-foreman-installer/bin/foreman_server.sh

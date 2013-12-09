@@ -3,7 +3,7 @@
   hosts: local
   gather_facts: False
   roles:
-    - get_nodes
+    - { role: get_nodes }
 
 - include: playbooks/set_facts.yml
 - include: playbooks/wait_for_nodes.yml
@@ -28,14 +28,32 @@
   roles:
     - { role: foreman/foreman-openstack-node-common }
     - { role: foreman/foreman-openstack-node,
-        foreman_node_hostgroup: OpenStack Neutron Controller,
+        foreman_node_hostgroup: Controller (Neutron),
         when: "'controller' in group_names" }
     - { role: foreman/foreman-openstack-node,
-        foreman_node_hostgroup: OpenStack Neutron Compute,
+        foreman_node_hostgroup: Controller (Nova Network),
+        when: "'controller_nova' in group_names" }
+    - { role: foreman/foreman-openstack-node,
+        foreman_node_hostgroup: Compute (Neutron),
         when: "'compute' in group_names" }
     - { role: foreman/foreman-openstack-node,
-        foreman_node_hostgroup: OpenStack Neutron Networker,
+        foreman_node_hostgroup: Compute (Nova Network),
+        when: "'compute_nova' in group_names" }
+    - { role: foreman/foreman-openstack-node,
+        foreman_node_hostgroup: Neutron Networker,
         when: "'networker' in group_names" }
+    - { role: foreman/foreman-openstack-node,
+        foreman_node_hostgroup: Gluster Storage,
+        when: "'gluster_storage' in group_names" }
+    - { role: foreman/foreman-openstack-node,
+        foreman_node_hostgroup: LVM Block Storage,
+        when: "'lvm_storage' in group_names" }
+    - { role: foreman/foreman-openstack-node,
+        foreman_node_hostgroup: Load Balancer,
+        when: "'load_balancer' in group_names" }
+    - { role: foreman/foreman-openstack-node,
+        foreman_node_hostgroup: HA Mysql Node,
+        when: "'ha_mysql' in group_names" }
     - { role: foreman/foreman-openstack-createrc }
 
 - name: Run tempest
