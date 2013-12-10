@@ -3,29 +3,29 @@ floating_network_name: public
 nodes:
     - name: "{{ node_prefix }}foreman"
       image_id: "{{ image_id }}"
-      key_name: foreman-ci
-      flavor_id: 2
+      key_name: "{{ ssh_key_name }}"
+      flavor_id: "{{ flavor_id }}"
       network_ids: "{{ network_ids }}"
       hostname: foreman.example.com
       groups: "foreman,foreman_installer"
     - name: "{{ node_prefix }}controller"
       image_id: "{{ image_id }}"
-      key_name: foreman-ci
-      flavor_id: 2
+      key_name: "{{ ssh_key_name }}"
+      flavor_id: "{{ flavor_id }}"
       network_ids: "{{ network_ids }}"
       hostname: controller.example.com
       groups: "controller,foreman_installer,foreman_node"
     - name: "{{ node_prefix }}compute"
       image_id: "{{ image_id }}"
-      key_name: foreman-ci
-      flavor_id: 2
+      key_name: "{{ ssh_key_name }}"
+      flavor_id: "{{ flavor_id }}"
       network_ids: "{{ network_ids }}"
       hostname: compute.example.com
       groups: "compute,foreman_installer,foreman_node"
     - name: "{{ node_prefix }}networker"
       image_id: "{{ image_id }}"
-      key_name: foreman-ci
-      flavor_id: 2
+      key_name: "{{ ssh_key_name }}"
+      flavor_id: "{{ flavor_id }}"
       network_ids: "{{ network_ids }}"
       hostname: networker.example.com
       groups: "networker,foreman_installer,foreman_node"
