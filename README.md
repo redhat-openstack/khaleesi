@@ -22,7 +22,6 @@ Running with existing nodes
 
 If you'd like to use an existing set of nodes, you can put together an inventory file:
 
-    ```ini
     [foreman_installer:children]
     foreman
     controller
@@ -42,7 +41,7 @@ If you'd like to use an existing set of nodes, you can put together an inventory
 
     [networker]
     ...
-    ```
+
 
 Fill out the other groups similarly. The extra variables should be set on all the hosts
 
