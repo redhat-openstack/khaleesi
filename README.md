@@ -22,7 +22,7 @@ Create a $HOME/.ansible.cfg with the following:
     [defaults]
     host_key_checking = False
     roles_path = /path/to/khaleesi/roles
-    library = /path/to/khaleesi/library
+    library = /path/to/khaleesi/library:/path/to/virtualenv/share/ansible
 
 The roles_path allows us to keep the root of khaleesi "clean", and put playbooks in a subdirectory without needing to use relative paths for the roles.
 
