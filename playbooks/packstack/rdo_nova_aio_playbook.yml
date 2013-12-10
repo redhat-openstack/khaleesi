@@ -1,8 +1,15 @@
 ---
-- hosts: test_servers
-  roles: 
-    - ../../../roles/common
-    - ../../../roles/packstack-common
-    - ../../../roles/rdo
-    - ../../../roles/packstack-nova-aio
-    - ../../../roles/packstack-installer
+- name: packstack
+  hosts: test
+  user: root
+  roles:
+    #- { role: ../../../playpen/roles/cleanup }
+    - { role: ../../../roles/common }
+    - { role: ../../../roles/linux/rhel-common, when: ansible_distribution == 'RedHat' }
+    - { role: ../../../roles/linux/fedora-common, when: ansible_distribution == 'Fedora' }
+    - { role: ../../../roles/packstack/packstack-common }
+    - { role: ../../../roles/packstack/rdo }
+    - { role: ../../../roles/packstack/packstack-nova-aio }
+    - { role: ../../../roles/packstack/packstack-installer }
+    - { role: ../../../roles/tempest }
+

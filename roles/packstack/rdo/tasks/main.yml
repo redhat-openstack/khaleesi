@@ -1,4 +1,7 @@
 ---
+  - name: yum remove old rdo-release
+    yum: name=rdo-release* state=absent
+
   - name: yum install rdo-release
     yum: name=http://repos.fedorapeople.org/repos/openstack/openstack-havana/rdo-release-havana-7.noarch.rpm state=present
 
