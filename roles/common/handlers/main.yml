@@ -2,6 +2,15 @@
 - name: restart ntpd
   service: name=ntpd state=restarted
 
-- include: ../../../handlers/reboot.yml
-  vars:
-      reboot_delay: +1
+- name: reboot
+  command: "/sbin/shutdown -r {{ reboot_delay }} 'Reboot is triggered by Ansible'"
+
+- name: Wait for host to stop
+  local_action: "wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }} port=22 state=stopped"
+
+- name: Wait for host to come back
+  local_action: "wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }} port=22 delay=90 timeout=600"
+
+- name: Reload facts
+  action: setup
+
