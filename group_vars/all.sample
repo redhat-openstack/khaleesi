@@ -11,4 +11,5 @@ network_ids:
   - net-id: 839eaacf-e834-4dd3-b7c5-04e90fcc5bfa
 image_id: dabd0a88-0903-458f-8c09-d71d3e864c75
 ssh_private_key: /path/to/openstack/private/key
+ssh_key_name: key_name
 foreman_fqdn: foreman.example.com
