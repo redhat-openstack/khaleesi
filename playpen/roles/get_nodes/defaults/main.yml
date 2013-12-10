@@ -4,7 +4,7 @@ nodes:
     - name: "{{ node_prefix }}test"
       image_id: "{{ image_id }}"
       key_name: "{{ ssh_key_name }}"
-      flavor_id: 2
+      flavor_id: 3
       network_ids: "{{ network_ids }}"
       hostname: test.example.com
-      groups: "test"
+      groups: "playpen"

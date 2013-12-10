@@ -38,3 +38,7 @@
   pause: seconds=120
   when: new_nodes|changed
 
+- name: Ping public IP to work around bug
+  command: "ping -c 3 {{ hostvars[item].public_ip }}"
+  ignore_errors: True
+  with_items: groups.playpen
