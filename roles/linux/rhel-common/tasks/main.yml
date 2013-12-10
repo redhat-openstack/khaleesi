@@ -25,3 +25,14 @@
 
 - name: Ensure iptables
   yum: name=iptables state=present
+
+- name: yum -y update to latest packages
+  yum: name=* state=latest
+  notify:
+      - reboot
+      - Wait for host to stop
+      - Wait for host to come back
+      - Reload facts
+
+- meta: flush_handlers
+
