@@ -1,0 +1,8 @@
+---
+- name: hello_world
+  hosts: local
+  gather_facts: False
+  user: root
+  roles:
+    - { role: get_nodes }
+
