@@ -5,8 +5,13 @@
   roles:
     - { role: get_nodes }
 
-- include: playbooks/set_facts.yml
-- include: playbooks/wait_for_nodes.yml
+- name: Set facts for hosts
+  hosts: foreman_installer
+  gather_facts: False
+  user: root
+  roles:
+    - { role: set_facts }
+    - { role: wait_for_hosts }
 
 - name: Prepare for Foreman install
   hosts: foreman_installer

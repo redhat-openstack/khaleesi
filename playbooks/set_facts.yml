@@ -1,9 +1,0 @@
-- name: Create foreman openstack environment
-  hosts: foreman_installer
-  gather_facts: False
-  user: root
-
-  tasks:
-    - name: Set facts
-      set_fact: "public_ip={{ hostvars[inventory_hostname].public_ip }} private_ip={{ hostvars[inventory_hostname].private_ip }} foreman_private_ip={{ hostvars[inventory_hostname].foreman_private_ip }} foreman_public_ip={{ hostvars[inventory_hostname].foreman_public_ip }} fqdn={{ hostvars[inventory_hostname].priv_hostname }}"
-

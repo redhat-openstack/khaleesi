@@ -1,6 +1,0 @@
----
-- hosts: all
-  user: root
-
-- include: playbooks/foreman/foreman-installer.yml
-
