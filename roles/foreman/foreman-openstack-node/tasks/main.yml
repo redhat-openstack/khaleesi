@@ -19,7 +19,7 @@
   service: name=puppet state=stopped
 
 - name: Pause because puppet does not exit as quickly as it should - {{ foreman_node_hostgroup }}
-  pause: seconds=10
+  pause: seconds=30
 
 - name: Get hostgroup - {{ foreman_node_hostgroup }}
   uri: >
