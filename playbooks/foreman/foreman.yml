@@ -18,8 +18,7 @@
   user: root
   roles:
     - { role: common }
-    - { role: linux/rhel-common, when: ansible_distribution == 'RedHat' }
-    - { role: linux/fedora-common, when: ansible_distribution == 'Fedora' }
+    - { role: linux-common }
     - { role: foreman/foreman-common }
     - { role: foreman/foreman-network-setup }
 
