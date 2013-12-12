@@ -1,0 +1,14 @@
+---
+- name: Copy tempest_init
+  template: src=tempest_init.pp.j2 dest={{ tempest['puppet_file'] }}
+
+- name: Run puppet to checkout tempest and generate tempest.conf
+  script: run_puppet.sh
+      {{ tempest['puppet_file'] }}
+      {{ tempest['checkout_dir'] }}
+
+- name: Cache pip downloads
+  copy: src=pip.conf dest=/root/.pip/
+
+- name: Install venv to execute test-tool
+  script: install_venv.sh {{ tempest['checkout_dir'] }}
