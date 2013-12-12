@@ -1,9 +1,9 @@
 ---
-- name: Copy tempest_init
+- name: Generate tempest_init puppet script
   template: src=tempest_init.pp.j2 dest={{ tempest['puppet_file'] }}
 
 - name: Run puppet to checkout tempest and generate tempest.conf
-  script: run_puppet.sh
+  script: setup_tempest.sh
       {{ tempest['puppet_file'] }}
       {{ tempest['checkout_dir'] }}
 
