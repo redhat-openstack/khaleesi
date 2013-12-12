@@ -33,7 +33,8 @@ tempest.nose_test() {
 
     nosetests --verbose --attr=type=smoke  --with-xunit \
         ${nose_exclude_files[@]} ${nose_exclude_tests[@]} \
-        tempest
+        tempest || true
+    return 0
 }
 
 tempest.testr() {
@@ -43,6 +44,7 @@ tempest.testr() {
         tee >( subunit2junitxml --output-to=nosetests.xml ) |
         subunit-2to1 | tee run.log |
         tools/colorizer.py
+    return 0
 }
 
 tempest.run_smoketest() {
