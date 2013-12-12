@@ -1,0 +1,40 @@
+---
+- name: Get cirros image
+  get_url: "url=https://launchpad.net/cirros/trunk/0.3.0/+download/cirros-0.3.0-x86_64-disk.img dest=/tmp/cirros-0.3.0-x86_64-disk.img"
+
+- name: Setup of demo tenant
+  keystone_user: tenant=demo tenant_description="Demo Tenant" login_user=admin login_password=redhat login_tenant_name=admin state=present
+
+- name: Setup of demo user
+  keystone_user: user=demo tenant=demo password=redhat login_user=admin login_password=redhat login_tenant_name=admin state=present
+
+- name: Apply demo role to demo user
+  keystone_user: user=demo role=demo tenant=demo login_user=admin login_password=redhat login_tenant_name=admin state=present
+
+- name: Setup of public network
+  neutron_network: name=public router_external=yes login_username=admin login_password=redhat login_tenant_name=admin state=present
+  register: result
+- name: Setup of public subnet
+  neutron_subnet: "name=public_subnet network_name=public cidr=192.168.201.0/24 enable_dhcp=false login_username=admin login_password=redhat login_tenant_name=admin state=present"
+
+- name: Setup of private network
+  neutron_network: name=private tenant_name=demo login_username=admin login_password=redhat login_tenant_name=admin state=present
+
+- name: Setup of private subnet
+  neutron_subnet: "name=private_subnet network_name=private cidr=192.168.200.0/24 enable_dhcp=false tenant_name=demo login_username=admin login_password=redhat login_tenant_name=admin state=present"
+
+- name: Create router
+  neutron_router: name=router1 tenant_name=demo login_username=admin login_password=redhat login_tenant_name=admin state=present
+
+- name: Add interface to router
+  neutron_router_interface: router_name=router1 subnet_name=private_subnet tenant_name=demo login_username=admin login_password=redhat login_tenant_name=admin state=present
+
+- name: Set gateway
+  neutron_router_gateway: router_name=router1 network_name=public login_username=admin login_password=redhat login_tenant_name=admin state=present
+
+- name: Set security group rules
+  script: setup_security_group_rules.sh
+
+- name: Upload image to OpenStack
+  glance_image: name=cirros container_format=bare disk_format=qcow2 file=/tmp/cirros-0.3.0-x86_64-disk.img is_public=yes login_username=demo login_password=redhat login_tenant_name=demo state=present
+
