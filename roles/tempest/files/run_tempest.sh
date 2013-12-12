@@ -2,7 +2,7 @@
 set -e -u
 
 usage() {
-    echo "$(basename $0) tempest_dir --exclude-file file1 file2... --exclude-tests test1..."
+    echo "$(basename $0) tempest_dir --exclude-file [file1, file2, ...] --exclude-tests test1..."
 }
 
 
