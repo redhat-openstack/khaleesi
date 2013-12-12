@@ -1,0 +1,13 @@
+---
+- name: packstack
+  hosts: test
+  user: root
+  roles:
+    - { role: common }
+    - { role: linux-common }
+    - { role: packstack/packstack-common }
+    - { role: packstack/rdo }
+    - { role: packstack/packstack-neutron-aio }
+    - { role: packstack/packstack-installer }
+    - { role: tempest }
+

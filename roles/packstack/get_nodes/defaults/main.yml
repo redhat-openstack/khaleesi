@@ -1,0 +1,10 @@
+---
+floating_network_name: public
+nodes:
+    - name: "{{ node_prefix }}"
+      image_id: "{{ image_id }}"
+      key_name: "{{ ssh_key_name }}"
+      flavor_id: 3
+      network_ids: "{{ network_ids }}"
+      hostname: test.example.com
+      groups: "packstack"
