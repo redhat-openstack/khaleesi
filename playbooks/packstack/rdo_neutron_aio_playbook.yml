@@ -3,14 +3,14 @@
   hosts: local
   gather_facts: False
   roles:
-    - { role: packstack/get_nodes }
+    - { role: get_nodes }
 
 - name: Set facts for hosts
   hosts: packstack
   gather_facts: False
   user: root
   roles:
-    - { role: packstack/set_facts }
+    - { role: set_facts }
     - { role: wait_for_hosts }
 
 - name: packstack

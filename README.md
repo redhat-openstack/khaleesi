@@ -22,7 +22,7 @@ Create a $HOME/.ansible.cfg with the following:
     [defaults]
     host_key_checking = False
     roles_path = /path/to/khaleesi/roles
-    library = /path/to/khaleesi/library:/path/to/virtualenv/share/ansible
+    library = /path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible
 
 The roles_path allows us to keep the root of khaleesi "clean", and put playbooks in a subdirectory without needing to use relative paths for the roles.
 
@@ -30,11 +30,16 @@ These can also be specified with environment variables, to make this easier to c
 
     ANSIBLE_HOST_KEY_CHECKING=False
     ANSIBLE_ROLES_PATH=/path/to/khaleesi/roles
-    ANSIBLE_LIBRARY=/path/to/khaleesi/library
+    ANSIBLE_LIBRARY=/path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible
 
 To execute the foreman install with nodes from an existing OpenStack:
 
     ansible-playbook -i local_hosts foreman.yml
+
+Getting nodes from an OpenStack
+-------------------------------
+
+In order to use the get_nodes roles, you will need to define a 'nodes' var in group_vars/all. See the sample file for guidance.
 
 Running with existing nodes
 ---------------------------

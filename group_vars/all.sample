@@ -13,3 +13,21 @@ image_id: dabd0a88-0903-458f-8c09-d71d3e864c75
 ssh_private_key: /path/to/openstack/private/key
 ssh_key_name: key_name
 foreman_fqdn: foreman.example.com
+nodes:
+    - name: "{{ node_prefix }}controller"
+      image_id: "{{ image_id }}"
+      key_name: "{{ ssh_key_name }}"
+      flavor_id: "{{ flavor_id }}"
+      network_ids: "{{ network_ids }}"
+      hostname: controller.example.com
+      groups: "controller,foreman_installer,foreman_node,openstack_nodes"
+
+# Or packstack
+# nodes:
+#     - name: "{{ node_prefix }}packstack"
+#       image_id: "{{ image_id }}"
+#       key_name: "{{ ssh_key_name }}"
+#       flavor_id: "{{ flavor_id }}"
+#       network_ids: "{{ network_ids }}"
+#       hostname: packstack.example.com
+#       groups: "packstack,openstack_nodes"
