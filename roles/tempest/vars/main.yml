@@ -1,2 +1,21 @@
 ---
+### TODO: del this var if not required
 packstack_puppet_modules_dir: /usr/share/packstack/modules/tempest/manifests
+
+### TODO: Seperate skip list for RH, Fedora[version], CentOS
+tempest:
+    puppet_file: /tmp/tempest_init.pp
+    checkout_dir: /var/lib/tempest
+    revision: 'stable/havana'
+    exclude:
+        files:
+            - test_server_actions
+            - test_load_balancer
+            - test_vpnaas_extensions
+        tests:
+            - test_rescue_unrescue_instance
+            - test_create_get_delete_object
+            - test_create_volume_from_snapshot                                                                                                                                                              test_service_provider_list
+            - test_ec2_
+            - test_stack_crud_no_resources
+            - test_stack_list_responds
