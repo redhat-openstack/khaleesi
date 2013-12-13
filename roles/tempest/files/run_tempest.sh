@@ -14,13 +14,13 @@ tempest.nose_test() {
     local -a nose_exclude_files=()
     test ${#exclude_files[@]} -ne 0 &&
         for x in "${exclude_files[@]}"; do
-            nose_exclude_files+=( --ignore-files="'"$x"'" )
+            nose_exclude_files+=( --ignore-files=$x )
         done
 
     local -a nose_exclude_tests=()
     test ${#exclude_tests[@]} -ne 0 &&
         for x in "${exclude_tests[@]}"; do
-            nose_exclude_tests+=( --exclude="'"$x"'" )
+            nose_exclude_tests+=( --exclude=$x )
         done
 
     export NOSE_WITH_OPENSTACK=1
@@ -30,6 +30,10 @@ tempest.nose_test() {
     export NOSE_OPENSTACK_SHOW_ELAPSED=1
     export NOSE_OPENSTACK_STDOUT=1
     export TEMPEST_PY26_NOSE_COMPAT=1
+
+    echo nosetests --verbose --attr=type=smoke  --with-xunit \
+        ${nose_exclude_files[@]} ${nose_exclude_tests[@]} \
+        tempest
 
     nosetests --verbose --attr=type=smoke  --with-xunit \
         ${nose_exclude_files[@]} ${nose_exclude_tests[@]} \
@@ -48,7 +52,6 @@ tempest.testr() {
 }
 
 tempest.run_smoketest() {
-    echo $#  $@
     local tempest_dir=$1; shift
 
     if [[ $1 != '--exclude-files' ]]; then
