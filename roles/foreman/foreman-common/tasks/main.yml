@@ -3,10 +3,6 @@
   ini_file: dest=/etc/yum.repos.d/rhel.repo section=rhel-6-server-optional-rpms option=enabled value=1
   when: ansible_distribution == "RedHat"
 
-- name: Add rh common repos
-  template: src=rhos-other.repo.j2 dest=/etc/yum.repos.d/rhos-other.repo
-  when: ansible_distribution == "RedHat"
-
 - name: Add RDO/RHOS repos
   yum: name={{ openstack_foreman_installer_repo_rpm }}
 
