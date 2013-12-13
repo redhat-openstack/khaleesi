@@ -9,6 +9,7 @@ tempest:
     revision: 'stable/havana'
     exclude:
         files:
+            - test_server_rescue
             - test_server_actions
             - test_load_balancer
             - test_vpnaas_extensions
