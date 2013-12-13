@@ -15,7 +15,8 @@ tempest:
         tests:
             - test_rescue_unrescue_instance
             - test_create_get_delete_object
-            - test_create_volume_from_snapshot                                                                                                                                                              test_service_provider_list
+            - test_create_volume_from_snapshot
+            - test_service_provider_list
             - test_ec2_
             - test_stack_crud_no_resources
             - test_stack_list_responds
