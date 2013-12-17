@@ -65,7 +65,7 @@
     - { role: foreman/foreman-openstack-createrc }
 
 - name: Run tempest
-  hosts: controller
+  hosts: tempest
   user: "{{ remote_user }}"
   sudo: yes
   roles:
