@@ -1,5 +1,12 @@
 ---
 ntp_server: ntp.example.com
+remote_user: root 
+sudo: yes
+sudo_user: root
+ssh_private_key: /path/to/openstack/private/key
+ssh_key_name: key_name
+reboot_delay: +1
+
 os_auth_url: 'http://openstack.example.com:5000/v2.0/'
 os_username: user
 os_password: password
@@ -10,9 +17,14 @@ network_ids:
   - net-id: 56871378-b6b9-4c41-b2ad-a976d1515793
   - net-id: 839eaacf-e834-4dd3-b7c5-04e90fcc5bfa
 image_id: dabd0a88-0903-458f-8c09-d71d3e864c75
-ssh_private_key: /path/to/openstack/private/key
-ssh_key_name: key_name
 foreman_fqdn: foreman.example.com
+
+rhel_os_repo: url
+rhel_updates_repo: url
+rhel_optional_repo: url
+epel_repo: download.fedoraproject.org/pub/epel/6/
+gpg_check: 1
+
 nodes:
     - name: "{{ node_prefix }}controller"
       image_id: "{{ image_id }}"
