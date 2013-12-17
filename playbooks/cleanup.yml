@@ -1,0 +1,6 @@
+---
+- name: Cleanup nodes from nova
+  hosts: local
+  gather_facts: False
+  roles:
+    - { role: cleanup_nodes }
