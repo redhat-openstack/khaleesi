@@ -8,14 +8,14 @@
 - name: Set facts for hosts
   hosts: foreman_installer
   gather_facts: False
-  user: root
   roles:
     - { role: set_facts }
     - { role: wait_for_hosts }
 
 - name: Prepare for Foreman install
   hosts: foreman_installer
-  user: root
+  user: "{{ remote_user }}"
+  sudo: yes
   roles:
     - { role: common }
     - { role: linux-common }
@@ -24,13 +24,15 @@
 
 - name: Install Foreman
   hosts: foreman
-  user: root
+  user: "{{ remote_user }}"
+  sudo: yes
   roles:
     - { role: foreman/foreman-openstack-installer }
 
 - name: Install OpenStack nodes
   hosts: foreman_node
-  user: root
+  user: "{{ remote_user }}"
+  sudo: yes
   roles:
     - { role: foreman/foreman-openstack-node-common }
     - { role: foreman/foreman-openstack-node,
@@ -64,6 +66,7 @@
 
 - name: Run tempest
   hosts: controller
-  user: root
+  user: "{{ remote_user }}"
+  sudo: yes
   roles:
     - { role: tempest }
