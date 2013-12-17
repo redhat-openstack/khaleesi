@@ -2,6 +2,8 @@ hosts
 group_vars/all
 nova.ini
 nosetests.xml
+bugzilla.ini
+*.py[co]
 
 # Sublime projects
 *.sublime-*

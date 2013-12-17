@@ -23,6 +23,7 @@ Create a $HOME/.ansible.cfg with the following:
     host_key_checking = False
     roles_path = /path/to/khaleesi/roles
     library = /path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible
+    lookup_plugins = /path/to/khaleesi/plugins/lookups
 
 The roles_path allows us to keep the root of khaleesi "clean", and put playbooks in a subdirectory without needing to use relative paths for the roles.
 
@@ -31,6 +32,7 @@ These can also be specified with environment variables, to make this easier to c
     ANSIBLE_HOST_KEY_CHECKING=False
     ANSIBLE_ROLES_PATH=/path/to/khaleesi/roles
     ANSIBLE_LIBRARY=/path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible
+    ANSIBLE_LOOKUP_PLUGINS=/path/to/khaleesi/plugins/lookups
 
 To execute the foreman install with nodes from an existing OpenStack:
 
@@ -81,3 +83,21 @@ To keep the files on the remote for perusal
     ANSIBLE_KEEP_REMOTE_FILES=1
 
 To step through the playbook, add '--step' to the command line
+
+Available plugins
+-----------------
+
+Lookup plugins
+==============
+
+Bugzilla lookup
+
+    cp bugzilla.ini{.sample,}
+
+Modify bugzilla.ini with your credentials and bugzilla url, and the statuses that you use for 'open' bugs. If the status matches on of these, 'yes' will be returned, otherwise will return 'no'.
+
+Use in a when: phrase to signify whether something should run based on status of bug.
+
+    when: "lookup('bz', '123456')|bool"
+
+This will lookup up bug #123456, and check the status against open_statuses from bugzilla.ini and return 'yes' if matched. The '|bool' is necessary to translate it into a bool.
