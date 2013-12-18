@@ -3,7 +3,7 @@
   hosts: local
   gather_facts: False
   roles:
-    - { role: get_nodes }
+    - { role: get_nodes, nodes: '{{ foreman_nodes }}' }
 
 - name: Set facts for hosts
   hosts: foreman_installer
