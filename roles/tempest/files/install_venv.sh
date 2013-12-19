@@ -23,7 +23,11 @@ main() {
 
     local py_version=$(python --version 2>&1)
     if [[ $py_version =~ "2.7" ]]; then
-        source .venv/bin/activate
+        ### HACK: turn off: "treat unset variable as error" {
+            set +u
+            source .venv/bin/activate
+            set -u
+        ### }
         pip install junitxml >/dev/null 2>&1 ||
             pip install junitxml >/dev/null 2>&1 ||
             pip install junitxml >/dev/null 2>&1 || {
