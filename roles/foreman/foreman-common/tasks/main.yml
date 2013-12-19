@@ -5,5 +5,8 @@
 
 - name: Add RDO/RHOS repos
   yum: name={{ openstack_foreman_installer_repo_rpm }}
+  when: rdo_repo_url is not defined
 
-
+- name: Add RDO/RHOS repos - Source
+  get_url: url={{ rdo_repo_url }} dest=/etc/yum.repos.d/
+  when: rdo_repo_url is defined
