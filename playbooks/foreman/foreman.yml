@@ -4,6 +4,8 @@
   gather_facts: False
   roles:
     - { role: get_nodes, nodes: '{{ foreman_nodes }}' }
+  tags:
+    - provision
 
 - name: Set facts for hosts
   hosts: foreman_installer
@@ -11,6 +13,8 @@
   roles:
     - { role: set_facts }
     - { role: wait_for_hosts }
+  tags:
+    - provision
 
 - name: Prepare for Foreman install
   hosts: foreman_installer
@@ -21,6 +25,9 @@
     - { role: linux-common }
     - { role: foreman/foreman-common }
     - { role: foreman/foreman-network-setup }
+  tags:
+    - foreman
+    - prep
 
 - name: Install Foreman
   hosts: foreman
@@ -28,6 +35,9 @@
   sudo: yes
   roles:
     - { role: foreman/foreman-openstack-installer }
+  tags:
+    - foreman
+    - install
 
 - name: Install OpenStack nodes
   hosts: foreman_node
@@ -37,32 +47,42 @@
     - { role: foreman/foreman-openstack-node-common }
     - { role: foreman/foreman-openstack-node,
         foreman_node_hostgroup: Controller (Neutron),
-        when: "'controller' in group_names" }
+        when: "'controller' in group_names",
+        tags: ['install', 'controller'] }
     - { role: foreman/foreman-openstack-node,
         foreman_node_hostgroup: Controller (Nova Network),
-        when: "'controller_nova' in group_names" }
+        when: "'controller_nova' in group_names",
+        tags: ['install', 'controller_nova'] }
     - { role: foreman/foreman-openstack-node,
         foreman_node_hostgroup: Compute (Neutron),
-        when: "'compute' in group_names" }
+        when: "'compute' in group_names",
+        tags: ['install', 'compute'] }
     - { role: foreman/foreman-openstack-node,
         foreman_node_hostgroup: Compute (Nova Network),
-        when: "'compute_nova' in group_names" }
+        when: "'compute_nova' in group_names",
+        tags: ['install', 'compute_nova'] }
     - { role: foreman/foreman-openstack-node,
         foreman_node_hostgroup: Neutron Networker,
-        when: "'networker' in group_names" }
+        when: "'networker' in group_names",
+        tags: ['install', 'networker'] }
     - { role: foreman/foreman-openstack-node,
         foreman_node_hostgroup: Gluster Storage,
-        when: "'gluster_storage' in group_names" }
+        when: "'gluster_storage' in group_names",
+        tags: ['install', 'gluster_storage'] }
     - { role: foreman/foreman-openstack-node,
         foreman_node_hostgroup: LVM Block Storage,
-        when: "'lvm_storage' in group_names" }
+        when: "'lvm_storage' in group_names",
+        tags: ['install', 'lvm_storage'] }
     - { role: foreman/foreman-openstack-node,
         foreman_node_hostgroup: Load Balancer,
-        when: "'load_balancer' in group_names" }
+        when: "'load_balancer' in group_names",
+        tags: ['install', 'load_balancer'] }
     - { role: foreman/foreman-openstack-node,
         foreman_node_hostgroup: HA Mysql Node,
-        when: "'ha_mysql' in group_names" }
-    - { role: foreman/foreman-openstack-createrc }
+        when: "'ha_mysql' in group_names",
+        tags: ['install', 'ha_mysql'] }
+    - { role: foreman/foreman-openstack-createrc,
+        tags: ['install'] }
 
 - name: Run tempest
   hosts: tempest
@@ -70,3 +90,5 @@
   sudo: yes
   roles:
     - { role: tempest }
+  tags:
+    - tempest
