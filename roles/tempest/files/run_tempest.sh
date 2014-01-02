@@ -43,8 +43,23 @@ tempest.nose_test() {
 
 tempest.testr() {
     echo "Running testr ... "
+    local skip_list=${!1:-}
+    skip_list+=" "${!2:-}
+    echo "Skipping tests: $skip_list"
+
+    local is_empty=$(tr -d [[:blank:]] <<< $skip_list)
+    if [[ -z $is_empty ]] ; then
+        prevent_empty_list="####---prevent skip grep options to be empty-- it will match everything and skip all otherwise---###"
+    fi
+
+    local grep_skip_options="\\("$(sed -e 's|\ |\\\||g' <<< $skip_list)"\\)"
+    local include_list="smoke"
+
     testr init
-    testr run --parallel --subunit smoke |
+    testr run --parallel --subunit \
+              --load-list=<(testr list-tests $include_list |\
+                          tail -n +5 |\
+                          grep -v "$prevent_empty_list$grep_skip_options") |
         tee >( subunit2junitxml --output-to=nosetests.xml ) |
         subunit-2to1 | tee run.log |
         tools/colorizer.py
