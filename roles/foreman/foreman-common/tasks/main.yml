@@ -7,6 +7,25 @@
   yum: name={{ openstack_foreman_installer_repo_rpm }}
   when: rdo_repo_url is not defined
 
-- name: Add RDO/RHOS repos - Source
+- name: Add RDO/RHOS repos - Repofile
   get_url: url={{ rdo_repo_url }} dest=/etc/yum.repos.d/
   when: rdo_repo_url is defined
+
+- name: Add RDO/RHOS repos - Path
+  template: src=rhos-dev.repo.j2 dest=/etc/yum.repos.d/rhos-dev.repo
+  when: rdo_repo_path is defined
+
+- name: Install yum versionlock
+  yum: name=yum-versionlock state=latest
+  when: rdo_repo_path is defined
+
+- name: Install specific puppet version - Workaround
+  yum: name={{ item }} state=present
+  with_items:
+    - puppet-3.3.2
+    - puppet-server-3.3.2
+  when: rdo_repo_path is defined
+
+- name: Lock puppet version
+  command: yum versionlock 'puppet*'
+  when: rdo_repo_path is defined
