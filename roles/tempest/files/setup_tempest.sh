@@ -27,7 +27,7 @@ main() {
     facter | grep -E "image_|public_network|identity"
 
 
-    local puppet_modules_dir=$(rpm -ql openstack-packstack | grep 'puppet/modules$')
+    local puppet_modules_dir=$(rpm -ql packstack-modules-puppet | grep 'modules$')
     puppet apply --modulepath=$puppet_modules_dir $tempest_init_pp
     return $?
 }
