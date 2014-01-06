@@ -44,10 +44,18 @@
   roles:
     - { role: foreman/foreman-openstack-node-common }
     - { role: foreman/foreman-openstack-node }
-    - { role: foreman/foreman-openstack-createrc,
-        tags: ['keystonerc'] }
   tags:
     - install
+
+- name: Create Keystone RC files
+  hosts: foreman_node
+  user: "{{ remote_user }}"
+  sudo: yes
+  roles:
+    - { role: openstack/create-keystonerc }
+  tags:
+    - keystonerc
+
 
 - name: Run tempest
   hosts: tempest
