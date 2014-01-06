@@ -81,6 +81,8 @@
         tags: ['ha_mysql'] }
     - { role: foreman/foreman-openstack-createrc,
         tags: ['keystonerc'] }
+  tags:
+    - install
 
 - name: Run tempest
   hosts: tempest
