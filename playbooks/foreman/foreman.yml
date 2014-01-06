@@ -43,42 +43,7 @@
   sudo: yes
   roles:
     - { role: foreman/foreman-openstack-node-common }
-    - { role: foreman/foreman-openstack-node,
-        foreman_node_hostgroup: Controller (Neutron),
-        when: "'controller' in group_names",
-        tags: ['controller'] }
-    - { role: foreman/foreman-openstack-node,
-        foreman_node_hostgroup: Controller (Nova Network),
-        when: "'controller_nova' in group_names",
-        tags: ['controller_nova'] }
-    - { role: foreman/foreman-openstack-node,
-        foreman_node_hostgroup: Compute (Neutron),
-        when: "'compute' in group_names",
-        tags: ['compute'] }
-    - { role: foreman/foreman-openstack-node,
-        foreman_node_hostgroup: Compute (Nova Network),
-        when: "'compute_nova' in group_names",
-        tags: ['compute_nova'] }
-    - { role: foreman/foreman-openstack-node,
-        foreman_node_hostgroup: Neutron Networker,
-        when: "'networker' in group_names",
-        tags: ['networker'] }
-    - { role: foreman/foreman-openstack-node,
-        foreman_node_hostgroup: Gluster Storage,
-        when: "'gluster_storage' in group_names",
-        tags: ['gluster_storage'] }
-    - { role: foreman/foreman-openstack-node,
-        foreman_node_hostgroup: LVM Block Storage,
-        when: "'lvm_storage' in group_names",
-        tags: ['lvm_storage'] }
-    - { role: foreman/foreman-openstack-node,
-        foreman_node_hostgroup: Load Balancer,
-        when: "'load_balancer' in group_names",
-        tags: ['load_balancer'] }
-    - { role: foreman/foreman-openstack-node,
-        foreman_node_hostgroup: HA Mysql Node,
-        when: "'ha_mysql' in group_names",
-        tags: ['ha_mysql'] }
+    - { role: foreman/foreman-openstack-node }
     - { role: foreman/foreman-openstack-createrc,
         tags: ['keystonerc'] }
   tags:

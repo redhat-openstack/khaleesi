@@ -1,7 +1,7 @@
 ---
-- name: Get the host from foreman - {{ foreman_node_hostgroup }}
+- name: Get the host from foreman
   uri: >
-        url=https://{{ foreman_fqdn }}/api/hosts?search=name=\"{{ hostvars[inventory_hostname].fqdn }}\"
+        url=https://{{ foreman_fqdn }}/api/hosts?search=name=\"{{ fqdn }}\"
         method=GET
         user=admin
         password=changeme
@@ -11,17 +11,20 @@
         HEADER_Accepts="application/json"
   register: host_json_test
 
-- name: Register this host with foreman - {{ foreman_node_hostgroup }}
-  shell: "/tmp/foreman_client.sh creates=/var/lib/puppet/ssl/certs/{{ hostvars[inventory_hostname].fqdn }}.pem"
+- name: Register this host with foreman
+  shell: "/tmp/foreman_client.sh creates=/var/lib/puppet/ssl/certs/{{ fqdn }}.pem"
   when: host_json_test.json[0] is not defined
 
-- name: Stop the puppet service - {{ foreman_node_hostgroup }}
+- name: Stop the puppet service
   service: name=puppet state=stopped
 
-- name: Pause because puppet does not exit as quickly as it should - {{ foreman_node_hostgroup }}
+- name: Pause because puppet does not exit as quickly as it should
   pause: seconds=30
 
-- name: Get hostgroup - {{ foreman_node_hostgroup }}
+- name: Stop the puppet service
+  service: name=puppet state=stopped
+
+- name: Get hostgroup
   uri: >
         url=https://{{ foreman_fqdn }}/api/hostgroups?search=name=\"{{ foreman_node_hostgroup|replace(' ', '+') }}\"
         method=GET
@@ -33,9 +36,9 @@
         HEADER_Accepts="application/json"
   register: hostgroup_json
 
-- name: Get the host back from foreman - {{ foreman_node_hostgroup }}
+- name: Get the host back from foreman
   uri: >
-        url=https://{{ foreman_fqdn }}/api/hosts?search=name=\"{{ hostvars[inventory_hostname].fqdn }}\"
+        url=https://{{ foreman_fqdn }}/api/hosts?search=name=\"{{ fqdn }}\"
         method=GET
         user=admin
         password=changeme
@@ -45,7 +48,7 @@
         HEADER_Accepts="application/json"
   register: host_json
 
-- name: Set the hostgroup - {{ foreman_node_hostgroup }}
+- name: Set the hostgroup
   uri: >
         url=https://{{ foreman_fqdn }}/api/hosts/{{host_json.json[0].host.id}}
         body='{"host": {"id": "{{ host_json.json[0].host.id }}", "hostgroup_id": "{{ hostgroup_json.json[0].hostgroup.id }}"}}'
@@ -57,8 +60,8 @@
         HEADER_Content-Type="application/json"
         HEADER_Accepts="application/json"
 
-- name: Apply hostgroup via puppet - {{ foreman_node_hostgroup }}
+- name: Apply hostgroup via puppet
   command: /usr/bin/puppet agent --onetime --verbose --ignorecache --no-daemonize --no-usecacheonfailure --no-splay --show_diff
 
-- name: Restart the puppet service - {{ foreman_node_hostgroup }}
+- name: Restart the puppet service
   service: name=puppet state=started
