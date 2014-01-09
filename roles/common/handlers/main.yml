@@ -16,3 +16,16 @@
 - name: Reload facts
   action: setup
 
+- name: Yum clean all
+  command: yum clean all
+
+- name: yum -y update to latest packages
+  yum: name=* state=latest
+  notify:
+      - reboot
+      - Wait for host to stop
+      - Wait for host to come back
+      - Reload facts
+
+- name: restart network
+  service: name=network state=restarted

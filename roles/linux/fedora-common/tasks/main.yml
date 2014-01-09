@@ -5,11 +5,16 @@
   yum: name=fedora-release state=present
 
 - name: Remove all yum repositories
-  #file: path=/etc/yum.repos.d/*.repo state=absent
-  raw: rm -Rf /etc/yum.repos.d/*.repo
+  file: path=/etc/yum.repos.d/{{ item }} state=absent
+  with_items: repos_to_remove
+  notify:
+    - Yum clean all
 
 - name: Create the Fedora Repositories
   template: src=fedora.repo.j2 dest=/etc/yum.repos.d/fedora.repo
+  notify:
+    - Yum clean all
+    - yum -y update to latest packages
 
 - name: Ensure httplib2
   yum: name=python-httplib2 state=present
@@ -17,14 +22,4 @@
 #WORKAROUND
 - name: Ensure iptables-services
   yum: name=iptables-services state=present
-
-- name: yum -y update to latest packages
-  yum: name=* state=latest
-  notify:
-      - reboot
-      - Wait for host to stop
-      - Wait for host to come back
-      - Reload facts
-
-- meta: flush_handlers
 

@@ -5,16 +5,22 @@
   yum: name=redhat-release-server state=present
 
 - name: Remove all yum repositories
-  file: path=/etc/yum.repos.d/*.repo state=absent
+  file: path=/etc/yum.repos.d/{{ item }} state=absent
+  with_items: repos_to_remove
+  notify:
+    - Yum clean all
 
 - name: Create the RHEL Repositories
   template: src=rhel.repo.j2 dest=/etc/yum.repos.d/rhel.repo
+  notify:
+    - Yum clean all
+    - yum -y update to latest packages
 
 - name: Create the EPEL Repository
   template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
-
-- name: Yum clean all
-  command: yum clean all
+  notify:
+    - Yum clean all
+    - yum -y update to latest packages
 
 - name: Ensure httplib2
   yum: name=python-httplib2 state=present
@@ -25,14 +31,4 @@
 
 - name: Ensure iptables
   yum: name=iptables state=present
-
-- name: yum -y update to latest packages
-  yum: name=* state=latest
-  notify:
-      - reboot
-      - Wait for host to stop
-      - Wait for host to come back
-      - Reload facts
-
-- meta: flush_handlers
 
