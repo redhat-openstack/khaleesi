@@ -1,0 +1,10 @@
+---
+- name: Remove openstack-foreman-installer rpm - Source
+  yum: name={{ openstack_foreman_installer_rpm }} state=absent
+
+- name: Ensure git is installed
+  yum: name=git state=latest
+
+- name: Get astapor repo
+  git: repo={{ astapor_repo }} dest=/usr/share/openstack-foreman-installer version={{ astapor_branch }}
+

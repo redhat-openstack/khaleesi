@@ -4,6 +4,9 @@
   tags:
     - prep
 
+- include: astapor.yml
+  when: use_astapor is defined and use_astapor
+
 - name: Make /etc/hosts proper
   lineinfile: "dest=/etc/hosts regexp='.*{{hostvars[item].fqdn }}$' line='{{ hostvars[item].ansible_eth1.ipv4.address }} {{ hostvars[item].fqdn }}' state=present"
   with_items: groups.foreman
