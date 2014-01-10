@@ -1,6 +1,0 @@
----
-controller_name: "{{ node_prefix }}controller"
-private_interface: eth1
-private_netmask: 255.255.255.0
-public_interface: eth2
-public_netmask: 255.255.255.0
