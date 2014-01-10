@@ -1,0 +1,13 @@
+
+- name: Sets up a multinode openstack deployment using packstack
+  gather_facts: no
+  hosts: localhost
+  tasks:
+    - name: Validate configuration for this playbook
+      fail: msg="... No VM {{item}} in {{ groups }}" #"
+      when: "not '{{item}}' in groups['all'] "
+      with_items: [controller, compute]
+      tags: validation
+
+      ### TODO: support specifying multiple compute nodes as group
+      ### when: "not ( '{{item}}' in groups and groups['{{ item }}'] ) "

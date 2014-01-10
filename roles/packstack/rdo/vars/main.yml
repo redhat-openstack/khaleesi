@@ -1,4 +1,16 @@
 ---
 packstack_config: /root/packstack_config.txt
-production_RedHat_rdo_repo: http://repos.fedorapeople.org/repos/openstack/openstack-havana/epel-6
-production_Fedora_rdo_repo: http://repos.fedorapeople.org/repos/openstack/openstack-havana/fedora-19
+
+rdo:
+  icehouse:
+    release_rpm:
+      RedHat: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6/rdo-release-icehouse-1.noarch.rpm
+      Fedora: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/fedora-20/rdo-release-icehouse-1.noarch.rpm
+      CentOS: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6/rdo-release-icehouse-1.noarch.rpm
+
+    production:
+      repo:
+        RedHat: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6
+        Fedora: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/fedora-20
+        CentOS: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6
+

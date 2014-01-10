@@ -54,8 +54,10 @@
       ansible_ssh_private_key_file="{{ ssh_private_key }}"
       public_ip="{{ item.1.public_ip }}"
       private_ip="{{ item.0.private_ip }}"
+      packstack_private_ip="{{ item.0.info.addresses.packstack_int.0.addr }}"
       ansible_fqdn="{{ item.0.item.hostname }}"
       priv_hostname="{{ item.0.item.hostname }}"
+      packstack_node_hostgroup="{{ item.0.item.packstack_node_hostgroup }}"
   with_together:
     - new_nodes.results
     - floating_ips.results

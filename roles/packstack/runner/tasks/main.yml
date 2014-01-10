@@ -1,0 +1,12 @@
+---
+- debug: msg="will run this"
+  tags: run-packstack
+
+- name: Packstack | run
+  register: result
+  command: packstack --debug --answer-file={{ packstack_config }}
+  sudo: yes
+  sudo_user: root
+  retries: 1
+  until: result.rc == 0
+  tags: run-packstack

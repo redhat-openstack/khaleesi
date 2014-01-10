@@ -1,0 +1,11 @@
+packstack    ansible_ssh_host=192.168.129.210 ansible_ssh_user=root
+#controller  ansible_ssh_host=192.168.200.186 ansible_ssh_user=root
+#compute     ansible_ssh_host=192.168.200.130 ansible_ssh_user=root
+
+localhost ansible_connection=local
+
+#[compute]
+#compute-*
+#Server groups:
+#	 :id => 1390482838.709182, :name => Fedora  (192.168.200.186)
+#	 :id => 1390482799.0043476, :name => Fedora  (192.168.200.130)

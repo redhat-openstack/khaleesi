@@ -1,6 +1,6 @@
 ---
-- name: Create keystonerc_admin
-  template: src=keystonerc_admin.j2 dest=/root/keystonerc_admin
+#- name: Create keystonerc_admin
+# template: src=keystonerc_admin.j2 dest=/root/keystonerc_admin 
 
 - name: Create keystonerc_demo
   template: src=keystonerc_demo.j2 dest=/root/keystonerc_demo

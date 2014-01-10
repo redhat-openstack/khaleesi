@@ -1,0 +1,36 @@
+---
+- debug: var=packstack_config
+  when: "'debug' in config.verbosity"
+
+- name: update packstack answer file
+  command:
+    sed
+        -e 's|CONFIG_NOVA_NETWORK_PUBIF=.*|CONFIG_NOVA_NETWORK_PUBIF={{ hostvars['controller'].ansible_eth0.ipv4.address }}|'
+        -e 's|_PRIVIF=.*|_PRIVIF=eth1|'
+        -e 's|CONFIG_NOVA_COMPUTE_HOSTS=.*|CONFIG_NOVA_COMPUTE_HOSTS={{ hostvars['compute'].ansible_eth0.ipv4.address }}|'
+        -e 's|CONFIG_NEUTRON_OVS_TENANT_NETWORK_TYPE=.*|CONFIG_NEUTRON_OVS_TENANT_NETWORK_TYPE=gre|'
+        -e 's|CONFIG_NEUTRON_OVS_VLAN_RANGES=.*|CONFIG_NEUTRON_OVS_VLAN_RANGES=phynet1|'
+        -e 's|CONFIG_NEUTRON_OVS_TUNNEL_RANGES=.*|CONFIG_NEUTRON_OVS_TUNNEL_RANGES=1:1000|'
+        -e 's|CONFIG_NEUTRON_OVS_TUNNEL_IF=.*|CONFIG_NEUTRON_OVS_TUNNEL_IF=eth1|'
+    -i {{ packstack_config }}
+
+- debug: var=hostvars
+  when: "'debug' in config.verbosity"
+
+- debug: var=groupvars
+  when: "'debug' in config.verbosity"
+
+   #      sed \
+   #  -e 's|_HOST=.*|_HOST=$controller_public_ip|' \
+   #  -e 's|_HOSTS=.*|_HOSTS=$controller_public_ip|' \
+   #  -e 's|CONFIG_NEUTRON_INSTALL=n|CONFIG_NEUTRON_INSTALL=y|' \
+   #  -e 's|CONFIG_SWIFT_INSTALL=n|CONFIG_SWIFT_INSTALL=y|' \
+   #  -e 's|CONFIG_NEUTRON_USE_NAMESPACES=n|CONFIG_NEUTRON_USE_NAMESPACES=y|' \
+   #  -e 's|CONFIG_SSH_KEY=.*|CONFIG_SSH_KEY=/root/.ssh/id_rsa.pub|' \
+   #  -e 's|CONFIG_NOVA_COMPUTE_HOSTS=.*|CONFIG_NOVA_COMPUTE_HOSTS=$compute_public_ip|' \
+   #  -e 's|CONFIG_NEUTRON_OVS_TENANT_NETWORK_TYPE=.*|CONFIG_NEUTRON_OVS_TENANT_NETWORK_TYPE=gre|' \
+   #  -e 's|CONFIG_NEUTRON_OVS_VLAN_RANGES=.*|CONFIG_NEUTRON_OVS_VLAN_RANGES=phynet1|' \
+   #  -e 's|CONFIG_NEUTRON_OVS_TUNNEL_RANGES=.*|CONFIG_NEUTRON_OVS_TUNNEL_RANGES=1:1000|' \
+   #  -e 's|CONFIG_NEUTRON_OVS_TUNNEL_IF=.*|CONFIG_NEUTRON_OVS_TUNNEL_IF=eth1|' \
+   #  -e 's|_PW=.*|_PW=redhat|g' \
+

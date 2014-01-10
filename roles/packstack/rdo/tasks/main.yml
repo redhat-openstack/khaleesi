@@ -1,21 +1,10 @@
 ---
-  - name: yum remove old rdo-release
-    yum: name=rdo-release* state=absent
+- { include: setup-rdo-release-repo.yml, tags:[rdo-setup] }
 
-  - name: yum install rdo-release
-    yum: name=http://repos.fedorapeople.org/repos/openstack/openstack-havana/rdo-release-havana-7.noarch.rpm state=present
 
-  - name: set baseurl for rdo environment
-    lineinfile: dest=/etc/yum.repos.d/rdo-release.repo regexp=^baseurl= line=baseurl={{ baseurl }}
+- name: yum install openstack-packstack
+  yum: name=openstack-packstack state=latest
 
-  - name: Yum clean all
-    command: yum clean all    
+- { include: ../../../../tasks/workarounds/fedora/fix_tempest_mariadb.yml}
 
-  - name: yum install openstack-packstack
-    yum: name=openstack-packstack state=latest
-
-  - name: generate answer file
-    command: /usr/bin/packstack --gen-answer-file={{ packstack_config }}
-
-  - name: change all passwords to "redhat"
-    command: sed -e 's|_PW=.*|_PW=redhat|g' -i {{ packstack_config }}
+- { include: set-answer-file-defaults.yml }

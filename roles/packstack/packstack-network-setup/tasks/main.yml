@@ -1,0 +1,14 @@
+---
+#- debug: var=hostvars
+#when: "'debug' in config.verbosity"
+
+- name: Setup networking (general)
+  lineinfile: "dest=/etc/sysconfig/network regexp='^HOSTNAME=.*' line='HOSTNAME={{ hostvars[inventory_hostname].ansible_fqdn }}' state=present"
+  notify:
+    - restart network
+
+- name: Setup networking (interfaces)
+  template: "src=ifcfg-interface dest=/etc/sysconfig/network-scripts/ifcfg-{{ item.interface }} owner=root group=root mode=644"
+  with_items: net_interfaces
+  notify:
+    - restart network

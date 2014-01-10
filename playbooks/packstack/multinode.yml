@@ -1,0 +1,69 @@
+---
+# Steps
+# =======
+# - Provision *** take that out ***
+# - Validate the nodes
+# - Bootstrap: Prepare the slaves
+# - Configure packstack answer-file
+#       - apply rdo config
+#       - apply multinode config
+# - Deploy Openstack using packstack
+# - Reboot all test-vms
+# - Tempest slave
+# - Run tempest [task]
+# - Collect logs
+# - CleanUp
+#
+
+### enable to provison vm
+- include: multinode/provision.yml
+
+- include: multinode/validate-nodes.yml
+
+- name: Prepare system for packstack
+  hosts: packstack
+  roles:
+    - { role: common }
+    - { role: linux-common }
+  tags:
+    - prep
+
+# apply pre-packstack workarouds
+- include: multinode/icehouse/workarounds.yml tags=workaround
+
+- name: Setup packstack on Controller
+  hosts: controller
+  roles:
+      - packstack/rdo
+      - packstack/multinode
+  tags: prep
+
+- include: multinode/setup-ssh-keys.yml tags=prep
+
+
+- name: Run packstack
+  hosts: controller
+  roles:
+    - { role: packstack/runner }
+  tags: run-packstack
+
+- name: Reboot controller and compute
+  hosts:
+    - compute
+    - controller
+  tasks:
+      - include: ../../tasks/common/reboot.yml
+  tags: reboot
+
+- name: Run tempest
+  hosts: controller
+  vars:
+    controller_name: "{{ ansible_ssh_host }}"
+    controller_fqdn: "{{ ansible_ssh_host }}"
+  roles:
+    - { role: tempest, controller_fqdn: "{{ controller_name }}"}
+
+#- name: Collect logs
+# hosts: local
+#  roles:
+#   - { role: log_collector }

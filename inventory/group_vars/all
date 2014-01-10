@@ -1,0 +1,66 @@
+---
+ntp_server: ntp.example.com
+remote_user: root
+sudo: yes
+sudo_user: root
+
+### workarounds_disabled: yes
+selinux: Permissive
+
+config:
+  product: rdo
+  version: icehouse
+  repo: production
+  verbosity:
+    - info
+    - warning
+
+### valid verbosity ###
+#    - debug
+#    - info
+#    - warning
+
+### tmp ###
+packstack_config: /root/packstack_config.txt
+
+
+## ssh_private_key: /path/to/openstack/private/key*/
+## ssh_key_name: key_name*/
+## reboot_delay: +1
+
+## os_auth_url: 'http://openstack.example.com:5000/v2.0/'
+## os_username: user
+## os_password: password
+## os_tenant_name: tenant_name
+## node_prefix: myprefix_
+## network_ids:
+##   - net-id: 3721f603-3234-4c14-b8c7-e230f592eb15
+##   - net-id: 56871378-b6b9-4c41-b2ad-a976d1515793
+##   - net-id: 839eaacf-e834-4dd3-b7c5-04e90fcc5bfa
+## image_id: dabd0a88-0903-458f-8c09-d71d3e864c75
+## foreman_fqdn: foreman.example.com
+##
+## rhel_os_repo: url
+## rhel_updates_repo: url
+## rhel_optional_repo: url
+## epel_repo: download.fedoraproject.org/pub/epel/6/
+## gpg_check: 1
+##
+## nodes:
+##     - name: "{{ node_prefix }}controller"
+##       image_id: "{{ image_id }}"
+##       key_name: "{{ ssh_key_name }}"
+##       flavor_id: "{{ flavor_id }}"
+##       network_ids: "{{ network_ids }}"
+##       hostname: controller.example.com
+##       groups: "controller,foreman_installer,foreman_node,openstack_nodes"
+##
+## # Or packstack
+## # nodes:
+## #     - name: "{{ node_prefix }}packstack"
+## #       image_id: "{{ image_id }}"
+## #       key_name: "{{ ssh_key_name }}"
+## #       flavor_id: "{{ flavor_id }}"
+## #       network_ids: "{{ network_ids }}"
+## #       hostname: packstack.example.com
+## #       groups: "packstack,openstack_nodes"

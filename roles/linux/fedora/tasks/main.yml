@@ -1,0 +1,32 @@
+---
+# Fedora
+
+- name: Ensure fedora-release
+  yum: name=fedora-release state=present
+
+- name: Remove all yum repositories
+  file: path=/etc/yum.repos.d/{{ item }} state=absent
+  with_items: repos_to_remove
+  notify:
+    - Yum clean all
+
+- name: Create the Fedora Repositories
+  template: src=fedora.repo.j2 dest=/etc/yum.repos.d/fedora.repo
+  notify:
+    - Yum clean all
+    - yum -y update to latest packages
+
+- name: Ensure fedora-release
+  yum: name=fedora-release state=present
+
+- name: Ensure httplib2
+  yum: name=python-httplib2 state=present
+
+# workaround {
+- name: WORKAROUND | BZ | Ensure iptables-services
+  yum: name=iptables-services state=present
+  tags: workaround
+  when: workarounds_disabled is not defined or
+        workarounds_disabled|bool == false
+# }
+

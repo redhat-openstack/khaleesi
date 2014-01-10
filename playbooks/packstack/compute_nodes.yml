@@ -1,0 +1,23 @@
+- name: Consolidate facts from multiple hosts into variables
+  hosts: localhost
+  gather_facts: no
+  vars:
+      compute_hosts: ''
+      xxx: []
+  tasks:
+    - debug: msg={{item}}
+      with_items:
+          - "{{ groups.compute }}"
+
+    - debug: var="hostvars['{{item}}'].ansible_default_ipv4.address"
+      with_items:
+          - "{{ groups.compute }}"
+
+    - set_fact:
+        #compute_hosts: "{{ hostvars[item].ansible_default_ipv4.address}},{{ compute_hosts }}"
+        compute_hosts: "{{ compute_host.append(hostvars[item].ansible_default_ipv4.address) }}"
+      with_items:
+          - "{{ groups.compute }}"
+
+    - debug: var=compute_hosts
+    - debug: var=xxx

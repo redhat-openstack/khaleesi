@@ -1,0 +1,10 @@
+- name: generate answer file
+  command: packstack --gen-answer-file={{ packstack_config }}
+
+- name: change all passwords to "redhat"
+  command:
+    sed
+        -e 's|_PASSWORD=.*|_PASSWORD=redhat|'
+        -e 's|_PW=.*|_PW=redhat|'
+        -i {{ packstack_config }}
+

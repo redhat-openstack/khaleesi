@@ -41,6 +41,25 @@ tempest.nose_test() {
     return 0
 }
 
+tempest.nose_test_single() {
+    local tempest_test_name=${1:-""}
+ 
+    export NOSE_WITH_OPENSTACK=1
+    export NOSE_OPENSTACK_COLOR=1
+    export NOSE_OPENSTACK_RED=15.00
+    export NOSE_OPENSTACK_YELLOW=3.00
+    export NOSE_OPENSTACK_SHOW_ELAPSED=1
+    export NOSE_OPENSTACK_STDOUT=1
+    export TEMPEST_PY26_NOSE_COMPAT=1
+
+    echo nosetests --verbose --attr=type=smoke  --with-xunit \
+        $tempest_test_name
+
+    nosetests --verbose --attr=type=smoke  --with-xunit \
+        $tempest_test_name || true
+    return 0
+}
+
 tempest.testr() {
     echo "Running testr ... "
     local skip_list=${!1:-}
@@ -66,8 +85,21 @@ tempest.testr() {
     return 0
 }
 
+tempest.testr_single() {
+    echo "Running testr ... "
+    local tempest_test_name=${1:-""}
+
+    testr init
+    testr run $tempest_test_name |
+        tee >( subunit2junitxml --output-to=nosetests.xml ) |
+        subunit-2to1 | tee run.log |
+        tools/colorizer.py
+    return 0
+}
+
 tempest.run_smoketest() {
     local tempest_dir=$1; shift
+    local tempest_test_name=${1:-""}; shift
 
     if [[ $1 != '--exclude-files' ]]; then
         usage
@@ -93,10 +125,18 @@ tempest.run_smoketest() {
     # }
 
     local py_version=$(python --version 2>&1)
-    if [[ $py_version =~ "2.6" ]]; then
+
+    if [[ $py_version =~ "2.6" &&  -z $tempest_test_name ]]; then
         tempest.nose_test  exclude_files[@] exclude_tests[@]
-    else
+    elif [[ $py_version =~ "2.7" &&  -z $tempest_test_name ]]; then
         tempest.testr  exclude_files[@] exclude_tests[@]
+    elif [[ $py_version =~ "2.6" &&  -n $tempest_test_name ]]; then
+        tempest.nose_test_single $tempest_test_name
+    elif [[ $py_version =~ "2.7" &&  -n $tempest_test_name ]]; then
+        tempest.testr $tempest_test_name
+    else
+        echo "Please check test variables"
+        return 1
     fi
 
     ### NOTE: test if the nosetests.xml exist in that case we don't treat the

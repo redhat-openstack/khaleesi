@@ -1,0 +1,24 @@
+---
+- name: yum remove old rdo-release
+  yum: name=rdo-release* state=absent
+  ignore_errors: yes
+
+- debug: var=rdo
+  when: "'debug' in config.verbosity"
+
+- name: yum install rdo-release
+  yum: name="{{ rdo[ config.version ].release_rpm[ ansible_distribution ] }}" state=present     #"
+
+- debug: msg="Setting baseurl to {{ rdo[config.version][config.repo].repo[ansible_distribution] }}"         #"
+  when: "'info' in config.verbosity"
+
+- name: set baseurl for rdo environment
+  lineinfile:
+    dest=/etc/yum.repos.d/rdo-release.repo
+    regexp=^baseurl=
+    line="baseurl={{ rdo[config.version][config.repo].repo[ansible_distribution] }}"    #"
+    ## for e.g: baseurl={{ rdo.icehouse.production.repo.fedora }} ##
+
+- name: Yum clean all
+  command: yum clean all
+

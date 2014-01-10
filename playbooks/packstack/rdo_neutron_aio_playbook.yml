@@ -4,24 +4,51 @@
   gather_facts: False
   roles:
     - { role: get_nodes }
+  tags:
+    - provision
 
 - name: Set facts for hosts
   hosts: packstack
   gather_facts: False
-  user: root
   roles:
     - { role: set_facts }
     - { role: wait_for_hosts }
+  tags:
+    - provision
 
-- name: packstack
+- name: Prepare system for packstack
   hosts: packstack
-  user: root
   roles:
     - { role: common }
     - { role: linux-common }
-    - { role: packstack/packstack-common }
+  tags:
+    - prep
+
+- name: Packstack prep
+  hosts: packstack
+  vars:
+    controller_name: "{{ ansible_ssh_host }}"
+    controller_fqdn: "{{ ansible_ssh_host }}"
+  roles:
     - { role: packstack/rdo }
     - { role: packstack/packstack-neutron-aio }
-    - { role: packstack/packstack-installer }
-    - { role: tempest }
+  tags:
+    - prep
 
+- name: Install packstack
+  hosts: packstack
+  vars:
+    controller_name: "{{ ansible_ssh_host }}"
+    controller_fqdn: "{{ ansible_ssh_host }}"
+  roles:
+    - { role: packstack/runner }
+  tags:
+    - run-packstack
+
+- name: Run tempest
+  hosts: packstack
+  vars:
+    controller_name: "{{ ansible_ssh_host }}"
+    controller_fqdn: "{{ ansible_ssh_host }}"
+  roles:
+    - { role: tempest, controller_fqdn: "{{ controller_name }}", tags: ["tempest_run"] }

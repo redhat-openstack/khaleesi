@@ -1,0 +1,29 @@
+---
+#- name: Get nodes from nova
+  #hosts: local
+  #gather_facts: False
+  #roles:
+    #- { role: get_nodes }
+
+- name: Set facts for hosts
+  hosts: packstack
+  gather_facts: False
+  user: root
+  tacks:
+    - { include: set_facts }
+    - { include: wait_for_hosts }
+
+
+#- name: Deploy openstack using packstack
+#- name: packstack
+  #hosts: packstack
+  #user: root
+  #roles:
+    #- { role: common }
+    #- { role: linux-common }
+    #- { role: packstack/packstack-common }
+    #- { role: packstack/rdo }
+    #- { role: packstack/packstack-neutron-aio }
+    #- { role: packstack/packstack-installer }
+    #- { role: tempest }
+

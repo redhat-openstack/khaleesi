@@ -4,14 +4,22 @@
   with_items:
     - git
     - packstack-modules-puppet
+  tags:
+    - tempest_setup
 
-- { include: setup-openstack-elements.yml }
-- { include: setup-tempest.yml }
+- { include: ../../openstack/create-keystonerc/tasks/main.yml tags=tempest_setup }
+- { include: setup-openstack-elements.yml  tags=tempest_setup }
+- { include: setup-tempest.yml tags=tempest_setup }
+
 
 - name: Run tempest
-  script: run_tempest.sh {{ tempest['checkout_dir'] }}
+  script: run_tempest.sh {{ tempest['checkout_dir'] }} {{ tempest['test_name'] }}
        --exclude-files {{ tempest['exclude']['files'] }}
        --exclude-tests {{ tempest['exclude']['tests'] }}
+  tags:
+    - tempest_run
 
 - name: Fetch results
   fetch: src={{ tempest['checkout_dir']}}/nosetests.xml dest=nosetests.xml flat=yes
+  tags:
+    - tempest_run

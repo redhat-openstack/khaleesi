@@ -1,6 +1,6 @@
 ---
 ntp_server: ntp.example.com
-remote_user: root 
+remote_user: root
 sudo: yes
 sudo_user: root
 ssh_private_key: /path/to/openstack/private/key

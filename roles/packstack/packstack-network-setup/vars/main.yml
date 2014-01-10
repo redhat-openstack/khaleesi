@@ -1,0 +1,4 @@
+---
+net_interfaces:
+    - { interface: 'eth1', ip_var: 'packstack_private_ip', ansible_var: 'ansible_eth1' }
+    #- { interface: 'eth2', ip_var: 'foreman_public_ip', ansible_var: 'ansible_eth2' }

@@ -1,0 +1,28 @@
+### NOTE: do not provision those VMs here, split it into a play ###
+- name: Get nodes from nova
+  hosts: local
+  gather_facts: False
+  roles:
+    - { role: get_nodes }
+  tags: provision
+
+- name: Set facts for hosts
+  hosts:
+    - controller
+    - compute
+  gather_facts: False
+  roles:
+    - { role: set_facts }
+    - { role: wait_for_hosts }
+
+- name: Prepare network for Packstack install
+  hosts:
+    - controller
+    - compute
+  user: "{{ remote_user }}"
+  sudo: yes
+  roles:
+    - { role: common }
+    - { role: packstack/packstack-network-setup }
+  tags:
+    - provision

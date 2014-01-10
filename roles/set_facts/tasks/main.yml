@@ -11,3 +11,9 @@
       foreman_public_ip="{{ foreman_public_ip }}"
       foreman_node_hostgroup="{{ foreman_node_hostgroup }}"
   when: "'foreman_installer' in group_names"
+
+- name: Set packstack facts
+  set_fact:
+      packstack_private_ip="{{ packstack_private_ip }}"
+      packstack_node_hostgroup="{{ packstack_node_hostgroup }}"
+  when: "'packstack' in group_names"

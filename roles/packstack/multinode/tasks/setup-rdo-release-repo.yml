@@ -1,0 +1,19 @@
+---
+- name: yum remove old rdo-release
+  yum: name=rdo-release* state=absent
+  ignore_errors: yes
+
+- name: yum install rdo-release
+  yum: name="{{ rdo[ config.version ].release_rpm[ ansible_distribution ] }}" state=present     #"
+
+- debug: msg="baseurl= {{ rdo[config.version].repo[config.repo][ansible_distribution }}]"         #"
+
+- name: set baseurl for rdo environment
+  lineinfile:
+    dest=/etc/yum.repos.d/rdo-release.repo
+    regexp=^baseurl=
+    line="baseurl={{ rdo[ config.version ][config.repo].repo[ ansible_distribution ] }}" #"
+
+- name: yum clean all
+  command: yum clean all
+
