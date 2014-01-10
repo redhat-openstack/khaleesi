@@ -50,6 +50,7 @@
     - { role: foreman/foreman-openstack-node }
   tags:
     - install
+    - install_nodes
 
 - name: Create Keystone RC files
   hosts: foreman_node
