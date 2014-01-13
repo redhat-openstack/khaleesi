@@ -1,3 +1,8 @@
+Code Review (IMPORTANT)
+-----------------------
+
+Pull requests will not be looked at on khaleesi github. Code submissions should be done via gerrithub (https://review.gerrithub.io). Please sign up with https://www.gerrithub.io and your github credentials to make submissions. Additional permissions on the project will need to be done on a per-user basis.
+
 Prereqs
 -------
 
