@@ -24,7 +24,6 @@
     - { role: common }
     - { role: linux-common }
     - { role: foreman/foreman-common }
-    - { role: foreman/foreman-network-setup }
   tags:
     - prep
     - install
@@ -32,18 +31,47 @@
     - keystonerc
     - tempest
 
+- name: Prepare foreman network
+  hosts: foreman_installer
+  user: "{{ remote_user }}"
+  sudo: yes
+  roles:
+    - { role: foreman/foreman-network-setup }
+  tags:
+    - prep
+
+- name: Prepare foreman network - Networker nodes
+  hosts: networker
+  user: "{{ remote_user }}"
+  sudo: yes
+  roles:
+    - { role: networker }
+  tags:
+    - prep
+
 - name: Install Foreman
   hosts: foreman
   user: "{{ remote_user }}"
+  gather_facts: True
   sudo: yes
   roles:
     - { role: foreman/foreman-openstack-installer }
   tags:
     - install
 
-- name: Install OpenStack nodes
-  hosts: foreman_node
+- name: Install Controller node
+  hosts: controller
   user: "{{ remote_user }}"
+  gather_facts: True
+  sudo: yes
+  roles:
+    - { role: foreman/foreman-openstack-node-common }
+    - { role: foreman/foreman-openstack-node }
+
+- name: Install remaining OpenStack nodes
+  hosts: foreman_node:!controller
+  user: "{{ remote_user }}"
+  gather_facts: True
   sudo: yes
   roles:
     - { role: foreman/foreman-openstack-node-common }
