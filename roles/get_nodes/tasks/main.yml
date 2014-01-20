@@ -29,14 +29,33 @@
   with_items: nodes
 
 - name: Add Foreman hosts
-  add_host: "name={{ item.0.item.name }} groups={{ item.0.item.groups }} ansible_ssh_host={{ item.1.public_ip }} ansible_ssh_private_key_file={{ ssh_private_key }} public_ip={{ item.1.public_ip }} private_ip={{ item.0.private_ip }} foreman_private_ip={{ item.0.info.addresses.foreman_int.0.addr }} foreman_public_ip={{ item.0.info.addresses.foreman_ext.0.addr }} ansible_fqdn={{ item.0.item.hostname }} priv_hostname={{ item.0.item.hostname }} foreman_node_hostgroup={{ item.0.item.foreman_node_hostgroup }}"
+  add_host:
+      name="{{ item.0.item.name }}"
+      groups="{{ item.0.item.groups }}"
+      ansible_ssh_host="{{ item.1.public_ip }}"
+      ansible_ssh_private_key_file="{{ ssh_private_key }}"
+      public_ip="{{ item.1.public_ip }}"
+      private_ip="{{ item.0.private_ip }}"
+      foreman_private_ip="{{ item.0.info.addresses.foreman_int.0.addr }}"
+      foreman_public_ip="{{ item.0.info.addresses.foreman_ext.0.addr }}"
+      ansible_fqdn="{{ item.0.item.hostname }}"
+      priv_hostname="{{ item.0.item.hostname }}"
+      foreman_node_hostgroup="{{ item.0.item.foreman_node_hostgroup }}"
   with_together:
     - new_nodes.results
     - floating_ips.results
   when: "'foreman' in item.0.item.groups"
 
 - name: Add Packstack hosts
-  add_host: "name={{ item.0.item.name }} groups={{ item.0.item.groups }} ansible_ssh_host={{ item.1.public_ip }} ansible_ssh_private_key_file={{ ssh_private_key }} public_ip={{ item.1.public_ip }} private_ip={{ item.0.private_ip }} ansible_fqdn={{ item.0.item.hostname }} priv_hostname={{ item.0.item.hostname }}"
+  add_host:
+      name="{{ item.0.item.name }}"\
+      groups="{{ item.0.item.groups }}"
+      ansible_ssh_host="{{ item.1.public_ip }}"
+      ansible_ssh_private_key_file="{{ ssh_private_key }}"
+      public_ip="{{ item.1.public_ip }}"
+      private_ip="{{ item.0.private_ip }}"
+      ansible_fqdn="{{ item.0.item.hostname }}"
+      priv_hostname="{{ item.0.item.hostname }}"
   with_together:
     - new_nodes.results
     - floating_ips.results

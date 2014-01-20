@@ -1,7 +1,13 @@
 ---
 - name: Set facts
-  set_fact: "public_ip={{ hostvars[inventory_hostname].public_ip }} private_ip={{ hostvars[inventory_hostname].private_ip }} fqdn={{ hostvars[inventory_hostname].priv_hostname }}"
+  set_fact:
+      public_ip="{{ public_ip }}"
+      private_ip="{{ private_ip }}"
+      fqdn="{{ priv_hostname }}"
 
 - name: Set foreman facts
-  set_fact: "foreman_private_ip={{ hostvars[inventory_hostname].foreman_private_ip }} foreman_public_ip={{ hostvars[inventory_hostname].foreman_public_ip }} foreman_node_hostgroup={{ hostvars[inventory_hostname].foreman_node_hostgroup }}"
+  set_fact:
+      foreman_private_ip="{{ foreman_private_ip }}"
+      foreman_public_ip="{{ foreman_public_ip }}"
+      foreman_node_hostgroup="{{ foreman_node_hostgroup }}"
   when: "'foreman_installer' in group_names"
