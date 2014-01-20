@@ -1,6 +1,6 @@
 [gerrit]
 host=review.gerrithub.io
 port=29418
-project=bcrochet/khaleesi.git
+project=redhat-openstack/khaleesi.git
 defaultbranch=master
 
