@@ -3,4 +3,4 @@
   hosts: local
   gather_facts: False
   roles:
-    - { role: cleanup_nodes }
+    - { role: cleanup_nodes, nodes: '{{ cleanup_nodes }}' }

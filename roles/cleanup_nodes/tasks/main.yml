@@ -10,6 +10,17 @@
        instance_name: "{{ item.name }}"
        internal_network_name: default
   with_items: nodes
+  register: floating_ips
+
+- name: Deallocate floating ips
+  quantum_floating_ip_allocate:
+       auth_url: "{{ os_auth_url }}"
+       state: absent
+       login_username: "{{ os_username }}"
+       login_password: "{{ os_password }}"
+       login_tenant_name: "{{ os_tenant_name }}"
+       ip_address: "{{ item.result.floatingip.floating_ip_address }}"
+  with_items: floating_ips.results
 
 - name: Remove nodes
   nova_compute:
@@ -20,8 +31,4 @@
        login_tenant_name: "{{ os_tenant_name }}"
        name: "{{ item.name }}"
        image_id: "{{ item.image_id }}"
-       key_name: "{{ item.key_name }}"
-       wait_for: 200
-       flavor_id: "{{ item.flavor_id }}"
-       nics: "{{ item.network_ids }}"
   with_items: nodes
