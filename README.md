@@ -11,7 +11,7 @@ To set up your repo for gerrit:
 
 Add a new remote to your working tree:
 
-    git remote add gerrit ssh://username@review.gerrithub.io:29418/bcrochet/khaleesi
+    git remote add gerrit ssh://username@review.gerrithub.io:29418/redhat-openstack/khaleesi
 
 Replace username with your gerrithub username.
 
@@ -48,6 +48,8 @@ Create a $HOME/.ansible.cfg with the following:
     roles_path = /path/to/khaleesi/roles
     library = /path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible
     lookup_plugins = /path/to/khaleesi/plugins/lookups
+
+NOTE: If you set library in .ansible.cfg, and you try to update ansible, it will fail. You will need comment out the line with a '#', run 'pip uninstall ansible; pip install ansible' to fix.
 
 The roles_path allows us to keep the root of khaleesi "clean", and put playbooks in a subdirectory without needing to use relative paths for the roles.
 
