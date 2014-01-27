@@ -1,5 +1,5 @@
 ---
 dependencies:
-- { role: linux/rhel-common, when: ansible_distribution == 'RedHat' }
-- { role: linux/fedora-common, when: ansible_distribution == 'Fedora' }
-- { role: linux/centos-common, when: ansible_distribution == 'CentOS' }
+    - { role: linux/rhel-common, when: ansible_distribution == 'RedHat' }
+    - { role: linux/fedora-common, when: ansible_distribution == 'Fedora' }
+    - { role: linux/centos-common, when: ansible_distribution == 'CentOS' }
