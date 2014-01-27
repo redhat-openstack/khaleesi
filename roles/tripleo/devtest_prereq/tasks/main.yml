@@ -1,0 +1,12 @@
+---
+- include: kvm.yml
+- include: libvirt.yml
+- include: squid.yml
+
+- name: install packages
+  yum: name="{{ item }}" state=present
+  with_items:
+    - "@Standard"
+    - git
+    - openvswitch
+

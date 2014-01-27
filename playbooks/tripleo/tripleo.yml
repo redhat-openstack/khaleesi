@@ -1,0 +1,6 @@
+---
+- hosts: tripleo
+  roles:
+    - { role: tripleo/devtest_prereq }
+    - { role: tripleo/moved_libvirt_storage }
+    - { role: tripleo/devtest }

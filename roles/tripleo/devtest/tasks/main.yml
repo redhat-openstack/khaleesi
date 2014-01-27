@@ -1,0 +1,13 @@
+---
+- include: user.yml
+
+- name: clone tripleo-incubator
+  git: dest=/home/devtest/tripleo/tripleo-incubator
+       repo=git://git.openstack.org/openstack/tripleo-incubator
+       update=no
+
+- name: tripleo directory owned by devtest user
+  file: path=/home/devtest/tripleo
+        owner=devtest
+        group=devtest
+        recurse=yes

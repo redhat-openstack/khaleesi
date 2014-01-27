@@ -1,0 +1,32 @@
+---
+- name: ensure libvirtd group exists
+  group: name=libvirtd state=present
+
+- user: name=devtest groups=libvirtd,wheel append=yes
+
+- template: src=sudoers-devtest.j2
+            dest=/etc/sudoers.d/devtest
+            mode=0440
+            validate='visudo -cf %s'
+
+- name: fact devtest_authorized_keys_present
+  shell: "[ -e /home/devtest/.ssh/authorized_keys ]"
+  register: devtest_authorized_keys_present
+  changed_when: false
+  failed_when: false
+
+- file: path=/home/devtest/.ssh
+        state=directory
+        owner=devtest
+        group=devtest
+        mode=0700
+
+- name: sync devtest authorized keys with root
+  shell: cp /root/.ssh/authorized_keys /home/devtest/.ssh/authorized_keys
+  when: devtest_authorized_keys_present.rc != 0
+
+- file: path=/home/devtest/.ssh/authorized_keys
+        state=file
+        owner=devtest
+        group=devtest
+        mode=0600
