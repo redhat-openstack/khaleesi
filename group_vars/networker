@@ -1,0 +1,3 @@
+---
+net_interfaces:
+    - { interface: 'eth1', ip_var: 'foreman_private_ip', ansible_var: 'ansible_eth1' }

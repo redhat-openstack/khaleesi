@@ -7,6 +7,5 @@
 - name: Setup networking (interfaces)
   template: "src=ifcfg-interface dest=/etc/sysconfig/network-scripts/ifcfg-{{ item.interface }} owner=root group=root mode=644"
   with_items: net_interfaces
-  when: '"networker" not in group_names or ("networker" in group_names and item.interface != "eth2")'
   notify:
     - restart network
