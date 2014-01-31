@@ -24,13 +24,14 @@
   with_items: '/usr/share/openstack-foreman-installer/bin/seeds.rb'
   when: random_passwords.rc == 0
 
-- name: Enable neutron
+- name: Fix seed values
   lineinfile: >
     dest=/usr/share/openstack-foreman-installer/bin/seeds.rb
-    regexp='^(.*"neutron"[ ]*=> )"false",'
-    line='\1"true",'
+    regexp="^(.*\"{{ item.name }}\"[ ]*=> )([\"']){{ item.oldvalue }}([\"']),"
+    line="\1\g<2>{{ item.newvalue }}\g<3>,"
     backrefs=yes
     state=present
+  with_items: seed_values
 
 - name: Remove the prompt in foreman_server.sh
   lineinfile: >
@@ -44,12 +45,6 @@
     creates=/tmp/foreman_client.sh
     bash -x ./foreman_server.sh
   environment:
-    PRIVATE_CONTROLLER_IP: "{{ hostvars[controller_name].foreman_private_ip }}"
-    PRIVATE_INTERFACE: "{{ private_interface }}"
-    PRIVATE_NETMASK: "{{ private_netmask }}"
-    PUBLIC_CONTROLLER_IP: "{{ hostvars[controller_name].foreman_public_ip }}"
-    PUBLIC_INTERFACE: "{{ public_interface }}"
-    PUBLIC_NETMASK: "{{ public_netmask }}"
     FOREMAN_GATEWAY: "false"
     FOREMAN_PROVISIONING: "false"
   tags:
