@@ -33,9 +33,9 @@ Prereqs
 Installation
 ------------
 
-1. virtualenv ansible
-2. ansible/bin/activate
-3. pip install ansible
+    virtualenv ansible
+    source ansible/bin/activate
+    pip install ansible
 
 
 Now, copy group_vars/all.sample to group_vars/all. Set the variables for your environment. These can also be set on the command-line. See 
