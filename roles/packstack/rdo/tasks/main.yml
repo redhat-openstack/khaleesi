@@ -5,6 +5,6 @@
 - name: yum install openstack-packstack
   yum: name=openstack-packstack state=latest
 
-- { include: ../../../../tasks/workarounds/fedora/fix_tempest_mariadb.yml}
+- { include: ../../../../tasks/workarounds/fedora/fix_tempest_mariadb.yml }
 
 - { include: set-answer-file-defaults.yml }
