@@ -9,4 +9,5 @@
     - "@Standard"
     - git
     - openvswitch
-
+    - screen
+    - tmux
