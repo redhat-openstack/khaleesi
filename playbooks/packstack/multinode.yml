@@ -47,14 +47,6 @@
     - { role: packstack/runner }
   tags: run-packstack
 
-- name: Reboot controller and compute
-  hosts:
-    - compute
-    - controller
-  tasks:
-      - include: ../../tasks/common/reboot.yml
-  tags: reboot
-
 - name: Run tempest
   hosts: controller
   vars:

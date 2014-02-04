@@ -1,0 +1,6 @@
+---
+- name: update libvirt to  1.1.3.3-5.fc20
+  yum: name=libvirt enablerepo=updates-testing state=latest
+
+- name: restart openstack-nova-compute
+  service:  name=openstack-nova-compute state=restarted

@@ -35,6 +35,9 @@
   tags:
     - prep
 
+# apply pre-packstack workarouds
+- include: ../../workarounds/icehouse/workarounds-pre-install.yml tags=workaround
+
 - name: Install packstack
   hosts: packstack
   vars:
@@ -44,6 +47,9 @@
     - { role: packstack/runner }
   tags:
     - run-packstack
+
+  # apply pre-packstack workarouds
+- include: ../../workarounds/icehouse/workarounds-post-install.yml tags=workaround-post-install
 
 - name: Run tempest
   hosts: packstack

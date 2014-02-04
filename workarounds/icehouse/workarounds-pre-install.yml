@@ -1,0 +1,49 @@
+---
+
+
+### use var_files to store rdo-icehouse-fedora-20.yml
+- name: Workarounds | specific to fedora distro
+  hosts: packstack
+  tasks:
+     - { include: "fedora/install_mariadb.yml",
+         name: 'WORKAROUND | BZ | Install mariadb',
+         tags: workaround,
+         when: ansible_distribution == 'Fedora'
+       }
+
+- name: Workarounds | specific to RHEL distro
+  hosts: packstack
+  tasks:
+    - { include: "rhel/python-backports.yml",
+         name: 'WORKAROUND | BZ  | ensure latest python-backports',
+         tags: workaround,
+         when: ansible_distribution == 'RedHat'
+       }
+
+- name: Workarounds | specific to fedora distro on controller
+  hosts: Fedora:&controller
+  tasks:
+     - { include: "fedora/install_mongodb.yml",
+         name: 'WORKAROUND | BZ | Install mongodb',
+         tags: workaround,
+         when: workarounds_disabled is not defined or
+                workarounds_disabled|bool == false
+       }
+
+     - { include: "fedora/install_mariadb.yml",
+         name: 'WORKAROUND | BZ | Install mariadb',
+         tags: workaround,
+         when: workarounds_disabled is not defined or
+                workarounds_disabled|bool == false
+       }
+
+- name: Workarounds | specific to fedora distro on Compute
+  hosts: Fedora:&compute
+  tasks:
+     - { include: "fedora/install_qpidd.yml",
+         name: 'WORKAROUND | BZ | Install qpidd',
+         tags: workaround,
+         when: workarounds_disabled is not defined or
+                workarounds_disabled|bool == false
+       }
+

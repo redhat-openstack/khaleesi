@@ -1,0 +1,5 @@
+---
+- yum: name=mongodb-server state=present
+- shell: sed
+         -e 's|\(ExecStart.*\)|\1\nTimeoutStartSec=10m|'
+         -i /lib/systemd/system/mongod.service

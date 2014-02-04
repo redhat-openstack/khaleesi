@@ -8,16 +8,19 @@
 
 - name: yum install rdo-release
   yum: name="{{ rdo[ config.version ].release_rpm[ ansible_distribution ] }}" state=present     #"
+  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
 
 - debug: msg="Setting baseurl to {{ rdo[config.version][config.repo].repo[ansible_distribution] }}"         #"
   when: "'info' in config.verbosity"
+  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
 
 - name: set baseurl for rdo environment
   lineinfile:
     dest=/etc/yum.repos.d/rdo-release.repo
     regexp=^baseurl=
     line="baseurl={{ rdo[config.version][config.repo].repo[ansible_distribution] }}"    #"
-    ## for e.g: baseurl={{ rdo.icehouse.production.repo.fedora }} ##
+  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
+  ## for e.g: baseurl={{ rdo.icehouse.production.repo.fedora }} ##
 
 - name: Yum clean all
   command: yum clean all

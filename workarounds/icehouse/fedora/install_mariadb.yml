@@ -1,0 +1,4 @@
+---
+- yum: name=mariadb-server state=present
+- shell: rm /usr/lib/systemd/system/mysqld.service
+- shell: cp /usr/lib/systemd/system/mariadb.service /usr/lib/systemd/system/mysqld.service
