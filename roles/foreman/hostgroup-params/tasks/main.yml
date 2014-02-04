@@ -1,0 +1,16 @@
+---
+- name: Set hostgroup params
+  uri: >
+        url=https://{{ foreman_fqdn }}/api/puppetclasses/{{ item.0.name }}/smart_class_parameters/{{ item.1.key }}
+        body='{"default_value": "{{ item.1.value }}"}'
+        method=PUT
+        user=admin
+        password=changeme
+        force_basic_auth=yes
+        return_content=yes
+        HEADER_Content-Type="application/json"
+        HEADER_Accept="application/json,version=2"
+  with_subelements:
+    - hostgroups
+    - params
+

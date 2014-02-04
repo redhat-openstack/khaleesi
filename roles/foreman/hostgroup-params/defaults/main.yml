@@ -1,0 +1,8 @@
+---
+hostgroups:
+  - name: "quickstack::neutron::compute"
+    params:
+      - { key: ovs_tunnel_iface, value: "eth1" }
+  - name: "quickstack::neutron::networker"
+    params:
+      - { key: ovs_tunnel_iface, value: "eth1" }
