@@ -1,5 +1,4 @@
 ---
-  - name: install latest python-backports
-    yum:  name=python-backports state=latest
-    when: ansible_distribution == 'RedHat'
+- yum:  name=python-backports state=latest
+
 

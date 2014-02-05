@@ -61,7 +61,7 @@ nodes:
     flavor_id: "{{ flavor_id }}"
     network_ids: "{{ network_ids }}"
     hostname: packstack.example.com
-    groups: "packstack,openstack_nodes"
+    groups: "packstack,controller,compute,openstack_nodes"
     packstack_node_hostgroup: packstack
 
 #VM settings
@@ -107,7 +107,7 @@ EOF
 
 ansible-playbook -i local_hosts  \
  playbooks/packstack/rdo_neutron_aio_playbook.yml \
-    --extra-vars @settings.yml -v -u fedora $tags
+    --extra-vars @settings.yml -v -u fedora -s $tags
 }
 
 main "$@"

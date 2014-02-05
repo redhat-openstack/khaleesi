@@ -1,16 +1,35 @@
 ---
+- name: Check if keystonerc_demo has been created by packstack
+  action: shell test -f /root/keystonerc_demo
+  register: keystonerc_demo_created
+  ignore_errors: True
+
 - name: Install rpm dependencies
   yum: "name={{ item }} state=present"
   with_items:
     - git
     - packstack-modules-puppet
+  when: keystonerc_demo_created.rc != 0
   tags:
     - tempest_setup
 
-- { include: ../../openstack/create-keystonerc/tasks/main.yml tags=tempest_setup }
-- { include: setup-openstack-elements.yml  tags=tempest_setup }
+
+- include: ../../openstack/create-keystonerc/tasks/main.yml 
+  tags: 
+    -  tempest_setup
+  when: keystonerc_demo_created.rc != 0
+
+- include: setup-openstack-elements.yml
+  tags: 
+    - tempest_setup 
+  when: keystonerc_demo_created.rc != 0
+
 - { include: setup-tempest.yml tags=tempest_setup }
 
+- name: pip install junitxml
+  pip: name=junitxml virtualenv=/var/lib/tempest/.venv
+  tags:
+    - tempest_setup
 
 - name: Run tempest
   script: run_tempest.sh {{ tempest['checkout_dir'] }} {{ tempest['test_name'] }}

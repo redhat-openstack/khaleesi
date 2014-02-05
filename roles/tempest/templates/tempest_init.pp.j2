@@ -4,7 +4,7 @@ class { 'tempest':
   tempest_clone_path        => '{{ tempest['checkout_dir'] }}',
   tempest_clone_owner       => 'root',
 
-  setup_venv                => false,
+  setup_venv                => true,
 
   # Glance image config
   # turn off the auto-config in tempest/manifest/init.pp

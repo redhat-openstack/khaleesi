@@ -1,23 +1,27 @@
 ---
-
+# group hosts by distro
+- name: Bootstrap testbed VMs
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ ansible_distribution }}
 
 ### use var_files to store rdo-icehouse-fedora-20.yml
 - name: Workarounds | specific to fedora distro
-  hosts: packstack
+  hosts: Fedora:&controller
   tasks:
      - { include: "fedora/install_mariadb.yml",
          name: 'WORKAROUND | BZ | Install mariadb',
          tags: workaround,
-         when: ansible_distribution == 'Fedora'
+         when: workaround_mariadb is defined and workaround_mariadb
        }
 
 - name: Workarounds | specific to RHEL distro
-  hosts: packstack
+  hosts: RedHat:&controller
   tasks:
     - { include: "rhel/python-backports.yml",
          name: 'WORKAROUND | BZ  | ensure latest python-backports',
          tags: workaround,
-         when: ansible_distribution == 'RedHat'
+         when: workaround_python_backports is defined and workaround_python_backports
        }
 
 - name: Workarounds | specific to fedora distro on controller
@@ -26,15 +30,7 @@
      - { include: "fedora/install_mongodb.yml",
          name: 'WORKAROUND | BZ | Install mongodb',
          tags: workaround,
-         when: workarounds_disabled is not defined or
-                workarounds_disabled|bool == false
-       }
-
-     - { include: "fedora/install_mariadb.yml",
-         name: 'WORKAROUND | BZ | Install mariadb',
-         tags: workaround,
-         when: workarounds_disabled is not defined or
-                workarounds_disabled|bool == false
+         when: workaround_mongodb is defined and workaround_mongodb
        }
 
 - name: Workarounds | specific to fedora distro on Compute
@@ -43,7 +39,6 @@
      - { include: "fedora/install_qpidd.yml",
          name: 'WORKAROUND | BZ | Install qpidd',
          tags: workaround,
-         when: workarounds_disabled is not defined or
-                workarounds_disabled|bool == false
+         when: workaround_qpidd is defined and workaround_qpidd
        }
 

@@ -133,7 +133,7 @@ tempest.run_smoketest() {
     elif [[ $py_version =~ "2.6" &&  -n $tempest_test_name ]]; then
         tempest.nose_test_single $tempest_test_name
     elif [[ $py_version =~ "2.7" &&  -n $tempest_test_name ]]; then
-        tempest.testr $tempest_test_name
+        tempest.testr_single $tempest_test_name
     else
         echo "Please check test variables"
         return 1
