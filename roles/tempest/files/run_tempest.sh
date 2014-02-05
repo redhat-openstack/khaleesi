@@ -126,14 +126,17 @@ tempest.run_smoketest() {
 
     local py_version=$(python --version 2>&1)
 
+    #tests.scenario.test_network_basic_ops works w/ nosetest
+    # on python2.6/7 where testr does not. 
+    # moving this to only use nosetest atm.
     if [[ $py_version =~ "2.6" &&  -z $tempest_test_name ]]; then
         tempest.nose_test  exclude_files[@] exclude_tests[@]
     elif [[ $py_version =~ "2.7" &&  -z $tempest_test_name ]]; then
-        tempest.testr  exclude_files[@] exclude_tests[@]
+        tempest.nose_test  exclude_files[@] exclude_tests[@]
     elif [[ $py_version =~ "2.6" &&  -n $tempest_test_name ]]; then
         tempest.nose_test_single $tempest_test_name
     elif [[ $py_version =~ "2.7" &&  -n $tempest_test_name ]]; then
-        tempest.testr_single $tempest_test_name
+        tempest.nose_test_single $tempest_test_name
     else
         echo "Please check test variables"
         return 1

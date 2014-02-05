@@ -31,6 +31,11 @@
   tags:
     - tempest_setup
 
+- name: remove /var/lib/tempest/.testrepository
+  file: path=/var/lib/tempest/.testrepository state=absent
+  tags:
+    - tempest_run
+
 - name: Run tempest
   script: run_tempest.sh {{ tempest['checkout_dir'] }} {{ tempest['test_name'] }}
        --exclude-files {{ tempest['exclude']['files'] }}
