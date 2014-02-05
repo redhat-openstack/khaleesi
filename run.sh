@@ -38,7 +38,7 @@ main() {
     local net_2=${NET_2:-'CHANGE_ME'}
 
     local tags=${TAGS:-'--skip-tags workaround'}
-    local tempest_tests=${TEMPEST_TEST_NAME:-'tempest'}
+    local tempest_tests=${TEMPEST_TEST_NAME:-'tempest.scenario.test_network_basic_ops'}
     local remote_user=${REMOTE_USER:-'cloud-user'}
 
 
