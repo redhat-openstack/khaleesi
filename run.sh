@@ -1,6 +1,22 @@
 #! /usr/bin/env bash
 set -e -u
 
+# Quick Instructions:
+# export:
+# IMAGE_ID to the id of the image
+# 
+# Two networks are not required, but one is atm. "neutron net-list"
+# export:
+# NET_1
+# NET_2
+#
+# KEY_FILE= full path to openstack private ssh key for instance
+# SSH_KEY_NAME= name of ssh key in openstack
+#
+# TAGS='--tags=provision,prep'
+# REMOTE_USER= [cloud-user,fedora]
+#
+
 main() {
     local rdo_icehouse_f20_baseurl='http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/fedora-20'
     local rdo_icehouse_epel6_baseurl='http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6'
@@ -21,13 +37,14 @@ main() {
     local net_1=${NET_1:-'CHANGE_ME'}
     local net_2=${NET_2:-'CHANGE_ME'}
 
-    local tags=${TAGS:-''}
+    local tags=${TAGS:-'--skip-tags workaround'}
     local tempest_tests=${TEMPEST_TEST_NAME:-'tempest'}
+    local remote_user=${REMOTE_USER:-'cloud-user'}
+
 
 cat > settings.yml <<-EOF
 # job config
 
-workarounds_disabled: yes
 selinux: permissive  #[permissive, enforcing]
 
 config:
@@ -71,10 +88,16 @@ ntp_server: clock.redhat.com
 reboot_delay: +1
 
 # Currently sudo w/ NOPASSWD must be enabled in /etc/sudoers for sudo to work
+# running w/ -u $remote_user and -s will override these options
 sudo: yes
-remote_user: fedora
-#remote_user: cloud-user
+remote_user: $remote_user
 sudo_user: root
+
+#Packstack config override
+provision_tempest: y
+provision_demo: y
+
+#See group_vars/* for workaround enable/disable
 
 tempest:
     puppet_file: /tmp/tempest_init.pp
@@ -107,7 +130,7 @@ EOF
 
 ansible-playbook -i local_hosts  \
  playbooks/packstack/rdo_neutron_aio_playbook.yml \
-    --extra-vars @settings.yml -v -u fedora -s $tags
+    --extra-vars @settings.yml -v -u $remote_user -s $tags
 }
 
 main "$@"
