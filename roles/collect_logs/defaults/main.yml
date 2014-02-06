@@ -1,0 +1,6 @@
+---
+#should be overridden in settings
+log_files:
+  - /var/log/rpm.list
+  - /var/log/messages
+

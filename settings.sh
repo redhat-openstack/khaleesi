@@ -126,6 +126,8 @@ tempest:
             - test_stack_crud_no_resources
             - test_stack_list_responds
 
+log_files: /var/log/ /var/tmp/packstack /etc/ /var/lib/tempest /root/packstack*
+
 EOF
 
 }

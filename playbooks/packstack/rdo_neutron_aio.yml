@@ -58,3 +58,10 @@
     controller_fqdn: "{{ ansible_ssh_host }}"
   roles:
     - { role: tempest, controller_fqdn: "{{ controller_name }}", tags: ["tempest_run"] }
+
+- name: Gather Logs
+  hosts: packstack
+  roles:
+    - { role: collect_logs }
+  tags:
+    - collect_logs

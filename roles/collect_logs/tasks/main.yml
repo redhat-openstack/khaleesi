@@ -1,0 +1,10 @@
+---
+- name: collect list of installed rpms
+  shell: rpm -qa > {{ rpm_list }}
+
+- name: collect logs
+  command: tar cjPf /tmp/archive.tbz2 {{ log_files|join(' ') }}
+  ignore_errors: true
+
+- name: fetch log archive
+  synchronize: mode=pull src=/tmp/archive.tbz2 dest=../../archive.tbz2

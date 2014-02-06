@@ -8,6 +8,7 @@ hosts
 *.py[co]
 # Sublime projects
 *.sublime-*
+archive.*
 
 #kytoon
 tmp/
