@@ -126,7 +126,23 @@ tempest:
             - test_stack_crud_no_resources
             - test_stack_list_responds
 
-log_files: /var/log/ /var/tmp/packstack /etc/ /var/lib/tempest /root/packstack*
+log_files:
+  - /var/tmp/packstack
+  - /root/packstack*
+  - /var/lib/tempest/*
+  - /var/log/
+  - /etc/nova
+  - /etc/ceilometer
+  - /etc/cinder
+  - /etc/glance
+  - /etc/keystone
+  - /etc/neutron
+  - /etc/ntp
+  - /etc/puppet
+  - /etc/qpid
+  - /etc/qpidd.conf
+  - /etc/selinux
+  - /etc/yum.repos.d
 
 EOF
 
