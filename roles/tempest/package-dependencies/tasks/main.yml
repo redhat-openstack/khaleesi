@@ -1,0 +1,9 @@
+---
+- name: Install rpm dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - git
+    - packstack-modules-puppet
+  tags:
+    - tempest_setup
+

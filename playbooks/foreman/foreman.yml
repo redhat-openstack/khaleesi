@@ -90,6 +90,11 @@
   tags:
     - keystonerc
 
+- name: Setup tempest
+  hosts: tempest
+  roles:
+    - { role: tempest/package-dependencies }
+    - { role: tempest/setup-openstack-elements }
 
 - name: Run tempest
   hosts: tempest

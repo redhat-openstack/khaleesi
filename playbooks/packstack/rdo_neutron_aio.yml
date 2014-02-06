@@ -52,7 +52,7 @@
 - include: ../../workarounds/icehouse/workarounds-post-install.yml tags=workaround-post-install
 
 - name: Run tempest
-  hosts: packstack
+  hosts: tempest
   vars:
     controller_name: "{{ ansible_ssh_host }}"
     controller_fqdn: "{{ ansible_ssh_host }}"

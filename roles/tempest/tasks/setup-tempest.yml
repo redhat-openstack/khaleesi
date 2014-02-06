@@ -7,8 +7,3 @@
       {{ tempest['puppet_file'] }}
       {{ tempest['checkout_dir'] }}
 
-#- name: Cache pip downloads
-# copy: src=pip.conf dest=/root/.pip/
-
-#- name: Install venv to execute test-tool
-# script: install_venv.sh {{ tempest['checkout_dir'] }}

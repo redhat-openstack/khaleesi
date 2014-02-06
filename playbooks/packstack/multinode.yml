@@ -47,6 +47,17 @@
     - { role: packstack/runner }
   tags: run-packstack
 
+- name: Create RC files
+  hosts: packstack
+  roles:
+    - { role: openstack/create-keystonerc }
+
+- name: Setup tempest
+  hosts: tempest
+  roles:
+    - { role: tempest/package-dependencies }
+    - { role: tempest/setup-openstack-elements }
+
 - name: Run tempest
   hosts: controller
   vars:
