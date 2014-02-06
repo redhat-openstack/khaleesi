@@ -6,6 +6,11 @@
   tags:
     - tempest_setup
 
+- name: pip install requirements
+  pip: requirements=/var/lib/tempest/requirements.txt
+  tags:
+    - tempest_setup
+
 - name: remove /var/lib/tempest/.testrepository
   file: path=/var/lib/tempest/.testrepository state=absent
   tags:
