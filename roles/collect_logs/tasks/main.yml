@@ -7,4 +7,4 @@
   ignore_errors: true
 
 - name: fetch log archive
-  synchronize: mode=pull src=/tmp/archive.tbz2 dest=../../archive.tbz2
+  fetch: src=/tmp/archive.tbz2 dest=../../archive.tbz2
