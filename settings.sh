@@ -80,7 +80,7 @@ nodes:
     flavor_id: "{{ flavor_id }}"
     network_ids: "{{ network_ids }}"
     hostname: packstack.example.com
-    groups: "packstack,controller,compute,openstack_nodes"
+    groups: "packstack,controller,compute,openstack_nodes,tempest"
     packstack_node_hostgroup: packstack
 
 cleanup_nodes: "{{ nodes }}"
