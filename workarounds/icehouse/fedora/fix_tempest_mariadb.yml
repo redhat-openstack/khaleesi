@@ -1,4 +1,2 @@
 ---
-  - command: sed -i -e 's/mysql-devel/mariadb-devel/' /usr/lib/python2.7/site-packages/packstack/puppet/modules/tempest/manifests/params.pp
-    when: ansible_distribution == 'Fedora'
-    tags: workaround
+- command: sed -i -e 's/mysql-devel/mariadb-devel/' /usr/lib/python2.7/site-packages/packstack/puppet/modules/tempest/manifests/params.pp

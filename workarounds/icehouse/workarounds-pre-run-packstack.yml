@@ -1,0 +1,16 @@
+---
+# group hosts by distro
+- name: Bootstrap testbed VMs
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ ansible_distribution }}
+
+- name: Workarounds | specific to fedora distro
+  hosts: Fedora:&tempest
+  tasks:
+     - { include: "fedora/fix_tempest_mariadb.yml",
+          name: 'WORKAROUND | BZ 981116 | edit tempest puppet to use mariadb',
+          tags: workaround,
+          when: workaround_tempest_mariadb is defined and workaround_tempest_mariadb
+       }
+
