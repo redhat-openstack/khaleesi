@@ -40,9 +40,12 @@ main() {
     export tags=${TAGS:-'--skip-tags workaround'}
     local tempest_tests=${TEMPEST_TEST_NAME:-'tempest.scenario.test_network_basic_ops'}
     export remote_user=${REMOTE_USER:-'cloud-user'}
+
     local rhel_os_repo=${RHEL_OS_REPO:-''}
     local rhel_updates_repo=${RHEL_UPDATES_REPO:-''}
     local rhel_optional_repo=${RHEL_OPTIONAL_REPO:-''}
+
+    local rdo_version=${RDO_VERSION:-'icehouse'}
 
 cat > settings.yml <<-EOF
 # job config
@@ -51,7 +54,7 @@ selinux: permissive  #[permissive, enforcing]
 
 config:
   product: rdo
-  version: icehouse
+  version: $rdo_version
   repo: production
   verbosity:
     - info
