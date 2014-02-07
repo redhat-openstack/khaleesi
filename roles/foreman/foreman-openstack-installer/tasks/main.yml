@@ -1,4 +1,7 @@
 ---
+- include: openstack-packstack.yml
+  when: openstack_packstack_rpm is defined
+
 - name: Install openstack-foreman-installer rpm
   yum: name={{ openstack_foreman_installer_rpm }} state=present
 
