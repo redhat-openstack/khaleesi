@@ -7,7 +7,7 @@
     - tempest_setup
 
 - name: pip install requirements
-  pip: requirements=/var/lib/tempest/requirements.txt
+  pip: requirements=/var/lib/tempest/requirements.txt virtualenv=/var/lib/tempest/.venv
   tags:
     - tempest_setup
 
