@@ -1,14 +1,3 @@
 ---
-- name: be sure ntp is installed
-  yum: name=ntp state=installed
-  tags: ntp
-
-- name: be sure ntp is configured
-  template: src=ntp.conf.j2 dest=/etc/ntp.conf
-  notify:
-    - restart ntpd
-  tags: ntp
-
-- name: be sure ntpd is running and enabled
-  service: name=ntpd state=running enabled=yes
-  tags: ntp
+- name: linux common tasks
+  command: uname -a
