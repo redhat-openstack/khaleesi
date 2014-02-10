@@ -26,10 +26,6 @@
     - { role: foreman/foreman-common }
   tags:
     - prep
-    - install
-    - install_nodes
-    - keystonerc
-    - tempest
 
 - name: Prepare foreman network
   hosts: foreman_installer

@@ -30,8 +30,9 @@ main() {
     local puppet_modules_dir=$(rpm -ql packstack-modules-puppet | grep 'modules$')
     if [[  -z $puppet_modules_dir ]]; then
         local puppet_modules_dir=$(rpm -ql openstack-packstack | grep 'modules$' | tail -n 1)
-    else
-        return 1
+        if [[ -z $puppet_modules_dir ]]; then
+            return 1
+        fi
     fi
     puppet apply --modulepath=$puppet_modules_dir $tempest_init_pp
     return $?
