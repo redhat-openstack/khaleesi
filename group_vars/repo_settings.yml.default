@@ -1,0 +1,18 @@
+---
+#by default this should be blank.
+#This file will be overwritten outside of git for jobs that require internal repositories
+none: none
+
+
+#example
+#rdo:
+#  icehouse:
+#    release_rpm:
+#      RedHat: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/rdo-release-icehouse-1.noarch.rpm
+#      #Fedora: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/fedora-20/rdo-release-icehouse-1.noarch.rpm
+#      CentOS: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/rdo-release-icehouse-1.noarch.rpm
+#    production:
+#      repo:
+#        RedHat: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6
+#        Fedora: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/fedora-20
+#        CentOS: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6

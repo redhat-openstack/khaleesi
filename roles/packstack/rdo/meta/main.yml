@@ -1,4 +1,9 @@
 ---
 dependencies:
+    - { role: common }
     - { role: packstack/common }
+    - { role: packstack/rdo/common }
+    - { role: packstack/rdo/rhel, when: ansible_distribution == 'RedHat' }
+    - { role: packstack/rdo/rhel, when: ansible_distribution == 'CentOS' }
+    - { role: packstack/rdo/fedora, when: ansible_distribution == 'Fedora' }
 
