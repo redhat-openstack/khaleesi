@@ -11,6 +11,3 @@
         -e 's|_PASSWORD=.*|_PASSWORD=redhat|'
         -e 's|_PW=.*|_PW=redhat|'
         -i {{ packstack_config }}
-
-- { include: ../../../../workarounds/icehouse/fedora/fix_tempest_mariadb.yml }
-
