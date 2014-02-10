@@ -54,6 +54,11 @@
   # apply post-packstack workarouds
 - include: ../../workarounds/icehouse/workarounds-post-run-packstack.yml tags=workaround-post-install
 
+- name: Update RPMs
+  hosts: packstack
+  roles:
+    - { role: rdopkg/update, tags: ["rdoupdate"] }
+
 - name: Run tempest
   hosts: tempest
   vars:

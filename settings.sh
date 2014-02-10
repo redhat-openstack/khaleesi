@@ -47,6 +47,7 @@ main() {
 
     local rdo_version=${RDO_VERSION:-'icehouse'}
     local rdo_repo=${RDO_REPO:-'production'}
+    local update_rpms_tarball=${UPDATE_RPMS_TARBALL:-''}
 
 cat > settings.yml <<-EOF
 # job config
@@ -97,6 +98,7 @@ reboot_delay: +1
 rhel_os_repo: $rhel_os_repo
 rhel_updates_repo: $rhel_updates_repo
 rhel_optional_repo: $rhel_optional_repo
+update_rpms_tarball: $update_rpms_tarball
 
 # Currently sudo w/ NOPASSWD must be enabled in /etc/sudoers for sudo to work
 # running w/ -u $remote_user and -s will override these options
