@@ -9,14 +9,14 @@ rdo:
       CentOS: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/rdo-release-icehouse-1.noarch.rpm
     production:
       repo:
-        RedHat: 
+        RedHat:
           6: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6
           7: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-7
-        Fedora: 
+        Fedora:
           20: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/fedora-20
-        CentOS: 
+        CentOS:
           6: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6
-
+          7: http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-7
   havana:
     release_rpm:
       RedHat: http://repos.fedorapeople.org/repos/openstack/openstack-havana/rdo-release-havana-7.noarch.rpm
@@ -30,7 +30,6 @@ rdo:
           19: http://repos.fedorapeople.org/repos/openstack/openstack-havana/fedora-19
         CentOS:
           6: http://repos.fedorapeople.org/repos/openstack/openstack-havana/epel-6
-
   grizzly:
     release_rpm:
       RedHat: http://repos.fedorapeople.org/repos/openstack/openstack-grizzly/rdo-release-grizzly-3.noarch.rpm

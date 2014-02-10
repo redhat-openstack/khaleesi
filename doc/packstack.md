@@ -24,6 +24,11 @@ Create a $HOME/.ansible.cfg with the following:
 
 NOTE: If you set library in .ansible.cfg, and you try to update ansible, it will fail. You will need comment out the line with a '#', run 'pip uninstall ansible; pip install ansible' to fix.
 
+RDO repository config:
+cp group_vars/repo_settings.yml.default repo_settings.yml
+
+NOTE: The repositories can be adjusted to suite your needs
+
 Execution:
 Set the following variables:
 

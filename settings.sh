@@ -46,6 +46,7 @@ main() {
     local rhel_optional_repo=${RHEL_OPTIONAL_REPO:-''}
 
     local rdo_version=${RDO_VERSION:-'icehouse'}
+    local rdo_repo=${RDO_REPO:-'production'}
 
 cat > settings.yml <<-EOF
 # job config
@@ -55,7 +56,7 @@ selinux: permissive  #[permissive, enforcing]
 config:
   product: rdo
   version: $rdo_version
-  repo: production
+  repo: $rdo_repo
   verbosity:
     - info
     - warning

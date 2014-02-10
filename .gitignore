@@ -4,6 +4,7 @@ bugzilla.ini
 ansible.cfg
 group_vars/all
 settings.yml
+repo_settings.yml
 hosts
 *.py[co]
 # Sublime projects
