@@ -28,6 +28,13 @@
   register: floating_ips
   with_items: nodes
 
+- name: dump network and node info
+  debug: msg="{{ item }}"
+  with_together:
+    - new_nodes.results
+    - floating_ips.results
+  when: "'debug' in config.verbosity"
+
 - name: Add Foreman hosts
   add_host:
       name="{{ item.0.item.name }}"

@@ -1,0 +1,5 @@
+---
+config:
+  verbosity:
+    - info
+    - warning
