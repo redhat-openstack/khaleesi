@@ -92,6 +92,8 @@
   roles:
     - { role: tempest/package-dependencies }
     - { role: tempest/setup-openstack-elements }
+  tags:
+    - tempest
 
 - name: Run tempest
   hosts: tempest
