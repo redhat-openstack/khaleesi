@@ -15,13 +15,13 @@
   neutron_network: name=public router_external=yes login_username=admin login_password=redhat login_tenant_name=admin state=present
   register: result
 - name: Setup of public subnet
-  neutron_subnet: "name=public_subnet network_name=public cidr=192.168.201.0/24 enable_dhcp=false login_username=admin login_password=redhat login_tenant_name=admin state=present"
+  neutron_subnet: "name=public_subnet network_name=public cidr={{ public_subnet_cidr }} enable_dhcp=false login_username=admin login_password=redhat login_tenant_name=admin state=present"
 
 - name: Setup of private network
   neutron_network: name=private tenant_name=demo login_username=admin login_password=redhat login_tenant_name=admin state=present
 
 - name: Setup of private subnet
-  neutron_subnet: "name=private_subnet network_name=private cidr=192.168.200.0/24 enable_dhcp=false tenant_name=demo login_username=admin login_password=redhat login_tenant_name=admin state=present"
+  neutron_subnet: "name=private_subnet network_name=private cidr={{ private_subnet_cidr }} enable_dhcp=true tenant_name=demo login_username=admin login_password=redhat login_tenant_name=admin state=present"
 
 - name: Create router
   neutron_router: name=router1 tenant_name=demo login_username=admin login_password=redhat login_tenant_name=admin state=present
