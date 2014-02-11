@@ -88,6 +88,7 @@
 
 - name: Setup tempest
   hosts: tempest
+  user: "{{ remote_user }}"
   roles:
     - { role: tempest/package-dependencies }
     - { role: tempest/setup-openstack-elements }
