@@ -12,7 +12,7 @@
     shell: find {{ rdopkg_rpm_dir }} -regex '.*.tar.gz' | xargs tar -xvz -C {{ rdopkg_rpm_dir }} -f
 
   - name: rpm force install rdopkg RPMs
-    shell: find {{ rdopkg_rpm_dir }} -regex '.*rpm' | xargs rpm -i --force --nodeps
+    shell: find {{ rdopkg_rpm_dir }} -regex '.*rpm' | xargs rpm -v -i --force --nodeps
 
   - name: restart openstack and neutron services
     service: name={{ item }} state=restarted
