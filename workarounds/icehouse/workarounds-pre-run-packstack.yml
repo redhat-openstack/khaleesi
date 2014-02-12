@@ -14,3 +14,12 @@
           when: workaround_tempest_mariadb is defined and workaround_tempest_mariadb
        }
 
+- name: Workarounds | specific to RHEL distro
+  hosts: RedHat:&controller
+  tasks:
+    - { include: "rhel/python-backports.yml",
+         name: 'WORKAROUND | BZ  | ensure latest python-backports',
+         tags: workaround,
+         when: workaround_python_backports is defined and workaround_python_backports
+       }
+
