@@ -3,9 +3,6 @@
   yum: name=rdo-release* state=absent
   ignore_errors: yes
 
-- debug: var={{ rdo }}
-  when: "'debug' in config.verbosity"
-
  ## for e.g: baseurl={{ rdo.icehouse.production.repo.fedora }} ##
 - debug: msg="Setting baseurl to {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"         #"
   when: "'debug' in config.verbosity"

@@ -1,13 +1,6 @@
 ---
-- name: yum install rdo-release for Fedora environment
-  yum: name="{{ rdo[ config.version ].release_rpm[ ansible_distribution ] }}" state=present     #"
-  when: '"{{ config.repo }}" != "production"'
-
-- name: set baseurl for rdo Fedora environment
-  lineinfile:
-    dest=/etc/yum.repos.d/rdo-release.repo
-    regexp=^baseurl=
-    line='baseurl="{{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"'    #"
-  when: 'ansible_distribution == "Fedora" and  "{{ config.repo }}"  != "production"'
+- name: Create the rdo-release repositories for Fedora
+  template: src=rdo.repo.j2 dest=/etc/yum.repos.d/rdo-release.repo
   notify:
     - Yum clean all
+

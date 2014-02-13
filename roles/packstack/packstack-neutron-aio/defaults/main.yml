@@ -5,9 +5,9 @@ provision_tempest: y
 config_horizon: n
 config_heat_install: n
 config_heat_cfn_install: n
+config_use_epel: y
 
 aio_config_options:
-      - { option: 'CONFIG_USE_EPEL', value: 'y' }
       - { option: 'CONFIG_NOVA_NETWORK_FIXEDRANGE', value: '192.168.32.0/24' }
       - { option: 'CONFIG_NOVA_NETWORK_FLOATRANGE', value: '10.3.4.0/24'}
       - { option: 'CONFIG_NEUTRON_INSTALL', value: 'y'}
@@ -22,3 +22,6 @@ aio_config_options:
       - { option: 'CONFIG_PROVISION_DEMO', value: "{{ provision_demo }}" }
       - { option: 'CONFIG_PROVISION_TEMPEST', value: "{{ provision_tempest }}" }
       - { option: 'CONFIG_HORIZON_INSTALL', value: "{{ config_horizon }}" }
+
+aio_config_rhel_options:
+      - { option: 'CONFIG_USE_EPEL', value: "{{ config_use_epel }}" }
