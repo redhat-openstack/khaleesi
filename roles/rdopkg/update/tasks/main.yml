@@ -1,20 +1,32 @@
 ---
+  - name: Ensure createrepo
+    yum: name=createrepo state=present
+
   - name: rdopkg directory present
-    file: path={{ rdopkg_rpm_dir }} owner=root group=root state=directory
+    file: path={{ update_rpms_dir }} owner=root group=root state=directory
 
   - name: clear rdopkg directory
-    command: rm -Rf {{ rdopkg_rpm_dir }}/*
+    command: rm -Rf {{ update_rpms_dir }}/*
 
   - name: copy update_rpms_tarball to node
-    copy: src={{ update_rpms_tarball }} dest={{ rdopkg_rpm_dir }} owner=root group=root mode=0644
+    copy: src={{ update_rpms_tarball }} dest={{ update_rpms_dir }} owner=root group=root mode=0644
 
   - name: unpack update_rpms_tarball
-    shell: find {{ rdopkg_rpm_dir }} -regex '.*.tar.gz' | xargs tar -xvz -C {{ rdopkg_rpm_dir }} -f
+    shell: find {{ update_rpms_dir }} -regex '.*.tar.gz' | xargs tar -xvz -C {{ update_rpms_dir }} -f
 
-  - name: rpm force install rdopkg RPMs
-    shell: find {{ rdopkg_rpm_dir }} -regex '.*rpm' | xargs rpm -v -i --force --nodeps
+  - name: createrepo in update rpms dir
+    command: createrepo {{ update_rpms_dir }} 
 
-  - name: restart openstack and neutron services
-    service: name={{ item }} state=restarted
-    with_items:
-      services_list
+  - name: Create the update rpms repo
+    template: src=update_rpms.repo.j2 dest=/etc/yum.repos.d/update_rpms.repo
+    notify:
+      - Yum clean all
+
+  # Only update packages from the rdopkg update_rpms repo.
+  - name: Install updates from rdopkg repo
+    command: yum update --disablerepo=openstack-"{{ config.version }}" --enablerepo=update_rpms
+    notify:
+      - reboot
+      - Wait for host to stop
+      - Wait for host to come back
+      - Reload facts
