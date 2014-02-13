@@ -1,0 +1,23 @@
+---
+- name: Get nodes for log collection
+  hosts: local
+  gather_facts: False
+  roles:
+    - { role: get_nodes }
+  tags:
+    - provision
+
+- name: Set facts for hosts for log collection
+  hosts: packstack
+  gather_facts: False
+  roles:
+    - { role: set_facts }
+  tags:
+    - provision
+
+- name: Gather Logs
+  hosts: packstack
+  roles:
+    - { role: collect_logs,  nodes: '{{ cleanup_nodes }}' }
+  tags:
+    - provision
