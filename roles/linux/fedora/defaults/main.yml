@@ -1,2 +1,2 @@
 ---
-repos_to_remove: []
+repos_to_remove: [ 'fedora.repo' ]
