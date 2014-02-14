@@ -24,7 +24,7 @@
 
   # Only update packages from the rdopkg update_rpms repo.
   - name: Install updates from rdopkg repo
-    command: yum update --disablerepo=openstack-"{{ config.version }}" --enablerepo=update_rpms
+    command: yum -y update
     notify:
       - reboot
       - Wait for host to stop
