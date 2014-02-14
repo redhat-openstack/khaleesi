@@ -1,0 +1,8 @@
+---
+dependencies:
+    - { role: common }
+    - { role: packstack/common }
+    - { role: packstack/rhos/common }
+    - { role: packstack/rhos/rhel, when: ansible_distribution == 'RedHat' }
+    - { role: packstack/rhos/rhel, when: ansible_distribution == 'CentOS' }
+

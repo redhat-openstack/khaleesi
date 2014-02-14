@@ -1,0 +1,6 @@
+[openstack-{{ config.version }}]
+name=OpenStack {{ config.version|capitalize }} Repository 
+failovermethod=priority
+baseurl={{ rhos[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}
+enabled=1
+gpgcheck={{ gpg_check }}

@@ -27,62 +27,16 @@
 # apply pre-packstack workarouds
 - include: ../../workarounds/icehouse/workarounds-prep.yml tags=workaround
 
-# group hosts by product
-- name: Bootstrap testbed VMs
-  hosts: all:!localhost
-  tasks:
-    - group_by: key={{ config.product }}
-  tags:
-    - prep
-
 - name: Packstack prep
-  hosts: controller:&rhos
+  hosts: packstack
   vars:
     controller_name: "{{ ansible_ssh_host }}"
     controller_fqdn: "{{ ansible_ssh_host }}"
   roles:
     - { role: packstack/rhos }
-  tags:
-    - prep
-
-- name: Packstack prep
-  hosts: controller:&rdo
-  vars:
-    controller_name: "{{ ansible_ssh_host }}"
-    controller_fqdn: "{{ ansible_ssh_host }}"
-  roles:
-    - { role: packstack/rdo }
-  tags:
-    - prep
-
-# group hosts by product
-- name: Bootstrap testbed VMs
-  hosts: all:!localhost
-  tasks:
-    - group_by: key={{ config.netplugin }}
-  tags:
-    - prep
-
-- name: Packstack Create Answer File
-  hosts: controller:&neutron
-  vars:
-    controller_name: "{{ ansible_ssh_host }}"
-    controller_fqdn: "{{ ansible_ssh_host }}"
-  roles:
     - { role: packstack/packstack-neutron-aio }
   tags:
     - prep
-
-- name: Packstack Create Answer File
-  hosts: controller:&nova
-  vars:
-    controller_name: "{{ ansible_ssh_host }}"
-    controller_fqdn: "{{ ansible_ssh_host }}"
-  roles:
-    - { role: packstack/packstack-nova-aio }
-  tags:
-    - prep
-
 
 # apply pre-packstack workarouds
 - include: ../../workarounds/icehouse/workarounds-pre-run-packstack.yml tags=workaround
@@ -100,11 +54,6 @@
   # apply post-packstack workarouds
 - include: ../../workarounds/icehouse/workarounds-post-run-packstack.yml tags=workaround-post-install
 
-- name: Update RPMs
-  hosts: packstack
-  roles:
-    - { role: rdopkg/update, tags: ["rdoupdate"] }
-
 - name: Run tempest
   hosts: tempest
   vars:
@@ -113,3 +62,9 @@
   roles:
     - { role: tempest, controller_fqdn: "{{ controller_name }}", tags: ["tempest_run"] }
 
+- name: Gather Logs
+  hosts: packstack
+  roles:
+    - { role: collect_logs }
+  tags:
+    - collect_logs

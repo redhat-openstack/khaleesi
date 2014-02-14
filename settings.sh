@@ -18,8 +18,6 @@ set -e -u
 #
 
 main() {
-    local rdo_icehouse_f20_baseurl='http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/fedora-20'
-    local rdo_icehouse_epel6_baseurl='http://repos.fedorapeople.org/repos/openstack/openstack-icehouse/epel-6'
     local default_flavor_id=4
     local default_floating_nw_name='external'
 
@@ -53,6 +51,11 @@ main() {
     local rdo_version=${RDO_VERSION:-'icehouse'}
     local rdo_repo=${RDO_REPO:-'production'}
     local network_driver=${NETWORK_DRIVER:-'neutron'}
+    local product=${PRODUCT:-'rdo'} #product
+    local productrelease=${PRODUCTRELEASE:-'icehouse'} #rdo_release
+    local productreleaserepo=${PRODUCTRELEASEREPO:-'production'} #rdo_repo
+    local netplugin=${NETPLUGIN:-'neutron'} #network_driver
+    local selinux=${SELINUX}:-'enforcing'}
 
     local update_rpms_tarball=${UPDATE_RPMS_TARBALL:-''}
 
@@ -64,10 +67,10 @@ packstack_int: whayutin
 
 config:
   product: $product
-  version: $rdo_version
-  repo: $rdo_repo
+  version: $productrelease
+  repo: $productreleaserepo
+  netplugin: $netplugin
   host_env: $host_env
-  network_driver: $network_driver
   verbosity:
     - info
     - warning
@@ -98,7 +101,7 @@ nodes:
     flavor_id: "{{ flavor_id }}"
     network_ids: "{{ network_ids }}"
     hostname: packstack.example.com
-    groups: "packstack,controller,compute,openstack_nodes,tempest,{{ config.product }},{{ config.network_driver }}"
+    groups: "packstack,controller,compute,openstack_nodes,tempest,{{ config.product }},{{ config.netplugin }}"
     packstack_node_hostgroup: packstack
 
 cleanup_nodes: "{{ nodes }}"

@@ -1,0 +1,5 @@
+---
+- name: Create the RHOS poodle repositories for RHEL
+  template: src=rhos_poodle.repo.j2 dest=/etc/yum.repos.d/rhos_poodle.repo
+  notify:
+    - Yum clean all
