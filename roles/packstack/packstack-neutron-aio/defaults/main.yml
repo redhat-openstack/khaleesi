@@ -2,9 +2,9 @@
 packstack_config: /root/packstack_config.txt
 provision_demo: y
 provision_tempest: y
-config_horizon: n
-config_heat_install: n
-config_heat_cfn_install: n
+config_horizon: y
+config_heat_install: y
+config_heat_cfn_install: y
 config_use_epel: y
 
 aio_config_options:

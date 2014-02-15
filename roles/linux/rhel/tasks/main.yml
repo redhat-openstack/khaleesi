@@ -1,5 +1,8 @@
 ---
 #RHEL
+- name: Remove python-backports
+  yum: name=python-backports state=absent
+
 - name: Remove yum-rhn-plugin
   yum: name=yum-rhn-plugin state=absent
   register: result
@@ -42,6 +45,20 @@
 - name: enable rhel optional
   command: yum-config-manager --enable rhel-7-server-optional-htb-rpms
   when: ansible_distribution_version == "7.0"
+
+- name: Remove the EPEL Repository.
+  yum: name=epel-release state=removed
+  when: ansible_distribution == "RedHat"
+  notify:
+    - Yum clean all
+
+- name: Ensure the EPEL Repository files are removed
+  file: path=/etc/yum.repos.d/epel.repo state=absent
+  notify:
+    - Yum clean all
+
+- name: List available yum repositories
+  command: yum -d 9 repolist
 
 #WORKAROUND
 - name: Ensure /etc/sysconfig/iptables-services

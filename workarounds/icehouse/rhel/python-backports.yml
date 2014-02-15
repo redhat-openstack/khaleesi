@@ -2,4 +2,3 @@
 - yum:  name=python-backports disablerepo=epel state=latest
 - command: rpm -q python-backports
 
-

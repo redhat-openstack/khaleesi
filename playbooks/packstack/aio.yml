@@ -1,4 +1,11 @@
 ---
+- name: Debug list config variables
+  hosts: local
+  roles:
+    - { role: packstack/debug }
+  tags:
+    - provision
+
 - name: Get nodes from nova
   hosts: local
   gather_facts: False
@@ -80,6 +87,16 @@
     controller_fqdn: "{{ ansible_ssh_host }}"
   roles:
     - { role: packstack/packstack-nova-aio }
+  tags:
+    - prep
+
+- name: Ensure EPEL is off for any RHOS install
+  hosts: controller:&rhos
+  vars:
+    controller_name: "{{ ansible_ssh_host }}"
+    controller_fqdn: "{{ ansible_ssh_host }}"
+  roles:
+    - { role: packstack/rhos/epel }
   tags:
     - prep
 
