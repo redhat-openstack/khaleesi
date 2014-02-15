@@ -49,8 +49,11 @@ main() {
     local sm_password=${SM_PASSWORD:-''}
 
     local host_env=${HOST_ENV:-'neutron'}
+    local product=${PRODUCT:-'rdo'}
     local rdo_version=${RDO_VERSION:-'icehouse'}
     local rdo_repo=${RDO_REPO:-'production'}
+    local network_driver=${NETWORK_DRIVER:-'neutron'}
+
     local update_rpms_tarball=${UPDATE_RPMS_TARBALL:-''}
 
 cat > settings.yml <<-EOF
@@ -60,10 +63,11 @@ selinux: permissive  #[permissive, enforcing]
 packstack_int: whayutin
 
 config:
-  product: rdo
+  product: $product
   version: $rdo_version
   repo: $rdo_repo
   host_env: $host_env
+  network_driver: $network_driver
   verbosity:
     - info
     - warning
@@ -94,7 +98,7 @@ nodes:
     flavor_id: "{{ flavor_id }}"
     network_ids: "{{ network_ids }}"
     hostname: packstack.example.com
-    groups: "packstack,controller,compute,openstack_nodes,tempest"
+    groups: "packstack,controller,compute,openstack_nodes,tempest,{{ config.product }},{{ config.network_driver }}"
     packstack_node_hostgroup: packstack
 
 cleanup_nodes: "{{ nodes }}"

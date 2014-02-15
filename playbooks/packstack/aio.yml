@@ -27,16 +27,62 @@
 # apply pre-packstack workarouds
 - include: ../../workarounds/icehouse/workarounds-prep.yml tags=workaround
 
+# group hosts by product
+- name: Bootstrap testbed VMs
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ config.product }}
+  tags:
+    - prep
+
 - name: Packstack prep
-  hosts: packstack
+  hosts: controller:&rhos
+  vars:
+    controller_name: "{{ ansible_ssh_host }}"
+    controller_fqdn: "{{ ansible_ssh_host }}"
+  roles:
+    - { role: packstack/rhos }
+  tags:
+    - prep
+
+- name: Packstack prep
+  hosts: controller:&rdo
   vars:
     controller_name: "{{ ansible_ssh_host }}"
     controller_fqdn: "{{ ansible_ssh_host }}"
   roles:
     - { role: packstack/rdo }
+  tags:
+    - prep
+
+# group hosts by product
+- name: Bootstrap testbed VMs
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ config.network_driver }}
+  tags:
+    - prep
+
+- name: Packstack Create Answer File
+  hosts: controller:&neutron
+  vars:
+    controller_name: "{{ ansible_ssh_host }}"
+    controller_fqdn: "{{ ansible_ssh_host }}"
+  roles:
     - { role: packstack/packstack-neutron-aio }
   tags:
     - prep
+
+- name: Packstack Create Answer File
+  hosts: controller:&nova
+  vars:
+    controller_name: "{{ ansible_ssh_host }}"
+    controller_fqdn: "{{ ansible_ssh_host }}"
+  roles:
+    - { role: packstack/packstack-nova-aio }
+  tags:
+    - prep
+
 
 # apply pre-packstack workarouds
 - include: ../../workarounds/icehouse/workarounds-pre-run-packstack.yml tags=workaround

@@ -7,13 +7,13 @@ source settings.sh
 if [ ! -e repo_settings.yml ]; then
   echo "settings = settings.yml"
   ansible-playbook -i local_hosts  \
-    playbooks/packstack/rdo_neutron_aio.yml \
+    playbooks/packstack/aio.yml \
       --extra-vars @settings.yml  \
         -v -u $remote_user -s $tags
 elif [[ ! -e job_settings.yml && -e repo_settings.yml ]]; then
   echo "settings = settings.yml, repo_settings.yml"
   ansible-playbook -i local_hosts  \
-    playbooks/packstack/rdo_neutron_aio.yml \
+    playbooks/packstack/aio.yml \
       --extra-vars @settings.yml --extra-vars @repo_settings.yml \
          -v -u $remote_user -s $tags
 elif [[ -e job_settings.yml && -e repo_settings.yml ]]; then
