@@ -23,7 +23,7 @@ collect_logs() {
   ansible-playbook -i local_hosts  \
     playbooks/collect_logs.yml \
       --extra-vars @settings.yml  \
-        -v -u $remote_user -s $tags
+        -v -u $remote_user -s
 }
 
 #require a 0 exit code for clean.sh to execute
