@@ -1,5 +1,12 @@
 ---
-- debug: msg="will run this"
+# cloud-init and python-backports can interfere w/ openstack installs
+- name: remove cloud-init and python-backports
+  yum: name={{ item }} state=absent
+  with_items:
+    - python-backports
+    - cloud-init
+
+- debug: msg="run packstack installer"
   tags: run-packstack
 
 - name: Packstack | run
