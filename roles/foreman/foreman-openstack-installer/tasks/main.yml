@@ -11,6 +11,9 @@
 - include: nova_compute_fix.yml
   when: nova_compute_fix is defined and nova_compute_fix
 
+- include: neutron_password_fix.yml
+  when: neutron_password_fix is defined and neutron_password_fix
+
 - name: Make /etc/hosts proper
   lineinfile: "dest=/etc/hosts regexp='.*{{hostvars[item].fqdn }}$' line='{{ hostvars[item].ansible_eth1.ipv4.address }} {{ hostvars[item].fqdn }}' state=present"
   with_items: groups.foreman
