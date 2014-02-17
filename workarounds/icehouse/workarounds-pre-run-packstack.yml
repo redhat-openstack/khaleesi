@@ -14,6 +14,15 @@
           when: workaround_tempest_mariadb is defined and workaround_tempest_mariadb
        }
 
+- name: Workarounds | specific to fedora distro
+  hosts: Fedora:&controller
+  tasks:
+     - { include: "common/fix-puppet-utf8.yml",
+          name: 'WORKAROUND | no bz',
+          tags: workaround,
+          when: workaround_puppet_utf8 is defined and workaround_puppet_utf8
+       }
+
 - name: Workarounds | specific to RHEL distro
   hosts: RedHat:&controller
   tasks:

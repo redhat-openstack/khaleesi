@@ -1,3 +1,4 @@
 ---
 workaround_mariadb: yes
 workaround_tempest_mariadb: yes
+workaround_puppet_utf8: yes

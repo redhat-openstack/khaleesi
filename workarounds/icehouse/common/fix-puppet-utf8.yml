@@ -1,0 +1,6 @@
+---
+- name: set puppet LANG
+  lineinfile: dest=/etc/environment
+      state=present
+      insertafter=EOF
+      line=LC_ALL=en_US.UTF-8
