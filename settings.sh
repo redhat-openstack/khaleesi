@@ -79,7 +79,7 @@ flavor_id: $flavor_id
 floating_network_name: $floating_nw_name
 
 nodes:
-  - name: "{{ node_prefix }}rdopkg"
+  - name: "{{ node_prefix }}"
     image_id: "{{ image_id }}"
     key_name: "{{ ssh_key_name }}"
     flavor_id: "{{ flavor_id }}"
