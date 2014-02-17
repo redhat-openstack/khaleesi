@@ -17,11 +17,7 @@
 - name: Workarounds | specific to RHEL distro
   hosts: RedHat:&controller
   tasks:
-    - { include: "rhel/python-backports.yml",
-         name: 'WORKAROUND | BZ  | ensure latest python-backports',
-         tags: workaround,
-         when: workaround_python_backports is defined and workaround_python_backports
-       }
+
 
 - name: Workarounds | specific to CentOS distro
   hosts: CentOS:&controller
