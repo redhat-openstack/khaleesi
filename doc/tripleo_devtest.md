@@ -25,12 +25,14 @@ Getting ready
 Install
 -------
 
-This will prepare the machine in your `hosts` for running devtest.
+This will prepare the machine in your `hosts` for running
+devtest.
 
     # run this on your local machine
     # make sure you're in the khaleesi directory
+    # need --extra-vars="devtest_user=root" because of https://bugs.launchpad.net/tripleo/+bug/1278861
 
-    ANSIBLE_ROLES_PATH=./roles ansible-playbook -i hosts playbooks/tripleo/tripleo.yml
+    ANSIBLE_ROLES_PATH=./roles ansible-playbook -i hosts --extra-vars="devtest_user=root" playbooks/tripleo/tripleo.yml
 
 
 Running Devtest
