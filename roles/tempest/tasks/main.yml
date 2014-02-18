@@ -1,8 +1,11 @@
 ---
 - { include: setup-tempest.yml tags=tempest_setup }
 
-- name: pip install junitxml
-  pip: name=junitxml virtualenv=/var/lib/tempest/.venv
+- name: pip install junitxml and unittest2
+  pip: name={{ item }} virtualenv=/var/lib/tempest/.venv
+  with_items:
+    - junitxml
+    - unittest2
   tags:
     - tempest_setup
 
