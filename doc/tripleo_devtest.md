@@ -38,9 +38,11 @@ devtest.
 Running Devtest
 ---------------
 
-Connect via ssh to the machine as `devtest` user, and check if
-`~/.devtestrc` suits your needs. Then run this as `devtest` user,
-ideally inside a `tmux` or `screen` session so that you can detach:
+Connect via ssh to the machine as `devtest` user (or if you used
+`--extra-vars="devtest_user=root"` in the Install step, connect as
+`root` instead). Check if `~/.devtestrc` suits your needs. Then run
+this, ideally inside a `tmux` or `screen` session so that you can
+detach:
 
     # run this on the lab machine
 
@@ -73,7 +75,8 @@ It ensures that on the target machine:
 * standard package group is installed (things like bash completion,
   wget, compression utilities, ...)
 
-* devtest user is present and has passwordless sudo rights
+* devtest user is present and has passwordless sudo rights (unless
+  explicitly told that root user should be used)
 
 * tripleo-incubator is cloned
 
