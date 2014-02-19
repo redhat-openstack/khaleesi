@@ -10,14 +10,15 @@
   notify:
     - Yum clean all
 
+- name: ensure f19 rpm ggp key
+  copy: src=f19-gpg dest=/etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-19-x86_64 owner=root group=root force=no
+  when: ansible_distribution_version == "19"
+
 - name: Create the Fedora Repositories
   template: src=fedora.repo.j2 dest=/etc/yum.repos.d/fedora.repo
   notify:
     - Yum clean all
     - yum -y update to latest packages
-
-- name: Ensure fedora-release
-  yum: name=fedora-release state=present
 
 - name: Ensure httplib2
   yum: name=python-httplib2 state=present
