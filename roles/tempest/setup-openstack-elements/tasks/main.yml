@@ -1,40 +1,118 @@
 ---
-- name: Get cirros image
-  get_url: "url=https://launchpad.net/cirros/trunk/0.3.0/+download/cirros-0.3.0-x86_64-disk.img dest=/tmp/cirros-0.3.0-x86_64-disk.img"
-
 - name: Setup of demo tenant
-  keystone_user: tenant=demo tenant_description="Demo Tenant" login_user=admin login_password=redhat login_tenant_name=admin state=present
+  keystone_user:
+        tenant={{ demo_tenant_name }}
+        tenant_description="{{ demo_tenant_description }}"
+        login_user={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        state=present
 
 - name: Setup of demo user
-  keystone_user: user=demo tenant=demo password=redhat login_user=admin login_password=redhat login_tenant_name=admin state=present
+  keystone_user:
+        user={{ demo_username }}
+        tenant={{ demo_tenant_name }}
+        password={{ demo_password }}
+        login_user={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        state=present
 
 - name: Apply demo role to demo user
-  keystone_user: user=demo role=demo tenant=demo login_user=admin login_password=redhat login_tenant_name=admin state=present
+  keystone_user:
+        user={{ demo_username }}
+        role={{ demo_role }}
+        tenant={{ demo_tenant_name }}
+        login_user={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        state=present
 
 - name: Setup of public network
-  neutron_network: name=public router_external=yes login_username=admin login_password=redhat login_tenant_name=admin state=present
-  register: result
+  neutron_network:
+        name={{ public_net_name }}
+        router_external=yes
+        tenant_name={{ public_net_tenant }}
+        login_username={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        state=present
+
 - name: Setup of public subnet
-  neutron_subnet: "name=public_subnet network_name=public cidr={{ public_subnet_cidr }} enable_dhcp=false login_username=admin login_password=redhat login_tenant_name=admin state=present"
+  neutron_subnet:
+        name={{ public_subnet_name }}
+        network_name={{ public_net_name }}
+        cidr={{ public_subnet_cidr }}
+        allocation_pool_start={{ public_allocation_start }}
+        allocation_pool_end={{ public_allocation_end }}
+        enable_dhcp=false
+        tenant_name={{ public_net_tenant }}
+        login_username={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        state=present
 
 - name: Setup of private network
-  neutron_network: name=private tenant_name=demo login_username=admin login_password=redhat login_tenant_name=admin state=present
+  neutron_network:
+        name={{ private_net_name }}
+        tenant_name={{ demo_tenant_name }}
+        login_username={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        state=present
 
 - name: Setup of private subnet
-  neutron_subnet: "name=private_subnet network_name=private cidr={{ private_subnet_cidr }} enable_dhcp=true tenant_name=demo login_username=admin login_password=redhat login_tenant_name=admin state=present"
+  neutron_subnet:
+        name={{ private_subnet_name }}
+        network_name={{ private_net_name }}
+        cidr={{ private_subnet_cidr }}
+        enable_dhcp=true
+        tenant_name={{ demo_tenant_name }}
+        login_username={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        state=present
 
 - name: Create router
-  neutron_router: name=router1 tenant_name=demo login_username=admin login_password=redhat login_tenant_name=admin state=present
+  neutron_router:
+        name={{ router_name }}
+        tenant_name={{ demo_tenant_name }}
+        login_username={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        state=present
 
 - name: Add interface to router
-  neutron_router_interface: router_name=router1 subnet_name=private_subnet tenant_name=demo login_username=admin login_password=redhat login_tenant_name=admin state=present
+  neutron_router_interface:
+        router_name={{ router_name }}
+        subnet_name={{ private_subnet_name }}
+        tenant_name={{ demo_tenant_name }}
+        login_username={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        state=present
 
 - name: Set gateway
-  neutron_router_gateway: router_name=router1 network_name=public login_username=admin login_password=redhat login_tenant_name=admin state=present
+  neutron_router_gateway:
+        router_name={{ router_name }}
+        network_name={{ public_net_name }}
+        login_username={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        state=present
 
 - name: Set security group rules
   script: setup_security_group_rules.sh
 
-- name: Upload image to OpenStack
-  glance_image: name=cirros container_format=bare disk_format=qcow2 file=/tmp/cirros-0.3.0-x86_64-disk.img is_public=yes login_username=demo login_password=redhat login_tenant_name=demo state=present
+- name: Upload cirros image to OpenStack
+  glance_image:
+        "name={{ cirros_image_name }}
+        container_format={{ cirros_image_container_format }}
+        disk_format={{ cirros_image_disk_format }}
+        copy_from={{ cirros_image_url }}
+        is_public=yes
+        login_username={{ demo_username }}
+        login_password={{ demo_password }}
+        login_tenant_name={{ demo_tenant_name }}
+        state=present"
 
