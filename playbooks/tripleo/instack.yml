@@ -1,0 +1,5 @@
+---
+- hosts: instack
+  roles:
+    - { role: tripleo/instack/instack-undercloud }
+#    - { role: tripleo/instack/overcloud }

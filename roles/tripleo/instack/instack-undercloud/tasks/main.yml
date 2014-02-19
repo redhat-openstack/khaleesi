@@ -1,0 +1,35 @@
+---
+- include: user.yml
+
+- name: enable the openstack-m repository
+  yum: pkg={{ openstack_m_pkg }} state=installed
+  remote_user: "{{ instack_user }}"
+  sudo: yes
+
+- name: install instack-undercloud
+  yum: name=instack-undercloud
+  remote_user: "{{ instack_user }}"
+  sudo: yes
+
+- name: check answers file exists
+  shell: "[ -e /usr/share/doc/instack-undercloud/instack-baremetal.answers.sample]"
+  register: answers_file_present
+  changed_when: false
+  failed_when: false
+
+- name: copy baremetal answers file
+  shell: "cp /usr/share/doc/instack-undercloud/instack-baremetal.answers.sample {{ instack_user_home.stdout }}/instack.answers"
+
+- name: run script to install undercloud
+  register: instack_undercloud_result
+  command:  chdir={{ instack_user_home.stdout }} install-undercloud-packages
+  sudo_user: "{{ instack_user }}"
+  sudo: yes
+
+- name: search output for complete status
+  shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'install-undercloud Complete!'"
+  register: grep_output
+
+- name: report failure if install is not complete
+  fail: msg="report error"
+  when: grep_output.stdout == ""
