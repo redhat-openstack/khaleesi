@@ -2,15 +2,3 @@
 - name: Ensure optional repo
   ini_file: dest=/etc/yum.repos.d/rhel.repo section=rhel-6-server-optional-rpms option=enabled value=1
   when: ansible_distribution == "RedHat"
-
-- name: Add RDO/RHOS repos
-  yum: name={{ rdo_repo_rpm }}
-  when: rdo_repo_rpm is defined
-
-- name: Add RDO/RHOS repos - Repofile
-  get_url: url={{ rdo_repo_url }} dest=/etc/yum.repos.d/
-  when: rdo_repo_url is defined
-
-- name: Add RDO/RHOS repos - Path
-  template: src=rhos-dev.repo.j2 dest=/etc/yum.repos.d/rhos-dev.repo
-  when: rdo_repo_path is defined

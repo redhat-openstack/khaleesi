@@ -7,13 +7,6 @@
   lineinfile:
     dest=/etc/yum.repos.d/rdo-release.repo
     regexp=^baseurl=
-    line="baseurl={{ rdo[config.version][config.repo].repo[ansible_distribution] }}"    #"
-  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
-
-- name: set baseurl for rdo for EL environment
-  lineinfile:
-    dest=/etc/yum.repos.d/rdo-release.repo
-    regexp=^baseurl=
     line="baseurl={{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"
   notify:
     - Yum clean all
