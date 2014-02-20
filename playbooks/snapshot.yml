@@ -1,0 +1,24 @@
+---
+- name: Get nodes for log collection
+  hosts: local
+  gather_facts: False
+  roles:
+    - { role: get_nodes }
+
+- name: Snapshot the environment
+  hosts: local
+  gather_facts: False
+  roles:
+    - { role: snapshot }
+  tags:
+    - snapshot
+
+- name: Start snapshotted image
+  hosts: local
+  gather_facts: False
+  vars:
+    image_id: "{{ snapshot_id }}"
+  roles:
+    - { role: get_nodes }
+  tags:
+    - provision

@@ -30,6 +30,8 @@ nova_creds = get_nova_creds()
 print(nova_creds)
 nova = nclient.Client(**nova_creds)
 
-print(nova.servers.list())
+#print(nova.servers.list())
 
-print(nova.floating_ips.list())
+#print(nova.floating_ips.list())
+#print(nova.images.list())
+print(nova.images.get('792470c9-1c43-4dee-b9c5-05aafd81f242').status)

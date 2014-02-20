@@ -66,6 +66,16 @@ options:
        - Name given to the snapshot to be created
      required: true
      default: None
+   wait:
+     description:
+        - If the module should wait for the image to be created.
+     required: false
+     default: 'yes'
+   wait_for:
+     description:
+        - The amount of time the module should wait for the image to get into active state
+     required: false
+     default: 180
 requirements: ["novaclient"]
 '''
 
@@ -78,14 +88,34 @@ EXAMPLES = '''
        login_tenant_name: admin
        instance_name: vm1
        snapshot_name: vm1_snapshot1
+       wait: yes
 '''
 
 def _create_snapshot(module, nova, server):
     try:
-        result = nova.servers.create_image(server, module.params['snapshot_name'])
+        snapshot_id = nova.servers.create_image(server, module.params['snapshot_name'])
     except Exception, e:
         module.fail_json(msg="There was an error snapshoting the instance: %s" % e.message)
-    module.exit_json(changed=True, result="created snapshot with id %s" % (result) )
+    #module.exit_json(changed=True, result="created snapshot with id %s" % (result) )
+
+
+    if module.params['wait'] == 'yes':
+            expire = time.time() + int(module.params['wait_for'])
+            while time.time() < expire:
+                try:
+                    image = nova.images.get(snapshot_id)
+                except Exception, e:
+                        module.fail_json( msg = "Error in getting info from image: %s " % e.message)
+                if image.status == 'ACTIVE':
+                    module.exit_json(changed = True, result=image.id,  status = image.status, info = image._info)
+                if image.status == 'ERROR':
+                    module.fail_json(msg = "Error in creating the server, please check logs")
+                time.sleep(60)
+
+            module.fail_json(msg = "Timeout waiting for the image to become active.. Please check manually")
+    if image.status == 'ERROR':
+        module.fail_json(msg = "Error in creating the image.. Please check manually")
+    module.exit_json(changed = True, id = image.id,  status = image.status, info = image._info)
 
 def _get_server(module, nova):
     server = None
@@ -109,7 +139,9 @@ def main():
         auth_url                        = dict(default='http://127.0.0.1:35357/v2.0/'),
         instance_name                   = dict(required=True),
         snapshot_name                   = dict(required=True),
-        state                           = dict(default='present', choices=['absent', 'present'])
+        state                           = dict(default='present', choices=['absent', 'present']),
+        wait                            = dict(default='yes', choices=['yes', 'no']),
+        wait_for                        = dict(default=1200),
         ),
     )
 
