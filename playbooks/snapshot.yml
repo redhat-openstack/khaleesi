@@ -4,6 +4,8 @@
   gather_facts: False
   roles:
     - { role: get_nodes }
+  tags:
+    - snapshot
 
 - name: Snapshot the environment
   hosts: local
