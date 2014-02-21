@@ -75,6 +75,7 @@ os_tenant_name: $OS_TENANT_NAME
 # instance settings
 node_prefix: $node_prefix
 network_ids: [{ net-id: '$net_1' }, { net-id: '$net_2' } ]
+net_2_name: $net_2_name
 image_id: $image_id
 ssh_private_key: $key_file
 ssh_key_name: $key_name
