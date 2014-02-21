@@ -66,16 +66,16 @@ options:
        - Name given to the snapshot to be created
      required: true
      default: None
-   wait:
+   wait_snapshot:
      description:
         - If the module should wait for the image to be created.
      required: false
      default: 'yes'
-   wait_for:
+   wait_for_snapshot:
      description:
         - The amount of time the module should wait for the image to get into active state
      required: false
-     default: 180
+     default: 1200
 requirements: ["novaclient"]
 '''
 
@@ -88,7 +88,8 @@ EXAMPLES = '''
        login_tenant_name: admin
        instance_name: vm1
        snapshot_name: vm1_snapshot1
-       wait: yes
+       wait_snapshot: yes
+       wait_for_snapshot: 7200
 '''
 
 def _create_snapshot(module, nova, server):
@@ -99,8 +100,8 @@ def _create_snapshot(module, nova, server):
     #module.exit_json(changed=True, result="created snapshot with id %s" % (result) )
 
 
-    if module.params['wait'] == 'yes':
-            expire = time.time() + int(module.params['wait_for'])
+    if module.params['wait_snapshot'] == 'yes':
+            expire = time.time() + int(module.params['wait_for_snapshot'])
             while time.time() < expire:
                 try:
                     image = nova.images.get(snapshot_id)
@@ -140,8 +141,8 @@ def main():
         instance_name                   = dict(required=True),
         snapshot_name                   = dict(required=True),
         state                           = dict(default='present', choices=['absent', 'present']),
-        wait                            = dict(default='yes', choices=['yes', 'no']),
-        wait_for                        = dict(default=1200),
+        wait_snapshot                            = dict(default='yes', choices=['yes', 'no']),
+        wait_for_snapshot                      = dict(default=1200),
         ),
     )
 
