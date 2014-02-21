@@ -60,6 +60,6 @@
     - foreman_install
 
 - name: Fetch the client installer
-  fetch: src=/tmp/foreman_client.sh dest=/tmp/foreman/ flat=yes
+  fetch: src=/tmp/foreman_client.sh dest=/tmp/foreman
   tags:
     - fetch_client_script

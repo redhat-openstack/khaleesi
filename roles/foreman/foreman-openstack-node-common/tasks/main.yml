@@ -5,5 +5,8 @@
 
 # Using copy then shell instead of script directly, since script does not support create
 - name: Copy the client script
-  copy: src=/tmp/foreman/foreman_client.sh dest=/tmp/foreman_client.sh mode=0755
-
+  copy:
+      src=/tmp/foreman/{{ hostvars[item].ansible_ssh_host }}/tmp/foreman_client.sh
+      dest=/tmp/foreman_client.sh
+      mode=0755
+  with_items: groups.foreman
