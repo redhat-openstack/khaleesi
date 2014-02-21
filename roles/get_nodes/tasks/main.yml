@@ -15,7 +15,7 @@
   register: new_nodes
   with_items: nodes
 
-- name: Assign floating ip via neutron
+- name: Assign floating ip
   neutron_floating_ip:
        auth_url: "{{ os_auth_url }}"
        state: present
@@ -27,20 +27,6 @@
        internal_network_name: default
   register: floating_ips
   with_items: nodes
-  when: "'neutron' in config.host_env"
-
-- name: Assign floating ip via nova
-  nova_floating_ip:
-       auth_url: "{{ os_auth_url }}"
-       state: present
-       login_username: "{{ os_username }}"
-       login_password: "{{ os_password }}"
-       login_tenant_name: "{{ os_tenant_name }}"
-       network_name: "{{ floating_network_name }}"
-       instance_name: "{{ item.name }}"
-  register: floating_ips
-  with_items: nodes
-  when: "'nova' in config.host_env"
 
 - name: dump network and node info
   debug: msg="{{ item }}"
@@ -71,9 +57,9 @@
   add_host:
       name="{{ item.0.item.name }}"
       groups="{{ item.0.item.groups }}"
-      ansible_ssh_host="{{ item.0.public_ip }}"
+      ansible_ssh_host="{{ item.1.public_ip }}"
       ansible_ssh_private_key_file="{{ ssh_private_key }}"
-      public_ip="{{ item.0.public_ip }}"
+      public_ip="{{ item.1.public_ip }}"
       private_ip="{{ item.0.private_ip }}"
       packstack_private_ip="{{ item.0.info.addresses.packstack_int.0.addr }}"
       ansible_fqdn="{{ item.0.item.hostname }}"
