@@ -7,7 +7,7 @@
        login_tenant_name: "{{ os_tenant_name }}"
        instance_name: "{{ item.name }}"
        snapshot_name: "{{ snapshot_name }}"
-       wait: "{{ wait }}"
-       wait_for: "{{ wait_for }}"
+       wait_snapshot: "{{ wait _snapshot}}"
+       wait_for_snapshot: "{{ wait_for_snapshot }}"
   register: snapshot_id
   with_items: nodes
