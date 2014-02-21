@@ -29,13 +29,13 @@ main() {
 
     local node_prefix=${NODE_PREFIX:-st}
     local flavor_id=${FLAVOR_ID:-$default_flavor_id}
-    local floating_nw_name=${FLOATING_NETWORK_NAME:-$default_floating_nw_name}
+    local floating_nw_name=${FLOATING_NETWORK_NAME:-'external'}
     local network_name=${NETWORK_NAME:-'default'}
 
-    local baseurl=${REPO_BASEURL:-$rdo_icehouse_f20_baseurl}
     local image_id=${IMAGE_ID:-'CHANGE_ME'}
     local net_1=${NET_1:-'CHANGE_ME'}
     local net_2=${NET_2:-'CHANGE_ME'}
+    local net_2_name=${NET_2_NAME:-'packstack_int'}
 
     export tags=${TAGS:-'--skip-tags workaround'}
     local tempest_tests=${TEMPEST_TEST_NAME:-'tempest.scenario.test_network_basic_ops'}
@@ -45,6 +45,7 @@ main() {
     local rhel_updates_repo=${RHEL_UPDATES_REPO:-''}
     local rhel_optional_repo=${RHEL_OPTIONAL_REPO:-''}
 
+    local host_env=${HOST_ENV:-'neutron'}
     local rdo_version=${RDO_VERSION:-'icehouse'}
     local rdo_repo=${RDO_REPO:-'production'}
     local update_rpms_tarball=${UPDATE_RPMS_TARBALL:-''}
@@ -53,11 +54,13 @@ cat > settings.yml <<-EOF
 # job config
 
 selinux: permissive  #[permissive, enforcing]
+packstack_int: whayutin
 
 config:
   product: rdo
   version: $rdo_version
   repo: $rdo_repo
+  host_env: $host_env
   verbosity:
     - info
     - warning

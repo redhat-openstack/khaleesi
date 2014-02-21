@@ -92,7 +92,7 @@ def _assign_floating_ip(module, nova, floating_ip):
             result = instance.add_floating_ip(floating_ip)
         except Exception, e:
             module.fail_json(msg="There was an error in updating the floating ip address: %s" % e.message)
-        module.exit_json(changed=True, result="Floating ip %s associated with instance %s" % (floating_ip.ip, imodule.params['instance_name']) )
+        module.exit_json(changed=True, result=result, msg="Floating ip %s associated with instance %s" % (floating_ip.ip, module.params['instance_name']) )
 
 def _get_server_public_ip(module, nova):
     server = None
