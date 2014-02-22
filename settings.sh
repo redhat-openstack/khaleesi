@@ -47,22 +47,18 @@ main() {
     local sm_password=${SM_PASSWORD:-''}
 
     local host_env=${HOST_ENV:-'neutron'}
-    local product=${PRODUCT:-'rdo'}
-    local rdo_version=${RDO_VERSION:-'icehouse'}
-    local rdo_repo=${RDO_REPO:-'production'}
-    local network_driver=${NETWORK_DRIVER:-'neutron'}
     local product=${PRODUCT:-'rdo'} #product
     local productrelease=${PRODUCTRELEASE:-'icehouse'} #rdo_release
     local productreleaserepo=${PRODUCTRELEASEREPO:-'production'} #rdo_repo
     local netplugin=${NETPLUGIN:-'neutron'} #network_driver
-    local selinux=${SELINUX}:-'enforcing'}
+    local selinux=${SELINUX:-'enforcing'} #enforcing, permissive
 
     local update_rpms_tarball=${UPDATE_RPMS_TARBALL:-''}
 
 cat > settings.yml <<-EOF
 # job config
 
-selinux: permissive  #[permissive, enforcing]
+selinux: $selinux
 packstack_int: whayutin
 
 config:
@@ -118,13 +114,7 @@ update_rpms_tarball: $update_rpms_tarball
 
 # Currently sudo w/ NOPASSWD must be enabled in /etc/sudoers for sudo to work
 # running w/ -u $remote_user and -s will override these options
-sudo: yes
 remote_user: $remote_user
-sudo_user: root
-
-#Packstack config override
-provision_tempest: y
-provision_demo: y
 
 #See group_vars/* for workaround enable/disable
 
