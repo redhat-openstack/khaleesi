@@ -1,0 +1,3 @@
+---
+wait_snaphsot: yes
+wait_for: 7200

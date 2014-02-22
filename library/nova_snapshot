@@ -71,7 +71,7 @@ options:
         - If the module should wait for the image to be created.
      required: false
      default: 'yes'
-   wait_for_snapshot:
+   wait_for:
      description:
         - The amount of time the module should wait for the image to get into active state
      required: false
@@ -89,7 +89,7 @@ EXAMPLES = '''
        instance_name: vm1
        snapshot_name: vm1_snapshot1
        wait_snapshot: yes
-       wait_for_snapshot: 7200
+       wait_for: 7200
 '''
 
 def _create_snapshot(module, nova, server):
@@ -97,26 +97,28 @@ def _create_snapshot(module, nova, server):
         snapshot_id = nova.servers.create_image(server, module.params['snapshot_name'])
     except Exception, e:
         module.fail_json(msg="There was an error snapshoting the instance: %s" % e.message)
-    #module.exit_json(changed=True, result="created snapshot with id %s" % (result) )
-
-
-    if module.params['wait_snapshot'] == 'yes':
-            expire = time.time() + int(module.params['wait_for_snapshot'])
-            while time.time() < expire:
-                try:
-                    image = nova.images.get(snapshot_id)
-                except Exception, e:
-                        module.fail_json( msg = "Error in getting info from image: %s " % e.message)
-                if image.status == 'ACTIVE':
-                    module.exit_json(changed = True, result=image.id,  status = image.status, info = image._info)
-                if image.status == 'ERROR':
-                    module.fail_json(msg = "Error in creating the server, please check logs")
-                time.sleep(60)
-
-            module.fail_json(msg = "Timeout waiting for the image to become active.. Please check manually")
+    wait = module.params['wait_snapshot']
+    if  wait == 'yes' or wait == 'True'  or wait == True:
+        expire = time.time() + int(module.params['wait_for'])
+        while time.time() < expire:
+            try:
+                image = nova.images.get(snapshot_id)
+            except Exception, e:
+                module.fail_json( msg = "Error in getting info from image: %s " % e.message)
+            if image.status == 'ACTIVE':
+                module.exit_json(changed = True, result=image.id,  status = image.status, info = image._info)
+            if image.status == 'ERROR':
+                module.fail_json(msg = "Error in creating the server, please check logs")
+            time.sleep(60)
+        module.fail_json(msg = "Timeout waiting for the image to become active.. Please check manually")
+    else:
+        try:
+            image = nova.images.get(snapshot_id)
+        except Exception, e:
+            module.fail_json( msg = "Error in getting info from image: %s " % e.message)
     if image.status == 'ERROR':
         module.fail_json(msg = "Error in creating the image.. Please check manually")
-    module.exit_json(changed = True, id = image.id,  status = image.status, info = image._info)
+    module.exit_json(changed = True, result = image.id,  status = image.status, info = image._info)
 
 def _get_server(module, nova):
     server = None
@@ -141,8 +143,8 @@ def main():
         instance_name                   = dict(required=True),
         snapshot_name                   = dict(required=True),
         state                           = dict(default='present', choices=['absent', 'present']),
-        wait_snapshot                            = dict(default='yes', choices=['yes', 'no']),
-        wait_for_snapshot                      = dict(default=1200),
+        wait_snapshot                         = dict(default='yes'),
+        wait_for                    =  dict(default='7200')
         ),
     )
 
