@@ -1,2 +1,2 @@
 ---
-repos_to_remove: ['redhat.repo']
+repos_to_remove: ['redhat.repo', 'epel.repo', 'rdo-release', 'puppetlabs.repo']

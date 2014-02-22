@@ -45,6 +45,9 @@ main() {
     local rhel_updates_repo=${RHEL_UPDATES_REPO:-''}
     local rhel_optional_repo=${RHEL_OPTIONAL_REPO:-''}
 
+    local sm_username=${SM_USERNAME:-''}
+    local sm_password=${SM_PASSWORD:-''}
+
     local host_env=${HOST_ENV:-'neutron'}
     local rdo_version=${RDO_VERSION:-'icehouse'}
     local rdo_repo=${RDO_REPO:-'production'}
@@ -81,6 +84,8 @@ ssh_private_key: $key_file
 ssh_key_name: $key_name
 flavor_id: $flavor_id
 floating_network_name: $floating_nw_name
+sm_username: $sm_username
+sm_password: $sm_password
 
 nodes:
   - name: "{{ node_prefix }}"

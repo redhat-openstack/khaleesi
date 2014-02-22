@@ -4,3 +4,10 @@
   notify:
     - Yum clean all
 
+- name: disable gpgcheck for rdo for every non production repo
+  lineinfile:
+    dest=/etc/yum.repos.d/rdo-release.repo
+    regexp=^gpgcheck=1
+    line=gpgcheck=0
+  when: ( "{{ config.repo }}" != 'production' )
+

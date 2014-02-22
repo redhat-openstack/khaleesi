@@ -25,3 +25,14 @@
 - name: Ensure httplib2
   yum: name=python-httplib2 state=present
 
+#Clean UP
+- name: Remove the EPEL Repository.
+  yum: name=epel-release state=removed
+
+- name: Remove epel repositories
+  file: path=/etc/yum.repos.d/{{ item }} state=absent
+  with_items:
+    - epel.repo
+  notify:
+    - Yum clean all
+

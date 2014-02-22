@@ -22,15 +22,26 @@
   notify:
     - Yum clean all
     - yum -y update to latest packages
+  when: ansible_distribution_version != "7.0"
 
-- name: Create the EPEL Repository
-  template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
+- name: unregister system
+  command: subscription-manager unregister
+  ignore_errors: yes
+  when: ansible_distribution_version == "7.0"
+
+- name: add subscription
+  command: subscription-manager register --username {{ sm_username }} --password {{ sm_password }} --autosubscribe
   notify:
     - Yum clean all
     - yum -y update to latest packages
+  when: ansible_distribution_version == "7.0"
 
-- name: Ensure httplib2
-  yum: name=python-httplib2 state=present
+- name: ensure yum-utils
+  yum: name=yum-utils state=present
+
+- name: enable rhel optional
+  command: yum-config-manager --enable rhel-7-server-optional-htb-rpms
+  when: ansible_distribution_version == "7.0"
 
 #WORKAROUND
 - name: Ensure /etc/sysconfig/iptables-services
@@ -38,4 +49,16 @@
 
 - name: Ensure iptables
   yum: name=iptables state=present
+
+#Ensure E
+- name: Ensure epel-release rpm is not installed.
+  yum: name=epel-release state=removed
+
+- name: Ensure epel repositories are absent
+  file: path=/etc/yum.repos.d/{{ item }} state=absent
+  with_items:
+    - epel.repo
+  notify:
+    - Yum clean all
+
 
