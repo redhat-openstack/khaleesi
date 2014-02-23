@@ -24,10 +24,25 @@ Create a $HOME/.ansible.cfg with the following:
 
 NOTE: If you set library in .ansible.cfg, and you try to update ansible, it will fail. You will need comment out the line with a '#', run 'pip uninstall ansible; pip install ansible' to fix.
 
-RDO repository config:
-cp group_vars/repo_settings.yml.default repo_settings.yml
+Nodes:
+  Create a nodes.yml file that defines the environment
+    Example:
+	nodes:
+	  - name: "{{ node_prefix }}"
+	    image_id: "{{ image_id }}"
+	    key_name: "{{ ssh_key_name }}"
+	    flavor_id: "{{ flavor_id }}"
+	    network_ids: "{{ network_ids }}"
+	    hostname: packstack.example.com
+	    groups: "packstack,controller,compute,openstack_nodes,tempest,{{ config.product }},{{ config.netplugin }}"
+	    packstack_node_hostgroup: packstack
 
-NOTE: The repositories can be adjusted to suite your needs
+RDO repository config:
+  cp group_vars/repo_settings.yml.default repo_settings.yml
+  NOTE: The repositories can be adjusted to suite your needs
+
+Overrides and additional config:
+  Additional config can be read in via a job_settings.yml  file
 
 Execution:
 Set the following variables:
@@ -43,7 +58,8 @@ export TEMPEST_TEST_NAME=[tempest,$tempest_test] e.g.  tempest.scenario.test_net
 If workarounds are required
 export TAGS='--tags provision,prep,workaround,run-packstack,tempest_setup,tempest_run'
 
-./run.sh or ./run_multinode.sh
+./run.sh
+./run.sh multinode.yml
 
 To rerun tempest after a successful execution
 export TAGS='--tags provision,tempest_run'

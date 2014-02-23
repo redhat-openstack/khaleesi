@@ -70,7 +70,6 @@ config:
   verbosity:
     - info
     - warning
-    - debug
 
 # OpenStack controller settings, can be set by sourcing a keystonerc file
 os_auth_url: '$OS_AUTH_URL'
@@ -89,16 +88,6 @@ flavor_id: $flavor_id
 floating_network_name: $floating_nw_name
 sm_username: $sm_username
 sm_password: $sm_password
-
-nodes:
-  - name: "{{ node_prefix }}"
-    image_id: "{{ image_id }}"
-    key_name: "{{ ssh_key_name }}"
-    flavor_id: "{{ flavor_id }}"
-    network_ids: "{{ network_ids }}"
-    hostname: packstack.example.com
-    groups: "packstack,controller,compute,openstack_nodes,tempest,{{ config.product }},{{ config.netplugin }}"
-    packstack_node_hostgroup: packstack
 
 cleanup_nodes: "{{ nodes }}"
 

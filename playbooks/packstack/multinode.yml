@@ -29,7 +29,7 @@
     - prep
 
 # apply pre-packstack workarouds
-- include: multinode/icehouse/workarounds.yml tags=workaround
+- include: ../../workarounds/icehouse/workarounds-prep.yml tags=workaround
 
 - name: Setup packstack on Controller
   hosts: controller
@@ -40,12 +40,15 @@
 
 - include: multinode/setup-ssh-keys.yml tags=prep
 
+- include: ../../workarounds/icehouse/workarounds-pre-run.yml tags=workaround
 
 - name: Run packstack
   hosts: controller
   roles:
     - { role: packstack/runner }
   tags: run-packstack
+
+- include: ../../workarounds/icehouse/workarounds-post-run.yml tags=workaround
 
 - name: Create RC files
   hosts: packstack

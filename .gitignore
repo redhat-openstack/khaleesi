@@ -6,6 +6,7 @@ group_vars/all
 settings.yml
 repo_settings.yml
 job_settings.yml
+nodes.yml
 hosts
 *.py[co]
 # Sublime projects
