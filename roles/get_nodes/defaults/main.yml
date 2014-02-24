@@ -3,3 +3,5 @@ config:
   verbosity:
     - info
     - warning
+
+wait_for_boot: 180

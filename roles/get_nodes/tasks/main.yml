@@ -70,8 +70,8 @@
     - floating_ips.results
   when: "'packstack' in item.0.item.groups"
 
-- name: Pause an extra 120 seconds to let the systems boot
-  pause: seconds=120
+- name: Pause to let the systems boot
+  pause: seconds="{{ wait_for_boot }}"
   when: new_nodes|changed
 
 - name: Ping public IP to work around bug
