@@ -31,3 +31,5 @@ You can use Khaleesi to setup these development/testing environments:
 * [Foreman](https://github.com/redhat-openstack/khaleesi/blob/master/doc/foreman.md)
 
 * [TripleO Devtest](https://github.com/redhat-openstack/khaleesi/blob/master/doc/tripleo_devtest.md)
+
+* [TripleO Tuskar](https://github.com/redhat-openstack/khaleesi/blob/master/doc/tripleo_tuskar.md)
