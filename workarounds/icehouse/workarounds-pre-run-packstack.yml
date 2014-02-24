@@ -41,13 +41,3 @@
           tags: workaround,
           when: workaround_tempest_mariadb is defined and workaround_tempest_mariadb and ansible_distribution_version == "7.0"
        }
-
-
-- name: Workarounds | specific to CentOS distro
-  hosts: CentOS:&controller
-  tasks:
-    - { include: "rhel/python-backports.yml",
-         name: 'WORKAROUND | BZ  | ensure latest python-backports',
-         tags: workaround,
-         when: workaround_python_backports is defined and workaround_python_backports
-       }
