@@ -34,7 +34,7 @@
        wait_snapshot: "{{ wait_snapshot }}"
        wait_for: "{{ wait_for }}"
   register: snapshot_id
-  with_items: nodes
+  with_items: snap_nodes
 
 
 - name: Provision Snapshotted nodes
@@ -45,13 +45,12 @@
        login_password: "{{ os_password }}"
        login_tenant_name: "{{ os_tenant_name }}"
        name: "{{ snapshot_name }}"
-       image_id: snapshot_id
+       image_id: "{{ item }}"
        key_name: "{{ item.key_name }}"
        wait_for: 200
        flavor_id: "{{ item.flavor_id }}"
        nics: "{{ item.network_ids }}"
-  register: snap_nodes
-  with_items: nodes
+  with_items: snapshot_id.results
 
 - name: Assign floating ip
   neutron_floating_ip:
