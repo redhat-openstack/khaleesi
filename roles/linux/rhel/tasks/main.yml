@@ -65,16 +65,3 @@
 
 - name: Ensure iptables
   yum: name=iptables state=present
-
-#Ensure E
-- name: Ensure epel-release rpm is not installed.
-  yum: name=epel-release state=removed
-
-- name: Ensure epel repositories are absent
-  file: path=/etc/yum.repos.d/{{ item }} state=absent
-  with_items:
-    - epel.repo
-  notify:
-    - Yum clean all
-
-
