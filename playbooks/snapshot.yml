@@ -2,9 +2,6 @@
 - name: Snapshot the environment
   hosts: local
   gather_facts: False
-  vars:
-    wait_snapshot: "{{ wait_snapshot }}"
-    wait_for: "{{ wait_for }}"
   roles:
     - { role: snapshot }
   tags:

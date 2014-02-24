@@ -36,38 +36,39 @@
   register: snapshot_id
   with_items: nodes
 
+- debug: msg={{ snapshot_id }}
 
-- name: Provision Snapshotted nodes
-  nova_compute:
-       auth_url: "{{ os_auth_url }}"
-       state: present
-       login_username: "{{ os_username }}"
-       login_password: "{{ os_password }}"
-       login_tenant_name: "{{ os_tenant_name }}"
-       name: "{{ snapshot_name }}"
-       image_id: "{{ item }}"
-       key_name: "{{ item.key_name }}"
-       wait_for: 200
-       flavor_id: "{{ item.flavor_id }}"
-       nics: "{{ item.network_ids }}"
-  with_items: snapshot_id.results
+# - name: Provision Snapshotted nodes
+#   nova_compute:
+#        auth_url: "{{ os_auth_url }}"
+#        state: present
+#        login_username: "{{ os_username }}"
+#        login_password: "{{ os_password }}"
+#        login_tenant_name: "{{ os_tenant_name }}"
+#        name: "{{ snapshot_name }}"
+#        image_id: "{{ item }}"
+#        key_name: "{{ item.key_name }}"
+#        wait_for: 200
+#        flavor_id: "{{ item.flavor_id }}"
+#        nics: "{{ item.network_ids }}"
+#   with_items: snapshot_id.results
 
-- name: Assign floating ip
-  neutron_floating_ip:
-       auth_url: "{{ os_auth_url }}"
-       state: present
-       login_username: "{{ os_username }}"
-       login_password: "{{ os_password }}"
-       login_tenant_name: "{{ os_tenant_name }}"
-       network_name: "{{ floating_network_name }}"
-       instance_name: "{{ snapshot_name }}"
-       internal_network_name: default
-  register: floating_ips
-  with_items: snap_nodes
+# - name: Assign floating ip
+#   neutron_floating_ip:
+#        auth_url: "{{ os_auth_url }}"
+#        state: present
+#        login_username: "{{ os_username }}"
+#        login_password: "{{ os_password }}"
+#        login_tenant_name: "{{ os_tenant_name }}"
+#        network_name: "{{ floating_network_name }}"
+#        instance_name: "{{ snapshot_name }}"
+#        internal_network_name: default
+#   register: floating_ips
+#   with_items: snap_nodes
 
-- name: dump network and node info
-  debug: msg="{{ item }}"
-  with_together:
-    - snap_nodes.results
-    - floating_ips.results
-  when: "'debug' in config.verbosity"
+# - name: dump network and node info
+#   debug: msg="{{ item }}"
+#   with_together:
+#     - snap_nodes.results
+#     - floating_ips.results
+#   when: "'debug' in config.verbosity"
