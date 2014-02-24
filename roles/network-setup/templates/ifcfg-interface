@@ -1,0 +1,8 @@
+#jinja2: trim_blocks: False
+{% set ansible_var = "ansible_%s" | format(item.interface) %}
+{% set network_var = "%s" | format(hostvars[inventory_hostname][item.network_name]) %}
+DEVICE="{{ item.interface }}"
+IPADDR="{{ hostvars[inventory_hostname][network_var] }}"
+HWADDR="{{ hostvars[inventory_hostname][ansible_var].macaddress }}"
+NETMASK="255.255.255.0"
+TYPE=Ethernet

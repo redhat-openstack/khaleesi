@@ -51,7 +51,6 @@
   register: nova_floating_ips
   with_items: nodes
 
-
 - { include: add_hosts.yml,
     network_expected: nova,
     nodes_created: "{{ new_nodes.results }}",
@@ -80,4 +79,3 @@
   delay: 10
   until: result.rc == 0
   with_items: groups.openstack_nodes
-

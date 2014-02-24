@@ -4,4 +4,5 @@
       public_ip="{{ public_ip }}"
       private_ip="{{ private_ip }}"
       fqdn="{{ priv_hostname }}"
+      net_interfaces="{{ net_interfaces }}"
       {{ lookup('template', 'addl_vars.j2') }}

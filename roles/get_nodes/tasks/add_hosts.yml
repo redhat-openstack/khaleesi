@@ -17,6 +17,7 @@
       private_ip="{{ item.0.private_ip }}"
       ansible_fqdn="{{ item.0.item.hostname }}"
       priv_hostname="{{ item.0.item.hostname }}"
+      net_interfaces="{{ item.0.item.net_interfaces }}"
       {{ lookup('template', 'addl_vars.j2') }}
   with_together:
     - nodes_created

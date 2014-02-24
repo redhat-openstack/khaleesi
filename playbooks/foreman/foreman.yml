@@ -1,7 +1,7 @@
 ---
 - include: ../provision.yml
 - include: ../validate_nodes.yml
-- include: ../group_by.yml
+- include: ../group_by.yml tags=groupby
 
 - name: Prepare for Foreman install
   hosts: foreman_installer
@@ -14,25 +14,19 @@
     - prep
 
 - name: Prepare foreman network
-  hosts: foreman_installer
+  hosts: foreman_installer:tempest
   sudo: yes
   roles:
-    - { role: foreman/network-setup }
+    - { role: network-setup }
   tags:
     - prep
-
-- name: Setup tempest networking
-  hosts: tempest
-  roles:
-    - { role: foreman/network-setup, net_interfaces: [ { interface: 'eth1', ip_var: 'tempest_private_ip', ansible_var: 'ansible_eth1' }, { interface: 'eth2', ip_var: 'tempest_public_ip', ansible_var: 'ansible_eth2'} ] }
-  tags:
     - tempest_setup
 
 - name: Prepare foreman network - Networker nodes
   hosts: networker
   sudo: yes
   roles:
-    - { role: networker }
+    - { role: bridge-setup }
   tags:
     - prep
 

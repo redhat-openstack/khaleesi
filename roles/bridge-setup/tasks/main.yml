@@ -1,0 +1,26 @@
+---
+- name: Install openvswitch
+  yum: name=openvswitch state=present
+
+- name: Start openvswitch
+  service: name=openvswitch state=started enabled=yes
+
+- name: Create bridge
+  openvswitch_bridge: bridge={{ item.name }} state=present
+  with_items: bridge_interfaces
+
+- name: Create bridge file
+  template: src=bridge.j2 dest=/etc/sysconfig/network-scripts/ifcfg-{{ item.name }}
+  with_items: bridge_interfaces
+  notify:
+    - restart network
+
+- name: Create new interface
+  template: src=ifcfg-interface.j2 dest=/etc/sysconfig/network-scripts/ifcfg-{{ item.interface }}
+  with_items: bridge_interfaces
+  notify:
+    - restart network
+
+- name: Add port to bridge
+  openvswitch_port: bridge={{ item.name }} port={{ item.interface }} state=present
+  with_items: bridge_interfaces

@@ -7,6 +7,6 @@
   sudo: yes
   roles:
     - { role: common }
-    - { role: packstack/packstack-network-setup }
+    - { role: network-setup }
   tags:
     - provision

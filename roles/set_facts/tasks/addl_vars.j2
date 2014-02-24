@@ -1,17 +1,14 @@
-{% if foreman_private_ip is defined %}
-      foreman_private_ip="{{ foreman_private_ip }}"
+{% if net_2_name is defined  %}
+      {{ net_2_name }}="{{ hostvars[inventory_hostname][net_2_name] }}"
 {% endif %}
-{% if foreman_public_ip is defined %}
-      foreman_public_ip="{{ foreman_public_ip }}"
+{% if net_3_name is defined %}
+      {{ net_3_name }}="{{ hostvars[inventory_hostname][net_3_name] }}"
 {% endif %}
 {% if node_hostgroup is defined %}
       node_hostgroup="{{ node_hostgroup }}"
 {% endif %}
-{% if packstack_private_ip is defined %}
-      packstack_private_ip="{{ packstack_private_ip }}"
-{% endif %}
-{% if packstack_node_hostgroup is defined %}
-      packstack_node_hostgroup="{{ packstack_node_hostgroup }}"
+{% if bridge_interfaces is defined %}
+      bridge_interfaces="{{ bridge_interfaces }}"
 {% endif %}
 {% if tempest_private_ip is defined %}
       tempest_private_ip="{{ tempest_private_ip }}"

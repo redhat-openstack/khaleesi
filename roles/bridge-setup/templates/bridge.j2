@@ -1,0 +1,6 @@
+{% set network_var = "%s" | format(hostvars[inventory_hostname][item.network_name]) %}
+DEVICE={{ item.name }}
+IPADDR="{{ hostvars[inventory_hostname][network_var] }}"
+NETMASK="255.255.255.0"
+TYPE=OVSBridge
+DEVICETYPE=ovs
