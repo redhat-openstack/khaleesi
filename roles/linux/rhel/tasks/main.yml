@@ -34,7 +34,7 @@
   when: ansible_distribution_version != "7.0"
 
 - name: Ensure python-httplib2
-  yum: name=python-httpdlib2 state=latest
+  yum: name=python-httplib2 state=latest
 
 - name: unregister system
   command: subscription-manager unregister
