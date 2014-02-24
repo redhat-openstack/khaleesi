@@ -34,7 +34,7 @@
        wait_snapshot: "{{ wait_snapshot }}"
        wait_for: "{{ wait_for }}"
   register: snapshot_id
-  with_items: snap_nodes
+  with_items: nodes
 
 
 - name: Provision Snapshotted nodes
