@@ -5,5 +5,6 @@ source settings.sh
 
 ansible-playbook -i local_hosts  \
  playbooks/cleanup.yml \
-    --extra-vars @settings.yml -v
+    --extra-vars @settings.yml \
+      --extra-vars @nodes.yml -v
 
