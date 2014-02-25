@@ -51,7 +51,10 @@
 - include: ../../workarounds/icehouse/workarounds-post-run-packstack.yml tags=workaround
 
 - name: Create RC files
-  hosts: packstack
+  hosts: controller
+  vars:
+    controller_name: "{{ ansible_ssh_host }}"
+    controller_fqdn: "{{ ansible_ssh_host }}"
   roles:
     - { role: openstack/create-keystonerc }
   tags: tempest_setup
@@ -64,9 +67,6 @@
   tags: tempest_setup
 
 - name: Run tempest
-  hosts: controller
-  vars:
-    controller_name: "{{ ansible_ssh_host }}"
-    controller_fqdn: "{{ ansible_ssh_host }}"
+  hosts: tempest
   roles:
     - { role: tempest, controller_fqdn: "{{ controller_name }}", tags: ["tempest_run"] }
