@@ -44,9 +44,6 @@
 
 - name: Packstack prep
   hosts: controller:&rhos
-  vars:
-    controller_name: "{{ ansible_ssh_host }}"
-    controller_fqdn: "{{ ansible_ssh_host }}"
   roles:
     - { role: packstack/rhos }
   tags:
@@ -54,9 +51,6 @@
 
 - name: Packstack prep
   hosts: controller:&rdo
-  vars:
-    controller_name: "{{ ansible_ssh_host }}"
-    controller_fqdn: "{{ ansible_ssh_host }}"
   roles:
     - { role: packstack/rdo }
   tags:
@@ -72,9 +66,6 @@
 
 - name: Packstack Create Answer File
   hosts: controller:&neutron
-  vars:
-    controller_name: "{{ ansible_ssh_host }}"
-    controller_fqdn: "{{ ansible_ssh_host }}"
   roles:
     - { role: packstack/packstack-neutron-aio }
   tags:
@@ -82,9 +73,6 @@
 
 - name: Packstack Create Answer File
   hosts: controller:&nova
-  vars:
-    controller_name: "{{ ansible_ssh_host }}"
-    controller_fqdn: "{{ ansible_ssh_host }}"
   roles:
     - { role: packstack/packstack-nova-aio }
   tags:
@@ -99,9 +87,6 @@
 
 - name: Ensure EPEL is off for any RHOS install
   hosts: controller:&rhos
-  vars:
-    controller_name: "{{ ansible_ssh_host }}"
-    controller_fqdn: "{{ ansible_ssh_host }}"
   roles:
     - { role: packstack/rhos/epel }
   tags:
@@ -113,9 +98,6 @@
 
 - name: Install packstack
   hosts: packstack
-  vars:
-    controller_name: "{{ ansible_ssh_host }}"
-    controller_fqdn: "{{ ansible_ssh_host }}"
   roles:
     - { role: packstack/runner }
   tags:

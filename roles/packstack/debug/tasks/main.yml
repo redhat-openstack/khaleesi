@@ -1,4 +1,12 @@
 ---
 - name: List basic config variables
   debug: var=config
-  when: "'debug' in config.verbosity"
+
+- name: List nodes
+  debug: var=nodes
+
+#not yet calculated
+#- debug: msg="Product baseurl= {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"         #"
+
+- name: List SELINUX value
+  debug: var=selinux

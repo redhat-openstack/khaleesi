@@ -15,6 +15,13 @@
 # - CleanUp
 #
 
+- name: Debug list config variables
+  hosts: local
+  roles:
+    - { role: packstack/debug }
+  tags:
+    - provision
+
 ### enable to provison vm
 - include: multinode/provision.yml
 
