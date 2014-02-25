@@ -20,9 +20,6 @@
     - Yum clean all
     - yum -y update to latest packages
 
-- name: Ensure httplib2
-  yum: name=python-httplib2 state=present
-
 # workaround {
 - name: WORKAROUND | BZ | Ensure iptables-services
   yum: name=iptables-services state=present

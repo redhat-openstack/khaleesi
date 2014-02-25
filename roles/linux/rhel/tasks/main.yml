@@ -33,9 +33,6 @@
     - Yum clean all
   when: ansible_distribution_version != "7.0"
 
-- name: Ensure python-httplib2
-  yum: name=python-httplib2 state=latest
-
 - name: unregister system
   command: subscription-manager unregister
   ignore_errors: yes
@@ -54,10 +51,6 @@
 - name: enable rhel optional
   command: yum-config-manager --enable rhel-7-server-optional-htb-rpms
   when: ansible_distribution_version == "7.0"
-
-
-- name: List available yum repositories
-  command: yum -d 9 repolist
 
 #WORKAROUND
 - name: Ensure /etc/sysconfig/iptables-services

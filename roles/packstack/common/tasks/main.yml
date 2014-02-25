@@ -10,6 +10,9 @@
   notify:
     - Yum clean all
 
+- name: List available yum repositories
+  command: yum -d 9 repolist
+
 - name: Create ssh key if one does not exist
   #this will not overwrite an existing key
   user: name=root generate_ssh_key=yes
