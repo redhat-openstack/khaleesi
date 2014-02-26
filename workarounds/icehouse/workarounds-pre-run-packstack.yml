@@ -41,3 +41,8 @@
           tags: workaround,
           when: workaround_tempest_mariadb is defined and workaround_tempest_mariadb and ansible_distribution_version == "7.0"
        }
+    - { include: "common/install_additional_rpms.yml",
+          name: 'WORKAROUND | no bz',
+          tags: workaround,
+          when: workaround_preinstall_rpms is defined and workaround_preinstall_rpms
+       }
