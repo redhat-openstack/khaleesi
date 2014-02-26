@@ -44,5 +44,5 @@
     - { include: "common/install_additional_rpms.yml",
           name: 'WORKAROUND | no bz',
           tags: workaround,
-          when: workaround_preinstall_rpms is defined and workaround_preinstall_rpms
+          when: workaround_preinstall_rpms is defined and workaround_preinstall_rpms and ansible_distribution_version != "7.0"
        }
