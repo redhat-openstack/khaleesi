@@ -4,3 +4,9 @@
 
 - name: install tox 1.6
   shell: pip install 'tox==1.6.1'
+
+- name: install screen and tmux
+  yum: name="{{ item }}" state=present
+  with_items:
+    - screen
+    - tmux
