@@ -7,24 +7,20 @@
         user: name=root generate_ssh_key=yes
         sudo: yes
         sudo_user: root
-        tags: setup-keys
 
 - name: Setup packstack on Controller
   hosts: controller
   tasks:
       - name: fetch ssh-key generated from controller
-        fetch: src=/root/.ssh/id_rsa.pub dest=/tmp/ flat=yes fail_on_missing=yes
+        fetch: src=/root/.ssh/id_rsa.pub dest=/tmp/ssh_keys/ flat=yes fail_on_missing=yes
         sudo: yes
         sudo_user: root
-        tags: setup-keys
 
 - name: Copy ssh-key to compute hosts
   hosts: compute
   tasks:
     - name: copy ssh-key to compute
-      authorized_key: user=root key="{{ lookup('file', '/tmp/id_rsa.pub') }}" #"
-      sudo: yes
-      sudo_user: root
-      tags: setup-keys
+      authorized_key: user=root key="{{ lookup('file', '/tmp/ssh_keys/id_rsa.pub') }}" #"
+
 
 
