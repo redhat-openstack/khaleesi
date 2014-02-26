@@ -1,0 +1,6 @@
+---
+
+- name: fact instack_user_home
+  shell: "su - {{ instack_user }} -c 'echo -n $HOME'"
+  register: instack_user_home
+  changed_when: false

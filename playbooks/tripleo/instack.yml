@@ -1,5 +1,31 @@
 ---
-- hosts: instack
+- name: install undercloud, deploy overcloud and test
+  hosts: instack
   roles:
     - { role: tripleo/instack/instack-undercloud }
-#    - { role: tripleo/instack/overcloud }
+    - { role: tripleo/instack/deploy-overcloud }
+   # - { role: tripleo/instack/test-overcloud}
+  tags: undercloud-deploy-test
+
+- name: install undercloud
+  hosts: instack
+  roles:
+    - { role: tripleo/instack/instack-undercloud }
+  tags: undercloud-only
+
+- name: deploy and test overcloud
+  hosts: instack
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/deploy-overcloud }
+    # - { role: tripleo/instack/test-overcloud}
+  tags: deploy-test-overcloud
+
+- name: update overcloud images
+  hosts: instack
+  roles:
+    - { role: tripleo/instack/common }
+    # - { role: tripleo/instack/update-overcloud-images }
+    - { role: tripleo/instack/deploy-overcloud }
+    # - { role: tripleo/instack/test-overcloud}
+  tags: update-overcloud-images

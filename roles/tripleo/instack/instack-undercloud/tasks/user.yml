@@ -28,7 +28,7 @@
   when: instack_user != 'root'
 
 - name: change root password
-  user: name=root password={{ root_password }}
+  user: name=root password={{ root_password }} generate_ssh_key=yes
 
 - name: add id_rsa to authorized_keys for root
   shell: cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys

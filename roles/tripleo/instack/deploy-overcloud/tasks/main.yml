@@ -1,0 +1,18 @@
+---
+
+- name: copy template file with environment variables
+  template: src=setup-baremetal-env-vars.j2
+            dest={{ instack_user_home.stdout }}/setup-baremetal-env-vars
+            mode=0755
+  sudo_user: "{{ instack_user  }}"
+  sudo: yes
+
+- name: run script to deploy overcloud from packages
+  shell:
+    "cd {{ instack_user_home.stdout }};
+     source {{ instack_user_home.stdout }}/setup-baremetal-env-vars;
+     prepare-for-overcloud;
+     deploy-overcloud"
+  sudo_user: "{{ instack_user  }}"
+  sudo: yes
+

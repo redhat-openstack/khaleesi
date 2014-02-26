@@ -1,0 +1,15 @@
+TRIPLEO_ROOT={{ instack_user_home.stdout }}
+CPU=1
+MEM=2048
+DISK=30
+ARCH=amd64
+MACS="{{ macs }}"
+PM_IPS="{{ pm_ips }}"
+PM_USERS="{{ pm_users }}"
+PM_PASSWORDS="{{ pm_passwords }}"
+NeutronPublicInterface=em2
+OVERCLOUD_LIBVIRT_TYPE=kvm
+NETWORK_CIDR="10.0.0.0/8"
+FLOATING_IP_START="172.17.0.45"
+FLOATING_IP_END="172.17.0.64"
+FLOATING_IP_CIDR="172.17.0.0/16"
