@@ -4,7 +4,7 @@
   roles:
     - { role: tripleo/instack/instack-undercloud }
     - { role: tripleo/instack/deploy-overcloud }
-   # - { role: tripleo/instack/test-overcloud}
+    - { role: tripleo/instack/test-overcloud}
   tags: undercloud-deploy-test
 
 - name: install undercloud
@@ -18,7 +18,7 @@
   roles:
     - { role: tripleo/instack/common }
     - { role: tripleo/instack/deploy-overcloud }
-    # - { role: tripleo/instack/test-overcloud}
+    - { role: tripleo/instack/test-overcloud}
   tags: deploy-test-overcloud
 
 - name: update overcloud images
@@ -27,5 +27,5 @@
     - { role: tripleo/instack/common }
     # - { role: tripleo/instack/update-overcloud-images }
     - { role: tripleo/instack/deploy-overcloud }
-    # - { role: tripleo/instack/test-overcloud}
+    - { role: tripleo/instack/test-overcloud}
   tags: update-overcloud-images
