@@ -38,6 +38,7 @@ main() {
     export tags=${TAGS:-'--skip-tags workaround'}
     local tempest_tests=${TEMPEST_TEST_NAME:-'tempest.scenario.test_network_basic_ops'}
     export remote_user=${REMOTE_USER:-'cloud-user'}
+    export tempest_branch=${TEMPEST_BRANCH:-'stable/havana'}
 
     local rhel_os_repo=${RHEL_OS_REPO:-''}
     local rhel_updates_repo=${RHEL_UPDATES_REPO:-''}
@@ -103,6 +104,26 @@ update_rpms_tarball: $update_rpms_tarball
 # Currently sudo w/ NOPASSWD must be enabled in /etc/sudoers for sudo to work
 # running w/ -u $remote_user and -s will override these options
 remote_user: $remote_user
+
+tempest:
+    puppet_file: /tmp/tempest_init.pp
+    checkout_dir: /var/lib/tempest
+    revision: $tempest_branch
+    test_name: $tempest_tests
+    exclude:
+        files:
+            - test_server_rescue
+            - test_server_actions
+            - test_load_balancer
+            - test_vpnaas_extensions
+        tests:
+            - test_rescue_unrescue_instance
+            - test_create_get_delete_object
+            - test_create_volume_from_snapshot
+            - test_service_provider_list
+            - test_ec2_
+            - test_stack_crud_no_resources
+            - test_stack_list_responds
 
 log_files:
   - /var/tmp/packstack
