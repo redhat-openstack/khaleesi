@@ -31,11 +31,6 @@
           tags: workaround,
           when: workaround_puppet_utf8 is defined and workaround_puppet_utf8
        }
-    - { include: "rhel/update_to_epel_beta.yml",
-         name: 'WORKAROUND | BZ  | change epel to epel beta',
-         tags: workaround,
-         when: workaround_epel_beta is defined and workaround_epel_beta and ansible_distribution_version == "7.0"
-       } 
     - { include: "fedora/fix_tempest_mariadb.yml",
           name: 'WORKAROUND | BZ 981116 | edit tempest puppet to use mariadb',
           tags: workaround,

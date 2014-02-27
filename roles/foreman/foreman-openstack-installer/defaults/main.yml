@@ -1,9 +1,8 @@
 ---
 openstack_foreman_installer_rpm: openstack-foreman-installer
-controller_name: "{{ node_prefix }}controller"
+controller_name: "{{ lookup('template', 'controller_name.j2')|trim }}"
 controller_priv_ip: "{{ hostvars[controller_name].ansible_eth1.ipv4.address }}"
 controller_pub_ip: "{{ hostvars[controller_name].ansible_eth2.ipv4.address }}"
-gluster_name: "{{ node_prefix }}gluster"
 private_interface: eth1
 private_netmask: 255.255.255.0
 public_interface: eth2
