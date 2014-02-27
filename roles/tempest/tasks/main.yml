@@ -10,11 +10,12 @@
   tags:
     - prep
 
-- name: pip install junitxml and unittest2
+- name: pip install junitxml, unittest2, testtools
   pip: name={{ item }} virtualenv=/var/lib/tempest/.venv
   with_items:
     - junitxml
     - unittest2
+    - testtools
   tags:
     - tempest_setup
 

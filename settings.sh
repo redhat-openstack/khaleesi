@@ -70,6 +70,7 @@ config:
   verbosity:
     - info
     - warning
+    - debug
 
 # OpenStack controller settings, can be set by sourcing a keystonerc file
 os_auth_url: '$OS_AUTH_URL'
