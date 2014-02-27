@@ -1,4 +1,5 @@
 ---
+- include: package-dependencies.yml
 - include: user.yml
 
 - name: enable the openstack-m repository
