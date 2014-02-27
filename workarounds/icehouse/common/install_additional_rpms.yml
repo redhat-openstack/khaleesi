@@ -1,6 +1,0 @@
----
-- yum: name={{ item }} state=present
-  with_items: "{{ pre_additional_rpms }}"
-
-- yum: name={{ item }} state=present disablerepo=rhel-6-server-updates-rpms,rhel-6-server-optional-rpms
-  with_items: "{{ additional_rpms }}"

@@ -96,9 +96,7 @@ epel_repo: download.fedoraproject.org/pub/epel/6/
 gpg_check: 0
 ntp_server: clock.redhat.com
 reboot_delay: +1
-rhel_os_repo: $rhel_os_repo
-rhel_updates_repo: $rhel_updates_repo
-rhel_optional_repo: $rhel_optional_repo
+
 update_rpms_tarball: $update_rpms_tarball
 
 # Currently sudo w/ NOPASSWD must be enabled in /etc/sudoers for sudo to work

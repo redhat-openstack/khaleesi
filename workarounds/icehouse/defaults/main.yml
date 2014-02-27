@@ -1,7 +1,0 @@
----
-pre_additional_rpms:
-  -  vim
-
-additional_rpms:
-  -  bzip2
-
