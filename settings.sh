@@ -105,28 +105,6 @@ update_rpms_tarball: $update_rpms_tarball
 # running w/ -u $remote_user and -s will override these options
 remote_user: $remote_user
 
-#See group_vars/* for workaround enable/disable
-
-tempest:
-    puppet_file: /tmp/tempest_init.pp
-    checkout_dir: /var/lib/tempest
-    revision: 'stable/havana'
-    test_name: $tempest_tests
-    exclude:
-        files:
-            - test_server_rescue
-            - test_server_actions
-            - test_load_balancer
-            - test_vpnaas_extensions
-        tests:
-            - test_rescue_unrescue_instance
-            - test_create_get_delete_object
-            - test_create_volume_from_snapshot
-            - test_service_provider_list
-            - test_ec2_
-            - test_stack_crud_no_resources
-            - test_stack_list_responds
-
 log_files:
   - /var/tmp/packstack
   - /root/packstack*
