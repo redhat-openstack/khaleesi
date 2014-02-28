@@ -4,12 +4,6 @@
 - name: Ensure fedora-release
   yum: name=fedora-release state=present
 
-- name: Remove all yum repositories
-  file: path=/etc/yum.repos.d/{{ item }} state=absent
-  with_items: repos_to_remove
-  notify:
-    - Yum clean all
-
 - name: ensure f19 rpm ggp key
   copy: src=f19-gpg dest=/etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-19-x86_64 owner=root group=root force=no
   when: ansible_distribution_version == "19"

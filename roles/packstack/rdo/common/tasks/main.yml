@@ -3,6 +3,12 @@
   yum: name=rdo-release* state=absent
   ignore_errors: yes
 
+ - name: Ensure rdo yum repositories are removed
+  file: path=/etc/yum.repos.d/{{ item }} state=absent
+  with_items: repos_to_remove
+  notify:
+    - Yum clean all
+
  ## for e.g: baseurl={{ rdo.icehouse.production.repo.fedora }} ##
 - debug: msg="Setting baseurl to {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"         #"
   when: "'debug' in config.verbosity"
