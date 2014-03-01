@@ -1,12 +1,15 @@
 ---
+- name: Distribution and Release
+  debug: msg="Distribution = '{{ ansible_distribution }}' and  Release = '{{ ansible_distribution_version }}' and  major = '{{ ansible_distribution_version|int }}' "
+
 - name: List basic config variables
   debug: var=config
 
 - name: List nodes
   debug: var=nodes
 
-#not yet calculated
-#- debug: msg="Product baseurl= {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"         #"
+- name: OpenStack YUM Repo
+  debug: msg="baseurl for install, {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"         #"
 
 - name: List SELINUX value
   debug: var=selinux

@@ -1,0 +1,9 @@
+---
+- name: Openstack status script 
+  copy: src=status.sh dest=/root/status.sh  mode=0777 force=no
+
+- name: Status
+  command: /root/status.sh 
+  register: result
+
+- debug: var=result.stdout_lines 

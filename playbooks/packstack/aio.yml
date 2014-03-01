@@ -1,11 +1,4 @@
 ---
-- name: Debug list config variables
-  hosts: local
-  roles:
-    - { role: packstack/debug }
-  tags:
-    - provision
-
 - name: Get nodes from nova
   hosts: local
   gather_facts: False
@@ -20,6 +13,13 @@
   roles:
     - { role: set_facts }
     - { role: wait_for_hosts }
+  tags:
+    - provision
+
+- name: Debug list config variables
+  hosts: local
+  roles:
+    - { role: packstack/debug }
   tags:
     - provision
 
@@ -97,9 +97,16 @@
 - include: ../../workarounds/icehouse/workarounds-pre-run-packstack.yml tags=workaround
 
 - name: Install packstack
-  hosts: packstack
+  hosts: controller
   roles:
     - { role: packstack/runner }
+  tags:
+    - run-packstack
+
+- name: Get Status after reboot
+  hosts: controller
+  roles:
+    - { role: openstack/openstack-status }
   tags:
     - run-packstack
 
@@ -118,4 +125,3 @@
     controller_fqdn: "{{ ansible_ssh_host }}"
   roles:
     - { role: tempest, controller_fqdn: "{{ controller_name }}", tags: ["tempest_run"] }
-

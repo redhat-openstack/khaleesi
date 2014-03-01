@@ -14,7 +14,7 @@ if [[ ! -e repo_settings.yml && ! -e job_settings.yml ]]; then
     playbooks/packstack/$playbook \
       --extra-vars @settings.yml  \
         --extra-vars @nodes.yml  \
-        -v -u $remote_user -s $tags
+          -u $remote_user -s $tags
 elif [[ ! -e repo_settings.yml && -e job_settings.yml ]]; then
   echo "settings = settings.yml, job_settings.yml"
   ansible-playbook -i local_hosts  \
@@ -22,7 +22,7 @@ elif [[ ! -e repo_settings.yml && -e job_settings.yml ]]; then
       --extra-vars @settings.yml  \
         --extra-vars @job_settings.yml  \
           --extra-vars @nodes.yml  \
-            -v -u $remote_user -s $tags
+            -u $remote_user -s $tags
 elif [[ ! -e job_settings.yml && -e repo_settings.yml ]]; then
   echo "settings = settings.yml, repo_settings.yml"
   ansible-playbook -i local_hosts  \
@@ -30,7 +30,7 @@ elif [[ ! -e job_settings.yml && -e repo_settings.yml ]]; then
       --extra-vars @settings.yml \
         --extra-vars @nodes.yml  \
           --extra-vars @repo_settings.yml \
-           -v -u $remote_user -s $tags
+            -u $remote_user -s $tags
 elif [[ -e job_settings.yml && -e repo_settings.yml ]]; then
   echo "settings = settings.yml, repo_settings.yml, job_settings.yml"
   ansible-playbook -i local_hosts  \
@@ -39,7 +39,7 @@ elif [[ -e job_settings.yml && -e repo_settings.yml ]]; then
         --extra-vars @repo_settings.yml \
           --extra-vars @job_settings.yml \
             --extra-vars @nodes.yml  \
-              -v -u $remote_user -s $tags
+              -u $remote_user -s $tags
 fi
 #need a zero exit everytime so teardown can be executed
 return 0

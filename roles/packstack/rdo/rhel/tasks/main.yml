@@ -27,3 +27,10 @@
     line="baseurl={{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"
   notify:
     - Yum clean all
+
+- name: List available yum repositories
+  command: yum -d 9 repolist
+  register: result
+
+- name: Print repolist
+  debug: var=result.stdout_lines 
