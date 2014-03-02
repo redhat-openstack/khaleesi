@@ -8,8 +8,8 @@
 - name: List nodes
   debug: var=nodes
 
-- name: OpenStack YUM Repo
-  debug: msg="baseurl for install, {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"         #"
+# name: OpenStack YUM Repo
+#  debug: msg="baseurl for install, {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"         #"
 
 - name: List SELINUX value
   debug: var=selinux
