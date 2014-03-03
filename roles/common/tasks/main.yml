@@ -1,6 +1,9 @@
 ---
-- name: Ensure libselinux-python
-  yum: name=libselinux-python state=present
+- name: Ensure common dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - libselinux-python
+    - redhat-lsb-core
 
 - name: Remove yum-rhn-plugin
   yum: name=yum-rhn-plugin state=absent
