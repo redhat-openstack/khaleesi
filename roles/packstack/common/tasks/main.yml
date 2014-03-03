@@ -4,11 +4,13 @@
   when: ansible_distribution == "RedHat"
   notify:
     - Yum clean all
+  when: ansible_distribution_version != "7.0"
 
 - name: Ensure the EPEL Repository files are removed
   file: path=/etc/yum.repos.d/epel.repo state=absent
   notify:
     - Yum clean all
+  when: ansible_distribution_version != "7.0"
 
 - name: Create ssh key if one does not exist
   #this will not overwrite an existing key
