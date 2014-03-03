@@ -26,7 +26,7 @@
 
 - name: Get hostgroup
   uri: >
-        url=https://{{ foreman_fqdn }}/api/hostgroups?search=name=\"{{ foreman_node_hostgroup|replace(' ', '+') }}\"
+        url=https://{{ foreman_fqdn }}/api/hostgroups?search=name=\"{{ node_hostgroup|replace(' ', '+') }}\"
         method=GET
         user=admin
         password=changeme

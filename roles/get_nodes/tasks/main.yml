@@ -47,7 +47,7 @@
       foreman_public_ip="{{ item.0.info.addresses.foreman_ext.0.addr }}"
       ansible_fqdn="{{ item.0.item.hostname }}"
       priv_hostname="{{ item.0.item.hostname }}"
-      foreman_node_hostgroup="{{ item.0.item.foreman_node_hostgroup }}"
+      node_hostgroup="{{ item.0.item.node_hostgroup }}"
   with_together:
     - new_nodes.results
     - floating_ips.results

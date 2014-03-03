@@ -53,11 +53,15 @@
     chdir=/usr/share/openstack-foreman-installer/bin
     creates=/tmp/foreman_client.sh
     bash -x ./foreman_server.sh
+  register: installer_run
   environment:
     FOREMAN_GATEWAY: "false"
     FOREMAN_PROVISIONING: "false"
   tags:
     - foreman_install
+
+- name: Installer stdout
+  debug: var=installer_run.stdout_lines
 
 - name: Fetch the client installer
   fetch: src=/tmp/foreman_client.sh dest=/tmp/foreman

@@ -3,7 +3,7 @@
   hosts: local
   gather_facts: False
   roles:
-    - { role: get_nodes, nodes: '{{ foreman_nodes }}' }
+    - { role: get_nodes }
   tags:
     - provision
 
@@ -23,7 +23,7 @@
   roles:
     - { role: common }
     - { role: linux-common }
-    - { role: foreman/foreman-common }
+    - { role: foreman/common }
   tags:
     - prep
 
@@ -32,7 +32,7 @@
   user: "{{ remote_user }}"
   sudo: yes
   roles:
-    - { role: foreman/foreman-network-setup }
+    - { role: foreman/network-setup }
   tags:
     - prep
 
@@ -51,7 +51,7 @@
   gather_facts: True
   sudo: yes
   roles:
-    - { role: foreman/foreman-openstack-installer }
+    - { role: foreman/openstack-installer }
     - { role: foreman/hostgroup-params }
   tags:
     - install
@@ -62,8 +62,8 @@
   gather_facts: True
   sudo: yes
   roles:
-    - { role: foreman/foreman-openstack-node-common }
-    - { role: foreman/foreman-openstack-node }
+    - { role: foreman/openstack-node-common }
+    - { role: foreman/openstack-node }
 
 - name: Install remaining OpenStack nodes
   hosts: foreman_node:!controller
@@ -71,8 +71,8 @@
   gather_facts: True
   sudo: yes
   roles:
-    - { role: foreman/foreman-openstack-node-common }
-    - { role: foreman/foreman-openstack-node }
+    - { role: foreman/openstack-node-common }
+    - { role: foreman/openstack-node }
   tags:
     - install
     - install_nodes
