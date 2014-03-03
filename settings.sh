@@ -32,10 +32,13 @@ main() {
 
     local image_id=${IMAGE_ID:-'CHANGE_ME'}
     local net_1=${NET_1:-'CHANGE_ME'}
-    local net_2=${NET_2:-'CHANGE_ME'}
+    local net_2=${NET_2:-''}
     local net_2_name=${NET_2_NAME:-'packstack_int'}
+    local net_3=${NET_3:-''}
+    local net_3_name=${NET_3_NAME:-'foreman_ext'}
 
-    export tags=${TAGS:-'--skip-tags workaround'}
+    export tags=${TAGS:-''}
+    export skip_tags=${SKIP_TAGS:-''}
     local tempest_tests=${TEMPEST_TEST_NAME:-'tempest.scenario.test_network_basic_ops'}
     export remote_user=${REMOTE_USER:-'cloud-user'}
     export tempest_branch=${TEMPEST_BRANCH:-'stable/havana'}
@@ -55,6 +58,15 @@ main() {
     local selinux=${SELINUX:-'enforcing'} #enforcing, permissive
 
     local update_rpms_tarball=${UPDATE_RPMS_TARBALL:-''}
+
+    local net_ids="[{ net-id: '$net_1' }"
+    if [[ ! -z $net_2 ]]; then
+      net_ids="$net_ids, { net-id: '$net_2' }"
+    fi
+    if [[ ! -z $net_3 ]]; then
+      net_ids="$net_ids, { net-id: '$net_3' }"
+    fi
+    net_ids="$net_ids ]"
 
 cat > settings.yml <<-EOF
 # job config
@@ -79,8 +91,9 @@ os_tenant_name: $OS_TENANT_NAME
 
 # instance settings
 node_prefix: $node_prefix
-network_ids: [{ net-id: '$net_1' }, { net-id: '$net_2' } ]
+network_ids: $net_ids
 net_2_name: $net_2_name
+net_3_name: $net_3_name
 image_id: $image_id
 ssh_private_key: $key_file
 ssh_key_name: $key_name
