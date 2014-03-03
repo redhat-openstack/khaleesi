@@ -6,13 +6,13 @@
     - { role: get_nodes }
 
 - name: Set facts for hosts for log collection
-  hosts: packstack
+  hosts: openstack_nodes
   gather_facts: False
   roles:
     - { role: set_facts }
 
 - name: Gather Logs
-  hosts: packstack
+  hosts: openstack_nodes
   roles:
-    - { role: collect_logs,  nodes: '{{ cleanup_nodes }}' }
+    - { role: collect_logs }
 
