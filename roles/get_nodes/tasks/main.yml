@@ -70,6 +70,22 @@
     - floating_ips.results
   when: "'packstack' in item.0.item.groups"
 
+- name: Add Tempest hosts
+  add_host:
+      name="{{ item.0.item.name }}"
+      groups="{{ item.0.item.groups }}"
+      ansible_ssh_host="{{ item.1.public_ip }}"
+      ansible_ssh_private_key_file="{{ ssh_private_key }}"
+      public_ip="{{ item.1.public_ip }}"
+      private_ip="{{ item.0.private_ip }}"
+      ansible_fqdn="{{ item.0.item.hostname }}"
+      priv_hostname="{{ item.0.item.hostname }}"
+      tempest_private_ip="{{ item.0.info.addresses[net_2_name].0.addr }}"
+  with_together:
+    - new_nodes.results
+    - floating_ips.results
+  when: "'tempest' in item.0.item.groups"
+
 - name: Pause to let the systems boot
   pause: seconds="{{ wait_for_boot }}"
   when: new_nodes|changed

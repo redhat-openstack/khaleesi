@@ -3,7 +3,13 @@
   yum: name={{ item }} state=present
   with_items:
     - git
+    - python-pip
     - packstack-modules-puppet
+    - python-keystoneclient
+    - python-novaclient
+    - python-glanceclient
+    - python-neutronclient
+    - facter
+    - puppet
   tags:
     - tempest_setup
-

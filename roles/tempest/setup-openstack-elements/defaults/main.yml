@@ -17,6 +17,8 @@ demo_password: redhat
 demo_role: demo
 demo_tenant_description: "Demo Tenant"
 router_name: router1
+controller_name: "{{ nodes.0.name }}"
+keystone_endpoint: http://{{ hostvars[controller_name].ansible_default_ipv4.address }}:5000/v2.0/
 cirros_image_name: cirros
 cirros_image_disk_format: qcow2
 cirros_image_container_format: bare

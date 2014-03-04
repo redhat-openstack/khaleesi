@@ -17,3 +17,8 @@
       packstack_private_ip="{{ packstack_private_ip }}"
       packstack_node_hostgroup="{{ packstack_node_hostgroup }}"
   when: "'packstack' in group_names"
+
+- name: Set tempest facts
+  set_fact:
+      tempest_private_ip="{{ tempest_private_ip }}"
+  when: "'tempest' in group_names"

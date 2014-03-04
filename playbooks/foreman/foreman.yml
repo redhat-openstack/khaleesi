@@ -8,7 +8,7 @@
     - provision
 
 - name: Set facts for hosts
-  hosts: foreman_installer
+  hosts: openstack_nodes
   gather_facts: False
   roles:
     - { role: set_facts }
@@ -86,10 +86,25 @@
   tags:
     - keystonerc
 
-- name: Setup tempest
+- name: Gather all facts for tempest
+  hosts: all:!localhost:!tempest
+  tags:
+    - tempest
+
+- name: Setup tempest networking
   hosts: tempest
-  user: "{{ remote_user }}"
+  user: "{{ tempest_remote_user }}"
   roles:
+    - { role: foreman/network-setup }
+  tags:
+    - tempest
+
+- name: Setup tempest node
+  hosts: tempest
+  user: "{{ tempest_remote_user }}"
+  roles:
+    - { role: packstack/rdo/fedora }
+    - { role: openstack/create-keystonerc }
     - { role: tempest/package-dependencies }
     - { role: tempest/setup-openstack-elements }
   tags:
@@ -97,7 +112,7 @@
 
 - name: Run tempest
   hosts: tempest
-  user: "{{ remote_user }}"
+  user: "{{ tempest_remote_user }}"
   sudo: yes
   roles:
     - { role: tempest }

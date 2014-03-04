@@ -7,9 +7,7 @@
   tags: provision
 
 - name: Set facts for hosts
-  hosts:
-    - controller
-    - compute
+  hosts: openstack_nodes
   gather_facts: False
   roles:
     - { role: set_facts }

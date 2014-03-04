@@ -8,7 +8,7 @@
     - provision
 
 - name: Set facts for hosts
-  hosts: packstack
+  hosts: openstack_nodes
   gather_facts: False
   roles:
     - { role: set_facts }
@@ -118,10 +118,4 @@
   roles:
     - { role: rdopkg/update, tags: ["rdoupdate"] }
 
-- name: Run tempest
-  hosts: tempest
-  vars:
-    controller_name: "{{ ansible_ssh_host }}"
-    controller_fqdn: "{{ ansible_ssh_host }}"
-  roles:
-    - { role: tempest, controller_fqdn: "{{ controller_name }}", tags: ["tempest_run"] }
+- include: ../tempest.yml

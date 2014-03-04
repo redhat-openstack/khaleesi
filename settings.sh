@@ -4,7 +4,7 @@ set -e -u
 # Quick Instructions:
 # export:
 # IMAGE_ID to the id of the image
-# 
+#
 # Two networks are not required, but one is atm. "neutron net-list"
 # export:
 # NET_1
@@ -19,6 +19,7 @@ set -e -u
 
 main() {
     local default_flavor_id=4
+    local default_tempest_flavor_id=2
     local default_floating_nw_name='external'
     local wait_for_boot=${WAIT_FOR_BOOT:-'180'}
 
@@ -26,12 +27,14 @@ main() {
     local key_name=${SSH_KEY_NAME:-'key'}
     chmod 600 $key_file
 
-    local node_prefix=${NODE_PREFIX:-st}
+    local job_name=${JOB_NAME}
     local flavor_id=${FLAVOR_ID:-$default_flavor_id}
     local floating_nw_name=${FLOATING_NETWORK_NAME:-'external'}
     local network_name=${NETWORK_NAME:-'default'}
 
-    local image_id=${IMAGE_ID:-'CHANGE_ME'}
+    local image_id=$IMAGE_ID
+    local tempest_image_id=$TEMPEST_IMAGE_ID
+    local tempest_flavor_id=${TEMPEST_FLAVOR_ID:-$default_tempest_flavor_id}
     local net_1=${NET_1:-'CHANGE_ME'}
     local net_2=${NET_2:-''}
     local net_2_name=${NET_2_NAME:-'packstack_int'}
@@ -43,6 +46,7 @@ main() {
     local tempest_tests=${TEMPEST_TEST_NAME:-'tempest.scenario.test_network_basic_ops'}
     export remote_user=${REMOTE_USER:-'cloud-user'}
     export tempest_branch=${TEMPEST_BRANCH:-'stable/havana'}
+    local tempest_remote_user=${TEMPEST_REMOTE_USER:-'fedora'}
 
     local rhel_os_repo=${RHEL_OS_REPO:-''}
     local rhel_updates_repo=${RHEL_UPDATES_REPO:-''}
@@ -91,7 +95,7 @@ os_password: $OS_PASSWORD
 os_tenant_name: $OS_TENANT_NAME
 
 # instance settings
-node_prefix: $node_prefix
+job_name: $job_name
 network_ids: $net_ids
 net_2_name: $net_2_name
 net_3_name: $net_3_name
@@ -100,6 +104,9 @@ ssh_private_key: $key_file
 ssh_key_name: $key_name
 flavor_id: $flavor_id
 floating_network_name: $floating_nw_name
+tempest_image_id: $tempest_image_id
+tempest_flavor_id: $tempest_flavor_id
+tempest_remote_user: $tempest_remote_user
 sm_username: $sm_username
 sm_password: $sm_password
 

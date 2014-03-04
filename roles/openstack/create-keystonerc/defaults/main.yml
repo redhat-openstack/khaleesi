@@ -1,3 +1,4 @@
 ---
-controller_name: "{{ node_prefix }}controller"
+controller_name: "{{ nodes.0.name }}"
 controller_fqdn: "{{ hostvars[controller_name].fqdn }}"
+controller_ip: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"

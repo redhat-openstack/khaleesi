@@ -6,6 +6,7 @@
         login_user={{ admin_username }}
         login_password={{ admin_password }}
         login_tenant_name={{ admin_tenant_name }}
+        endpoint={{ keystone_endpoint }}
         state=present
 
 - name: Setup of demo user
@@ -16,6 +17,7 @@
         login_user={{ admin_username }}
         login_password={{ admin_password }}
         login_tenant_name={{ admin_tenant_name }}
+        endpoint={{ keystone_endpoint }}
         state=present
 
 - name: Apply demo role to demo user
@@ -26,6 +28,7 @@
         login_user={{ admin_username }}
         login_password={{ admin_password }}
         login_tenant_name={{ admin_tenant_name }}
+        endpoint={{ keystone_endpoint }}
         state=present
 
 - name: Setup of public network
@@ -36,6 +39,7 @@
         login_username={{ admin_username }}
         login_password={{ admin_password }}
         login_tenant_name={{ admin_tenant_name }}
+        auth_url={{ keystone_endpoint }}
         state=present
 
 - name: Setup of public subnet
@@ -50,6 +54,7 @@
         login_username={{ admin_username }}
         login_password={{ admin_password }}
         login_tenant_name={{ admin_tenant_name }}
+        auth_url={{ keystone_endpoint }}
         state=present
 
 - name: Setup of private network
@@ -59,6 +64,7 @@
         login_username={{ admin_username }}
         login_password={{ admin_password }}
         login_tenant_name={{ admin_tenant_name }}
+        auth_url={{ keystone_endpoint }}
         state=present
 
 - name: Setup of private subnet
@@ -71,6 +77,7 @@
         login_username={{ admin_username }}
         login_password={{ admin_password }}
         login_tenant_name={{ admin_tenant_name }}
+        auth_url={{ keystone_endpoint }}
         state=present
 
 - name: Create router
@@ -80,6 +87,7 @@
         login_username={{ admin_username }}
         login_password={{ admin_password }}
         login_tenant_name={{ admin_tenant_name }}
+        auth_url={{ keystone_endpoint }}
         state=present
 
 - name: Add interface to router
@@ -90,6 +98,7 @@
         login_username={{ admin_username }}
         login_password={{ admin_password }}
         login_tenant_name={{ admin_tenant_name }}
+        auth_url={{ keystone_endpoint }}
         state=present
 
 - name: Set gateway
@@ -99,14 +108,15 @@
         login_username={{ admin_username }}
         login_password={{ admin_password }}
         login_tenant_name={{ admin_tenant_name }}
+        auth_url={{ keystone_endpoint }}
         state=present
 
 - name: Set security group rules
   script: setup_security_group_rules.sh
 
 - name: Upload cirros image to OpenStack
-  glance_image:
-        "name={{ cirros_image_name }}
+  glance_image: >
+        name={{ cirros_image_name }}
         container_format={{ cirros_image_container_format }}
         disk_format={{ cirros_image_disk_format }}
         copy_from={{ cirros_image_url }}
@@ -114,5 +124,6 @@
         login_username={{ demo_username }}
         login_password={{ demo_password }}
         login_tenant_name={{ demo_tenant_name }}
-        state=present"
+        auth_url={{ keystone_endpoint }}
+        state=present
 

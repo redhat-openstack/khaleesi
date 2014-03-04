@@ -1,0 +1,15 @@
+---
+  - name: dump network and node info
+    debug: var=hostvars[controller_name]
+    when: "'debug' in config.verbosity"
+
+  - name: save iptables 
+    shell: service iptables save
+    sudo: yes
+
+  - name: ensure tempest node can connect to controller
+    lineinfile: dest=/etc/sysconfig/iptables insertafter="^-A INPUT -j nova-api-INPUT" 
+                     line="-A INPUT -s {{ tempest_ip }}/32 -p tcp  -j ACCEPT"
+
+  - name: restart iptables 
+    service: name=iptables state=restarted

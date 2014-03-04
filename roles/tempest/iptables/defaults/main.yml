@@ -1,0 +1,8 @@
+---
+#controller_name: "{{ nodes.0.name }}"
+#controller_fqdn: "{{ hostvars[controller_name].fqdn }}"
+#controller_ip: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"
+
+tempest_name: "{{ nodes.1.name }}"
+tempest_fqdn: "{{ hostvars[tempest_name].fqdn }}"
+tempest_ip: "{{ hostvars[tempest_name].ansible_default_ipv4.address }}"
