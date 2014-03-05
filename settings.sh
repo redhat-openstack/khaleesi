@@ -20,6 +20,7 @@ set -e -u
 main() {
     local default_flavor_id=4
     local default_floating_nw_name='external'
+    local wait_for_boot=${WAIT_FOR_BOOT:-'180'}
 
     local key_file=${KEY_FILE:-/key.pem }
     local key_name=${SSH_KEY_NAME:-'key'}
@@ -109,6 +110,7 @@ epel_repo: download.fedoraproject.org/pub/epel/6/
 gpg_check: 0
 ntp_server: clock.redhat.com
 reboot_delay: +1
+wait_for_boot: $wait_for_boot
 
 update_rpms_tarball: $update_rpms_tarball
 
