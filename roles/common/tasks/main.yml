@@ -6,6 +6,3 @@
   yum: name=yum-rhn-plugin state=absent
   notify:
     - Yum clean all
-
-- name: DNS update nameserver address
-  lineinfile: dest=/etc/resolv.conf regexp="^nameserver " line="nameserver {{ nameserver }}"
