@@ -14,10 +14,11 @@
          tags: workaround,
          when: workaround_mariadb is defined and workaround_mariadb
        }
-
-- name: Workarounds | specific to fedora distro on controller
-  hosts: Fedora:&controller
-  tasks:
+     - { include: "fedora/install_deltarpm.yml",
+         name: 'WORKAROUND | BZ | Install deltarpm',
+         tags: workaround,
+         when: workaround_deltarpm is defined and workaround_deltarpm
+       }
      - { include: "fedora/install_mongodb.yml",
          name: 'WORKAROUND | BZ | Install mongodb',
          tags: workaround,

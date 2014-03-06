@@ -14,11 +14,10 @@
     - Yum clean all
     - yum -y update to latest packages
 
-# workaround {
 - name: WORKAROUND | BZ | Ensure iptables-services
   yum: name=iptables-services state=present
   tags: workaround
   when: workarounds_disabled is not defined or
         workarounds_disabled|bool == false
-# }
+
 
