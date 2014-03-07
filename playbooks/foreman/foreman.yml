@@ -86,35 +86,12 @@
   tags:
     - keystonerc
 
-- name: Gather all facts for tempest
-  hosts: all:!localhost:!tempest
-  tags:
-    - tempest
-
 - name: Setup tempest networking
   hosts: tempest
   user: "{{ tempest_remote_user }}"
   roles:
     - { role: foreman/network-setup }
   tags:
-    - tempest
+    - tempest_setup
 
-- name: Setup tempest node
-  hosts: tempest
-  user: "{{ tempest_remote_user }}"
-  roles:
-    - { role: packstack/rdo/fedora }
-    - { role: openstack/create-keystonerc }
-    - { role: tempest/package-dependencies }
-    - { role: tempest/setup-openstack-elements }
-  tags:
-    - tempest
-
-- name: Run tempest
-  hosts: tempest
-  user: "{{ tempest_remote_user }}"
-  sudo: yes
-  roles:
-    - { role: tempest }
-  tags:
-    - tempest
+- include: ../tempest.yml

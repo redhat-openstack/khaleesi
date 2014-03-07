@@ -1,27 +1,9 @@
 ---
 - name: Gather facts from all hosts for tempest
   hosts: all:!localhost:!tempest
-  tasks:
-    - setup: 
   tags:
     - tempest_setup
     - tempest_run
-
-- name: Gather facts of tempest node
-  hosts: tempest
-  tasks:
-    - setup: 
-  user: "{{ tempest_remote_user }}"
-  tags:
-    - tempest_setup
-
-- name: Ensure iptables is open for tempest
-  hosts: all:!localhost:!tempest
-  user: "{{ remote_user }}"
-  roles:
-    - { role: tempest/iptables }
-  tags:
-    - tempest_setup
 
 - name: Create keystonerc and install packages for tempest
   hosts: tempest
