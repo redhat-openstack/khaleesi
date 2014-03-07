@@ -74,7 +74,7 @@ if [ ! -e nodes.yml ]; then
   exit 1
 fi
 
-#require a 0 exit code for clean.sh to execute
+# requires a 0 exit code for clean.sh to execute
 main "$@" || true
-collect_logs
+collect_logs || true
 
