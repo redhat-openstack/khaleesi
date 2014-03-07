@@ -1,18 +1,4 @@
 ### NOTE: do not provision those VMs here, split it into a play ###
-- name: Get nodes from nova
-  hosts: local
-  gather_facts: False
-  roles:
-    - { role: get_nodes }
-  tags: provision
-
-- name: Set facts for hosts
-  hosts: openstack_nodes
-  gather_facts: False
-  roles:
-    - { role: set_facts }
-    - { role: wait_for_hosts }
-
 - name: Prepare network for Packstack install
   hosts:
     - controller

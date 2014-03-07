@@ -23,6 +23,8 @@
     - provision
 
 ### enable to provison vm
+- include: ../provision.yml
+
 - include: multinode/provision.yml
 
 - include: multinode/validate-nodes.yml

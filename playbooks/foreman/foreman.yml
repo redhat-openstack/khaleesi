@@ -1,20 +1,5 @@
 ---
-- name: Get nodes from nova
-  hosts: local
-  gather_facts: False
-  roles:
-    - { role: get_nodes }
-  tags:
-    - provision
-
-- name: Set facts for hosts
-  hosts: openstack_nodes
-  gather_facts: False
-  roles:
-    - { role: set_facts }
-    - { role: wait_for_hosts }
-  tags:
-    - provision
+- include: ../provision.yml
 
 - name: Prepare for Foreman install
   hosts: foreman_installer
