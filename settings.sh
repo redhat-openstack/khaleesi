@@ -18,9 +18,11 @@ set -e -u
 #
 
 main() {
+    local default_floating_nw_name='external'
     local default_flavor_id=4
     local default_tempest_flavor_id=2
-    local default_floating_nw_name='external'
+    local default_tempest_image_id='10a4092c-6ec9-4ddf-b97c-b0f8dff0958e'
+
     local wait_for_boot=${WAIT_FOR_BOOT:-'180'}
 
     local key_file=${KEY_FILE:-/key.pem }
@@ -33,7 +35,7 @@ main() {
     local network_name=${NETWORK_NAME:-'default'}
 
     local image_id=$IMAGE_ID
-    local tempest_image_id=$TEMPEST_IMAGE_ID
+    local tempest_image_id=${TEMPEST_IMAGE_ID:-$default_tempest_image_id}
     local tempest_flavor_id=${TEMPEST_FLAVOR_ID:-$default_tempest_flavor_id}
     local net_1=${NET_1:-'CHANGE_ME'}
     local net_2=${NET_2:-''}
