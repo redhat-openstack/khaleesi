@@ -17,7 +17,6 @@
   hosts: tempest
   user: "{{ tempest_remote_user }}"
   roles:
-    - { role: packstack/rdo/fedora }
     - { role: tempest/package-dependencies }
     - { role: tempest/setup-openstack-elements }
   tags:
