@@ -19,51 +19,49 @@
 # apply pre-packstack workarouds
 - include: ../../workarounds/icehouse/workarounds-prep.yml tags=workaround
 
-# group hosts by product
-- name: Bootstrap testbed VMs
-  hosts: all:!localhost
+- name: Group hosts by product rdo/rhos
+  hosts: all:!localhost:!tempest
   tasks:
     - group_by: key={{ config.product }}
   tags:
     - prep
 
-- name: Packstack prep
+- name: Packstack prep rhos
   hosts: controller:&rhos
   roles:
     - { role: packstack/rhos }
   tags:
     - prep
 
-- name: Packstack prep
+- name: Packstack prep rdo
   hosts: controller:&rdo
   roles:
     - { role: packstack/rdo }
   tags:
     - prep
 
-# group hosts by product
-- name: Bootstrap testbed VMs
-  hosts: all:!localhost
+- name: Group hosts by netplugin nova/neutron networking
+  hosts: all:!localhost:!tempest
   tasks:
     - group_by: key={{ config.netplugin }}
   tags:
     - prep
 
-- name: Packstack Create Answer File
+- name: Packstack Create Answer File for neutron
   hosts: controller:&neutron
   roles:
     - { role: packstack/packstack-neutron-aio }
   tags:
     - prep
 
-- name: Packstack Create Answer File
+- name: Packstack Create Answer File for nova
   hosts: controller:&nova
   roles:
     - { role: packstack/packstack-nova-aio }
   tags:
     - prep
 
-- name: Packstack Create Answer File
+- name: Packstack Create Answer File for quantum
   hosts: controller:&quantum
   roles:
     - { role: packstack/packstack-quantum-aio }
@@ -76,7 +74,6 @@
     - { role: packstack/rhos/epel }
   tags:
     - prep
-
 
 # apply pre-packstack workarouds
 - include: ../../workarounds/icehouse/workarounds-pre-run-packstack.yml tags=workaround
