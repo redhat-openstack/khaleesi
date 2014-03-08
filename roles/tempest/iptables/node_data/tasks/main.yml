@@ -1,0 +1,9 @@
+---
+- name: dump network and node info
+  debug: var=hostvars[tempest_name].ansible_default_ipv4.address
+
+- name: dump tempest_private_ip
+  debug: var=tempest_private_ip
+
+- name: dump tempest_default_ip
+  debug: var=tempest_default_ip

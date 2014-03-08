@@ -1,7 +1,7 @@
 ---
 # group hosts by distro
-- name: Bootstrap testbed VMs
-  hosts: all:!localhost
+- name: Gather facts for workarounds-pre-run-packstack
+  hosts: all:!localhost:!tempest
   tasks:
     - group_by: key={{ ansible_distribution }}
 
