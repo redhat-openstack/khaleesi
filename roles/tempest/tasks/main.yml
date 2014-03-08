@@ -43,6 +43,8 @@
        --exclude-tests {{ tempest['exclude']['tests'] }}
   tags:
     - tempest_run
+  ignore_errors: True
+
 
 - name: Fetch results
   fetch: src={{ tempest['checkout_dir']}}/nosetests.xml dest=nosetests.xml flat=yes
