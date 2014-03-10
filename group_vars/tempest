@@ -1,4 +1,2 @@
 ---
-net_interfaces:
-    - { interface: 'eth1', ip_var: 'tempest_private_ip', ansible_var: 'ansible_eth1' }
 reboot_options: "--no-wall ' Reboot is triggered by Ansible' "

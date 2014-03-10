@@ -21,4 +21,5 @@
 - name: Set tempest facts
   set_fact:
       tempest_private_ip="{{ tempest_private_ip }}"
+      {{ lookup('template', 'addl_vars.j2') }}
   when: "'tempest' in group_names"

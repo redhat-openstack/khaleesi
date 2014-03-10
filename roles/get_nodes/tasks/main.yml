@@ -70,7 +70,7 @@
     - floating_ips.results
   when: "'packstack' in item.0.item.groups"
 
-- name: Add Tempest hosts
+- name: Add Tempest host
   add_host:
       name="{{ item.0.item.name }}"
       groups="{{ item.0.item.groups }}"
@@ -81,6 +81,7 @@
       ansible_fqdn="{{ item.0.item.hostname }}"
       priv_hostname="{{ item.0.item.hostname }}"
       tempest_private_ip="{{ item.0.info.addresses[net_2_name].0.addr }}"
+      {{ lookup('template', 'addl_vars.j2') }}
   with_together:
     - new_nodes.results
     - floating_ips.results

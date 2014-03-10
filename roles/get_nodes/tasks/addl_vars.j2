@@ -1,0 +1,3 @@
+{% if item.0.info.addresses[net_3_name] is defined %}
+tempest_public_ip="{{ item.0.info.addresses[net_3_name].0.addr }}"
+{% endif %}
