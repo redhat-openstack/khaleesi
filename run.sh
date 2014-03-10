@@ -52,6 +52,10 @@ if [[ ! -z $skip_tags ]]; then
   cmdline="$cmdline --skip-tags $skip_tags"
 fi
 
+if [[ ! -z $KHALEESI_VERBOSE ]]; then
+  cmdline="$cmdline -v"
+fi
+
 echo "Execute Command:"
 echo "$cmdline"
 $cmdline
