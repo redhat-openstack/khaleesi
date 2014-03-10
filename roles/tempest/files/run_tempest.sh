@@ -121,6 +121,17 @@ tempest.tox() {
     return 0
 }
 
+tempest.tox_single() {
+    echo "Running testr ... "
+    local tempest_test_name=${1:-""}
+
+    tox -- --subunit $tempest_test_name |
+        tee >( subunit2junitxml --output-to=nosetests.xml ) |
+        subunit-2to1 | tee run.log |
+        tools/colorizer.py
+    return 0
+}
+
 tempest.run_smoketest() {
     local tempest_dir=$1; shift
     local tempest_test_name=${1:-""}; shift
@@ -156,7 +167,7 @@ tempest.run_smoketest() {
     if [[ $py_version =~ "2.6" &&  -z $tempest_test_name ]]; then
         tempest.nose_test  exclude_files[@] exclude_tests[@]
     elif [[ $py_version =~ "2.7" &&  -z $tempest_test_name ]]; then
-        tempest.tox  exclude_files[@] exclude_tests[@]
+        tempest.testr  exclude_files[@] exclude_tests[@]
     elif [[ $py_version =~ "2.6" &&  -n $tempest_test_name ]]; then
         tempest.nose_test_single $tempest_test_name
     elif [[ $py_version =~ "2.7" &&  -n $tempest_test_name ]]; then

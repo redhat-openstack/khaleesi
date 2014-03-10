@@ -15,9 +15,17 @@
   with_items:
     - junitxml
     - unittest2
-    - testtools
   tags:
     - tempest_setup
+
+- name: pip install testtools, specific version
+  pip: name={{ item.name }} version={{ item.version }} virtualenv=/var/lib/tempest/.venv
+  with_items:
+    - { name: testtools, version: '0.9.34' }
+    - { name: python-subunit, version: '0.0.15'}
+  tags:
+    - tempest_setup
+
 
 - name: pip install requirements
   pip: requirements=/var/lib/tempest/requirements.txt virtualenv=/var/lib/tempest/.venv
