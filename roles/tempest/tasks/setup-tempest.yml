@@ -7,3 +7,10 @@
       {{ tempest['puppet_file'] }}
       {{ tempest['checkout_dir'] }}
 
+- name: Set arbitrary things in tempest.conf
+  ini_file: dest={{ tempest['checkout_dir'] }}/etc/tempest.conf
+            section={{ item.section }}
+            option={{ item.option }}
+            value={{ item.value }}
+  with_items:
+    - { section: object-storage, option: operator_role, value: SwiftOperator }
