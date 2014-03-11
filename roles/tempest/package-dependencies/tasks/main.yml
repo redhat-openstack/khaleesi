@@ -9,6 +9,12 @@
             option=gpgcheck
             value=0
 
+- name: Turn off foreman repo
+  ini_file: dest=/etc/yum.repos.d/foreman.repo
+            section=foreman
+            option=enabled
+            value=0
+
 - name: Install rpm dependencies
   yum: name={{ item }} state=present
   with_items:
