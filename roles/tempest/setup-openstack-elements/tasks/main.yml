@@ -43,7 +43,7 @@
         state=present
 
 - name: Setup of public network
-  neutron_network:
+  quantum_network:
         name={{ public_net_name }}
         router_external=yes
         tenant_name={{ public_net_tenant }}
@@ -54,7 +54,7 @@
         state=present
 
 - name: Setup of public subnet
-  neutron_subnet:
+  quantum_subnet:
         name={{ public_subnet_name }}
         network_name={{ public_net_name }}
         cidr={{ public_subnet_cidr }}
@@ -69,7 +69,7 @@
         state=present
 
 - name: Setup of private network
-  neutron_network:
+  quantum_network:
         name={{ private_net_name }}
         tenant_name={{ demo_tenant_name }}
         login_username={{ admin_username }}
@@ -79,7 +79,7 @@
         state=present
 
 - name: Setup of private subnet
-  neutron_subnet:
+  quantum_subnet:
         name={{ private_subnet_name }}
         network_name={{ private_net_name }}
         cidr={{ private_subnet_cidr }}
@@ -92,7 +92,7 @@
         state=present
 
 - name: Create router
-  neutron_router:
+  quantum_router:
         name={{ router_name }}
         tenant_name={{ demo_tenant_name }}
         login_username={{ admin_username }}
@@ -102,7 +102,7 @@
         state=present
 
 - name: Add interface to router
-  neutron_router_interface:
+  quantum_router_interface:
         router_name={{ router_name }}
         subnet_name={{ private_subnet_name }}
         tenant_name={{ demo_tenant_name }}
@@ -113,7 +113,7 @@
         state=present
 
 - name: Set gateway
-  neutron_router_gateway:
+  quantum_router_gateway:
         router_name={{ router_name }}
         network_name={{ public_net_name }}
         login_username={{ admin_username }}

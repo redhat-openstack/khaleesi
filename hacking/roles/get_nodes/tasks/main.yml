@@ -16,7 +16,7 @@
   with_items: nodes
 
 - name: Assign floating ip
-  neutron_floating_ip:
+  quantum_floating_ip:
        auth_url: "{{ os_auth_url }}"
        state: present
        login_username: "{{ os_username }}"

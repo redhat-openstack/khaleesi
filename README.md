@@ -22,6 +22,11 @@ Now run:
 
 Again, replace username with your gerrithub username.
 
+Required Ansible version
+------------------------
+
+Ansible 1.5 is now required.
+
 
 Std{out,err} callback plugin
 ----------------------------

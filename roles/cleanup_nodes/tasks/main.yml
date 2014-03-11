@@ -1,6 +1,6 @@
 ---
 - name: Release floating ip (neutron)
-  neutron_floating_ip:
+  quantum_floating_ip:
        auth_url: "{{ os_auth_url }}"
        state: absent
        login_username: "{{ os_username }}"

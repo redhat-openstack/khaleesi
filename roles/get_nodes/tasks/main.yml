@@ -19,7 +19,7 @@
   debug: var=os_network_type
 
 - name: Assign floating ip (neutron network)
-  neutron_floating_ip:
+  quantum_floating_ip:
        auth_url: "{{ os_auth_url }}"
        state: present
        login_username: "{{ os_username }}"
