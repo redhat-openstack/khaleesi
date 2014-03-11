@@ -12,7 +12,7 @@
     - { role: set_facts }
 
 - name: Gather Logs
-  hosts: openstack_nodes
+  hosts: all:!localhost:!tempest
   roles:
     - { role: collect_logs }
 
