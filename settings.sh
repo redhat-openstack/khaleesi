@@ -38,6 +38,8 @@ main() {
     local image_id=$IMAGE_ID
     local tempest_image_id=${TEMPEST_IMAGE_ID:-$default_tempest_image_id}
     local tempest_flavor_id=${TEMPEST_FLAVOR_ID:-$default_tempest_flavor_id}
+    local foreman_image_id=${FOREMAN_IMAGE_ID:-$IMAGE_ID}
+    local foreman_flavor_id=${FOREMAN_FLAVOR_ID:-$default_flavor_id}
     local net_1=${NET_1:-'CHANGE_ME'}
     local net_2=${NET_2:-''}
     local net_2_name=${NET_2_NAME:-'packstack_int'}
@@ -50,6 +52,7 @@ main() {
     export remote_user=${REMOTE_USER:-'cloud-user'}
     export tempest_branch=${TEMPEST_BRANCH:-'master'}
     local tempest_remote_user=${TEMPEST_REMOTE_USER:-'fedora'}
+    local foreman_remote_user=${FOREMAN_REMOTE_USER:-$REMOTE_USER}
 
     local rhel_os_repo=${RHEL_OS_REPO:-''}
     local rhel_updates_repo=${RHEL_UPDATES_REPO:-''}
@@ -111,6 +114,9 @@ floating_network_name: $floating_nw_name
 tempest_image_id: $tempest_image_id
 tempest_flavor_id: $tempest_flavor_id
 tempest_remote_user: $tempest_remote_user
+foreman_image_id: $foreman_image_id
+foreman_flavor_id: $foreman_flavor_id
+foreman_remote_user: $foreman_remote_user
 sm_username: $sm_username
 sm_password: $sm_password
 

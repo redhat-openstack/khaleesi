@@ -2,7 +2,18 @@
 - include: ../provision.yml
 
 - name: Prepare for Foreman install
-  hosts: foreman_installer
+  hosts: foreman_installer:&foreman
+  user: "{{ foreman_remote_user }}"
+  sudo: yes
+  roles:
+    - { role: common }
+    - { role: linux-common }
+    - { role: foreman/common }
+  tags:
+    - prep
+
+- name: Prepare for Foreman install
+  hosts: foreman_installer:!foreman
   user: "{{ remote_user }}"
   sudo: yes
   roles:
@@ -13,13 +24,30 @@
     - prep
 
 - name: Prepare foreman network
-  hosts: foreman_installer
+  hosts: foreman_installer:&foreman
+  user: "{{ foreman_remote_user }}"
+  sudo: yes
+  roles:
+    - { role: foreman/network-setup }
+  tags:
+    - prep
+
+- name: Prepare foreman network
+  hosts: foreman_installer:!foreman
   user: "{{ remote_user }}"
   sudo: yes
   roles:
     - { role: foreman/network-setup }
   tags:
     - prep
+
+- name: Setup tempest networking
+  hosts: tempest
+  user: "{{ tempest_remote_user }}"
+  roles:
+    - { role: foreman/network-setup, net_interfaces: [ { interface: 'eth1', ip_var: 'tempest_private_ip', ansible_var: 'ansible_eth1' }, { interface: 'eth2', ip_var: 'tempest_public_ip', ansible_var: 'ansible_eth2'} ] }
+  tags:
+    - tempest_setup
 
 - name: Prepare foreman network - Networker nodes
   hosts: networker
@@ -32,7 +60,7 @@
 
 - name: Install Foreman
   hosts: foreman
-  user: "{{ remote_user }}"
+  user: "{{ foreman_remote_user }}"
   gather_facts: True
   sudo: yes
   roles:
@@ -70,13 +98,5 @@
     - { role: openstack/create-keystonerc }
   tags:
     - keystonerc
-
-- name: Setup tempest networking
-  hosts: tempest
-  user: "{{ tempest_remote_user }}"
-  roles:
-    - { role: foreman/network-setup, net_interfaces: [ { interface: 'eth1', ip_var: 'tempest_private_ip', ansible_var: 'ansible_eth1' }, { interface: 'eth2', ip_var: 'tempest_public_ip', ansible_var: 'ansible_eth2'} ] }
-  tags:
-    - tempest_setup
 
 - include: ../tempest.yml
