@@ -48,7 +48,7 @@ main() {
     export skip_tags=${SKIP_TAGS:-''}
     local tempest_tests=${TEMPEST_TEST_NAME:-'tempest.scenario.test_network_basic_ops'}
     export remote_user=${REMOTE_USER:-'cloud-user'}
-    export tempest_branch=${TEMPEST_BRANCH:-'stable/havana'}
+    export tempest_branch=${TEMPEST_BRANCH:-'master'}
     local tempest_remote_user=${TEMPEST_REMOTE_USER:-'fedora'}
 
     local rhel_os_repo=${RHEL_OS_REPO:-''}
