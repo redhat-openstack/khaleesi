@@ -12,6 +12,10 @@
 - name: Install rpm dependencies
   yum: name={{ item }} state=present
   with_items:
+    - gcc
+    - libxml2-devel
+    - libxslt-devel
+    - libffi-devel
     - git
     - python-pip
     - packstack-modules-puppet
