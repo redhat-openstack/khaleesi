@@ -15,19 +15,19 @@
 # - CleanUp
 #
 
-- name: Debug list config variables
-  hosts: local
-  roles:
-    - { role: packstack/debug }
-  tags:
-    - provision
-
 ### enable to provison vm
 - include: ../provision.yml
 
 - include: multinode/provision.yml
 
 - include: multinode/validate-nodes.yml
+
+- name: Debug list config variables
+  hosts: local
+  roles:
+    - { role: packstack/debug }
+  tags:
+    - provision
 
 - name: Prepare system for packstack
   hosts: packstack
@@ -58,6 +58,14 @@
   tags: run-packstack
 
 - include: ../../workarounds/icehouse/workarounds-post-run-packstack.yml tags=workaround
+
+- name: List ip address of tempest node
+  hosts: tempest
+  user: "{{ tempest_remote_user }}"
+  roles:
+    - { role: tempest/iptables/node_data }
+  tags:
+    - tempest_setup
 
 - name: Ensure iptables is open for tempest
   hosts: all:!localhost:!tempest
