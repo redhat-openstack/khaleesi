@@ -14,6 +14,15 @@
             section=foreman
             option=enabled
             value=0
+  notify:
+    - Yum clean all
+
+- name: List available yum repositories
+  command: yum -d 9 repolist
+  register: result
+
+- name: Print repolist
+  debug: var=result.stdout_lines
 
 - name: Install rpm dependencies
   yum: name={{ item }} state=present
