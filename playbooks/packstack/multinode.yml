@@ -22,6 +22,11 @@
 
 - include: multinode/validate-nodes.yml
 
+- name: Gather facts from all openstack hosts
+  hosts: all:!localhost:!tempest
+  tags:
+    - provision
+
 - name: Debug list config variables
   hosts: local
   roles:
