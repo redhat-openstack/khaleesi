@@ -6,6 +6,10 @@
   script: setup_tempest.sh
       {{ tempest['puppet_file'] }}
       {{ tempest['checkout_dir'] }}
+  register: result
+
+- name: Print setup_tempest.sh stdout
+  debug: var=result.stdout_lines
 
 - name: Set arbitrary things in tempest.conf
   ini_file: dest={{ tempest['checkout_dir'] }}/etc/tempest.conf

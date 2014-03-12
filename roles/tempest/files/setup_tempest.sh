@@ -34,7 +34,7 @@ main() {
             return 1
         fi
     fi
-    puppet apply --modulepath=$puppet_modules_dir $tempest_init_pp
+    puppet apply --modulepath=$puppet_modules_dir $tempest_init_pp -vvvv
     return $?
 }
 
