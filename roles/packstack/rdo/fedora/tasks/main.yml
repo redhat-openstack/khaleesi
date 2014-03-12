@@ -12,7 +12,7 @@
   when: ( "{{ config.repo }}" != 'production' )
 
 - name: List available yum repositories
-  command: yum -d 9 repolist
+  command: yum -d 7 repolist
   register: result
 
 - name: Print repolist
