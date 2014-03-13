@@ -1,5 +1,5 @@
 ---
-- name: Get nodes from nova
+- name: Get nodes using Nova
   hosts: local
   gather_facts: False
   roles:
@@ -15,4 +15,3 @@
     - { role: wait_for_hosts }
   tags:
     - provision
-

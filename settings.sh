@@ -18,6 +18,7 @@ set -e -u
 #
 
 main() {
+    local OS_NETWORK_TYPE=${OS_NETWORK_TYPE:-'neutron'}
     local default_floating_nw_name='external'
     local default_flavor_id=4
     local default_tempest_flavor_id=2
@@ -33,7 +34,6 @@ main() {
     local node_prefix=${NODE_PREFIX:-''}
     local flavor_id=${FLAVOR_ID:-$default_flavor_id}
     local floating_nw_name=${FLOATING_NETWORK_NAME:-'external'}
-    local network_name=${NETWORK_NAME:-'default'}
 
     local image_id=$IMAGE_ID
     local tempest_image_id=${TEMPEST_IMAGE_ID:-$default_tempest_image_id}
@@ -87,7 +87,6 @@ config:
   version: $productrelease
   repo: $productreleaserepo
   netplugin: $netplugin
-  host_env: $host_env
   verbosity:
     - info
 
@@ -96,6 +95,7 @@ os_auth_url: '$OS_AUTH_URL'
 os_username: $OS_USERNAME
 os_password: $OS_PASSWORD
 os_tenant_name: $OS_TENANT_NAME
+os_network_type: $OS_NETWORK_TYPE
 
 # instance settings
 job_name: $job_name

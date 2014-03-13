@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #coding: utf-8 -*-
 
-# (c) 2014, Wes Hayutin <weshayutin@gmail.com> 
+# (c) 2014, Wes Hayutin <weshayutin@gmail.com>
 #
 # This module is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -92,41 +92,87 @@ def _assign_floating_ip(module, nova, floating_ip):
             result = instance.add_floating_ip(floating_ip)
         except Exception, e:
             module.fail_json(msg="There was an error in updating the floating ip address: %s" % e.message)
-        module.exit_json(changed=True, result=result, msg="Floating ip %s associated with instance %s" % (floating_ip.ip, module.params['instance_name']) )
+        #must resturn the floating_ip object that was assigned, not the result
+        return floating_ip
+    else:
+        module.fail_json(msg="No instances were found")
 
-def _get_server_public_ip(module, nova):
+def _remove_floating_ip(module, nova, floating_ip):
+    name = None
+    server_list = None
+    server_list = nova.servers.list(True, {'name': module.params['instance_name']})
+    if server_list:
+        instance = nova.servers.find(name=module.params['instance_name'])
+        try:
+            result = nova.floating_ips.delete(floating_ip.split(".")[3])
+        except Exception, e:
+            #unassociate the float that could not be deleted
+            instance.remove_floating_ip(floating_ip);
+            module.fail_json(msg="There was an error in updating the removing ip address: %s %s" % (floating_ip, e.message))
+    else:
+        module.fail_json(msg="No instances were found")
+
+
+def _get_server_floating_ip(module, nova):
     server = None
-    public = []
+    floating_ips = []
     try:
         servers = nova.servers.list(True, {'name': module.params['instance_name']})
         if servers:
             server = [x for x in servers if x.name == module.params['instance_name']][0]
     except Exception, e:
         module.fail_json(msg = "Error in getting the server list: %s" % e.message)
-    if server and module.params['state'] == 'present':
-        if server.status != 'ACTIVE':
-            module.fail_json( msg="The VM is available but not Active. state:" + server.status)
-        public  = [ x['addr'] for x in getattr(server, 'addresses').itervalues().next() if 'OS-EXT-IPS:type' in x and x['OS-EXT-IPS:type'] == 'floating']
-    return public
+    if server :
+        if module.params['state'] == 'present' and  server.status != 'ACTIVE':
+            module.fail_json( msg="VM exists but not Active. state: " + server.status)
+        floating_ips  = [ x['addr'] for x in getattr(server, 'addresses').itervalues().next()
+                    if 'OS-EXT-IPS:type' in x and x['OS-EXT-IPS:type'] == 'floating']
+        return floating_ips[0] if floating_ips else None
+    else:
+        module.fail_json(msg="No instances were found")
+
+def _associate_floating_ip(module, nova):
+    floating_ip = _get_server_floating_ip(module, nova)
+    if floating_ip:
+        return floating_ip
+    # create one if there isn't
+    floating_ip = _create_floating_ip(module, nova)
+    if floating_ip:
+        _assign_floating_ip(module, nova, floating_ip)
+        return floating_ip
+    else:
+        module.fail_json(msg="Failed to assign floating ip", changed=False)
+
+
+def _release_floating_ip(module, nova):
+    floating_ip = _get_server_floating_ip(module, nova)
+    if floating_ip:
+        _remove_floating_ip(module, nova, floating_ip)
+        module.exit_json(changed=True, result="Removed")
+    else:
+        module.fail_json(msg = "Unable to fetch floating ip")
+
 
 def main():
     module = AnsibleModule(
-        argument_spec                   = dict(
-        login_username                  = dict(default='admin'),
-        login_password                  = dict(required=True),
-        login_tenant_name               = dict(required='True'),
-        auth_url                        = dict(default='http://127.0.0.1:35357/v2.0/'),
-        network_name                 = dict(required=True),
-        instance_name                   = dict(required=True),
-        state                           = dict(default='present', choices=['absent', 'present'])
+        argument_spec       = dict(
+        login_username      = dict(default='admin'),
+        login_password      = dict(required=True),
+        login_tenant_name   = dict(required='True'),
+        auth_url            = dict(default='http://127.0.0.1:35357/v2.0/'),
+        network_name        = dict(required=True),
+        instance_name       = dict(required=True),
+        state               = dict(default='present', choices=['absent', 'present'])
         ),
     )
 
-    nova = nova_client.Client(module.params['login_username'],
-                              module.params['login_password'],
-                              module.params['login_tenant_name'],
-                              module.params['auth_url'],
-                              service_type='compute')
+    nova = nova_client.Client(
+        module.params['login_username'],
+        module.params['login_password'],
+        module.params['login_tenant_name'],
+        module.params['auth_url'],
+        service_type='compute')
+
     try:
         nova.authenticate()
     except exc.Unauthorized, e:
@@ -134,13 +180,15 @@ def main():
     except exc.AuthorizationFailure, e:
         module.fail_json(msg = "Unable to authorize user: %s" % e.message)
 
-    if not _get_server_public_ip(module, nova):
-        floating_ip = _create_floating_ip(module, nova)
-        if floating_ip:
-            _assign_floating_ip(module, nova, floating_ip)
-    else:
-        module.exit_json(changed=False)
+    if module.params['state'] == 'present':
+        floating_ip = _associate_floating_ip(module, nova)
+        if hasattr(floating_ip, 'ip'):
+            floating_ip = floating_ip.ip
+        module.exit_json(changed=True, result=floating_ip, public_ip=floating_ip)
+
+    elif module.params['state'] == 'absent':
+        _release_floating_ip(module, nova)
+        module.exit_json(changed=True)
 
 from ansible.module_utils.basic import *
 main()
-

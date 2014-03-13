@@ -9,13 +9,16 @@
        name: "{{ item.name }}"
        image_id: "{{ item.image_id }}"
        key_name: "{{ item.key_name }}"
-       wait_for: 200
+       wait_for: "{{ wait_for_boot }}"
        flavor_id: "{{ item.flavor_id }}"
        nics: "{{ item.network_ids }}"
   register: new_nodes
   with_items: nodes
 
-- name: Assign floating ip
+- name: Print host openstack network type (nova/neutron)
+  debug: var=os_network_type
+
+- name: Assign floating ip (neutron network)
   neutron_floating_ip:
        auth_url: "{{ os_auth_url }}"
        state: present
@@ -25,75 +28,63 @@
        network_name: "{{ floating_network_name }}"
        instance_name: "{{ item.name }}"
        internal_network_name: default
-  register: floating_ips
+  when: '"{{os_network_type}}" == "neutron"'
+  register: neutron_floating_ips
+  retries: 2
+  until: neutron_floating_ips.public_ip is defined
   with_items: nodes
 
-- name: dump network and node info
-  debug: msg="{{ item }}"
-  with_together:
-    - new_nodes.results
-    - floating_ips.results
-  when: "'debug' in config.verbosity"
+- name: Assign floating ip (nova network)
+  nova_floating_ip:
+       auth_url: "{{ os_auth_url }}"
+       state: present
+       login_username: "{{ os_username }}"
+       login_password: "{{ os_password }}"
+       login_tenant_name: "{{ os_tenant_name }}"
+       network_name: "{{ floating_network_name }}"
+       instance_name: "{{ item.name }}"
+  when: '"{{os_network_type}}" == "nova"'
+  retries: 2
+  until: nova_floating_ips.public_ip is defined
+  register: nova_floating_ips
+  with_items: nodes
 
-- name: Add Foreman hosts
-  add_host:
-      name="{{ item.0.item.name }}"
-      groups="{{ item.0.item.groups }}"
-      ansible_ssh_host="{{ item.1.public_ip }}"
-      ansible_ssh_private_key_file="{{ ssh_private_key }}"
-      ansible_ssh_user="{{ item.0.item.remote_user }}"
-      public_ip="{{ item.1.public_ip }}"
-      private_ip="{{ item.0.private_ip }}"
-      foreman_private_ip="{{ item.0.info.addresses.foreman_int.0.addr }}"
-      foreman_public_ip="{{ item.0.info.addresses.foreman_ext.0.addr }}"
-      ansible_fqdn="{{ item.0.item.hostname }}"
-      priv_hostname="{{ item.0.item.hostname }}"
-      node_hostgroup="{{ item.0.item.node_hostgroup }}"
-  with_together:
-    - new_nodes.results
-    - floating_ips.results
-  when: "'foreman' in item.0.item.groups"
 
-- name: Add Packstack hosts
-  add_host:
-      name="{{ item.0.item.name }}"
-      groups="{{ item.0.item.groups }}"
-      ansible_ssh_host="{{ item.1.public_ip }}"
-      ansible_ssh_private_key_file="{{ ssh_private_key }}"
-      ansible_ssh_user="{{ item.0.item.remote_user }}"
-      public_ip="{{ item.1.public_ip }}"
-      private_ip="{{ item.0.private_ip }}"
-      packstack_private_ip="{{ item.0.info.addresses.packstack_int.0.addr }}"
-      ansible_fqdn="{{ item.0.item.hostname }}"
-      priv_hostname="{{ item.0.item.hostname }}"
-      packstack_node_hostgroup="{{ item.0.item.packstack_node_hostgroup }}"
-  with_together:
-    - new_nodes.results
-    - floating_ips.results
-  when: "'packstack' in item.0.item.groups"
+- { include: add_hosts.yml,
+    nodes_created: "{{ new_nodes.results }}",
+    floating_ips: " {{ nova_floating_ips.results }}",
+    when: '"{{os_network_type}}" == "nova"'
+  }
 
-- name: Add Tempest host
-  add_host:
-      name="{{ item.0.item.name }}"
-      groups="{{ item.0.item.groups }}"
-      ansible_ssh_host="{{ item.1.public_ip }}"
-      ansible_ssh_private_key_file="{{ ssh_private_key }}"
-      ansible_ssh_user="{{ item.0.item.remote_user }}"
-      public_ip="{{ item.1.public_ip }}"
-      private_ip="{{ item.0.private_ip }}"
-      ansible_fqdn="{{ item.0.item.hostname }}"
-      priv_hostname="{{ item.0.item.hostname }}"
-      tempest_private_ip="{{ item.0.info.addresses[net_2_name].0.addr }}"
-      {{ lookup('template', 'addl_vars.j2') }}
-  with_together:
-    - new_nodes.results
-    - floating_ips.results
-  when: "'tempest' in item.0.item.groups"
+- { include: add_hosts.yml,
+    nodes_created: "{{ new_nodes.results }}",
+    floating_ips: "{{ neutron_floating_ips.results}}",
+    when: '"{{os_network_type}}" == "neutron"'
+  }
+
+
+# - name: dump network and node info
+#   debug: msg="{{ item }}"
+#   with_together:
+#     - new_nodes.results
+#     - floating_ips.results
+#   when: "'debug' in config.verbosity"
 
 - name: Pause to let the systems boot
   pause: seconds="{{ wait_for_boot }}"
   when: new_nodes|changed
 
-- name: Ping public IP to work around bug
+# - debug: var=groups
+#   when: "'debug' in config.verbosity"
+
+- name: Ping public IP's of nodes
   command: "ping -c 3 {{ hostvars[item].public_ip }}"
+  retries: 2
+  delay: 10
+  with_items: groups.openstack_nodes
+
+- name: test ssh connection to nodes
+  command: hostname
+  retries: 2
+  delay: 10
   with_items: groups.openstack_nodes

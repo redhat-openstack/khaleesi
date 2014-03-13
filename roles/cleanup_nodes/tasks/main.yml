@@ -1,5 +1,5 @@
 ---
-- name: Release floating ip
+- name: Release floating ip (neutron)
   neutron_floating_ip:
        auth_url: "{{ os_auth_url }}"
        state: absent
@@ -11,8 +11,9 @@
        internal_network_name: default
   with_items: nodes
   register: floating_ips
+  when: '"{{os_network_type}}" == "neutron"'
 
-- name: Deallocate floating ips
+- name: Deallocate floating ips (neutron)
   quantum_floating_ip_allocate:
        auth_url: "{{ os_auth_url }}"
        state: absent
@@ -21,6 +22,21 @@
        login_tenant_name: "{{ os_tenant_name }}"
        ip_address: "{{ item.result.floatingip.floating_ip_address }}"
   with_items: floating_ips.results
+  when: '"{{os_network_type}}" == "neutron"'
+
+- name: Release floating ip (nova)
+  nova_floating_ip:
+       auth_url: "{{ os_auth_url }}"
+       state: absent
+       login_username: "{{ os_username }}"
+       login_password: "{{ os_password }}"
+       login_tenant_name: "{{ os_tenant_name }}"
+       network_name: "{{ floating_network_name }}"
+       instance_name: "{{ item.name }}"
+  with_items: nodes
+  register: floating_ips
+  when: '"{{os_network_type}}" == "nova"'
+  ignore_errors: yes
 
 - name: Remove nodes
   nova_compute:

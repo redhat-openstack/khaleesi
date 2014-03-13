@@ -3,8 +3,11 @@ set -e -u
 
 source settings.sh
 
-ansible-playbook -i local_hosts  \
+cmdline="ansible-playbook -i local_hosts  \
  playbooks/cleanup.yml \
     --extra-vars @settings.yml \
-      --extra-vars @nodes.yml -v
+      --extra-vars @nodes.yml -v"
+
+echo $cmdline
+$cmdline
 
