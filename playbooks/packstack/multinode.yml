@@ -64,6 +64,13 @@
 
 - include: ../../workarounds/icehouse/workarounds-post-run-packstack.yml tags=workaround
 
+- name: Get Status after reboot
+  hosts: controller
+  roles:
+    - { role: openstack/openstack-status }
+  tags:
+    - run-packstack
+
 - name: List ip address of tempest node
   hosts: tempest
   roles:
