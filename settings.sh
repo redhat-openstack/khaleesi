@@ -54,10 +54,6 @@ main() {
     local tempest_remote_user=${TEMPEST_REMOTE_USER:-'fedora'}
     local foreman_remote_user=${FOREMAN_REMOTE_USER:-$REMOTE_USER}
 
-    local rhel_os_repo=${RHEL_OS_REPO:-''}
-    local rhel_updates_repo=${RHEL_UPDATES_REPO:-''}
-    local rhel_optional_repo=${RHEL_OPTIONAL_REPO:-''}
-
     local sm_username=${SM_USERNAME:-''}
     local sm_password=${SM_PASSWORD:-''}
 
