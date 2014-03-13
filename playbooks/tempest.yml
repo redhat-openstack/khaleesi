@@ -7,7 +7,6 @@
 
 - name: Create keystonerc and install packages for tempest
   hosts: tempest
-  user: "{{ tempest_remote_user }}"
   roles:
     - { role: openstack/create-keystonerc }
   tags:
@@ -15,7 +14,6 @@
 
 - name: Setup tempest
   hosts: tempest
-  user: "{{ tempest_remote_user }}"
   roles:
     - { role: tempest/package-dependencies }
     - { role: tempest/setup-openstack-elements }
@@ -24,6 +22,5 @@
 
 - name: Run tempest
   hosts: tempest
-  user: "{{ tempest_remote_user }}"
   roles:
     - { role: tempest, controller_fqdn: "{{ controller_name }}", tags: ["tempest_run"] }

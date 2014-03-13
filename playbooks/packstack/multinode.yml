@@ -66,7 +66,6 @@
 
 - name: List ip address of tempest node
   hosts: tempest
-  user: "{{ tempest_remote_user }}"
   roles:
     - { role: tempest/iptables/node_data }
   tags:
@@ -74,7 +73,6 @@
 
 - name: Ensure iptables is open for tempest
   hosts: all:!localhost:!tempest
-  user: "{{ remote_user }}"
   roles:
     - { role: tempest/iptables }
   tags:
