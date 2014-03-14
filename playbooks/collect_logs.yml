@@ -4,12 +4,16 @@
   gather_facts: False
   roles:
     - { role: get_nodes }
+  tags:
+    - provision
 
 - name: Set facts for hosts for log collection
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost
   gather_facts: False
   roles:
     - { role: set_facts }
+  tags:
+    - provision
 
 - name: Gather Logs
   hosts: all:!localhost:!tempest

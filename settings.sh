@@ -48,6 +48,7 @@ main() {
 
     export tags=${TAGS:-''}
     export skip_tags=${SKIP_TAGS:-''}
+    export skip_tags_collect=${SKIP_TAGS_COLLECT:-''}
     local tempest_tests=${TEMPEST_TEST_NAME:-'tempest.scenario.test_network_basic_ops'}
     export remote_user=${REMOTE_USER:-'cloud-user'}
     export tempest_branch=${TEMPEST_BRANCH:-'master'}

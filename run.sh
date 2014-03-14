@@ -12,7 +12,7 @@ echo $playbook
 
 source settings.sh
 
-cmdline="ansible-playbook -i local_hosts $playbook --extra-vars @settings.yml "
+local cmdline="ansible-playbook -i local_hosts $playbook --extra-vars @settings.yml "
 if [[ ! -e repo_settings.yml && ! -e job_settings.yml ]]; then
   echo "settings = settings.yml"
   cmdline="$cmdline \
@@ -66,11 +66,18 @@ return 0
 }
 
 collect_logs() {
-  ansible-playbook -i local_hosts  \
+  local cmdline="ansible-playbook -i local_hosts  \
     playbooks/collect_logs.yml \
       --extra-vars @settings.yml  \
         --extra-vars @nodes.yml  \
-        -u $remote_user -s
+        -u $remote_user -s"
+  if [[ ! -z $skip_tags_collect ]]; then
+    skip_tags=${skip_tags_collect#--skip_tags}
+    cmdline="$cmdline --skip-tags $skip_tags_collect"
+  fi
+  echo "Execute Command:"
+  echo "$cmdline"
+  $cmdline
 }
 
 if [ ! -e nodes.yml ]; then
