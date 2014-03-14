@@ -34,6 +34,8 @@
   tags:
     - provision
 
+- include: multinode/setup-ssh-keys.yml tags=prep
+
 - name: Prepare system for packstack
   hosts: packstack
   roles:
@@ -51,8 +53,6 @@
       - packstack/rdo
       - packstack/multinode
   tags: prep
-
-- include: multinode/setup-ssh-keys.yml tags=prep
 
 - include: ../../workarounds/icehouse/workarounds-pre-run-packstack.yml tags=workaround
 
