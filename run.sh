@@ -15,46 +15,46 @@ source settings.sh
 local cmdline="ansible-playbook -i local_hosts $playbook --extra-vars @settings.yml "
 if [[ ! -e repo_settings.yml && ! -e job_settings.yml ]]; then
   echo "settings = settings.yml"
-  cmdline="$cmdline \
-        --extra-vars @nodes.yml"
+  cmdline+=" --extra-vars @nodes.yml"
 elif [[ ! -e repo_settings.yml && -e job_settings.yml ]]; then
   echo "settings = settings.yml, job_settings.yml"
-  cmdline="$cmdline \
-        --extra-vars @job_settings.yml  \
+  cmdline+=" --extra-vars @job_settings.yml  \
           --extra-vars @nodes.yml"
 elif [[ ! -e job_settings.yml && -e repo_settings.yml ]]; then
   echo "settings = settings.yml, repo_settings.yml"
-  cmdline="$cmdline \
-        --extra-vars @nodes.yml  \
+  cmdline+=" --extra-vars @nodes.yml  \
           --extra-vars @repo_settings.yml"
 elif [[ -e job_settings.yml && -e repo_settings.yml ]]; then
   echo "settings = settings.yml, repo_settings.yml, job_settings.yml"
-  cmdline="$cmdline \
-        --extra-vars @repo_settings.yml \
+  cmdline+=" --extra-vars @repo_settings.yml \
           --extra-vars @job_settings.yml \
             --extra-vars @nodes.yml"
 fi
 
 if [[ ! -z $remote_user ]]; then
-  cmdline="$cmdline -u $remote_user -s"
+  cmdline+=" -u $remote_user -s"
 fi
 
 if [[ ! -z $tags ]]; then
   # Remove extraneous '--tags' first. Jobs that use this should switch to just
   # providing the tags
   tags=${tags#--tags=}
-  cmdline="$cmdline --tags $tags"
+  cmdline+=" --tags $tags"
 fi
 
 if [[ ! -z $skip_tags ]]; then
   # Same as tags
   skip_tags=${skip_tags#--skip_tags}
-  cmdline="$cmdline --skip-tags $skip_tags"
+  cmdline+=" --skip-tags $skip_tags"
 fi
 
 local khaleesi_verbose=${KHALEESI_VERBOSE:-false}
-if $khaleesi_verbose; then
-  cmdline="$cmdline -v"
+local khaleesi_ssh_verbose=${KHALEESI_SSH_VERBOSE:-false}
+if $khaleesi_verbose || $khaleesi_ssh_verbose; then
+  cmdline+=" -v"
+  if $khaleesi_ssh_verbose; then
+    cmdline+="vvv"
+  fi
 fi
 
 echo "Execute Command:"
@@ -73,7 +73,7 @@ collect_logs() {
         -u $remote_user -s"
   if [[ ! -z $skip_tags_collect ]]; then
     skip_tags=${skip_tags_collect#--skip_tags}
-    cmdline="$cmdline --skip-tags $skip_tags_collect"
+    cmdline+=" --skip-tags $skip_tags_collect"
   fi
   echo "Execute Command:"
   echo "$cmdline"
