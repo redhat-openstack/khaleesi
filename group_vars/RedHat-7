@@ -1,0 +1,2 @@
+---
+reboot_options: "--no-wall ' Reboot is triggered by Ansible' "

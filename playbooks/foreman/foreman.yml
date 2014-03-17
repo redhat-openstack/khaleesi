@@ -1,6 +1,11 @@
 ---
 - include: ../provision.yml
 
+- name: Create Distribution-Version groups
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ ansible_distribution }}-{{ ansible_distribution_version|int }}
+
 - name: Prepare for Foreman install
   hosts: foreman_installer
   sudo: yes
