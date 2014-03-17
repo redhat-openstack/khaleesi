@@ -9,11 +9,14 @@
             option=gpgcheck
             value=0
 
-- name: Turn off foreman repo
-  ini_file: dest=/etc/yum.repos.d/foreman.repo
-            section=foreman
+- name: Turn off foreman repos
+  ini_file: dest=/etc/yum.repos.d/{{ item }}.repo
+            section={{ item }}
             option=enabled
             value=0
+  with_items:
+    - foreman
+    - foreman-plugins
   notify:
     - Yum clean all
 
