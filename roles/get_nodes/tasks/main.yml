@@ -62,20 +62,9 @@
     when: '"{{os_network_type}}" == "neutron"'
   }
 
-
-# - name: dump network and node info
-#   debug: msg="{{ item }}"
-#   with_together:
-#     - new_nodes.results
-#     - floating_ips.results
-#   when: "'debug' in config.verbosity"
-
 - name: Pause to let the systems boot
   pause: seconds="{{ wait_for_boot }}"
   when: new_nodes|changed
-
-# - debug: var=groups
-#   when: "'debug' in config.verbosity"
 
 - name: Ping public IP's of nodes
   command: "ping -c 3 {{ hostvars[item].public_ip }}"
@@ -83,8 +72,3 @@
   delay: 10
   with_items: groups.openstack_nodes
 
-- name: test ssh connection to nodes
-  command: hostname
-  retries: 2
-  delay: 10
-  with_items: groups.openstack_nodes
