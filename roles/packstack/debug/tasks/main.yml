@@ -1,7 +1,4 @@
 ---
-- name: Distribution and Release
-  debug: msg="Distribution = '{{ ansible_distribution }}' and  Release = '{{ ansible_distribution_version }}' and  major = '{{ ansible_distribution_version|int }}' "
-
 - name: List basic config variables
   debug: var=config
 

@@ -1,0 +1,13 @@
+---
+- name: Distribution and Release
+  debug: msg="Distribution = '{{ ansible_distribution }}' and  Release = '{{ ansible_distribution_version }}' and  major = '{{ ansible_distribution_version|int }}' "
+
+- name: test ssh connection to nodes
+  command: hostname
+  retries: 2
+  delay: 10
+  register: result
+  ignore_errors: True
+  failed_when: result.rc != 0
+
+

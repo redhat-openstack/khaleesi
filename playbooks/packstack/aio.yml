@@ -1,5 +1,6 @@
 ---
 - include: ../provision.yml
+- include: ../validate_nodes.yml
 
 - name: Debug list config variables
   hosts: local
