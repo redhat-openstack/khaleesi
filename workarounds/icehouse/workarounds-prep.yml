@@ -34,3 +34,11 @@
          when: workaround_qpidd is defined and workaround_qpidd
        }
 
+- name: Workarounds | Foreman node
+  hosts: foreman
+  roles:
+    - { role: workarounds/openstack-packstack-rpm,
+        when: workaround_openstack_packstack_rpm is defined
+              and workaround_openstack_packstack_rpm
+              and openstack_packstack_rpm is defined }
+

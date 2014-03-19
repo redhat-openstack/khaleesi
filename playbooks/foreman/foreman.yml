@@ -39,6 +39,9 @@
   tags:
     - prep
 
+# apply pre-packstack workarouds
+- include: ../../workarounds/icehouse/workarounds-prep.yml tags=workaround
+
 - name: Install Foreman
   hosts: foreman
   gather_facts: True
@@ -49,6 +52,8 @@
   tags:
     - install
 
+- include: ../../workarounds/icehouse/workarounds-pre-run-foreman.yml tags=workaround
+
 - name: Install Controller node
   hosts: controller
   gather_facts: True
@@ -56,6 +61,7 @@
   roles:
     - { role: foreman/openstack-node-common }
     - { role: foreman/openstack-node }
+  tasks:
 
 - name: Install remaining OpenStack nodes
   hosts: foreman_node:!controller
@@ -67,6 +73,8 @@
   tags:
     - install
     - install_nodes
+
+- include: ../../workarounds/icehouse/workarounds-pre-run-foreman.yml tags=workaround
 
 - name: Create Keystone RC files
   hosts: foreman_node
