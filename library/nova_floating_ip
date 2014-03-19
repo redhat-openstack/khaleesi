@@ -103,12 +103,13 @@ def _remove_floating_ip(module, nova, floating_ip):
     server_list = nova.servers.list(True, {'name': module.params['instance_name']})
     if server_list:
         instance = nova.servers.find(name=module.params['instance_name'])
+        floating_ip_object = [x for x in nova.floating_ips.list() if x.ip == floating_ip]
         try:
-            result = nova.floating_ips.delete(floating_ip.split(".")[3])
+            result = nova.floating_ips.delete(floating_ip_object[0])
         except Exception, e:
             #unassociate the float that could not be deleted
             instance.remove_floating_ip(floating_ip);
-            module.fail_json(msg="There was an error in updating the removing ip address: %s %s" % (floating_ip, e.message))
+            module.fail_json(msg="There was an error  removing ip address: %s %s" % (floating_ip, e.message))
     else:
         module.fail_json(msg="No instances were found")
 
