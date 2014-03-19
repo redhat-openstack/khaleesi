@@ -1,4 +1,10 @@
 ---
+- name: ensure required rpms installed for logging
+  yum: name={{ item }} state=present
+  with_items:
+    - bzip2
+    - tar
+
 - name: collect list of installed rpms
   shell: rpm -qa > {{ rpm_list }}
 

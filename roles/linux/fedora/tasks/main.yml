@@ -4,9 +4,6 @@
 - name: Ensure fedora-release
   yum: name=fedora-release state=present
 
-- name: Ensure bzip2 (for log collection)
-  yum: name=bzip2 state=present
-
 - name: ensure f19 rpm ggp key
   copy: src=f19-gpg dest=/etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-19-x86_64 owner=root group=root force=no
   when: ansible_distribution_version == "19"
