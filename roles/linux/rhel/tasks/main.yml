@@ -1,8 +1,5 @@
 ---
 #RHEL
-- name: Remove python-backports
-  yum: name=python-backports state=absent
-
 - name: Remove yum-rhn-plugin
   yum: name=yum-rhn-plugin state=absent
   register: result
