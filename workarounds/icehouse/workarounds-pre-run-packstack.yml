@@ -22,6 +22,11 @@
           tags: workaround,
           when: workaround_puppet_utf8 is defined and workaround_puppet_utf8
        }
+     - { include: "fedora/install_pycadf.yml",
+         name: 'WORKAROUND | BZ | Install python-pycadf',
+         tags: workaround,
+         when: workaround_pycadf is defined and workaround_pycadf
+       }
 
 - name: Workarounds | specific to RedHat distro
   hosts: RedHat:&controller

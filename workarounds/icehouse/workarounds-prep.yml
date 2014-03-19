@@ -24,11 +24,6 @@
          tags: workaround,
          when: workaround_mongodb is defined and workaround_mongodb
        }
-     - { include: "fedora/install_pycadf.yml",
-         name: 'WORKAROUND | BZ | Install python-pycadf',
-         tags: workaround,
-         when: workaround_pycadf is defined and workaround_pycadf
-       }
 
 - name: Workarounds | specific to fedora distro on Compute
   hosts: Fedora:&compute
