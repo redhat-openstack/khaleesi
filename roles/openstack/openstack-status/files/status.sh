@@ -2,4 +2,4 @@
 set -e -u
 
 source /root/keystonerc_admin
-/usr/bin/openstack-status
+/usr/bin/openstack-status || true
