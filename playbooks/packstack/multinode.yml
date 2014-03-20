@@ -20,7 +20,7 @@
 
 - include: multinode/provision.yml
 
-- include: multinode/validate-nodes.yml
+- include: ../validate_nodes.yml
 
 - name: Gather facts from all openstack hosts
   hosts: all:!localhost:!tempest
