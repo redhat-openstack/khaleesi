@@ -1,11 +1,14 @@
 ---
 - name: Insert config block
-  lineinfile: "dest=/usr/share/openstack-foreman-installer/puppet/modules/quickstack/manifests/compute_common.pp
-            regexp='  # GSutclif: Maybe wrap this in a Facter[[]?is-virtual?] test ?'
+  lineinfile: >
+            dest=/usr/share/openstack-foreman-installer/puppet/modules/quickstack/manifests/compute_common.pp
             insertafter='^  # uncomment if on a vm'
-            line='  file { \"/usr/bin/qemu-system-x86_64\":\n    ensure => link,\n    target => \"/usr/libexec/qemu-kvm\",\n    notify => Service[\"nova-compute\"],\n  }\n  nova_config{\n    \"DEFAULT/libvirt_cpu_mode\": value => \"none\";\n  }\n'"
+            line='file { "/usr/bin/qemu-system-x86_64": ensure => link, target => "/usr/libexec/qemu-kvm", notify => Service["nova-compute"], } nova_config{ "DEFAULT/libvirt_cpu_mode": value => "none"; }'
+            state=present
 
 - name: Change libvirt_type line
-  lineinfile: "dest=/usr/share/openstack-foreman-installer/puppet/modules/quickstack/manifests/compute_common.pp
-            regexp='    #libvirt_type    => \"qemu\",  # uncomment if on a vm'
-            line='    libvirt_type    => \"qemu\",'"
+  lineinfile: >
+            dest=/usr/share/openstack-foreman-installer/puppet/modules/quickstack/manifests/compute_common.pp
+            insertafter='    #libvirt_type    => "qemu",  # uncomment if on a vm'
+            line='    libvirt_type    => "qemu",'
+            state=present

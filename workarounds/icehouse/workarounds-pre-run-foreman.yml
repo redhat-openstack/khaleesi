@@ -54,5 +54,6 @@
   roles:
     - { role: workarounds/nova-compute-fix,
         when: workaround_nova_compute_fix is defined
-              and workaround_nova_compute_fix }
+              and workaround_nova_compute_fix,
+        tags: ['nova-compute-fix'] }
 
