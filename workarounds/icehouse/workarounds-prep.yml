@@ -42,3 +42,13 @@
               and workaround_openstack_packstack_rpm
               and openstack_packstack_rpm is defined }
 
+- name: Workarounds | specific to RedHat distro RHEL 7.x
+  hosts: RedHat
+  tasks:
+    - { include: "rhel/rhel7-yum-update.yml",
+          name: 'WORKAROUND | bz 850020',
+          tags: workaround,
+          when: ansible_distribution_version == "7.0" and
+            workaround_rhel7_update is defined and
+            workaround_rhel7_update
+      }
