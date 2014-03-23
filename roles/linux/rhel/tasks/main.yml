@@ -30,6 +30,7 @@
 
 - name: add subscription
   command: subscription-manager register --username {{ sm_username }} --password {{ sm_password }} --autosubscribe
+  ignore_errors: yes
   notify:
     - Yum clean all
     - yum -y update to latest packages
