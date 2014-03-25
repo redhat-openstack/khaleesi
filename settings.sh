@@ -154,8 +154,8 @@ tempest:
 
 log_files:
   - /var/tmp/packstack
-  - /root/packstack*
-  - /var/lib/tempest/*
+  - /root/
+  - /var/lib/tempest/
   - /var/log/
   - /etc/nova
   - /etc/ceilometer

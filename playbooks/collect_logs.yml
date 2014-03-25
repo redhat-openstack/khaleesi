@@ -16,7 +16,7 @@
     - provision
 
 - name: Gather Logs
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost
   roles:
     - { role: collect_logs }
 
