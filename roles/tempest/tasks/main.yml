@@ -15,6 +15,7 @@
   with_items:
     - junitxml
     - unittest2
+    - nose
   tags:
     - tempest_setup
 
