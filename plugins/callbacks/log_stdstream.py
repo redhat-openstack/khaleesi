@@ -5,8 +5,11 @@ import json
 TIME_FORMAT="%b %d %Y %H:%M:%S"
 MARK_FORMAT="%(now)s ======== MARK ========\n"
 MSG_FORMAT="%(now)s - %(category)s - %(data)s\n\n"
-STDOUT_FORMAT="%(now)s - stdout: %(stdout)s\n\n"
-STDERR_FORMAT="%(now)s - stderr: %(stderr)s\n\n"
+STDOUT_FORMAT="%(now)s - stdout:\n %(stdout)s\n\n"
+STDERR_FORMAT="%(now)s - stderr:\n %(stderr)s\n\n"
+RESULTS_START="%(now)s - results\n"
+RESULTS_FORMAT="%(result)s\n"
+RESULTS_END="\n"
 
 LOG_PATH=os.getenv('KHALEESI_LOG_PATH', '/tmp/stdstream_logs')
 
@@ -14,7 +17,7 @@ if not os.path.exists(LOG_PATH):
     os.makedirs(LOG_PATH)
 
 def log(host, category, data):
-    stderr = stdout = ''
+    stderr = stdout = results = None
     if type(data) == dict:
         if 'verbose_override' in data:
             data = 'omitted'
@@ -23,6 +26,7 @@ def log(host, category, data):
             invocation = data.pop('invocation', None)
             stdout = data.pop('stdout', None)
             stderr = data.pop('stderr', None)
+            results = data.pop('results', None)
             data = json.dumps(data)
             if invocation is not None:
                 data = json.dumps(invocation) + " => %s " % data
@@ -36,6 +40,10 @@ def log(host, category, data):
         fd.write(STDOUT_FORMAT % dict(now=now, stdout=stdout))
     if stderr:
         fd.write(STDERR_FORMAT % dict(now=now, stderr=stderr))
+    if results:
+        fd.write(RESULTS_START % dict(now=now))
+        [fd.write(RESULTS_FORMAT % dict(result=result)) for result in results]
+        fd.write(RESULTS_END)
     fd.close()
 
 class CallbackModule(object):
