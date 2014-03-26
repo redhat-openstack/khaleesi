@@ -155,7 +155,11 @@ tempest:
 log_files:
   - /var/tmp/packstack
   - /root/
-  - /var/lib/tempest/
+  - /var/lib/tempest/etc/
+  - /var/lib/tempest/run.log
+  - /var/lib/tempest/tempest.log
+  - /var/lib/tempest/*.log
+  - /var/lib/tempest/*.xml
   - /var/log/
   - /etc/nova
   - /etc/ceilometer
