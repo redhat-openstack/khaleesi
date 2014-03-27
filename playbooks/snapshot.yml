@@ -1,4 +1,7 @@
 ---
+- include: provision.yml
+- include: validate_nodes.yml
+
 - name: Snapshot the environment
   hosts: local
   gather_facts: False
