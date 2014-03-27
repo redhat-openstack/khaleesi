@@ -22,5 +22,6 @@
   set_fact:
       tempest_private_ip="{{ tempest_private_ip }}"
       tempest_default_ip="{{ private_ip }}"
+      tempest_ansible_default_ip="{{ hostvars[tempest_name].ansible_default_ipv4.address }}"
       {{ lookup('template', 'addl_vars.j2') }}
   when: "'tempest' in group_names"
