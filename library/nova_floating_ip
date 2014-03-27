@@ -126,9 +126,10 @@ def _get_server_floating_ip(module, nova):
     if server :
         if module.params['state'] == 'present' and  server.status != 'ACTIVE':
             module.fail_json( msg="VM exists but not Active. state: " + server.status)
-        floating_ips  = [ x['addr'] for x in getattr(server, 'addresses').itervalues().next()
-                    if 'OS-EXT-IPS:type' in x and x['OS-EXT-IPS:type'] == 'floating']
-        return floating_ips[0] if floating_ips else None
+        for net in getattr(server, 'addresses').itervalues():
+          for x in net:
+            if 'OS-EXT-IPS:type' in x and x['OS-EXT-IPS:type'] == 'floating':
+              return x['addr']
     else:
         module.fail_json(msg="No instances were found")
 
