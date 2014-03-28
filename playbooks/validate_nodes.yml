@@ -1,6 +1,7 @@
----
 - name: Gather facts from all hosts for tempest
   hosts: all:!localhost
+  tags:
+     -  provision
 
 - name: test controller ssh connection
   hosts: controller:!localhost:!tempest
