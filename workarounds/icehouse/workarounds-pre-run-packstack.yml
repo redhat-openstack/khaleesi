@@ -47,3 +47,4 @@
             workaround_rhel7_lvm2_libs is defined and
             workaround_rhel7_lvm2_libs
 
+- include: common/patch-packstack-provision.yml
