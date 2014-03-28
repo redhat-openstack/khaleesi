@@ -1,3 +1,24 @@
+{% if foreman_private_ip is defined %}
+      foreman_private_ip="{{ foreman_private_ip }}"
+{% endif %}
+{% if foreman_public_ip is defined %}
+      foreman_public_ip="{{ foreman_public_ip }}"
+{% endif %}
+{% if node_hostgroup is defined %}
+      node_hostgroup="{{ node_hostgroup }}"
+{% endif %}
+{% if packstack_private_ip is defined %}
+      packstack_private_ip="{{ packstack_private_ip }}"
+{% endif %}
+{% if packstack_node_hostgroup is defined %}
+      packstack_node_hostgroup="{{ packstack_node_hostgroup }}"
+{% endif %}
+{% if tempest_private_ip is defined %}
+      tempest_private_ip="{{ tempest_private_ip }}"
+{% endif %}
+{% if private_ip is defined %}
+      tempest_default_ip="{{ private_ip }}"
+{% endif %}
 {% if tempest_public_ip is defined %}
-  tempest_public_ip="{{ tempest_public_ip }}"
+      tempest_public_ip="{{ tempest_public_ip }}"
 {% endif %}

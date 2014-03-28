@@ -4,23 +4,4 @@
       public_ip="{{ public_ip }}"
       private_ip="{{ private_ip }}"
       fqdn="{{ priv_hostname }}"
-
-- name: Set foreman facts
-  set_fact:
-      foreman_private_ip="{{ foreman_private_ip }}"
-      foreman_public_ip="{{ foreman_public_ip }}"
-      node_hostgroup="{{ node_hostgroup }}"
-  when: "'foreman_installer' in group_names"
-
-- name: Set packstack facts
-  set_fact:
-      packstack_private_ip="{{ packstack_private_ip }}"
-      packstack_node_hostgroup="{{ packstack_node_hostgroup }}"
-  when: "'packstack' in group_names"
-
-- name: Set tempest facts
-  set_fact:
-      tempest_private_ip="{{ tempest_private_ip }}"
-      tempest_default_ip="{{ private_ip }}"
       {{ lookup('template', 'addl_vars.j2') }}
-  when: "'tempest' in group_names"

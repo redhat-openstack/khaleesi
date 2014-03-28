@@ -1,5 +1,4 @@
 ---
-
 - debug: var=nodes_created
   when: "'debug' in config.verbosity"
 - debug: var=floating_ips
@@ -15,52 +14,10 @@
       ansible_ssh_user="{{ item.0.item.remote_user }}"
       public_ip="{{ item.1.public_ip }}"
       private_ip="{{ item.0.private_ip }}"
-      foreman_private_ip="{{ item.0.info.addresses.foreman_int.0.addr }}"
-      foreman_public_ip="{{ item.0.info.addresses.foreman_ext.0.addr }}"
       ansible_fqdn="{{ item.0.item.hostname }}"
       priv_hostname="{{ item.0.item.hostname }}"
-      node_hostgroup="{{ item.0.item.node_hostgroup }}"
-  with_together:
-    - nodes_created
-    - floating_ips
-  when: "'foreman' in item.0.item.groups"
-
-
-- name: Network {{ os_network_type }} == {{ network_expected }} |
-        Add Packstack hosts
-  add_host:
-      name="{{ item.0.item.name }}"
-      groups="{{ item.0.item.groups }}"
-      ansible_ssh_host="{{ item.1.public_ip  }}"
-      ansible_ssh_private_key_file="{{ ssh_private_key }}"
-      ansible_ssh_user="{{ item.0.item.remote_user }}"
-      public_ip="{{ item.1.public_ip }}"
-      private_ip="{{ item.0.private_ip }}"
-      packstack_private_ip="{{ item.0.info.addresses[ net_2_name ].0.addr }}"
-      ansible_fqdn="{{ item.0.item.hostname }}"
-      priv_hostname="{{ item.0.item.hostname }}"
-      packstack_node_hostgroup="{{ item.0.item.packstack_node_hostgroup }}"
-  with_together:
-    - nodes_created
-    - floating_ips
-  when: "'packstack' in item.0.item.groups"
-
-- name: Network {{ os_network_type }} == {{ network_expected }} |
-        Add Tempest host
-  add_host:
-      name="{{ item.0.item.name }}"
-      groups="{{ item.0.item.groups }}"
-      ansible_ssh_host="{{ item.1.public_ip }}"
-      ansible_ssh_private_key_file="{{ ssh_private_key }}"
-      ansible_ssh_user="{{ item.0.item.remote_user }}"
-      public_ip="{{ item.1.public_ip }}"
-      private_ip="{{ item.0.private_ip }}"
-      ansible_fqdn="{{ item.0.item.hostname }}"
-      priv_hostname="{{ item.0.item.hostname }}"
-      tempest_private_ip="{{ item.0.info.addresses[net_2_name].0.addr }}"
       {{ lookup('template', 'addl_vars.j2') }}
   with_together:
     - nodes_created
     - floating_ips
-  when: "'tempest' in item.0.item.groups"
 

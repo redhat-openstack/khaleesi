@@ -1,3 +1,15 @@
+{% if item.0.info.addresses[net_2_name].0.addr is defined %}
+      foreman_private_ip="{{ item.0.info.addresses[net_2_name].0.addr }}"
+      packstack_private_ip="{{ item.0.info.addresses[net_2_name].0.addr }}"
+      tempest_private_ip="{{ item.0.info.addresses[net_2_name].0.addr }}"
+{% endif %}
 {% if item.0.info.addresses[net_3_name] is defined %}
-tempest_public_ip="{{ item.0.info.addresses[net_3_name].0.addr }}"
+      tempest_public_ip="{{ item.0.info.addresses[net_3_name].0.addr }}"
+      foreman_public_ip="{{ item.0.info.addresses[net_3_name].0.addr }}"
+{% endif %}
+{% if item.0.item.packstack_node_hostgroup is defined %}
+      packstack_node_hostgroup="{{ item.0.item.packstack_node_hostgroup }}"
+{% endif %}
+{% if item.0.item.node_hostgroup is defined %}
+      node_hostgroup="{{ item.0.item.node_hostgroup }}"
 {% endif %}
