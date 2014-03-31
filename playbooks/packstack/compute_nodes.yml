@@ -1,5 +1,6 @@
 - name: Consolidate facts from multiple hosts into variables
   hosts: localhost
+  sudo: no
   gather_facts: no
   vars:
       compute_hosts: ''

@@ -1,5 +1,6 @@
 ---
 - name: Get nodes using Nova
+  sudo: no
   hosts: local
   gather_facts: False
   roles:

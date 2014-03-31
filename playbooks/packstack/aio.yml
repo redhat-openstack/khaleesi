@@ -3,6 +3,7 @@
 - include: ../validate_nodes.yml
 
 - name: Debug list config variables
+  sudo: no
   hosts: local
   roles:
     - { role: packstack/debug }
