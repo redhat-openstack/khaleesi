@@ -14,6 +14,9 @@
     - Yum clean all
     - yum -y update to latest packages
 
+- name: ensure yum-utils
+  yum: name=yum-utils state=present
+
 - name: WORKAROUND | BZ | Ensure iptables-services
   yum: name=iptables-services state=present
   tags: workaround

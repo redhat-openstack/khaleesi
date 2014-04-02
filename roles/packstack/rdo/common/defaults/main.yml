@@ -1,2 +1,6 @@
 ---
 repos_to_remove: ['rdo-release.repo', 'puppetlabs.repo']
+
+repo_production: "{{ rdo[config.version]['production'].repo[ansible_distribution][ansible_distribution_version|int] }}"
+repo_stage: "{{ rdo[config.version]['stage'].repo[ansible_distribution][ansible_distribution_version|int] }}"
+repo_testing: "{{ rdo[config.version]['testing'].repo[ansible_distribution][ansible_distribution_version|int] }}"
