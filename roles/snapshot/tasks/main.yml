@@ -30,11 +30,27 @@
        login_password: "{{ os_password }}"
        login_tenant_name: "{{ os_tenant_name }}"
        instance_name: "{{ item.name }}"
+       snapshot_name: "{{ item.name }}-snap"
+       wait_snapshot: "{{ wait_snapshot }}"
+       wait_for: "{{ wait_for }}"
+  register: snapshot_id
+  with_items: nodes
+  when: snapshot_name is not defined
+
+- name: create named snapshot of environment
+  nova_snapshot:
+       auth_url: "{{ os_auth_url }}"
+       state: present
+       login_username: "{{ os_username }}"
+       login_password: "{{ os_password }}"
+       login_tenant_name: "{{ os_tenant_name }}"
+       instance_name: "{{ item.name }}"
        snapshot_name: "{{ snapshot_name }}"
        wait_snapshot: "{{ wait_snapshot }}"
        wait_for: "{{ wait_for }}"
   register: snapshot_id
   with_items: nodes
+  when: snapshot_name is defined
 
 - debug: msg={{ snapshot_id }}
 
