@@ -2,15 +2,6 @@
 - name: Openstack status script
   copy: src=status.sh dest=/root/status.sh  mode=0777 force=no
 
-- name: Wait for openstack port 35357 to open
-  register: wait_for_openstack
-  sudo: no
-  local_action: "wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }} port=35357 delay=10 timeout=120"
-
-- name: Fail if any of them fail
-  fail: msg="Could not openstack port 35357"
-  when: wait_for_openstack|failed
-
 - name: Status
   command: /root/status.sh
   register: result
