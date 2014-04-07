@@ -1,0 +1,17 @@
+---
+- name: remove {{ tempest.checkout_dir }}/.testrepository
+  file: path={{ tempest.checkout_dir }}/.testrepository state=absent
+  tags: tempest_run
+
+- name: Run tempest
+  script: run_tempest.sh {{ tempest.checkout_dir }} {{ tempest.test_name }}
+       --exclude-files {{ tempest.exclude.files }}
+       --exclude-tests {{ tempest.exclude.tests }}
+  tags: tempest_run
+  ignore_errors: True
+
+
+- name: Fetch results
+  fetch: src={{ tempest.checkout_dir }}/nosetests.xml
+         dest=nosetests.xml flat=yes
+  tags: tempest_run

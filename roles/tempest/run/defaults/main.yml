@@ -1,16 +1,8 @@
 ---
-### TODO: del this var if not required
-packstack_puppet_modules_dir: /usr/share/packstack/modules/tempest/manifests
-
-swift_operator_role: SwiftOperator
-
 ### TODO: Seperate skip list for RH, Fedora[version], CentOS
-#tempest_test_name: 'tempest'
 tempest:
-    puppet_file: /tmp/tempest_init.pp
     checkout_dir: /var/lib/tempest
-    revision: 'stable/havana'
-    test_name: 'tempest'
+    test_name: tempest
     exclude:
         files:
             - test_server_rescue

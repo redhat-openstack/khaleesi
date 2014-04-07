@@ -1,0 +1,18 @@
+---
+- name: List ip address of tempest node
+  hosts: tempest
+  roles:
+    - { role: tempest/iptables/node_data }
+  tags:
+    - tempest_setup
+
+- name: Ensure iptables is open for tempest
+  hosts: all:!localhost:!tempest
+  roles:
+    - { role: tempest/iptables }
+  tags:
+    - tempest_setup
+
+- include: ../tempest.yml
+
+

@@ -1,0 +1,6 @@
+---
+tempest:
+    repo: git://github.com/openstack/tempest.git
+    revision: stable/havana
+    checkout_dir: /var/lib/tempest
+    puppet_file: /tmp/tempest_init.pp

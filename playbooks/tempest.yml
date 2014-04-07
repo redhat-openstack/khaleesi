@@ -1,9 +1,21 @@
 ---
-- name: Gather facts from all hosts for tempest
+- name: Gather facts from controller and compute
   hosts: all:!localhost:!tempest
   tags:
     - tempest_setup
     - tempest_run
+
+- name: tempest | Workaround | config_tempest.py | create openstack resources
+  hosts: controller
+  tags:
+    - workaround
+    - workaround-tempest-config-tool
+  vars:
+      apply_patch: workaround_config_tempest_tool|default(false)
+  tasks:
+      - script: ../workarounds/tempest/setup_openstack_env.sh
+        when: apply_patch
+
 
 - name: Create keystonerc and install packages for tempest
   hosts: tempest
@@ -17,10 +29,12 @@
   roles:
     - { role: tempest/package-dependencies }
     - { role: tempest/setup-openstack-elements }
+    - { role: tempest/setup }
   tags:
     - tempest_setup
 
 - name: Run tempest
   hosts: tempest
+  tags: tempest_run
   roles:
-    - { role: tempest, controller_fqdn: "{{ controller_name }}", tags: ["tempest_run"] }
+    - { role: tempest/run, tags: ["tempest_run"] }
