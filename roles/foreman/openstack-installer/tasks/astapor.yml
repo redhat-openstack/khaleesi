@@ -6,5 +6,7 @@
   yum: name=git state=latest
 
 - name: Get astapor repo
-  git: repo={{ astapor_repo }} dest=/usr/share/openstack-foreman-installer version={{ astapor_branch }}
+  git: repo={{ astapor_repo }}
+       dest=/usr/share/openstack-foreman-installer
+       version={{ astapor_branch }}
 

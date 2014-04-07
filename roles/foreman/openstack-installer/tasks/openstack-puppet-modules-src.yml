@@ -1,0 +1,21 @@
+---
+- fail: msg="Must also use astapor from source"
+  when: use_astapor is not defined or not use_astapor
+
+- name: Remove openstack-puppet-modules rpm - Source
+  yum: name=openstack-puppet-modules state=absent
+
+- name: Ensure git is installed
+  yum: name=git state=latest
+
+- name: Remove directory forcibly
+  file: path=/usr/share/openstack-puppet/modules state=absent
+
+- name: Get openstack-puppet-modules repo
+  shell: git clone --recursive {{ opm_repo }} /usr/share/openstack-puppet/modules
+
+- name: Switch to correct branch
+  git: repo={{ opm_repo }}
+       dest=/usr/share/openstack-puppet/modules
+       version={{ opm_branch }}
+       # recursive=yes      BPC: When Ansible 1.6 and remove the shell command above

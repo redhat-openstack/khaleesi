@@ -2,6 +2,9 @@
 - name: Install openstack-foreman-installer rpm
   yum: name={{ openstack_foreman_installer_rpm }} state=present
 
+- include: openstack-puppet-modules-src.yml
+  when: use_opm_src is defined and use_opm_src
+
 - include: astapor.yml
   when: use_astapor is defined and use_astapor
 
