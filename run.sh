@@ -46,13 +46,13 @@ main() {
     echo
     cmdline+=" --extra-vars @nodes.yml"
 
-    [[ ! -z $remote_user ]] && cmdline+=" -u $remote_user -s"
+    [[ -n ${REMOTE_USER:-''} ]] && cmdline+=" -u $REMOTE_USER -s"
 
     # tags and skip tags
     # Remove extraneous '--tags' first.
     #Jobs that use this should switch to just providing the tags
-    [[ ! -z $tags ]] && cmdline+=" --tags ${tags#--tags=}"
-    [[ ! -z $skip_tags ]] && cmdline+=" --skip-tags ${skip_tags#--skip_tags}"
+    [[ -n ${TAGS:-''} ]] && cmdline+=" --tags ${TAGS#--tags=}"
+    [[ -n ${SKIP_TAGS:-''} ]] && cmdline+=" --skip-tags ${SKIP_TAGS#--skip_tags}"
 
     local khaleesi_verbose=${KHALEESI_VERBOSE:-false}
     local khaleesi_ssh_verbose=${KHALEESI_SSH_VERBOSE:-false}
