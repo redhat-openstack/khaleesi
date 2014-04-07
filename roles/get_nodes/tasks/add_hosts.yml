@@ -1,9 +1,12 @@
 ---
 
-#- debug: var=nodes_created
-#- debug: var=floating_ips
+- debug: var=nodes_created
+  when: "'debug' in config.verbosity"
+- debug: var=floating_ips
+  when: "'debug' in config.verbosity"
 
-- name: Add Foreman hosts
+- name: Network {{ os_network_type }} == {{ network_expected }} |
+        Add Foreman hosts
   add_host:
       name="{{ item.0.item.name }}"
       groups="{{ item.0.item.groups }}"
@@ -23,7 +26,8 @@
   when: "'foreman' in item.0.item.groups"
 
 
-- name: Add Packstack hosts
+- name: Network {{ os_network_type }} == {{ network_expected }} |
+        Add Packstack hosts
   add_host:
       name="{{ item.0.item.name }}"
       groups="{{ item.0.item.groups }}"
@@ -41,7 +45,8 @@
     - floating_ips
   when: "'packstack' in item.0.item.groups"
 
-- name: Add Tempest host
+- name: Network {{ os_network_type }} == {{ network_expected }} |
+        Add Tempest host
   add_host:
       name="{{ item.0.item.name }}"
       groups="{{ item.0.item.groups }}"
