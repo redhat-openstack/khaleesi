@@ -120,6 +120,7 @@ generate_settings_file() {
     local tempest_repo=${TEMPEST_REPO:-$default_tempest_repo}
     local tempest_branch=${TEMPEST_BRANCH:-'master'}
     local tempest_remote_user=${TEMPEST_REMOTE_USER:-'fedora'}
+    local tempest_setup_method=${TEMPEST_SETUP_METHOD:-'packstack/provision'}
     local foreman_remote_user=${FOREMAN_REMOTE_USER:-$REMOTE_USER}
 
     local sm_username=${SM_USERNAME:-''}
@@ -200,6 +201,7 @@ update_rpms_tarball: $update_rpms_tarball
 remote_user: $remote_user
 
 tempest:
+    setup_method: $tempest_setup_method
     repo: $tempest_repo
     revision: $tempest_branch
     checkout_dir: /var/lib/tempest

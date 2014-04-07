@@ -1,14 +1,19 @@
 ---
-- { include: setup-tempest.yml tags=tempest_setup }
 
-# tempest pip install requirements will fail w/o these reqs
-- name: Ensure libffi-devel, openssl-devel rpms installed
-  yum: name={{ item }} state=latest
-  with_items:
-    - libffi-devel
-    - openssl-devel
-  tags:
-    - prep
+- name: verify if setup method {{tempest.setup_method }} is valid
+  fail: msg="setup method provided '{{ tempest.setup_method }}'
+            is invalid. Valid ones  '{{ tempest_valid_setup_methods|join(', ') }}' "
+  when: not tempest.setup_method
+        or not tempest.setup_method in tempest_valid_setup_methods
+  tags: tempest_setup
+
+- { include: setup-tempest.yml,
+        when: "tempest.setup_method == 'packstack/provision' ",
+        tags: ['tempest_setup', 'tempest_packstack_provision']}
+
+- { include: setup-tempest-use-config-tool.yml,
+        when: "tempest.setup_method == 'tempest/config_script' ",
+        tags: ['tempest_setup', 'tempest_config_script']}
 
 - name: pip install junitxml, unittest2, testtools
   pip: name={{ item }} virtualenv={{ tempest.checkout_dir }}/.venv
@@ -27,7 +32,6 @@
     - { name: python-subunit, version: '0.0.15'}
   tags:
     - tempest_setup
-
 
 - name: pip install requirements
   pip: requirements={{ tempest.checkout_dir }}/requirements.txt

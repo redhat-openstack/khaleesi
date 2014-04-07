@@ -30,19 +30,21 @@
 - name: Install rpm dependencies
   yum: name={{ item }} state=present
   with_items:
+    - facter
     - gcc
+    - git
+    - libffi-devel
     - libxml2-devel
     - libxslt-devel
-    - libffi-devel
     - mariadb-devel
-    - git
-    - python-pip
+    - openssl-devel
     - packstack-modules-puppet
-    - python-keystoneclient
-    - python-novaclient
-    - python-glanceclient
-    - python-neutronclient
-    - facter
     - puppet
+    - python-glanceclient
+    - python-keystoneclient
+    - python-neutronclient
+    - python-novaclient
+    - python-pip
+    - python-virtualenv
   tags:
     - tempest_setup

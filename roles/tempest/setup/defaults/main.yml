@@ -1,5 +1,10 @@
 ---
+tempest_valid_setup_methods:
+    - packstack/provision
+    - tempest/config_script
+
 tempest:
+    setup_method: packstack/provision
     repo: git://github.com/openstack/tempest.git
     revision: stable/havana
     checkout_dir: /var/lib/tempest
