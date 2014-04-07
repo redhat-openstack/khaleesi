@@ -1,28 +1,94 @@
-#! /usr/bin/env bash
+if [ -z ${FUNCTIONS_SOURCED+xxx} ]; then
+FUNCTIONS_SOURCED=true
+
 set -e -u
+declare -a __init_exit_todo_list=()
+declare -i __init_script_exit_code=0
 
-# Quick Instructions:
-# export:
-# IMAGE_ID to the id of the image
-#
-# Two networks are not required, but one is atm. "neutron net-list"
-# export:
-# NET_1
-# NET_2
-#
-# KEY_FILE= full path to openstack private ssh key for instance
-# SSH_KEY_NAME= name of ssh key in openstack
-#
-# TAGS='--tags=provision,prep'
-# REMOTE_USER= [cloud-user,fedora]
-#
+declare -r SCRIPT_CMD="$0"
+declare -r SCRIPT_PATH=$(readlink -f "$0")
+declare -r TOP_DIR=$(cd $(dirname "$0") && pwd)
 
-main() {
+debug.print_callstack() {
+    local i=0;
+    local cs_frames=${#BASH_SOURCE[@]}
+
+    echo "Traceback ... "
+    for (( i=$cs_frames - 1; i >= 2; i-- )); do
+        local cs_file=${BASH_SOURCE[i]}
+        local cs_fn=${FUNCNAME[i]}
+        local cs_line=${BASH_LINENO[i-1]}
+
+        # extract the line from the file
+        local line=$(sed -n "${cs_line}{s/^ *//;p}" "$cs_file")
+
+        echo -e "  $cs_file[$cs_line]:" \
+            "$cs_fn:\t" \
+            "$line"
+    done
+    echo "--------------------------------------------------"
+}
+
+# on_exit_handler <exit-value>
+on_exit_handler() {
+    # store the script exit code to be used later
+    __init_script_exit_code=${1:-0}
+
+    # print callstack
+    test $__init_script_exit_code -eq 0 || debug.print_callstack
+
+    echo "Exit cleanup ... ${__init_exit_todo_list[@]} "
+    for cmd in "${__init_exit_todo_list[@]}" ; do
+        echo "    running: $cmd"
+        # run commands in a subshell so that the failures
+        # can be ignored
+        ($cmd) || {
+            local cmd_type=$(type -t $cmd)
+            local cmd_text="$cmd"
+            local failed="FAILED"
+            echo "    $cmd_type: $cmd_text - $failed to execute ..."
+        }
+    done
+}
+
+on_exit() {
+    local cmd="$*"
+
+    local n=${#__init_exit_todo_list[*]}
+    if [[ $n -eq 0 ]]; then
+        trap 'on_exit_handler $?' EXIT
+        __init_exit_todo_list=("$cmd")
+    else
+        __init_exit_todo_list=("$cmd" "${__init_exit_todo_list[@]}") #execute in reverse order
+    fi
+}
+
+init.print_result() {
+    local exit_code=$__init_script_exit_code
+    if [[  $exit_code == 0 ]]; then
+        echo "$SCRIPT_CMD: PASSED"
+    else
+        echo "$SCRIPT_CMD: FAILED" \
+             " -   exit code: [ $exit_code ]"
+    fi
+}
+
+
+execute() {
+  echo "Execute Command:"
+  echo "$@"
+  "$@"
+}
+
+generate_settings_file() {
+    local out_file=${1:-'settings.yml'}
+
     local OS_NETWORK_TYPE=${OS_NETWORK_TYPE:-'neutron'}
     local default_floating_nw_name='external'
     local default_flavor_id=4
     local default_tempest_flavor_id=2
     local default_tempest_image_id='10a4092c-6ec9-4ddf-b97c-b0f8dff0958e'
+    local default_tempest_repo='git://github.com/openstack/tempest.git'
 
     local wait_for_boot=${WAIT_FOR_BOOT:-'180'}
 
@@ -46,12 +112,13 @@ main() {
     local net_3=${NET_3:-''}
     local net_3_name=${NET_3_NAME:-'foreman_ext'}
 
-    export tags=${TAGS:-''}
-    export skip_tags=${SKIP_TAGS:-''}
-    export skip_tags_collect=${SKIP_TAGS_COLLECT:-''}
+    local tags=${TAGS:-''}
+    local skip_tags=${SKIP_TAGS:-''}
+    local skip_tags_collect=${SKIP_TAGS_COLLECT:-''}
     local tempest_tests=${TEMPEST_TEST_NAME:-'tempest.scenario.test_network_basic_ops'}
-    export remote_user=${REMOTE_USER:-'cloud-user'}
-    export tempest_branch=${TEMPEST_BRANCH:-'master'}
+    local remote_user=${REMOTE_USER:-'cloud-user'}
+    local tempest_repo=${TEMPEST_REPO:-$default_tempest_repo}
+    local tempest_branch=${TEMPEST_BRANCH:-'master'}
     local tempest_remote_user=${TEMPEST_REMOTE_USER:-'fedora'}
     local foreman_remote_user=${FOREMAN_REMOTE_USER:-$REMOTE_USER}
 
@@ -76,7 +143,7 @@ main() {
     fi
     net_ids="$net_ids ]"
 
-cat > settings.yml <<-EOF
+cat > $out_file <<-EOF
 # job config
 
 selinux: $selinux
@@ -133,9 +200,10 @@ update_rpms_tarball: $update_rpms_tarball
 remote_user: $remote_user
 
 tempest:
-    puppet_file: /tmp/tempest_init.pp
-    checkout_dir: /var/lib/tempest
+    repo: $tempest_repo
     revision: $tempest_branch
+    checkout_dir: /var/lib/tempest
+    puppet_file: /tmp/tempest_init.pp
     test_name: $tempest_tests
     exclude:
         files:
@@ -178,4 +246,4 @@ EOF
 
 }
 
-main "$@"
+fi # FUNCTIONS_SOURCED
