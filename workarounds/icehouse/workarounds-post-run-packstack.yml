@@ -9,6 +9,17 @@
          when: workaround_1049391 is defined and workaround_1049391
        }
 
+- name: Workarounds | specific to RedHat distro
+  hosts: RedHat:&controller
+  tasks:
+    - {  include: "rhel/rhel7-rabbitmq-server.yml",
+          name: WORKAROUND | BZ | Ensure /var/run/rabbitmq/ directory,
+          tags: workaround,
+          when: workaround_rhel7_rabbitmq_run_dir|default(false)
+            and ansible_distribution_version == "7.0"
+      }
+
+
 - name: Workarounds | specific to fedora distro on controller
   hosts: Fedora:&controller
   tasks:

@@ -1,0 +1,4 @@
+---
+- file: path=/var/run/rabbitmq/ owner=rabbitmq state=directory
+
+
