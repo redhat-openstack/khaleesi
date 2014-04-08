@@ -50,3 +50,9 @@
 - name: Ensure iptables
   yum: name=iptables state=present
 
+- name: WORKAROUND | BZ | Ensure iptables-services
+  yum: name=iptables-services state=present
+  tags: workaround
+  when: workarounds_disabled is not defined or
+        workarounds_disabled|bool == false
+
