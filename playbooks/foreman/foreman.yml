@@ -74,7 +74,7 @@
   tags:
     - install_nodes
 
-- include: ../../workarounds/icehouse/workarounds-pre-run-foreman.yml tags=workaround
+- include: ../../workarounds/icehouse/workarounds-post-run-foreman.yml tags=workaround
 
 - name: Create Keystone RC files
   hosts: foreman_node
