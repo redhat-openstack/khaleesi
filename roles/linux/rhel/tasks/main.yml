@@ -53,6 +53,6 @@
 - name: WORKAROUND | BZ | Ensure iptables-services
   yum: name=iptables-services state=present
   tags: workaround
-  when: workarounds_disabled is not defined or
-        workarounds_disabled|bool == false
+  when: workaround_rhel7_iptable_services|default(false)
+        and ansible_distribution_version == "7.0"
 
