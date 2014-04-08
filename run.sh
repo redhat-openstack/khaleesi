@@ -9,10 +9,7 @@ collect_logs() {
              --extra-vars @nodes.yml  \
              -u $REMOTE_USER -s"
 
-  if [[ ! -z $skip_tags_collect ]]; then
-    skip_tags=${skip_tags_collect#--skip_tags}
-    cmdline+=" --skip-tags $skip_tags_collect"
-  fi
+  [[ -n ${SKIP_TAGS:-''} ]] && cmdline+=" --skip-tags ${SKIP_TAGS#--skip_tags}"
   execute $cmdline
 }
 
