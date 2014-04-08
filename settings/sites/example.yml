@@ -1,0 +1,123 @@
+# This file contains settings relative to a site on
+# which test resources should be created
+
+# site_type specifies what kind of provisioning site khaleesi will 
+# expect to find
+# Currently only openstack is supported
+site_type: openstack
+
+# controller settings specify global parameter to access the openstack
+# environment
+controller:
+    # auth-url specifies the identity url to get tokens from 
+    # can be overridden with OS_AUTH_URL environment variable
+    auth-url:
+    # username specifies which username to use
+    # can be overridden with OS_USERNAME environment variable
+    username:
+    # password specifies which password to use
+    # can be overridden with OS_PASSWORD environment variable
+    password:
+    # tenant_name specifies which tenant to use
+    # can be overridden with OS_TENANT_NAME environment variable
+    tenant_name:
+    # netwrok-type specifies whic network type the openstack environment use
+    # can be overridden with OS_NETWORK_TYPE evnironemnt variable
+    network-type:
+
+# Instances settings specify parameters shared by all the instances
+instances:
+    # Lfavors is a mapping that retrieve flavor information based on the
+    # type of the instance
+    flavors:
+        # default information can be overridden by FLAVOR_ID environment variable
+        default:
+            id:
+            name:
+        # flavor information for the foreman node
+        # can be overridden by FOREMAN_FLAVOR_ID environment variable
+        foreman:
+            id:
+            namei:
+        # flavor information for the node that launches tempest test
+        #i can be override by TEMPEST_FLAVOR_ID environment variable
+        tempest:
+            id:
+            name:
+
+    # timeout in second for khaleesi to wait provisioned resources to start
+    # cab be overridden wih WAIT_FOR_BOOT environment variable
+    wait_for_boot: 180
+
+    # key_remote_url specifies an url to fetch the key to access the instances from
+    # can be overridden with KEY_REMOTE_URL environment variable
+    key_remote_url:
+    # key_filename specify the filename of the key to use to access the instances
+    # can be overridden with KEY_FILE environment variable
+    key_filename:
+    # key_name specify which key to use from the ones available in openstack environment
+    # can be overridden with SSH_KEY_NAME environment variable
+    key_name:
+
+
+# images defines a mapping htat retrieve information on the images to use based on
+# resource type, distribution e distribution release
+# distribution release infomation must be cast to string
+images:
+    # distribution mapping
+    centos:
+        # distribution release mapping, note the quotes around the number
+        "6.5":
+            # id specify which image to use
+            # can be overridden with IMAGE_ID environment variable
+            id:
+            # sometimes a name is the preferred method to identify an image, so it can be specified
+            # be aware that only the UUID will be unique in an environment
+            # can be overridden with IMAGE_PREFERRED_NAME evnironment variable
+            preferred-name:
+            # remote-user specifies with which user the image should be accessed
+            # this is image dependent
+            # can be overridden with REMOTE_USER environment variable
+            remote-user:
+    # other than distribution, types are managed with image mapping
+    tempest:
+            # can be overridden with TEMPEST_IMAGE_ID environment variable
+            id:
+            preferred-name:
+            # can be overridden with TEMPEST_REMOTE_USER environment variable
+            remote-user:
+    foreman:
+            # can be overridden with FOREMAN_IMAGE_ID environment variable
+            id:
+            # can be overridden with FOREMAN_REMOTE_USER environment variable
+            remote-user:
+
+# networks is a mapping that retrieve informations on the networks to be used in 
+# provisioning resources
+networks:
+    # internal networks mapping
+    internal:
+        # NET 0 PLEASE LEAVE BLANK
+        - id: PLEASE LEAVE BLANK NET 0
+          name: PLEASE LEAVE BLANK NET 0
+          # can be overridden with NET_1 environment variable
+        - id:
+          # can be overridden with NET_1_NAME environment variable
+          name:
+          # can be overridden with NET_2 environment variable
+        - id:
+          # can be overridden with NET_2_NAME environment variable
+          name: 
+        # foreman_ext
+        # XXX: THe foreman network should not be needed in packstack install
+        # but the name is referenced anyway, so it is defined as an hack in build settings.
+        # You cannot put it here, because invalid, null, unspecified or duplicated network
+        # ids ALL return an error
+        #
+        #- id: #NET_3
+        #  name: foreman_ext #NET_3_NAME
+    # floating network informations
+    floating:
+        id:
+        # name can be overridden with FLOATING_NETWORK_NAME environment variablei
+        name:

@@ -1,0 +1,49 @@
+# Subscription Manager credentials used for RHEL test resources
+
+sm_username:
+sm_password:
+
+# nodes to clean up
+# using {{ nodes }} all provisioned nodes will be deleted
+cleanup_nodes: "{{ nodes }}"
+
+# specify the epel repo to use
+# http:// part of the uri will be added automatically
+epel_repo: download.fedoraproject.org/pub/epel/6/
+# Build settings
+# gpg_check will be passed to the repo installed to activate or deactivate
+# signature checking on packages
+# useful for non-producton repositories
+gpg_check: 0
+
+# ntp server to synch the time with
+ntp_server:
+
+update_rpms_tarball:
+
+# selinux set selinux behaviour for testing resources
+selinux: enforcing
+
+# log_files is a list of paths to be tarbzipped for debugging
+log_files:
+    - /var/tmp/packstack
+    - /root/packstack*
+    - /var/lib/tempest/*
+    - /var/log/
+    - /etc/nova
+    - /etc/ceilometer
+    - /etc/cinder
+    - /etc/glance
+    - /etc/keystone
+    - /etc/neutron
+    - /etc/ntp
+    - /etc/puppet
+    - /etc/qpid
+    - /etc/qpidd.conf
+    - /etc/selinux
+    - /etc/yum.repos.d
+
+# XXX: this should not be needed in packstack, but it is
+# and cannot be put in site settings without a valid ID
+# net_2_name specify the network name to be used by foreman
+net_3_name:

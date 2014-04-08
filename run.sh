@@ -3,34 +3,46 @@ set -e -u
 source functions.bash
 
 collect_logs() {
-  local cmdline="ansible-playbook -i local_hosts  \
+  local cmdline="ansible-playbook -v -s -i local_hosts  \
              playbooks/collect_logs.yml \
              --extra-vars @settings.yml   \
-             --extra-vars @nodes.yml  \
-             -u $REMOTE_USER -s"
+             --extra-vars @nodes.yml "
 
   [[ -n ${SKIP_TAGS:-''} ]] && cmdline+=" --skip-tags ${SKIP_TAGS#--skip_tags}"
   execute $cmdline
 }
 
+
 main() {
+    local default_playbook='aio.yml'
+
     if [ ! -e nodes.yml ]; then
         echo "Please create a nodes.yml file to define your environment"
         echo "See https://github.com/redhat-openstack/khaleesi/blob/master/doc/packstack.md"
         return 1
     fi
 
-    local playbook=${1:-'aio.yml'}
+
+    parse_settings_args "$@"
+    local playbook=${PLAYBOOK:-$default_playbook}
+
     # If the playbook does NOT contain a '/', default to the packstack playbooks
     [[ $playbook =~ '/' ]] ||  playbook="playbooks/packstack/$playbook"
-    echo "Playing: $playbook"
+    echo -e "\nPlaybook: $playbook"
 
-    generate_settings_file
+    if $USE_PYTHON_GENERATOR; then
+        execute python settings.py $SETTINGS_ARGS \
+            -o settings.yml
+    else
+        generate_settings_file
+    fi
 
-    echo -n "settings: settings.yml"
-    local cmdline="ansible-playbook -i local_hosts $playbook  \
+    ### todo: add  --no-color option
+    export ANSIBLE_FORCE_COLOR=true
+    local cmdline="ansible-playbook -v -s -i local_hosts $playbook \
                    --extra-vars @settings.yml "
 
+    echo -n "Settings files: settings.yml"
     if [[ -e repo_settings.yml ]]; then
         echo -n ", repo_settings.yml"
         cmdline+=" --extra-vars @repo_settings.yml"
@@ -43,7 +55,12 @@ main() {
     echo
     cmdline+=" --extra-vars @nodes.yml"
 
-    [[ -n ${REMOTE_USER:-''} ]] && cmdline+=" -u $REMOTE_USER -s"
+    ## print the settings.yml but HIDE the password
+    cat_file settings.yml |
+        sed -e "s/\(.*\)\(password\|pass\|passwd\)\(.*\)/\1\2 <rest of the line is hidden>/"
+
+    test -e repo_settings.yml && cat_file repo_settings.yml
+    test -e job_settings.yml  && cat_file job_settings.yml
 
     # tags and skip tags
     # Remove extraneous '--tags' first.

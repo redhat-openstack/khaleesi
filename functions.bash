@@ -73,11 +73,121 @@ init.print_result() {
     fi
 }
 
+cat_file() {
+    echo "----- [ $1 ]---------------------------------------"
+    cat $1
+    echo "---------------------------------------------------"
+}
 
 execute() {
   echo "Execute Command:"
-  echo "$@"
+  echo "    $@"
   "$@"
+}
+
+parse_settings_args() {
+
+    # default values for args
+    USE_PYTHON_GENERATOR=false
+    SETTINGS_ARGS=""
+
+    ### while there are args parse them
+    while [[ -n "${1+xxx}" ]]; do
+        case $1 in
+            --use-python-generator)
+                USE_PYTHON_GENERATOR=true
+                shift 1
+                ;;
+            --tags)
+                TAGS=$2
+                shift 2
+                ;;
+            --skip-tags)
+                SKIP_TAGS=$2
+                shift 2
+                ;;
+            -I|--inventory)
+                INVENTORY_FILE=$2
+                shift 2
+                ;;
+            -P|--playbook)
+                PLAYBOOK=$2
+                shift 2
+                ;;
+            -N|--nodes)
+                NODES_FILE=$2
+                shift 2
+                ;;
+            *.yml)
+                PLAYBOOK=$1
+                shift 1
+                ;;
+            --settings-path)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --build)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --tempest)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --site)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --installer)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --product)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --productreleaserepo)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --productrelease)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --distribution)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --distrorelease)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --topology)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --networking)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --variant)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --testsuite)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --job-name)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            *)
+                printf >&2 'WARNING: unknown option: %s\n' $1
+                shift
+                ;;
+        esac
+    done
 }
 
 generate_settings_file() {

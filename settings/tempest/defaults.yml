@@ -1,0 +1,27 @@
+# This file should contain tempest testing settings.
+#
+# setup_method specifies what role to use to setup the tempest host
+setup_method: packstack/provision
+
+# repo specify the repo uri form which to retreive tempest
+repo: git://github.com/openstack/tempest.git
+
+# checkout_dir specify where to clone the tempest repo
+checkout_dir: /var/lib/tempest
+
+# puppet file is used for a specific workaround
+puppet_file: /tmp/tempest_init.pp
+
+# revisions is a mapping that specifies which branch of the repo to use
+# based on product and productrelease principal parameters
+revisions:
+    rdo:
+        icehouse: master
+        havana: stable/havana
+        grizzly: stable/grizzly
+
+# test_name specifies which test to use
+test_name: tempest.scenario.test_network_basic_ops
+
+# exclude is a list of test to exclude
+exclude: {}
