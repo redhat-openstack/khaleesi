@@ -7,7 +7,7 @@ collect_logs() {
              playbooks/collect_logs.yml \
              --extra-vars @settings.yml   \
              --extra-vars @nodes.yml  \
-             -u $remote_user -s"
+             -u $REMOTE_USER -s"
 
   if [[ ! -z $skip_tags_collect ]]; then
     skip_tags=${skip_tags_collect#--skip_tags}
