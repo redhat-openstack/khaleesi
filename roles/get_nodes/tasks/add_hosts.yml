@@ -5,7 +5,7 @@
   when: "'debug' in config.verbosity"
 
 - name: Network {{ os_network_type }} == {{ network_expected }} |
-        Add Foreman hosts
+        Add hosts
   add_host:
       name="{{ item.0.item.name }}"
       groups="{{ item.0.item.groups }}"
