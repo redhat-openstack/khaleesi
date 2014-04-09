@@ -66,4 +66,8 @@
           tags: workaround,
           when: workaround_kombu is defined and workaround_kombu
       }
+    - {  role: workarounds/pymongo-install,
+          tags: workaround,
+          when: workaround_pymongo is defined and workaround_pymongo
+      }
 
