@@ -1,0 +1,3 @@
+---
+- name: bz 1084495 python-kombu present
+  yum: name=python-kombu state=present

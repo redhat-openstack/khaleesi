@@ -47,4 +47,13 @@
             workaround_rhel7_lvm2_libs is defined and
             workaround_rhel7_lvm2_libs
 
+- name: Workarounds | specific to RedHat distro (roles)
+  hosts: RedHat:&controller
+  roles:
+    - {  role: workarounds/python-kombu-install,
+          when: workaround_python-kombu is defined and
+            workaround_python-kombu
+      }
+
+
 - include: common/patch-packstack-provision.yml
