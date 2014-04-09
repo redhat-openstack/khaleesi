@@ -7,6 +7,6 @@
 
 - name: Get astapor repo
   git: repo={{ astapor_repo }}
-       dest=/usr/share/openstack-foreman-installer
+       dest={{ astapor_dest }}
        version={{ astapor_branch }}
 
