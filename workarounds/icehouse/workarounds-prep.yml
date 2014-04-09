@@ -52,3 +52,12 @@
             workaround_rhel7_update is defined and
             workaround_rhel7_update
       }
+
+- name: Workarounds | specific to RedHat or CentOS distro (roles)
+  hosts: RedHat:CentOS:&controller
+  roles:
+    - {  role: workarounds/python-kombu-install,
+          when: workaround_python-kombu is defined and
+            workaround_python-kombu
+      }
+
