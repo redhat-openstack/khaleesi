@@ -1,0 +1,38 @@
+---
+- name: Workarounds | specific to fedora distro
+  hosts: Fedora:&controller
+  roles:
+     - { role: workarounds/fix-puppet-utf8,
+          tags: workaround,
+          when: workaround_puppet_utf8 is defined and workaround_puppet_utf8
+       }
+     - { role: workarounds/pycadf-install,
+          tags: workaround,
+          when: workaround_pycadf is defined and workaround_pycadf
+       }
+
+- name: Workarounds | specific to RedHat distro
+  hosts: RedHat:&controller
+  roles:
+    - { role: workarounds/fix-puppet-utf8,
+         tags: workaround,
+         when: workaround_puppet_utf8 is defined and workaround_puppet_utf8
+      }
+
+- name: Workarounds | specific to RedHat distro RHEL 7.x
+  hosts: RedHat-7
+  roles:
+     - { role: workarounds/fix-lvm2-libs,
+         tags: workaround,
+         when: workaround_rhel7_lvm2_libs is defined and
+                     workaround_rhel7_lvm2_libs
+      }
+
+- name: Workaround | BZ 1080369  | patch packstack provision
+  hosts: controller
+  tags:
+      - workaround-packstack-provision
+  roles:
+      - { role: workarounds/patch-packstack-provision,
+           when: workaround_packstack_provision is defined and workaround_packstack_provision
+      }

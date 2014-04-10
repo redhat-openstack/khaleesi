@@ -1,6 +1,7 @@
 ---
 - include: ../provision.yml
 - include: ../validate_nodes.yml
+- include: ../group_by.yml
 
 - name: Debug list config variables
   sudo: no
@@ -19,7 +20,7 @@
     - prep
 
 # apply pre-packstack workarouds
-- include: ../../workarounds/icehouse/workarounds-prep.yml tags=workaround
+- include: ../../workarounds/workarounds-prep.yml tags=workaround
 
 - name: Group hosts by product rdo/rhos
   hosts: all:!localhost:!tempest
@@ -78,7 +79,7 @@
     - prep
 
 # apply pre-packstack workarouds
-- include: ../../workarounds/icehouse/workarounds-pre-run-packstack.yml tags=workaround
+- include: ../../workarounds/workarounds-pre-run-packstack.yml tags=workaround
 
 - name: Install packstack
   hosts: controller
@@ -95,7 +96,7 @@
     - run-packstack
 
   # apply post-packstack workarouds
-- include: ../../workarounds/icehouse/workarounds-post-run-packstack.yml tags=workaround
+- include: ../../workarounds/workarounds-post-run-packstack.yml tags=workaround
 
 - name: Update RPMs
   hosts: packstack

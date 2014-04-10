@@ -1,0 +1,2 @@
+---
+- yum: name=python-pycadf enablerepo=updates-testing state=present

@@ -1,11 +1,7 @@
 ---
 - include: ../provision.yml
 - include: ../validate_nodes.yml
-
-- name: Create Distribution-Version groups
-  hosts: all:!localhost
-  tasks:
-    - group_by: key={{ ansible_distribution }}-{{ ansible_distribution_version|int }}
+- include: ../group_by.yml
 
 - name: Prepare for Foreman install
   hosts: foreman_installer
@@ -41,7 +37,7 @@
     - prep
 
 # apply pre-packstack workarouds
-- include: ../../workarounds/icehouse/workarounds-prep.yml tags=workaround
+- include: ../../workarounds/workarounds-prep.yml tags=workaround
 
 - name: Install Foreman
   hosts: foreman
@@ -53,7 +49,7 @@
   tags:
     - install
 
-- include: ../../workarounds/icehouse/workarounds-pre-run-foreman.yml tags=workaround
+- include: ../../workarounds/workarounds-pre-run-foreman.yml tags=workaround
 
 - name: Install Controller node
   hosts: controller
@@ -75,7 +71,7 @@
   tags:
     - install_nodes
 
-- include: ../../workarounds/icehouse/workarounds-post-run-foreman.yml tags=workaround
+#- include: ../../workarounds/workarounds-post-run-foreman.yml tags=workaround
 
 - name: Create Keystone RC files and OpenStack Status
   hosts: foreman_node

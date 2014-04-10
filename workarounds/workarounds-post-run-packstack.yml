@@ -1,0 +1,17 @@
+---
+- name: Workarounds | specific to RedHat distro RHEL 7.x
+  hosts: RedHat-7:&controller
+  roles:
+     - { role: workarounds/rabbitmq-server,
+         tags: workaround,
+         when: workaround_rhel7_rabbitmq_run_dir|default(false)
+      }
+
+- name: Workarounds | specific to Controllers (roles)
+  hosts: controller
+  roles:
+    - { role: common-handlers, tags: workaround }
+    - { role: workarounds/vif_plugging,
+          tags: workaround,
+          when: workaround_vif_plugging is defined and workaround_vif_plugging
+      }

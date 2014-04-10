@@ -14,6 +14,7 @@ inventory*
 *.sublime-*
 archive.*
 local_settings.sh
+westest.pem
 
 #kytoon
 tmp/

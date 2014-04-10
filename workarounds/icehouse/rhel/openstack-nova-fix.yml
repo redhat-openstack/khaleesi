@@ -1,5 +1,0 @@
----
-  - name: install openstack-nova fix (0.9.b2.el6)
-    yum:  name=http://kojipkgs.fedoraproject.org//packages/openstack-nova/2014.1/0.9.b2.el6/noarch/openstack-nova-2014.1-0.9.b2.el6.noarch.rpm state=present
-    when: ansible_distribution == 'RedHat'
-

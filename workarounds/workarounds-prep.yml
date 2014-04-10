@@ -1,0 +1,62 @@
+---
+- name: Workarounds | specific to fedora distro
+  hosts: Fedora:&controller
+  roles:
+     - { role: workarounds/deltarpm-install,
+          tags: workaround,
+          when: workaround_deltarpm is defined and workaround_deltarpm
+       }
+     - { role: workarounds/mongodb-install,
+         tags: workaround,
+         when: workaround_mongodb is defined and workaround_mongodb
+       }
+
+- name: Workarounds | specific to fedora distro
+  hosts: Fedora-19:&controller
+  roles:
+     - { role: workarounds/mariadb-install,
+          tags: workaround,
+          when: workaround_mariadb is defined and workaround_mariadb
+       }
+
+- name: Workarounds | specific to fedora distro on Compute
+  hosts: Fedora:&compute
+  roles:
+     - { role: workarounds/qpidd-install,
+         tags: workaround,
+         when: workaround_qpidd is defined and workaround_qpidd
+       }
+
+- name: Workarounds | Foreman node
+  hosts: foreman
+  roles:
+    - { role: workarounds/openstack-packstack-rpm,
+        when: workaround_openstack_packstack_rpm is defined
+              and workaround_openstack_packstack_rpm
+              and openstack_packstack_rpm is defined }
+
+- name: Workarounds | specific to RedHat distro RHEL 7.x
+  hosts: RedHat-7
+  roles:
+    - { role: workarounds/rhel7-yum-update,
+         tags: workaround,
+         when: workaround_rhel7_update is defined and
+                      workaround_rhel7_update
+      }
+
+- name: Workarounds | specific to RedHat or CentOS distro (roles)
+  hosts: RedHat:CentOS:&controller
+  roles:
+    - {  role: workarounds/python-kombu-install,
+          tags: workaround,
+          when: workaround_kombu is defined and workaround_kombu
+      }
+    - {  role: workarounds/pymongo-install,
+          tags: workaround,
+          when: workaround_pymongo is defined and workaround_pymongo
+      }
+    - {  role: workarounds/python-anyjson-install,
+          tags: workaround,
+          when: workaround_anyjson is defined and workaround_anyjson
+      }
+

@@ -1,3 +1,0 @@
----
-#- yum: name=http://arm.koji.fedoraproject.org//packages/python-pycadf/0.4.1/2.fc21/noarch/python-pycadf-0.4.1-2.fc21.noarch.rpm state=present
-- yum: name=python-pycadf enablerepo=updates-testing state=present

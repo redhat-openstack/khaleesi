@@ -1,0 +1,34 @@
+---
+- name: Workarounds | specific to fedora distro
+  hosts: Fedora:&foreman_node
+  roles:
+     - { role: workarounds/fix-puppet-utf8,
+          tags: workaround,
+          when: workaround_puppet_utf8 is defined and workaround_puppet_utf8
+       }
+
+- name: Workarounds | specific to RedHat distro
+  hosts: RedHat:&foreman_node
+  roles:
+    - { role: workarounds/fix-puppet-utf8,
+         tags: workaround,
+         when: workaround_puppet_utf8 is defined and workaround_puppet_utf8
+      }
+
+- name: Workarounds | RHEL 7
+  hosts: RedHat-7:&foreman_node
+  roles:
+    - { role: common-handlers, tags: workaround }
+    - { role: workarounds/fix-lvm2-libs,
+        when: workaround_rhel7_lvm2_libs is defined and
+              workaround_rhel7_lvm2_libs }
+
+- name: Workarounds | Foreman server
+  hosts: foreman
+  roles:
+    - { role: common-handlers, tags: workaround }
+    - { role: workarounds/nova-compute-fix,
+        when: workaround_nova_compute_fix is defined
+              and workaround_nova_compute_fix,
+        tags: ['nova-compute-fix'] }
+

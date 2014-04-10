@@ -22,6 +22,8 @@
 
 - include: ../validate_nodes.yml
 
+- include: ../group_by.yml
+
 - name: Gather facts from all openstack hosts
   hosts: all:!localhost:!tempest
   tags:
@@ -45,7 +47,7 @@
     - prep
 
 # apply pre-packstack workarouds
-- include: ../../workarounds/icehouse/workarounds-prep.yml tags=workaround
+- include: ../../workarounds/workarounds-prep.yml tags=workaround
 
 - name: Setup packstack on Controller
   hosts: controller
@@ -54,7 +56,7 @@
       - packstack/multinode
   tags: prep
 
-- include: ../../workarounds/icehouse/workarounds-pre-run-packstack.yml tags=workaround
+- include: ../../workarounds/workarounds-pre-run-packstack.yml tags=workaround
 
 - name: Run packstack
   hosts: controller
@@ -62,7 +64,7 @@
     - { role: packstack/runner }
   tags: run-packstack
 
-- include: ../../workarounds/icehouse/workarounds-post-run-packstack.yml tags=workaround
+- include: ../../workarounds/workarounds-post-run-packstack.yml tags=workaround
 
 - name: Config ml2-plugin
   hosts: controller
