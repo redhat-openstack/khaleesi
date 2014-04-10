@@ -13,7 +13,7 @@
 - debug: msg="Setting baseurl to {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"         #"
 
 - name: "Diff  rdo stage, production repos"
-  shell: repodiff --old={{ repo_stage }} --new={{ repo_production }} | tee /var/log/rdo_stage_prod_repo.txt
+  shell: repodiff --old={{ repo_production }} --new={{ repo_stage }} | tee /var/log/rdo_stage_prod_repo.txt
   register: result
   when:  config.repo == 'production' or config.repo == 'stage'
   ignore_errors: yes
