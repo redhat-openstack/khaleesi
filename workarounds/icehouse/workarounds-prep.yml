@@ -70,4 +70,8 @@
           tags: workaround,
           when: workaround_pymongo is defined and workaround_pymongo
       }
+    - {  role: workarounds/python-anyjson-install,
+          tags: workaround,
+          when: workaround_anyjson is defined and workaround_anyjson
+      }
 
