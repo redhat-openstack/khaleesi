@@ -131,7 +131,6 @@ generate_settings_file() {
     local productrelease=${PRODUCTRELEASE:-'icehouse'} #rdo_release
     local productreleaserepo=${PRODUCTRELEASEREPO:-'production'} #rdo_repo
     local netplugin=${NETPLUGIN:-'neutron'} #network_driver
-    local selinux=${SELINUX:-'enforcing'} #enforcing, permissive
 
     local update_rpms_tarball=${UPDATE_RPMS_TARBALL:-''}
 
