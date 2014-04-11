@@ -1,5 +1,6 @@
 ---
 - include: ../provision.yml
+- include: ../validate_nodes.yml
 
 - name: Create Distribution-Version groups
   hosts: all:!localhost

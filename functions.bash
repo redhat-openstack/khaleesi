@@ -146,7 +146,6 @@ generate_settings_file() {
 cat > $out_file <<-EOF
 # job config
 
-selinux: $selinux
 packstack_int: whayutin
 
 config:

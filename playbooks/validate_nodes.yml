@@ -4,23 +4,7 @@
      -  provision
 
 - name: test controller ssh connection
-  hosts: controller:!localhost:!tempest
-  gather_facts: False
-  roles:
-    - { role: validate_nodes/test_ssh }
-  tags:
-    - provision
-
-- name: test compute ssh connection
-  hosts: compute:!localhost:!tempest
-  gather_facts: False
-  roles:
-    - { role: validate_nodes/test_ssh }
-  tags:
-    - provision
-
-- name: test tempest ssh connection
-  hosts: tempest:!localhost
+  hosts: all:!localhost
   gather_facts: False
   roles:
     - { role: validate_nodes/test_ssh }

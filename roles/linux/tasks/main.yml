@@ -1,6 +1,1 @@
 ---
-- debug: msg="Setting SELINUX to {{selinux}}"   #"
-  when: "'info' in config.verbosity"
-
-- selinux: policy=targeted state={{selinux}}
-
