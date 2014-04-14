@@ -77,11 +77,12 @@
 
 - include: ../../workarounds/icehouse/workarounds-post-run-foreman.yml tags=workaround
 
-- name: Create Keystone RC files
+- name: Create Keystone RC files and OpenStack Status
   hosts: foreman_node
   sudo: yes
   roles:
     - { role: openstack/create-keystonerc }
+    - { role: openstack/openstack-status }
   tags:
     - keystonerc
 
