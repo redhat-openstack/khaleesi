@@ -20,10 +20,13 @@
       }
 
 
-- name: Workarounds | specific to fedora distro on controller
-  hosts: Fedora:&controller
-  tasks:
-
+- name: Workarounds | specific to Controllers (roles)
+  hosts: controller
+  roles:
+    - {  role: workarounds/vif_plugging,
+          tags: workaround,
+          when: workaround_vif_plugging is defined and workaround_vif_plugging
+      }
 
 - name: Workarounds | specific to fedora distro on Compute
   hosts: Fedora:&compute
