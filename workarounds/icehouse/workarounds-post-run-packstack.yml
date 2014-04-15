@@ -23,6 +23,7 @@
 - name: Workarounds | specific to Controllers (roles)
   hosts: controller
   roles:
+    - { role: common-handlers, tags: workaround }
     - {  role: workarounds/vif_plugging,
           tags: workaround,
           when: workaround_vif_plugging is defined and workaround_vif_plugging

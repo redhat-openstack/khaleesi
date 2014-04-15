@@ -95,7 +95,7 @@
     - run-packstack
 
   # apply post-packstack workarouds
-- include: ../../workarounds/icehouse/workarounds-post-run-packstack.yml tags=workaround-post-install
+- include: ../../workarounds/icehouse/workarounds-post-run-packstack.yml tags=workaround
 
 - name: Update RPMs
   hosts: packstack
