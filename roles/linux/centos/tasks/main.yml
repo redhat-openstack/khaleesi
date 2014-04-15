@@ -8,13 +8,15 @@
   template: src=CentOS-Base.repo.j2 dest=/etc/yum.repos.d/CentOS-Base.repo
   notify:
     - Yum clean all
-    - yum -y update to latest packages
+    #Requires: syslinux-nonlinux
+    #- yum -y update to latest packages
 
 - name: Create the EPEL Repository
   template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
   notify:
     - Yum clean all
-    - yum -y update to latest packages
+    #Requires: syslinux-nonlinux
+    #- yum -y update to latest packages
 
 - name: ensure yum-utils
   yum: name=yum-utils state=present
