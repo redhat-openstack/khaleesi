@@ -3,15 +3,13 @@
   yum: name="{{ rdo[ config.version ].release_rpm[ ansible_distribution ] }}" state=present     #"
   when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
 
-- name: disable foreman repo on rhel7 beta
+- name: disable foreman repo
   command: |
       sed -i -e "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/foreman.repo
-  when: ansible_distribution == 'RedHat' and ansible_distribution_version == '7.0'
 
-- name: disable puppet repo on rhel7 beta
+- name: disable puppet repo
   command: |
       sed -i -e "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/puppetlabs.repo
-  when: ansible_distribution == 'RedHat' and ansible_distribution_version == '7.0'
 
 - name: disable gpgcheck for rdo for every non production repo
   lineinfile:
@@ -33,4 +31,4 @@
   register: result
 
 - name: Print repolist
-  debug: var=result.stdout_lines 
+  debug: var=result.stdout_lines
