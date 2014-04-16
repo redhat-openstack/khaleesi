@@ -26,6 +26,7 @@
     - Wait for host to stop
     - Wait for host to come back
     - Reload facts
+  when: yum_update | bool
 
 - name: restart network
   service: name=network state=restarted
