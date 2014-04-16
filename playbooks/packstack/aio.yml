@@ -78,6 +78,12 @@
   tags:
     - prep
 
+- name: Update RPMs (rdopkg)
+  hosts: controller
+  roles:
+    - { role: rdopkg/prep, tags: ["rdoupdate-preinstall"] }
+    - { role: rdopkg/install, tags: ["rdoupdate-preinstall"] }
+
 # apply pre-packstack workarouds
 - include: ../../workarounds/workarounds-pre-run-packstack.yml tags=workaround
 
@@ -99,8 +105,9 @@
 - include: ../../workarounds/workarounds-post-run-packstack.yml tags=workaround
 
 - name: Update RPMs
-  hosts: packstack
+  hosts: controller
   roles:
+    - { role: rdopkg/prep, tags: ["rdoupdate"] }
     - { role: rdopkg/update, tags: ["rdoupdate"] }
 
 - include: tempest.yml

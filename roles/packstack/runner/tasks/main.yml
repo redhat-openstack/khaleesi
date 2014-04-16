@@ -6,6 +6,19 @@
     - python-backports
     - cloud-init
 
+- name: Remove the EPEL Repository.
+  yum: name=epel-release state=removed
+  when: ansible_distribution == "RedHat"
+  notify:
+    - Yum clean all
+  when: ansible_distribution_version != "7.0"
+
+- name: Ensure the EPEL Repository files are removed
+  file: path=/etc/yum.repos.d/epel.repo state=absent
+  notify:
+    - Yum clean all
+  when: ansible_distribution_version != "7.0"
+
 - debug: msg="run packstack installer"
   tags: run-packstack
 
