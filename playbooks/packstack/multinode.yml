@@ -22,7 +22,7 @@
 
 - include: ../validate_nodes.yml
 
-- include: ../group_by.yml
+- include: ../group_by.yml tags=provision
 
 - name: Gather facts from all openstack hosts
   hosts: all:!localhost:!tempest
