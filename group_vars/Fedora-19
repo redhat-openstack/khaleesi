@@ -1,2 +1,3 @@
 ---
 reboot_options: "--no-wall ' Reboot is triggered by Ansible' "
+yum_update: yes
