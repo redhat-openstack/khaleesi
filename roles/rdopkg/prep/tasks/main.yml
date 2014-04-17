@@ -18,3 +18,10 @@
     template: src=update_rpms.repo.j2 dest=/etc/yum.repos.d/update_rpms.repo
     notify:
       - Yum clean all
+
+  - name: list packages to be updated
+    command: ls {{ update_rpms_dir }}
+    register: result
+
+  - name: print result of packstack install
+    debug: var=result.stdout_lines

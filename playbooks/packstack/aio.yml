@@ -82,7 +82,7 @@
   hosts: controller
   roles:
     - { role: rdopkg/prep, tags: ["rdoupdate-preinstall"] }
-    - { role: rdopkg/install, tags: ["rdoupdate-preinstall"] }
+    - { role: rdopkg/preinstall, tags: ["rdoupdate-preinstall"] }
 
 # apply pre-packstack workarouds
 - include: ../../workarounds/workarounds-pre-run-packstack.yml tags=workaround
@@ -108,6 +108,6 @@
   hosts: controller
   roles:
     - { role: rdopkg/prep, tags: ["rdoupdate"] }
-    - { role: rdopkg/update, tags: ["rdoupdate"] }
+    - { role: rdopkg/postinstall, tags: ["rdoupdate"] }
 
 - include: tempest.yml
