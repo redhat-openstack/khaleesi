@@ -34,6 +34,9 @@
         when: workaround_openstack_packstack_rpm is defined
               and workaround_openstack_packstack_rpm
               and openstack_packstack_rpm is defined }
+    - { role: workarounds/puppet-version-lock,
+        when: workaround_puppet_version_lock is defined
+              and workaround_puppet_version_lock }
 
 - name: Workarounds | specific to RedHat distro RHEL 7.x
   hosts: RedHat-7

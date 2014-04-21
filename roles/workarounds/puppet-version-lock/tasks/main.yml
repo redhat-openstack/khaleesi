@@ -1,0 +1,10 @@
+---
+- name: Install yum-plugin-versionlock
+  yum: name=yum-plugin-versionlock state=present
+
+- name: Lock down puppet version to 3.2.4
+  template: src=versionlock.list.j2
+            dest=/etc/yum/pluginconf.d/versionlock.list
+            owner=root
+            group=root
+            mode=644

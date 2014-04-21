@@ -36,7 +36,7 @@
   tags:
     - prep
 
-# apply pre-packstack workarouds
+# apply pre-foreman workarouds
 - include: ../../workarounds/workarounds-prep.yml tags=workaround
 
 - name: Install Foreman
