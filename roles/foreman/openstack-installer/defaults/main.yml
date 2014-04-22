@@ -1,5 +1,6 @@
 ---
 openstack_foreman_installer_rpm: openstack-foreman-installer
+ruby_scl_url: http://dev.centos.org/centos/6/SCL/x86_64/
 astapor_dest: /usr/share/openstack-foreman-installer
 opm_dest: /usr/share/openstack-puppet/modules
 controller_name: "{{ lookup('template', 'controller_name.j2')|trim }}"
