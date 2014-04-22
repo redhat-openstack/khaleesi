@@ -1,0 +1,6 @@
+[rhel-7-server-rpms]
+name=Packages for Enterprise Linux 7 - $basearch
+baseurl=http://{{ rhel7_os_repo }}
+failovermethod=priority
+enabled=1
+gpgcheck={{ gpg_check }}
