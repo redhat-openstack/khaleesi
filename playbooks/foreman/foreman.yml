@@ -78,8 +78,15 @@
   sudo: yes
   roles:
     - { role: openstack/create-keystonerc }
-    - { role: openstack/openstack-status }
   tags:
     - keystonerc
+
+- name: Openstack status
+  hosts: controller
+  sudo: yes
+  roles:
+    - { role: openstack/openstack-status }
+  tags:
+    - openstack-status
 
 - include: ../tempest.yml
