@@ -11,6 +11,14 @@
           when: workaround_pycadf is defined and workaround_pycadf
        }
 
+- name: Workarounds | specific to fedora 19 distro
+  hosts: Fedora-19:&controller
+  roles:
+     - { role: workarounds/f19-iptables,
+          tags: workaround,
+          #when: workaround_f19_iptables is defined and workaround_f19_iptables
+       }
+
 - name: Workarounds | specific to RedHat distro
   hosts: RedHat:&controller
   roles:
