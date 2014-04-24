@@ -5,8 +5,20 @@
 - name: List nodes
   debug: var=nodes
 
-# name: OpenStack YUM Repo
-#  debug: msg="baseurl for install, {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"         #"
+- name: OpenStack YUM Repo
+  debug: msg="baseurl for install, {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"         #"
+
+- name: Get timestamp
+  command: curl {{ poodle_timestamp }}
+  register: result
+  ignore_errors: yes
+  when: config.repo == "poodle"
+
+- name: Get Poodle Build
+  debug: msg="Build mark puddle={{ result.stdout }}"
+  ignore_errors: yes
+  when: config.repo == "poodle"
 
 - name: List SELINUX value
   debug: var=selinux
+
