@@ -11,6 +11,7 @@ public_interface: eth0
 public_netmask: 255.255.255.0
 seed_values:
     - { name: 'neutron', oldvalue: 'false', newvalue: 'true' }
+    - { name: 'use_qemu_for_poc', oldvalue: 'false', newvalue: 'true' }
     - { name: 'swift_ring_server', oldvalue: '192.168.203.1', newvalue: '{{ controller_priv_ip }}' }
     - { name: 'swift_local_interface', oldvalue: 'eth3', newvalue: 'eth1' }
     - { name: 'controller_priv_host', oldvalue: '172.16.0.1', newvalue: '{{ controller_priv_ip }}' }
