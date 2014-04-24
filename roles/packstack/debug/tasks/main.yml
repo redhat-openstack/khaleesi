@@ -15,7 +15,7 @@
   when: config.repo == "poodle"
 
 - name: Get Poodle Build
-  debug: msg="Build mark puddle={{ result.stdout }}"
+  debug: 'msg="Build mark: puddle={{ result.stdout }}"'
   ignore_errors: yes
   when: config.repo == "poodle"
 
