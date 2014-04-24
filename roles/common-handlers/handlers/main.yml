@@ -20,6 +20,14 @@
   command: yum clean all
 
 - name: yum -y update to latest packages
+  ini_file: dest=/etc/yum.conf
+            section=main
+            option=exclude
+            value={{ yum_excludes }}
+  notify:
+    - Real yum -y update to latest packages
+
+- name: Real yum -y update to latest packages
   yum: name=* state=latest
   notify:
     - reboot
