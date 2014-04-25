@@ -7,3 +7,10 @@
   template: src=rhos_poodle.repo.j2 dest=/etc/yum.repos.d/rhos_poodle.repo
   notify:
     - Yum clean all
+
+- name: List available yum repositories
+  command: yum -d 9 repolist
+  register: result
+
+- name: Print repolist
+  debug: var=result.stdout_lines
