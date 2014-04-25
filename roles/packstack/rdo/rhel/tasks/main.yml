@@ -7,10 +7,6 @@
   command: |
       sed -i -e "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/foreman.repo
 
-- name: disable puppet repo
-  command: |
-      sed -i -e "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/puppetlabs.repo
-
 - name: disable gpgcheck for rdo for every non production repo
   lineinfile:
     dest=/etc/yum.repos.d/rdo-release.repo
