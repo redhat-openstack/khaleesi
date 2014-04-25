@@ -20,7 +20,7 @@
 
 # CLEAN PACKSTACK
 - name: Ensure openstack-packstack removed
-  yum: name=openstack-packstac state=absent
+  yum: name=openstack-packstack state=absent
 
 - name: Ensure rdo-release removed
   yum: name=rdo-release state=absent
