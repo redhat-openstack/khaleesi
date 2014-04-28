@@ -16,6 +16,7 @@
 #
 
 ### enable to provison vm
+- include: ../dump_settings.yml
 - include: ../provision.yml
 
 - include: multinode/provision.yml

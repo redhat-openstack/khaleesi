@@ -1,4 +1,6 @@
 ---
+- include: ../dump_settings.yml
+
 - include: ../provision.yml
 - include: ../validate_nodes.yml
 - include: ../group_by.yml tags=provision
