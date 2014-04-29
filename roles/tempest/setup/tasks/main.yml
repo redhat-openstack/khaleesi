@@ -1,5 +1,4 @@
 ---
-
 - name: verify if setup method {{tempest.setup_method }} is valid
   fail: msg="setup method provided '{{ tempest.setup_method }}'
             is invalid. Valid ones  '{{ tempest_valid_setup_methods|join(', ') }}' "
@@ -8,12 +7,17 @@
   tags: tempest_setup
 
 - { include: setup-tempest.yml,
-        when: "tempest.setup_method == 'packstack/provision' ",
-        tags: ['tempest_setup', 'tempest_packstack_provision']}
+        when: "tempest.setup_method == 'packstack/provision'",
+        tags: ['tempest_setup']}
 
 - { include: setup-tempest-use-config-tool.yml,
-        when: "tempest.setup_method == 'tempest/config_script' ",
-        tags: ['tempest_setup', 'tempest_config_script']}
+        when: "tempest.setup_method == 'tempest/config_script'",
+        tags: ['tempest_setup']}
+
+- { include: setup-tempest-use-rpm.yml,  #"
+        tempest_rpm_repo: "{{ repo.tempest[ansible_distribution][ansible_distribution_version|int] }}",
+        when: "tempest.setup_method == 'tempest/rpm'",
+        tags: ['tempest_setup'] }
 
 - name: pip install junitxml, unittest2, testtools
   pip: name={{ item }} virtualenv={{ tempest.checkout_dir }}/.venv
@@ -21,6 +25,7 @@
     - junitxml
     - unittest2
     - nose
+  when: tempest.use_virtual_env | default(true)
   tags:
     - tempest_setup
 
@@ -30,11 +35,13 @@
   with_items:
     - { name: testtools, version: '0.9.34' }
     - { name: python-subunit, version: '0.0.15'}
+  when: tempest.use_virtual_env | default(true)
   tags:
     - tempest_setup
 
 - name: pip install requirements
   pip: requirements={{ tempest.checkout_dir }}/requirements.txt
        virtualenv={{ tempest.checkout_dir }}/.venv
+  when: tempest.use_virtual_env | default(true)
   tags:
     - tempest_setup

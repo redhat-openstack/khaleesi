@@ -1,0 +1,88 @@
+- name: rpm | repo used
+  debug: msg="using tempest repo {{ tempest_rpm_repo }}" #"
+  tags: tempest_setup_rpm
+
+- name: rpm | create the tempest Repository
+  template: src=tempest.repo.j2 dest=/etc/yum.repos.d/tempest.repo
+  tags:
+    - tempest_setup_rpm
+  notify:
+    - Yum clean all
+    - Yum repolist
+
+- meta: flush_handlers
+
+- name: rpm | install tempest rpm
+  command: yum install -y openstack-tempest
+  tags: tempest_setup_rpm
+
+- name: rpm | get tempest install directory
+  shell: rpm -ql openstack-tempest | grep 'openstack-tempest$'
+  register: tempest_install_dir
+  tags: tempest_setup_rpm
+
+- debug: msg="{{ tempest_install_dir.stdout }}"
+  tags: tempest_setup_rpm
+
+- debug: msg="{{ tempest.checkout_dir }}"
+  tags: tempest_setup_rpm
+
+
+- name: rpm | fail if the install dir is different from
+        tempest.checkout_dir
+  fail: msg="failing because install dir {{ tempest_install_dir.stdout }}
+             is not equal to {{tempest.checkout_dir}}" #"
+  when: tempest_install_dir.stdout != tempest.checkout_dir
+  tags: tempest_setup_rpm
+
+- name: rpm |  ensure wget is present
+  yum: name=wget state=present
+  tags: tempest_setup_rpm
+
+- name: rpm |  download config_tempest.py from redhat-openstack if absent
+  command: wget -N --quiet {{ tempest_redhat_repo.config_script }}
+           chdir={{ tempest.checkout_dir }}/tools
+           creates={{tempest.checkout_dir }}/tools/config_tempest.py
+  register: config_tempest_copied
+  tags: tempest_setup_rpm
+
+- name: rpm |  download tempest.conf.sample from redhat-openstack/tempest
+  command: wget -N --quiet {{tempest_redhat_repo.tempest_conf_sample }}
+           chdir={{ tempest.checkout_dir }}/etc
+  when: config_tempest_copied|changed
+  tags: tempest_setup_rpm
+
+# ### cannot use ini_file because it strips away comments which  ###
+# ### config_tempest.py uses to create additional settings       ###
+- name: rpm | change the default tempest sample to get config_tempest.py running
+  command: sed
+        -e 's| secret| redhat|g'
+        -e 's|^#uri=.*|uri=http://{{hostvars[controller_name].private_ip}}:35357/v2.0|'
+        -e 's|^#tenant_name=.*|tenant_name=demo|'
+        -e 's|^#username=.*|username=demo|'
+        -e 's|^#password=.*|password=redhat|'
+        -e 's|^#admin_role=.*|admin_role=admin|'
+        -e 's|^#admin_tenant_name=.*|admin_tenant_name=admin|'
+        -e 's|^#admin_username=.*|admin_username=admin|'
+        -e 's|^#admin_password=.*|admin_password=redhat|'
+        -i {{ tempest.checkout_dir }}/etc/tempest.conf.sample
+  tags: tempest_setup_rpm
+
+- name: rpm |  generating tempest.conf by running
+  debug: msg="'Running:' {{ tempest_config_generate_command }}"
+
+- name: rpm |  generate tempest.conf
+  command: "{{ tempest_config_generate_command }}
+           chdir={{ tempest.checkout_dir }}"
+  register: result
+  tags: tempest_setup_rpm
+
+- name: rpm | Output of generate command
+  debug: var=result.stdout_lines
+  tags: tempest_setup_rpm
+
+- debug: var=result.stderr_lines
+  when:  result|failed
+  tags: tempest_setup_rpm
+
+

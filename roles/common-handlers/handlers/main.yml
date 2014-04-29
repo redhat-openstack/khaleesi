@@ -19,6 +19,11 @@
 - name: Yum clean all
   command: yum clean all
 
+- name: Yum repolist
+  command: yum repolist
+  ignore_errors: yes
+
+
 - name: yum -y update to latest packages
   yum: name=* state=latest
   notify:

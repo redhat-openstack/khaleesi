@@ -100,9 +100,11 @@ tempest.run_smoketest() {
     cd $tempest_dir
 
     # HACK to disable virtual-env unset VAR error {
+    test -r  .venv/bin/activate && {
         set +u
         source .venv/bin/activate
         set -u
+    }
     # }
 
     local py_version=$(python --version 2>&1)

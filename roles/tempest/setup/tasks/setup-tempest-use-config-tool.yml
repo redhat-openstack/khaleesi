@@ -1,52 +1,41 @@
 - debug: msg="git clone {{ tempest.repo }} branch {{ tempest.revision }}
             to {{tempest.checkout_dir}}"
   when: "'info' in config.verbosity"
+  tags: tempest_setup_gen_conf
 
 - name: Git clone tempest repo
   git: repo={{ tempest.repo }} version={{tempest.revision}}
        dest={{ tempest.checkout_dir }}
-  tags: tempest_setup
+  tags: tempest_setup_gen_conf
 
 
 - name: install virtualenv
   script: install_venv.sh {{ tempest.checkout_dir }}
-  tags: tempest_setup
+  tags: tempest_setup_gen_conf
 
 
 - name: ensure wget is present
   yum: name=wget state=present
-  tags:
-    - tempest_setup
-    - tempest_setup_gen_conf
+  tags: tempest_setup_gen_conf
 
 - name: download config_tempest.py from redhat-openstack if absent
   command: wget -N --quiet https://raw.githubusercontent.com/redhat-openstack/tempest/f20-patches/tools/config_tempest.py
            chdir={{ tempest.checkout_dir }}/tools
            creates={{tempest.checkout_dir }}/tools/config_tempest.py
   register: config_tempest_copied
-  tags:
-    - tempest_setup
-    - tempest_setup_gen_conf
+  tags: tempest_setup_gen_conf
 
 - name: download tempest.conf.sample from redhat-openstack/tempest
   command: wget -N --quiet https://raw.githubusercontent.com/redhat-openstack/tempest/f20-patches/etc/tempest.conf.sample
            chdir={{ tempest.checkout_dir }}/etc
   when: config_tempest_copied|changed
-  tags:
-    - tempest_setup
-    - tempest_setup_gen_conf
+  tags: tempest_setup_gen_conf
 
 - name: Change the default tempest sample password to 'redhat'
   command: sed -e 's/ secret/ redhat/g'
             -e 's/127.0.0.1/{{hostvars[controller_name].private_ip}}/g'
             -i {{ tempest.checkout_dir }}/etc/tempest.conf.sample
-  tags:
-    - tempest_setup
-    - tempest_setup_gen_conf
-
-  tags:
-    - tempest_setup
-    - tempest_setup_gen_conf
+  tags: tempest_setup_gen_conf
 
 
 - name: Generate tempest.conf
@@ -56,13 +45,9 @@
            chdir={{ tempest.checkout_dir }}
            creates={{ tempest.checkout_dir }}/etc/tempest.conf
   register: result
-  tags:
-    - tempest_setup
-    - tempest_setup_gen_conf
+  tags: tempest_setup_gen_conf
 
 - debug: var=result.stderr_lines
   when:  result|failed
-  tags:
-    - tempest_setup
-    - tempest_setup_gen_conf
+  tags: tempest_setup_gen_conf
 

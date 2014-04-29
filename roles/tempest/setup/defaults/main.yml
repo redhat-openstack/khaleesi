@@ -1,7 +1,20 @@
 ---
+
 tempest_valid_setup_methods:
     - packstack/provision
     - tempest/config_script
+    - tempest/rpm
+
+tempest_redhat_repo:
+  config_script:  https://raw.githubusercontent.com/redhat-openstack/tempest/f20-patches/tools/config_tempest.py
+  tempest_conf_sample: https://raw.githubusercontent.com/redhat-openstack/tempest/f20-patches/etc/tempest.conf.sample
+
+
+tempest_config_image_url: http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-disk.img
+
+tempest_config_generate_command: >
+  python tools/config_tempest.py --out etc/tempest.conf
+        --debug  --create
 
 tempest:
     setup_method: packstack/provision
