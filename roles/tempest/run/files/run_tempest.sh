@@ -6,60 +6,6 @@ usage() {
 }
 
 
-tempest.nose_test() {
-    local -a exclude_files=(${!1:-})
-    local -a exclude_tests=(${!2:-})
-
-    local x
-    local -a nose_exclude_files=()
-    test ${#exclude_files[@]} -ne 0 &&
-        for x in "${exclude_files[@]}"; do
-            nose_exclude_files+=( --ignore-files=$x )
-        done
-
-    local -a nose_exclude_tests=()
-    test ${#exclude_tests[@]} -ne 0 &&
-        for x in "${exclude_tests[@]}"; do
-            nose_exclude_tests+=( --exclude=$x )
-        done
-
-    export NOSE_WITH_OPENSTACK=1
-    export NOSE_OPENSTACK_COLOR=1
-    export NOSE_OPENSTACK_RED=15.00
-    export NOSE_OPENSTACK_YELLOW=3.00
-    export NOSE_OPENSTACK_SHOW_ELAPSED=1
-    export NOSE_OPENSTACK_STDOUT=1
-    export TEMPEST_PY26_NOSE_COMPAT=1
-
-    echo nosetests --verbose --attr=type=smoke  --with-xunit \
-        ${nose_exclude_files[@]} ${nose_exclude_tests[@]} \
-        tempest
-
-    nosetests --verbose --attr=type=smoke  --with-xunit \
-        ${nose_exclude_files[@]} ${nose_exclude_tests[@]} \
-        tempest || true
-    return 0
-}
-
-tempest.nose_test_single() {
-    local tempest_test_name=${1:-""}
- 
-    export NOSE_WITH_OPENSTACK=1
-    export NOSE_OPENSTACK_COLOR=1
-    export NOSE_OPENSTACK_RED=15.00
-    export NOSE_OPENSTACK_YELLOW=3.00
-    export NOSE_OPENSTACK_SHOW_ELAPSED=1
-    export NOSE_OPENSTACK_STDOUT=1
-    export TEMPEST_PY26_NOSE_COMPAT=1
-
-    echo nosetests --verbose --attr=type=smoke  --with-xunit \
-        $tempest_test_name
-
-    nosetests --verbose --attr=type=smoke  --with-xunit \
-        $tempest_test_name || true
-    return 0
-}
-
 tempest.testr() {
     echo "Running testr ... "
     local skip_list=${!1:-}
@@ -161,15 +107,8 @@ tempest.run_smoketest() {
 
     local py_version=$(python --version 2>&1)
 
-    #tests.scenario.test_network_basic_ops works w/ nosetest
-    # on python2.6/7 where testr does not. 
-    # moving this to only use nosetest atm.
-    if [[ $py_version =~ "2.6" &&  -z $tempest_test_name ]]; then
-        tempest.nose_test  exclude_files[@] exclude_tests[@]
-    elif [[ $py_version =~ "2.7" &&  -z $tempest_test_name ]]; then
+    if [[ $py_version =~ "2.7" &&  -z $tempest_test_name ]]; then
         tempest.testr  exclude_files[@] exclude_tests[@]
-    elif [[ $py_version =~ "2.6" &&  -n $tempest_test_name ]]; then
-        tempest.nose_test_single $tempest_test_name
     elif [[ $py_version =~ "2.7" &&  -n $tempest_test_name ]]; then
         tempest.testr_single $tempest_test_name
     else
