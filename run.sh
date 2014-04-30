@@ -12,6 +12,17 @@ collect_logs() {
   execute $cmdline
 }
 
+snapshot() {
+  local cmdline="ansible-playbook -v -i local_hosts  \
+    playbooks/snapshot.yml \
+      --extra-vars @settings.yml  \
+        --extra-vars @nodes.yml  \
+          --extra-vars @job_settings.yml  \
+            --tags=snapshot"
+  [[ -n ${REMOTE_USER:-''} ]] && cmdline+=" -u $REMOTE_USER -s"
+  execute $cmdline
+}
+
 
 main() {
     local default_playbook='aio.yml'
@@ -77,10 +88,12 @@ main() {
 
     # collect logs only if the settings are proper
     on_exit collect_logs
+    if ${TAKE_SNAPSHOT:-false}; then
+        on_exit snapshot
+    fi
     execute $cmdline
 }
 
 # requires a 0 exit code for clean.sh to execute
 on_exit init.print_result
 main "$@" || true
-
