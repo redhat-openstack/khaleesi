@@ -113,3 +113,11 @@
     - { role: rdopkg/postinstall, tags: ["rdoupdate"] }
 
 - include: tempest.yml
+
+- name: SELINUX error check
+  hosts: all:!localhost:!tempest
+  roles:
+    - { role: selinux_check }
+  tags:
+    - provision
+
