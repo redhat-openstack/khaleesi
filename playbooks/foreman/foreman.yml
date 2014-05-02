@@ -58,6 +58,11 @@
   roles:
     - { role: foreman/openstack-node-common }
     - { role: foreman/openstack-node }
+    - { role: workarounds/glance-table-utf8,
+         tags: workaround,
+         when: workaround_glance_table_utf8 is defined
+               and workaround_glance_table_utf8
+      }
   tags:
     - install_nodes
 
