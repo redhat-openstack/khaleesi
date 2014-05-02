@@ -1,0 +1,15 @@
+---
+- name: Install, configure and start Sahara service
+  hosts: controller:&sahara
+  roles:
+    - { role: openstack/sahara }
+  tags:
+    - sahara
+
+- name: Install and configure Sahara Dashboard
+  hosts: controller:&sahara
+  roles:
+    - { role: openstack/sahara/dashboard }
+  tags:
+    - sahara
+

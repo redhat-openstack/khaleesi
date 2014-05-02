@@ -1,0 +1,26 @@
+---
+- name: sahara | dashboard | is installed
+  yum: name=python-django-sahara state=installed
+  tags: sahara
+
+- name: sahara | dashboard | is configured (settings, HORIZON_CONFIG)
+  lineinfile: dest=/usr/share/openstack-dashboard/openstack_dashboard/settings.py
+              backrefs=yes regexp="^[ ]+('dashboards'.*)\),"
+              line="\1 'sahara'),"
+  tags: sahara
+
+- name: sahara | dashboard | is configured (settings, INSTALLED_APPS)
+  lineinfile: dest=/usr/share/openstack-dashboard/openstack_dashboard/settings.py
+              insertafter="^INSTALLED_APPS = \["
+              line="    'saharadashboard',"
+  tags: sahara
+
+- name: sahara | dashboard | is configured (local_settings)
+  lineinfile: dest=/etc/openstack-dashboard/local_settings
+              insertafter=EOF
+              line="SAHARA_USE_NEUTRON = {{os_network_type == 'neutron'}}"
+  tags: sahara
+
+- name: sahara | dashboard | is running (restarted)
+  service: name=httpd state=restarted
+  tags: sahara

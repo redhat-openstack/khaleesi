@@ -1,0 +1,18 @@
+[DEFAULT]
+os_admin_username = {{ sahara_username }}
+os_admin_password = {{ sahara_password }}
+os_admin_tenant_name = {{ sahara_tenant_name }}
+os_auth_protocol = http
+os_auth_port = 5000
+os_auth_host = {{ controller_ip }}
+use_neutron = {% if os_network_type == "neutron" %}true{% else %}false{% endif %}
+
+
+[database]
+connection = mysql://sahara:saharadb@{{ database_host }}/sahara?charset=utf8
+
+[keystone_authtoken]
+admin_user = {{ sahara_username }}
+admin_password = {{ sahara_password }}
+admin_tenant_name = {{ sahara_tenant_name }}
+auth_uri = http://{{ controller_ip }}:5000/
