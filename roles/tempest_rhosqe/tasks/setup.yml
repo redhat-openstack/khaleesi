@@ -1,0 +1,56 @@
+
+- name: Install rpm dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - gcc
+    - git
+    - libffi-devel
+    - libxml2-devel
+    - libxslt-devel
+    - openssl-devel
+    - python-glanceclient
+    - python-keystoneclient
+    - python-neutronclient
+    - python-novaclient
+    - python-pip
+    - python-virtualenv
+    - wget  # needed by preparation scripts to get the guest image
+
+- name: Git clone Tempest repo
+  git: repo={{ tempest_rhosqe.repo }} version={{ tempest_rhosqe.revision }}
+    dest={{ tempest_rhosqe.dir }}
+
+- name: Create Tempest virtualenv
+  command: python tools/install_venv.py
+    chdir={{ tempest_rhosqe.dir }} creates={{ tempest_rhosqe.dir }}/.venv
+  retries: 3
+
+- name: Install pip requirements from tempest/requirements.txt
+  pip: requirements={{ tempest_rhosqe.dir }}/requirements.txt
+    virtualenv={{ tempest_rhosqe.dir }}/.venv
+
+- name: Install additional pip requirements
+  pip: name={{ item }}
+    virtualenv={{ tempest_rhosqe.dir }}/.venv
+  with_items:
+    - python-subunit
+    - junitxml  # for converting the subunit results into xml
+
+
+# This Tempest configuration tools is currently internal to RedHat, but will be
+# soon replaced by the tempest config script - it's here only temporarily,
+# because it's better tested than the new public configuration script and we
+# want to compare their results.
+#
+# It requires that Tempest is on the same node as the controller and that
+# Tempest is in '/root/tempest'.
+
+- name: Git clone Red Hat machine-tools repo (internal)
+  git: repo={{ machinetools.repo }} version={{ machinetools.revision }}
+    dest={{ machinetools.dir }}
+
+- name: Run machine-tools tempest preparation
+  command: "{{ machinetools.dir }}/bin/rhosqe-tempest-2-prepare"
+  environment:
+    NET_CMD: neutron
+    SKIP_BOTO: yes

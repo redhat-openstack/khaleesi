@@ -1,0 +1,39 @@
+
+- name: Remove old test results
+  file: path={{ tempest_rhosqe.dir }}/{{ item }} state=absent
+  with_items:
+    - .testrepository
+    - nosetests.xml
+
+
+- name: Get list of tests without skipping any
+  shell: "cd {{ tempest_rhosqe.dir }} && source .venv/bin/activate &&
+          testr list-tests {{ tempest_rhosqe.test_name }}
+          | grep '^tempest'
+          | tee test_list"
+  when: not tempest_rhosqe.skip
+
+- name: Get list of tests and filter out the ones that should be skipped
+  shell: "cd {{ tempest_rhosqe.dir }} && source .venv/bin/activate &&
+          testr list-tests {{ tempest_rhosqe.test_name }}
+          | grep '^tempest'
+          | grep --invert-match -E '{{ tempest_rhosqe.skip | join('|') }}'
+          | tee test_list"
+  when: tempest_rhosqe.skip
+
+
+- name: Run Tempest
+  command: "{{ tempest_rhosqe.dir }}/run_tempest.sh
+            -V {{ tempest_rhosqe.dir }}/.venv/ --
+            --parallel --concurrency=3 --subunit
+            --load-list={{ tempest_rhosqe.dir }}/test_list tempest"
+  ignore_errors: True  # don't fail if some of the tests fail
+
+- name: Convert subunit results into xml
+  shell: "cd {{ tempest_rhosqe.dir }} && source .venv/bin/activate &&
+          < .testrepository/0 subunit-1to2
+          | subunit2junitxml --output-to=nosetests.xml;
+          test -f nosetests.xml"  # the conversion seems to always return 1
+
+- name: Fetch results
+  fetch: src={{ tempest_rhosqe.dir }}/nosetests.xml dest=nosetests.xml flat=yes
