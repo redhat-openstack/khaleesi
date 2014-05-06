@@ -284,6 +284,7 @@ class Settings(object):
     def add_keypath(self, keypath_string, values):
 
         if keypath_string not in self.keypaths:
+            logger.debug("Adding keypath " + str(keypath_string) + " to the keypaths cache of " + str(self))
             keypath = KeyPath(keypath_string, values=values, select_function=self.select_function)
             # ugly garbage collection
             # since python 2.6 does not support orderedDict a random key will
@@ -292,6 +293,7 @@ class Settings(object):
                 self.keypaths.popitem()
             self.keypaths[keypath_string] = keypath
         elif self.keypaths[keypath_string].value != values:
+            logger.debug("Changing value for cached keypath " + str(keypath_string) + "  of " + str(self) + " from " + str(self.keypaths))
             self.keypaths[keypath_string].set_value(values)
         self.keypaths[keypath_string].search_in(self.data)
 
@@ -648,7 +650,7 @@ class Build(object):
         distribution = self.settings.fetch('config.distribution')
         distrorelease = self.settings.fetch('config.distrorelease').replace('.', ':')
         product = self.settings.fetch('config.product')
-        productrelease = self.settings.fetch('config.distrorelease').replace('.', ':')
+        productrelease = self.settings.fetch('config.productrelease')
 
         keypaths = {
             'packstack_int': 'whayutin',
