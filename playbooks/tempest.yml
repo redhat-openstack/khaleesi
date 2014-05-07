@@ -39,11 +39,3 @@
   roles:
     - { role: tempest/run, tags: ["tempest_run"] }
 
-# The 'tempest_rhosqe' and 'tempest_setup,tempest_run' tags are mutually
-# exclusive. Since this setup requires that tempest runs from the controller,
-# we're using the 'controller' host and ignoring any extra tempest node.
-- name: Setup and run tempest using temporary Red Hat internal tools
-  hosts: controller
-  tags: tempest_rhosqe
-  roles:
-    - { role: tempest_rhosqe }

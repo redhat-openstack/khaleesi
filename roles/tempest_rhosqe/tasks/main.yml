@@ -1,2 +1,2 @@
-- include: setup.yml tags=tempest_rhosqe
-- include: run.yml tags=tempest_rhosqe
+- include: setup.yml
+- include: run.yml
