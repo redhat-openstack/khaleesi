@@ -1,3 +1,2 @@
 ---
 yum_update: yes
-yum_exludes: "syslinux*"

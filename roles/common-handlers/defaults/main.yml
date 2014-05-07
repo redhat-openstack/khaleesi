@@ -3,4 +3,4 @@ reboot_options: " ' Reboot is triggered by Ansible' "
 yum_update: yes
 
 # This is a space delimited list
-yum_excludes: ""
+yum_excludes: "syslinux*"
