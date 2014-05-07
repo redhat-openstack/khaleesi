@@ -1,2 +1,2 @@
 ---
-yum_update: yes
+yum_update: no
