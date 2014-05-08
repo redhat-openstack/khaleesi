@@ -671,7 +671,7 @@ class Build(object):
             'flavor_id': ('FLAVOR_ID', None, 'site.instances.flavors.default.id'),
             'flavor_name': ('FLAVOR_NAME', None, 'site.instances.flavors.default.name'),
             'floating_network_name': ('FLOATING_NETWORK_NAME', None, 'site.networks.floating.name'),
-            'tempest_image_id': ('TEMPEST_IMAGE_ID', None, 'site.images.tempest.id'),
+            'tempest_image_id': ('TEMPEST_IMAGE_ID', None, 'site.images.tempest.' + productrelease + '.id'),
             'tempest_flavor_id': ('TEMPEST_FLAVOR_ID', None, 'site.instances.flavors.tempest.id'),
             'tempest_flavor_name': ('TEMPEST_FLAVOR_NAME', None, 'site.instances.flavors.tempest.name'),
             'tempest_remote_user': ('TEMPEST_REMOTE_USER', None, 'site.images.tempest.remote-user'),
