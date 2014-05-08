@@ -674,7 +674,7 @@ class Build(object):
             'tempest_image_id': ('TEMPEST_IMAGE_ID', None, 'site.images.tempest.' + productrelease + '.id'),
             'tempest_flavor_id': ('TEMPEST_FLAVOR_ID', None, 'site.instances.flavors.tempest.id'),
             'tempest_flavor_name': ('TEMPEST_FLAVOR_NAME', None, 'site.instances.flavors.tempest.name'),
-            'tempest_remote_user': ('TEMPEST_REMOTE_USER', None, 'site.images.tempest.remote-user'),
+            'tempest_remote_user': ('TEMPEST_REMOTE_USER', None, 'site.images.tempest.' + productrelease + '.remote-user'),
             'foreman_image_id': ('FOREMAN_IMAGE_ID', None, 'site.images.foreman.id'),
             'foreman_flavor_id': ('FOREMAN_FLAVOR_ID', None, 'site.instances.flavors.foreman.id'),
             'foreman_flavor_name': ('FOREMAN_FLAVOR_NAME', None, 'site.instances.flavors.foreman.name'),
