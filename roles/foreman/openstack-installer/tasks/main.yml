@@ -56,6 +56,12 @@
     regexp='^read .*'
     state=absent
 
+- name: Remove 'include passenger' line from foreman_server.sh
+  lineinfile: >
+    dest=/usr/share/openstack-foreman-installer/bin/foreman_server.sh
+    regexp='^include passenger'
+    state=absent
+
 - name: Run the installer
   shell: >
     chdir=/usr/share/openstack-foreman-installer/bin
