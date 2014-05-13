@@ -1,6 +1,7 @@
 ---
 - name: Get nodes for log collection
   hosts: local
+  sudo: no
   gather_facts: False
   roles:
     - { role: get_nodes }
