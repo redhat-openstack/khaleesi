@@ -333,11 +333,11 @@ tempest:
 log_files:
   - /var/tmp/packstack
   - /root/
-  - /var/lib/tempest/etc/
-  - /var/lib/tempest/run.log
-  - /var/lib/tempest/tempest.log
-  - /var/lib/tempest/*.log
-  - /var/lib/tempest/*.xml
+  - "{{ tempest.checkout_dir }}/etc/"
+  - "{{ tempest.checkout_dir }}/run.log"
+  - "{{ tempest.checkout_dir }}/tempest.log"
+  - "{{ tempest.checkout_dir }}/*.log"
+  - "{{ tempest.checkout_dir }}/*.xml"
   - /var/log/
   - /etc/nova
   - /etc/ceilometer

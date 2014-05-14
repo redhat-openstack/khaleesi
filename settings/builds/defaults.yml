@@ -28,7 +28,7 @@ selinux: enforcing
 log_files:
     - /var/tmp/packstack
     - /root/packstack*
-    - /var/lib/tempest/*
+    - "{{ tempest.checkout_dir }}/*"
     - /var/log/
     - /etc/nova
     - /etc/ceilometer
