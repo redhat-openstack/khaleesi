@@ -1,3 +1,5 @@
+#!/bin/bash
+
 export TRIPLEO_ROOT={{ instack_user_home.stdout }}
 export CPU=1
 export MEM=2048
@@ -13,3 +15,7 @@ export NETWORK_CIDR="10.0.0.0/8"
 export FLOATING_IP_START="172.17.0.45"
 export FLOATING_IP_END="172.17.0.64"
 export FLOATING_IP_CIDR="172.17.0.0/16"
+export COMPUTESCALE=${COMPUTESCALE:-1}
+export BLOCKSTORAGESCALE=${BLOCKSTORAGESCALE:-1}
+export SWIFTSTORAGESCALE=${SWIFTSTORAGESCALE:-1}
+

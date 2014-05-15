@@ -1,0 +1,11 @@
+---
+- include: package-dependencies.yml
+- include: user.yml
+
+- name: prepare fedora machine
+  template: src=fedora-prep.j2
+            dest=/root/fedora-prep
+            mode=0755
+
+- name: run fedora-prep script
+  command: ./fedora-prep {{ instack_user }}
