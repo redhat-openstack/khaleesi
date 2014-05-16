@@ -1,0 +1,94 @@
+---
+- name: create random string
+  shell: echo $RANDOM
+  register: random
+
+- name: print random
+  debug: var=random.stdout_lines.0
+
+- name: set random number as a fact
+  set_fact:
+    tempest_random: "{{ validate_instance_name }}_{{ random.stdout_lines.0 }}"
+
+- name: list available cirros image
+  shell: "source /root/keystonerc_demo; nova image-list | grep cirros | awk '{ print $2 }'"
+  register: cirros
+
+- name: print result of nova image-list
+  debug: var=cirros.stdout_lines.0
+
+# Creates a new key pair and the private key returned after the run
+- name: create keypair
+  nova_keypair:
+      state=present
+      auth_url={{ keystone_endpoint }}
+      login_username={{ demo_username }}
+      login_password={{ demo_password }}
+      login_tenant_name={{ demo_tenant_name }}
+      name={{ tempest_random }}
+  register: keypair
+
+- name: Capture private ssh key
+  debug: var=keypair.key
+
+- name: cp private ssh key to host
+  shell: 'echo "{{ keypair.key }}" > /root/"{{ tempest_random }}"'
+
+- name: set the file attributes on the ssh key
+  file: path=/root/"{{ tempest_random }}"
+        owner=root
+        group=root
+        mode=0600
+
+# Creates a new VM and attaches to a network and passes metadata to the instance
+- name: create instance for validation test
+  nova_compute:
+       state=present
+       auth_url={{ keystone_endpoint }}
+       login_username={{ demo_username }}
+       login_password={{ demo_password }}
+       login_tenant_name={{ demo_tenant_name }}
+       name={{ tempest_random }}
+       image_id={{ cirros.stdout_lines.0 }}
+       key_name={{ tempest_random }}
+       wait_for=200
+       flavor_id=1
+
+# Assign a floating ip to the instance from an external network
+- name: assign a floating ip to the instance
+  quantum_floating_ip:
+      state=present
+      auth_url={{ keystone_endpoint }}
+      login_username={{ demo_username }}
+      login_password={{ demo_password }}
+      login_tenant_name={{ demo_tenant_name }}
+      network_name={{ public_net_name }}
+      instance_name={{ tempest_random }}
+      internal_network_name={{ private_net_name }}
+  register: floating_ip
+
+- name: print floating ip address
+  debug: var=floating_ip.public_ip
+
+- name: Pause to let the instance boot
+  pause: seconds=30
+
+- name: ping instance public ip from controller
+  command: ping -c 5 "{{ floating_ip.public_ip }}"
+  retries: 3
+  until: ping_result.rc == 0
+  register: ping_result
+
+- name: print ping output
+  debug: var=ping_result.stdout_lines
+
+- name: ssh to instance
+  shell: ssh
+           -o StrictHostKeyChecking=no
+           -o PasswordAuthentication=no
+           -i /root/"{{ tempest_random }}"
+           cirros@"{{ floating_ip.public_ip }}" uname -a
+  register: ssh_result
+
+- name: print result of ssh
+  debug: var=ssh_result.stdout_lines

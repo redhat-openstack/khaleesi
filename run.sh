@@ -23,8 +23,19 @@ snapshot() {
   execute $cmdline
 }
 
+validate_openstack() {
+  local cmdline="ansible-playbook -v -s -i local_hosts  \
+             playbooks/validate_openstack.yml \
+             --extra-vars @settings.yml   \
+             --extra-vars @nodes.yml "
+
+  [[ -n ${SKIP_TAGS:-''} ]] && cmdline+=" --skip-tags ${SKIP_TAGS#--skip_tags}"
+  execute $cmdline
+}
+
 
 main() {
+    echo "VALIDATE_OPENSTACK: " $VALIDATE_OPENSTACK
     local default_playbook='aio.yml'
 
     if [ ! -e nodes.yml ]; then
@@ -84,6 +95,10 @@ main() {
     if $khaleesi_verbose || $khaleesi_ssh_verbose; then
         cmdline+=" -v"
         $khaleesi_ssh_verbose && cmdline+="vvv"
+    fi
+
+    if ${VALIDATE_OPENSTACK:-false};then
+        on_exit validate_openstack
     fi
 
     # collect logs only if the settings are proper
