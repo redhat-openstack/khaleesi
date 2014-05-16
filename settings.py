@@ -443,6 +443,7 @@ class Job(object):
             "production": "prod",
             "stage": "sta",
             "testing": "test",
+            "poodle": "po",
         },
         "distribution": {
             "centos": "C",
