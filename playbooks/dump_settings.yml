@@ -11,9 +11,16 @@
       register: khaleesi_root_dir
 
     - name: dump settings | print khaleesi root dir
-      debug: msg="khaleesi root dir {{ khaleesi_root_dir.stdout }}"
+      debug:
+        msg: "khaleesi root dir: {{ khaleesi_root_dir.stdout }}"
+
+    - name: dump settings | set filename
+      set_fact: run_settings_file="{{ run_settings_file | default('run_settings.yml') }}"
 
     - name: dump settings | store settings to khaleesi dir
       template: src=dump_settings.j2
-          dest="{{khaleesi_root_dir.stdout}}/build_settings.yml"
+          dest="{{khaleesi_root_dir.stdout}}/{{run_settings_file}}"
+    - name: dump settings |  location of settings used for this run
+      debug:
+        msg: "Build settings path: {{khaleesi_root_dir.stdout}}/{{run_settings_file}}"
 
