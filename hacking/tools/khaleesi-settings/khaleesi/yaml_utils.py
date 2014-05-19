@@ -12,6 +12,7 @@ non-standard YAML code.
 To use yaml.safe_dump(), you need the following.
 """
 
+from configure import Configuration
 import yaml
 
 
@@ -25,6 +26,12 @@ def to_yaml(header, x):
         "header": header,
         "yml": yaml.safe_dump(x, default_flow_style=False)
     }
+
+
+@Configuration.add_constructor('join')
+def _join_constructor(loader, node):
+    seq = loader.construct_sequence(node)
+    return ''.join([str(i) for i in seq])
 
 
 def represent_odict(dump, tag, mapping, flow_style=None):
