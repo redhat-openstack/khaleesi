@@ -1,0 +1,75 @@
+---
+
+- name: install sshpass for virtual-power-key copy
+  yum: name=sshpass state=present
+  sudo_user: root
+  sudo: yes
+
+- name: check virtual-power-key exists
+  shell: " [ -e {{ instack_user_home.stdout }}/virtual-power-key.pub ]"
+  register: virtual_power_key_present
+
+- name: create the virtual-power-key
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    ssh-keygen -t rsa -N '' -C virtual-power-key -f virtual-power-key
+  when: virtual_power_key_present == ""
+
+- name: copy the virtual-power-key to the virt host
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    sshpass -p {{ instack_user }} ssh-copy-id -i virtual-power-key.pub {{ instack_user }}@192.168.122.1
+  ignore_errors: true
+  when: virtual_power_key_present == ""
+
+- name: enable the rdo-release repository
+  yum: pkg={{ rdo_release_pkg }}
+  sudo_user: root
+  sudo: yes
+
+- name: install instack-undercloud
+  yum: name=instack-undercloud state=latest
+  sudo_user: root
+  sudo: yes
+
+- name: check answers file exists
+  shell: "[ -e /usr/share/doc/instack-undercloud/instack-virt.answers.sample ]"
+  register: answers_file_present
+  changed_when: false
+  failed_when: false
+
+- name: copy virt answers file
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    cp /usr/share/doc/instack-undercloud/instack-virt.answers.sample {{ instack_user_home.stdout }}/instack.answers
+
+- name: check if install undercloud has been run
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    [ -e .instack/install-undercloud.log ]
+  register: instack_log_present
+  ignore_errors: true
+
+- name: run script to install undercloud
+  register: instack_undercloud_result
+  command:  chdir={{ instack_user_home.stdout }} instack-install-undercloud-packages
+  when: instack_log_present == ""
+
+- name: search output for complete status
+  shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'instack-install-undercloud-packages complete'"
+  register: grep_output
+
+- name: report failure if install is not complete
+  fail: msg="report error"
+  when: grep_output.stdout == ""
+
+- name: copy stackrc file
+  shell: "cp /root/stackrc {{ instack_user_home.stdout }}"
+  sudo_user: root
+  sudo: yes
+
+- name: copy tripleo-undercloud-passwords file
+  shell: "cp /root/tripleo-undercloud-passwords {{ instack_user_home.stdout }}"
+  sudo_user: root
+  sudo: yes
+

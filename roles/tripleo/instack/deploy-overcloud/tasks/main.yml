@@ -1,25 +1,46 @@
 ---
 
 - name: prepare for overcloud
-  shell:
-    "cd {{ instack_user_home.stdout }};
-     export IMG_SOURCE_URL={{ image_src_dir }};
-     instack-prepare-for-overcloud"
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    source {{ instack_user_home.stdout }}/stackrc;
+    export IMG_SOURCE_URL={{ image_src_dir }};
+    instack-prepare-for-overcloud
 
-- name: copy template file with environment variables
+- name: check if virtual-power-key exists
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    cat instack.answers | grep 'virtual-power-key'
+  register: virtual_power_key_present
+  ignore_errors: true
+
+- name: copy template file with virt environment variables
   template:
-    src=deployrc.j2
+    src=deploy-overcloudrc-virt.j2
     dest={{ instack_user_home.stdout }}/deploy-overcloudrc
     mode=0755
-  sudo_user: "{{ instack_user  }}"
-  sudo: yes
+  when: virtual_power_key_present.stdout != ""
+
+- name: copy template file with baremetal environment variables
+  template:
+    src=deploy-overcloudrc-baremetal.j2
+    dest={{ instack_user_home.stdout }}/deploy-overcloudrc
+    mode=0755
+  when: virtual_power_key_present.stdout == ""
+
 
 - name: run script to deploy overcloud from packages
-  shell:
-    "cd {{ instack_user_home.stdout }};
-     source {{ instack_user_home.stdout }}/deploy-overcloudrc;
-     source {{ instack_user_home.stdout }}/tripleo-undercloud-passwords;
-     instack-deploy-overcloud-tuskarcli"
-  sudo_user: "{{ instack_user  }}"
-  sudo: yes
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    source {{ instack_user_home.stdout }}/stackrc;
+    source {{ instack_user_home.stdout }}/deploy-overcloudrc;
+    source {{ instack_user_home.stdout }}/tripleo-undercloud-passwords;
+    instack-deploy-overcloud-tuskarcli
 
+- name: check 'heat stack-list'
+  shell: "source { instack_user_home.stdout }}/stackrc; heat stack-list | grep 'COMPLETE'"
+  register: heat_stack_list_result
+
+- name: test for 'COMPLETE'
+  fail: msg="overcloud error"
+  when: heat_stack_list_result.stdout == ""

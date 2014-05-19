@@ -4,3 +4,5 @@
   shell: "su - {{ instack_user }} -c 'echo -n $HOME'"
   register: instack_user_home
   changed_when: false
+  sudo_user: root
+  sudo: yes

@@ -1,17 +1,4 @@
 ---
-- name: install undercloud, deploy overcloud and test
-  hosts: instack
-  roles:
-    - { role: tripleo/instack/instack-undercloud }
-    - { role: tripleo/instack/deploy-overcloud }
-    - { role: tripleo/instack/test-overcloud}
-  tags: undercloud-deploy-test
-
-- name: install undercloud
-  hosts: instack
-  roles:
-    - { role: tripleo/instack/instack-undercloud }
-  tags: undercloud-only
 
 - name: setup virt environment for undercloud install
   hosts: instack
@@ -22,19 +9,29 @@
   tags: virt-setup
 
 - name: install undercloud on vm
-  hosts: instack_vm
+  hosts: instack-vm
   remote_user: "{{ instack_user }}"
   roles:
-  #  - { role: tripleo/instack/instack-undercloud-virt}
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-virt}
   tags: undercloud-virt-only
 
 - name: deploy and test overcloud
-  hosts: instack
+  hosts: instack-vm
   roles:
     - { role: tripleo/instack/common }
     - { role: tripleo/instack/deploy-overcloud }
     - { role: tripleo/instack/test-overcloud}
   tags: deploy-test-overcloud
+
+- name: install undercloud, deploy overcloud and test on a virt system
+  hosts: instack-vm
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-virt }
+    - { role: tripleo/instack/deploy-overcloud }
+    - { role: tripleo/instack/test-overcloud}
+  tags: undercloud-deploy-test-virt
 
 - name: update overcloud images
   hosts: instack
