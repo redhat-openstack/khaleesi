@@ -1,5 +1,7 @@
 ---
-public_subnet_cidr: 192.168.201.0/24
+#packstack aio requires public_subnet_cidr to be hostvars[controller_name]
+#multinode and foreman env this would be. hostvars[compute_name]
+public_subnet_cidr:  "{{ hostvars[controller_name].public_network_cidr }}"
 public_net_name: public
 public_subnet_name: public_sub
 public_allocation_start: 192.168.201.200

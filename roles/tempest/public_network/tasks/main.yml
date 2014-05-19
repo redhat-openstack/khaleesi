@@ -1,0 +1,20 @@
+---
+- name: Ensure br-ex is up
+  service: name=network state=restarted args=br-ex
+
+- name: Ensure ipcalc tool is available
+  yum: name=initscripts state=latest
+
+- name: Calculate the CIDR of the public network mask
+  shell: "ipcalc -p {{ public_net }} {{ public_mask }} | cut -d = -f 2"
+  register: public_netmask_cidr
+
+- name: Print the CIDR of the public network mask
+  debug: var=public_netmask_cidr.stdout_lines.0
+
+- name: Set ansible facts about public network
+  set_fact:
+    public_network_cidr: "{{ public_net }}/{{public_netmask_cidr.stdout_lines.0 }}"
+
+- name: Display public network CIDR
+  debug: var=hostvars[inventory_hostname].public_network_cidr
