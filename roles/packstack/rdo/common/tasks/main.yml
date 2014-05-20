@@ -11,6 +11,7 @@
 
  ## for e.g: baseurl={{ rdo.icehouse.production.repo.fedora }} ##
 - debug: msg="Setting baseurl to {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"         #"
+  when: ( "{{ config.repo }}" != 'distribution' )
 
 - name: "Diff  rdo stage, production repos"
   shell: repodiff --old={{ repo_production }} --new={{ repo_stage }} | tee /var/log/rdo_stage_prod_repo.txt
