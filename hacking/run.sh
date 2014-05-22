@@ -93,20 +93,23 @@ generate_build_settings() {
    $SILENT || cat_file $RUN_SETTINGS_FILE
 }
 
+
 validate_args() {
     # usage
     $SHOW_USAGE && usage 0      # if  --help show usage and exit 0
 
     # validation
     [ -z ${SETTINGS_FILE+xxx} ] && {
-        echo "Error: No settings file passed"
+        log_error "No ${RED}settings${NORMAL} file passed: \
+        did you forget ${BLUE}${BOLD}--use$NORMAL ?"
         usage   # exit 1 if no settings file
     }
 
     # no playbook and is not trying to generate
     # run_settings
     [ -z ${PLAYBOOK+xxx} ] && ! ${ONLY_RUN_SETTINGS_CREATION} &&  {
-        echo "Error: No playbook file passed"
+        log_error "No playbook file passed: \
+        no $BLUE${BOLD}*.yml$NORMAL found in args "
         usage
      }
 }
