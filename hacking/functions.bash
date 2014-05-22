@@ -9,6 +9,17 @@ declare -r SCRIPT_CMD="$0"
 declare -r SCRIPT_PATH=$(readlink -f "$0")
 declare -r SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
 
+declare -r RED='\e[31m'
+declare -r GREEN='\e[32m'
+declare -r YELLOW='\e[33m'
+declare -r BLUE='\e[34m'
+declare -r BOLD='\e[1m'
+declare -r NORMAL='\e[0m'
+
+log_error() {
+    echo -e "$RED${BOLD}Error:$NORMAL" "$@"
+}
+
 debug.print_callstack() {
     local i=0;
     local cs_frames=${#BASH_SOURCE[@]}
