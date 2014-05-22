@@ -1,0 +1,33 @@
+---
+- include: packages.yml
+- include: user.yml
+
+- name: clone instack-undercloud
+  git: dest="{{ instack_user_home.stdout }}/instack-undercloud"
+       repo=https://github.com/slagle/instack-undercloud
+       update=no
+
+- name: clone instack
+  git: dest="{{ instack_user_home.stdout }}/instack"
+       repo=https://github.com/slagle/instack
+       update=no
+
+- name: tripleo directory owned by instack user
+  file: path={{ instack_user_home.stdout }}
+        owner={{ instack_user }}
+        group={{ instack_user }}
+        recurse=yes
+
+- name: copy baremetal answers file
+  template: src=instack.answers.j2
+            dest="{{ instack_user_home.stdout }}/instack-undercloud/instack.answers"
+
+- name: install the undercloud
+  register: instack_undercloud_result
+  command: chdir={{ instack_user_home.stdout }} instack-undercloud/scripts/install-undercloud
+
+- name: fail undercloud install
+  command: grep 'install-undercloud Complete!' {{ ansible_env.HOME }}/.instack/install-undercloud.log
+  register: grep_output
+  when: !grep_output
+

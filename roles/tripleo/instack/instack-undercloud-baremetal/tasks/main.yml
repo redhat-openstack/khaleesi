@@ -1,0 +1,48 @@
+---
+
+- name: enable the openstack-m repository
+  yum: name="{{ rdo[ config.version ].instack_release_rpm[ ansible_distribution ] }}" state=present #"
+  when: ansible_distribution == 'Fedora'
+
+- name: install instack-undercloud
+  yum: name=instack-undercloud state=latest
+
+- name: check answers file exists
+  shell: "[ -e /usr/share/doc/instack-undercloud/instack-baremetal.answers.sample]"
+  register: answers_file_present
+  changed_when: false
+  failed_when: false
+
+- name: copy baremetal answers file
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    cp /usr/share/doc/instack-undercloud/instack-baremetal.answers.sample {{ instack_user_home.stdout }}/instack.answers
+  sudo_user: "{{ instack_user }}"
+  sudo: yes
+
+- name: check if install undercloud has been run
+  shell: "[ -e {{ instack_user_home.stdout }}/.instack/install-undercloud.log ]"
+  register: instack_log_present
+  ignore_errors: true
+
+- name: run script to install undercloud
+  register: instack_undercloud_result
+  command:  chdir={{ instack_user_home.stdout }} install-undercloud-packages
+  sudo_user: "{{ instack_user }}"
+  sudo: yes
+  when: instack_log_present == ""
+
+- name: search output for complete status
+  shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'install-undercloud Complete!'"
+  register: grep_output
+
+- name: report failure if install is not complete
+  fail: msg="report error"
+  when: grep_output.stdout == ""
+
+- name: copy stackrc file
+  shell: "cp /root/stackrc {{ instack_user_home.stdout }}"
+
+- name: copy tripleo-undercloud-passwords file
+  shell: "cp /root/tripleo-undercloud-passwords {{ instack_user_home.stdout }}"
+
