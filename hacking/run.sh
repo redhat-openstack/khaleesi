@@ -27,6 +27,7 @@ Options:
    --no-create-run-settings     skip dumping the settings
    --run-settings-file FILE     file to dump settings used when running the playbook
    --silent                     show only minimal details, skips showing files
+   --dry-run                    Only print the commands that would be executed
 
 Creating settings file:
    use khaleesi-settings utility to generate settings file
@@ -53,6 +54,7 @@ parse_args() {
         --run-settings-file)  RUN_SETTINGS_FILE=$2; shift 2 ;;
         --no-create-run-settings)  SKIP_RUN_SETTINGS_CREATION=true; shift ;;
         --only-create-run-settings)  ONLY_RUN_SETTINGS_CREATION=true; shift ;;
+        --dry-run)  DRY_RUN=true; shift ;;
         *.yml)  PLAYBOOK=$1;  shift ;;
         *) ARGS_FOR_ANSIBLE+=" $1"; shift ;;   # pass anything that run.sh
                                                # doesn't need to ansible
@@ -126,6 +128,7 @@ main() {
     ONLY_RUN_SETTINGS_CREATION=false
     ARGS_FOR_ANSIBLE=""
     SILENT=false
+    DRY_RUN=false
 
     $SILENT || on_exit init.print_result
     parse_args "$@"
