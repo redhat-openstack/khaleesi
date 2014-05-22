@@ -52,10 +52,10 @@ parse_args() {
         --no-logs)      COLLECT_LOGS=false; shift 1 ;;
         --take-snapshot)      TAKE_SNAPSHOT=true; shift ;;
         --run-settings-file)  RUN_SETTINGS_FILE=$2; shift 2 ;;
-        --no-create-run-settings)  SKIP_RUN_SETTINGS_CREATION=true; shift ;;
+        --no-create-run-settings)    SKIP_RUN_SETTINGS_CREATION=true; shift ;;
         --only-create-run-settings)  ONLY_RUN_SETTINGS_CREATION=true; shift ;;
         --dry-run)  DRY_RUN=true; shift ;;
-        *.yml)  PLAYBOOK=$1;  shift ;;
+        *.yml)      PLAYBOOK=$1;  shift ;;
         *) ARGS_FOR_ANSIBLE+=" $1"; shift ;;   # pass anything that run.sh
                                                # doesn't need to ansible
         esac
@@ -78,7 +78,7 @@ ansible_playbook() {
 
     if $KHALEESI_VERBOSE || $KHALEESI_SSH_VERBOSE; then
         cmdline+=" -v"
-        $khaleesi_ssh_verbose && cmdline+="vvv"
+        $KHALEESI_SSH_VERBOSE && cmdline+="vvv"
     fi
 
     export ANSIBLE_FORCE_COLOR=true
@@ -117,11 +117,12 @@ validate_args() {
 }
 
 main() {
-    # global defaults
+    # set global defaults
+    KHALEESI_VERBOSE=${KHALEESI_VERBOSE:-false}
+    KHALEESI_SSH_VERBOSE=${KHALEESI_SSH_VERBOSE:-false}
+
     SHOW_USAGE=false
     COLLECT_LOGS=true
-    KHALEESI_VERBOSE=false
-    KHALEESI_SSH_VERBOSE=false
     TAKE_SNAPSHOT=false
     RUN_SETTINGS_FILE='run_settings.yml'
     SKIP_RUN_SETTINGS_CREATION=false
