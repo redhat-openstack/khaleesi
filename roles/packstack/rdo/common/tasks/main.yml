@@ -10,25 +10,16 @@
     - Yum clean all
 
  ## for e.g: baseurl={{ rdo.icehouse.production.repo.fedora }} ##
-- debug: msg="Setting baseurl to {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version|int] }}"         #"
-  when: ( "{{ config.repo }}" != 'distribution' )
+- debug: msg="Setting baseurl to {{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version] }}"
+  when: config.repo != 'distribution'
 
-- name: "Diff  rdo stage, production repos"
-  shell: repodiff --old={{ repo_production }} --new={{ repo_stage }} | tee /var/log/rdo_stage_prod_repo.txt
+- name: Find diff between current repo {{ config.repo }} and production
+  shell: repodiff --old={{ repo_production }} --new={{ repo_current }} | tee /var/log/rdo_stage_prod_repo.txt
   register: result
-  when:  config.repo == 'production' or config.repo == 'stage'
+  when:  config.repo != 'production'
   ignore_errors: yes
 
-- name: print diff of rdo stage and production repositories
+- name: print diff between current repo {{ config.repo }} and production repo
   debug: var=result.stdout_lines
-  when:  config.repo == 'production' or config.repo == 'stage'
+  when:  config.repo != 'production'
 
-- name: "Diff  rdo testing, stage repos"
-  shell: repodiff --old={{ repo_stage }} --new={{ repo_testing }} | tee /var/log/rdo_test_stage_repo.txt
-  register: result
-  when: config.repo == 'testing'
-  ignore_errors: yes
-
-- name: print diff of rdo stage and production repositories
-  debug: var=result.stdout_lines
-  when: config.repo == 'testing'
