@@ -61,22 +61,34 @@ Options:
     extra_vars = _extract_value_for_option(
         parsed, '--extra-vars', must_exist=False)
 
-    # get all args and convert that to
-    # directory: filename
-    # provision: rdo
-    # rdo/version: icehouse.
+    # create the settings tree and preserve the order in which arguments
+    # are passed.  Convert all args into an ordered tree so that
+    # --foo fooz  --too moo --foo-bar baaz  --foo-arg vali
+    # will be like the ordered tree below
+    # foo:
+    #   <special-key>: fooz
+    #   bar:       ###  <-- foo-bar is not foo/bar
+    #     <special-key>: baaz
+    #   arg:       ###  <-- arg comes after bar
+    #     <special-key>: val
+    # too:
+    #   <special-key>: moo
+
     settings_tree = OrderedTree(delimiter='-')
-    for k, v in parsed.items():
-        if not v:
+    # filter only options; [ --foo, fooz, --bar baz ] -> [--foo, --bar]
+    options = [x for x in args if x.startswith('--')]
+
+    for option in options:   # iterate options to preserve order of args
+        value = parsed.get(option)
+        if not value:
             continue
-        #  delete the leading --
-        key = k[2:] + '-' + settings.value_indicator_key
-        settings_tree[key] = v
-        logging.debug("%s: %s", key, v)
+
+        key = option[2:] + '-' + settings.value_indicator_key
+        settings_tree[key] = value
+        logging.debug("%s: %s", key, value)
 
     logging.debug(yaml_utils.to_yaml(
         "Directory structure from args:", settings_tree))
-
     loader = settings.Loader(config_dir, settings_tree)
     _update_extra_vars(extra_vars, loader)
     all_settings = loader.settings_tree()
@@ -84,7 +96,7 @@ Options:
         all_settings, default_flow_style=False))
     logging.info("Writing to file: %s", output_file)
     with open(output_file, 'w') as out:
-        out.write(yaml.safe_dump(all_settings))
+        out.write(yaml.safe_dump(all_settings, default_flow_style=False))
 
 
 def _extract_value_for_option(mapping, key, default=None, must_exist=True):
