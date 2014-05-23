@@ -1,16 +1,16 @@
 from setuptools import setup, find_packages
 from os.path import join, dirname, abspath
-import khaleesi
+import ksgen
 
 
 prj_dir = dirname(abspath(__file__))
 setup(
-    name='khaleesi-settings',
-    version=khaleesi.__VERSION__,
+    name='ksgen',
+    version=ksgen.__VERSION__,
     packages=find_packages(),
     long_description=open(join(prj_dir, 'README.rst')).read(),
     entry_points={
-        'console_scripts': ['khaleesi-settings = khaleesi.core:main']
+        'console_scripts': ['ksgen = ksgen.core:main']
     },
     install_requires=[
         'docopt',

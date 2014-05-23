@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-"""khaleesi-settings generates settings based on the settings directory.
+"""ksgen generates settings based on the settings directory.
 
  Usage:
-    khaleesi-settings -h | --help
-    khaleesi-settings [options] --config-dir=<PATH> <command> [<args> ...]
+    ksgen -h | --help
+    ksgen [options] --config-dir=<PATH> <command> [<args> ...]
 
  Options:
     --log-level=<log-level>     Log levels: debug, info, warning
