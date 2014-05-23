@@ -15,7 +15,7 @@
         tags: ['tempest_setup']}
 
 - { include: setup-tempest-use-rpm.yml,  #"
-        tempest_rpm_repo: "{{ repo.tempest[ansible_distribution][ansible_distribution_version|int] }}",
+        tempest_rpm_repo: "{{ repo.tempest[ansible_distribution][ansible_distribution_version] }}",
         when: "tempest.setup_method == 'tempest/rpm'",
         tags: ['tempest_setup'] }
 
