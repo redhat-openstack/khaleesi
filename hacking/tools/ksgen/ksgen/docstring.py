@@ -1,4 +1,8 @@
-from collections import OrderedDict
+try:
+    from collections import OrderedDict, Mapping
+except ImportError:
+    from ordereddict import OrderedDict
+    from collections import Mapping
 import logging
 import os
 

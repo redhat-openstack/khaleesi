@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 
-import collections
+try:
+    from collections import OrderedDict, Mapping
+except ImportError:
+    from ordereddict import OrderedDict
+    from collections import Mapping
+
+
 import logging
 
 
@@ -8,21 +14,20 @@ def enum(**enums):
     return type('Enum', (), enums)
 
 
-class OrderedTree(collections.OrderedDict):
+class OrderedTree(OrderedDict):
     """
     A simple nested tree using dict
     """
     # Enum Path
     Path = enum(NoCreate=0, AutoCreate=1)
 
-    def __init__(self, delimiter='.', *args, **kwargs):
+    def __init__(self, delimiter='.', **kwargs):
         """
         Create a Tree
         """
-        # create a root, so that arrays  can be added
-        # directly to the root
+        super(OrderedTree, self).__init__()
         self._delimiter = delimiter
-        super(OrderedTree, self).__init__(*args, **kwargs)
+        self.update(kwargs)
 
     def insert(self, key, value, delimiter=None):
         """
@@ -136,7 +141,7 @@ class OrderedTree(collections.OrderedDict):
 
 def is_dict(x):
     if (isinstance(x, dict)
-            or isinstance(x, collections.Mapping)):
+            or isinstance(x, Mapping)):
         return True
     try:
         k, v = x.items()

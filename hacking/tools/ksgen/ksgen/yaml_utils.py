@@ -62,7 +62,10 @@ def represent_odict(dump, tag, mapping, flow_style=None):
 
 
 def register():
-    from collections import OrderedDict
+    try:
+        from collections import OrderedDict
+    except:
+        from ordereddict import OrderedDict
     from configure import Configuration
     from tree import OrderedTree
 

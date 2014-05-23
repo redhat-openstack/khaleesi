@@ -4,8 +4,8 @@ Usage:
     py.test test_tree.py [options]
 """
 
-from khaleesi.tree import OrderedTree, is_dict
-from khaleesi import yaml_utils
+from ksgen.tree import OrderedTree, is_dict
+from ksgen import yaml_utils
 import logging
 import sys
 
@@ -300,6 +300,30 @@ def test_is_dict():
     x = configure.Configuration({'foo': 'bar'})
     assert is_dict(x)
 
+
+def test_init_dict():
+    d = {
+        'foo': 'bar'
+    }
+    tree = OrderedTree('.', **d)
+    print_yaml("tree init using a dict", tree)
+    assert 'foo' in tree
+    assert tree['foo'] == 'bar'
+
+    d2 = {
+        'foo': {
+            'bar': 'baz'
+        }
+    }
+    tree = OrderedTree('.', **d2)
+    print_yaml("tree init using a complex dict", tree)
+    assert 'foo.bar' in tree
+    assert tree['foo.bar'] == 'baz'
+
+    import configure
+    x = configure.Configuration({'foo': 'bar'})
+    assert is_dict(x)
+
 # def test_custom_delimiters():
     # t = OrderedTree()
     # t['foo.bar.baz'] = 'moo.moo'
@@ -318,7 +342,7 @@ def test_is_dict():
 def _enable_logging(level=None):
     level = level or "debug"
 
-    from khaleesi import log_color
+    from ksgen import log_color
     log_color.enable()
 
     numeric_val = getattr(logging, level.upper(), None)

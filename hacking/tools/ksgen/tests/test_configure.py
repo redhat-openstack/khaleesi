@@ -6,7 +6,7 @@ Usage:
 
 from configure import Configuration
 import logging
-from khaleesi import yaml_utils
+from ksgen import yaml_utils
 
 yaml_utils.register()
 
@@ -49,7 +49,7 @@ def test_merge():
 def _enable_logging(level=None):
     level = level or "debug"
 
-    from khaleesi import log_color
+    from ksgen import log_color
     log_color.enable()
 
     numeric_val = getattr(logging, level.upper(), None)
