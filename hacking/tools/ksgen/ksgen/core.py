@@ -79,6 +79,7 @@ Options:
     options = [x for x in args if x.startswith('--')]
 
     for option in options:   # iterate options to preserve order of args
+        option = option.split('=')[0]
         value = parsed.get(option)
         if not value:
             continue
