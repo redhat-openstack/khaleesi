@@ -35,7 +35,6 @@ validate_openstack() {
 
 
 main() {
-    echo "VALIDATE_OPENSTACK: " $VALIDATE_OPENSTACK
     local default_playbook='aio.yml'
 
     if [ ! -e nodes.yml ]; then
