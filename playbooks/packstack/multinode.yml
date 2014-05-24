@@ -75,23 +75,6 @@
       - packstack/multinode
   tags: prep
 
-#using a foreman role that is on the list
-#to be factored out of foreman into a
-#common role
-- name: Prepare openstack network
-  hosts: all:!localhost:!tempest
-  roles:
-    - { role: foreman/network-setup }
-  tags:
-    - prep
-
-- name: Prepare openstack network - Networker nodes
-  hosts: compute
-  roles:
-    - { role: networker }
-  tags:
-    - prep
-
 - include: ../../workarounds/workarounds-pre-run-packstack.yml tags=workaround
 
 - name: Run packstack
