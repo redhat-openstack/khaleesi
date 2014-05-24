@@ -15,6 +15,8 @@ inventory*
 archive.*
 local_settings.sh
 westest.pem
+collect_logs.txt
+teardown.txt
 
 #kytoon
 tmp/

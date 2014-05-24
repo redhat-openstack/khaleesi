@@ -2,7 +2,15 @@
 set -e -u
 source functions.bash
 
-execute ansible-playbook -i local_hosts  \
-    playbooks/cleanup.yml \
-    --extra-vars @settings.yml \
-    --extra-vars @nodes.yml -v
+cleanup() {
+  echo "** tear down all nodes **"
+  echo "** function output saved to teardown.txt **"
+  local cmdline="ansible-playbook -i local_hosts  \
+                playbooks/cleanup.yml \
+                --extra-vars @settings.yml \
+                --extra-vars @nodes.yml -v"
+  execute $cmdline > teardown.txt 2>&1
+}
+
+cleanup
+

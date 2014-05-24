@@ -3,13 +3,15 @@ set -e -u
 source functions.bash
 
 collect_logs() {
+  echo "** collecting logs from all nodes **"
+  echo "** function output saved to collect_logs.txt **"
   local cmdline="ansible-playbook -v -s -i local_hosts  \
              playbooks/collect_logs.yml \
              --extra-vars @settings.yml   \
-             --extra-vars @nodes.yml "
+             --extra-vars @nodes.yml"
 
   [[ -n ${SKIP_TAGS:-''} ]] && cmdline+=" --skip-tags ${SKIP_TAGS#--skip_tags}"
-  execute $cmdline
+  execute $cmdline > collect_logs.txt 2>&1
 }
 
 snapshot() {
