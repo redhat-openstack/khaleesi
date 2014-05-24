@@ -24,13 +24,6 @@
   tags:
     - tempest_setup
 
-- name: Calculate public CIDR
-  hosts: compute
-  roles:
-    - { role: tempest/public_network }
-  tags:
-    - tempest_setup
-
 - name: Setup tempest
   hosts: tempest
   roles:

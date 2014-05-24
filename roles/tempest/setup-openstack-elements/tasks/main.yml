@@ -53,26 +53,13 @@
         auth_url={{ keystone_endpoint }}
         state=present
 
-# - name: Setup of public subnet
-#   quantum_subnet:
-#         name={{ public_subnet_name }}
-#         network_name={{ public_net_name }}
-#         cidr={{ public_subnet_cidr }}
-#         allocation_pool_start={{ public_allocation_start }}
-#         allocation_pool_end={{ public_allocation_end }}
-#         enable_dhcp=false
-#         tenant_name={{ public_net_tenant }}
-#         login_username={{ admin_username }}
-#         login_password={{ admin_password }}
-#         login_tenant_name={{ admin_tenant_name }}
-#         auth_url={{ keystone_endpoint }}
-#         state=present
-
 - name: Setup of public subnet
   quantum_subnet:
         name={{ public_subnet_name }}
         network_name={{ public_net_name }}
         cidr={{ public_subnet_cidr }}
+        allocation_pool_start={{ public_allocation_start }}
+        allocation_pool_end={{ public_allocation_end }}
         enable_dhcp=false
         tenant_name={{ public_net_tenant }}
         login_username={{ admin_username }}

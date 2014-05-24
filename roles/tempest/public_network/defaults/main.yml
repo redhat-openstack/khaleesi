@@ -1,3 +1,0 @@
----
-public_net: "{{ hostvars[inventory_hostname].ansible_br_ex.ipv4.network }}"
-public_mask: "{{ hostvars[inventory_hostname].ansible_br_ex.ipv4.netmask }}"
