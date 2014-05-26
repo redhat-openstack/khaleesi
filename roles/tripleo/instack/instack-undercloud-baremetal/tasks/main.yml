@@ -27,10 +27,9 @@
 
 - name: run script to install undercloud
   register: instack_undercloud_result
-  command:  chdir={{ instack_user_home.stdout }} install-undercloud-packages
+  command:  chdir={{ instack_user_home.stdout }} instack-install-undercloud-packages
   sudo_user: "{{ instack_user }}"
   sudo: yes
-  when: instack_log_present == ""
 
 - name: search output for complete status
   shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'install-undercloud Complete!'"
