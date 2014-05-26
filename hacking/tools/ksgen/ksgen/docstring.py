@@ -48,11 +48,18 @@ class Generator(object):
     def generate(self):
         args = self.parse_tree()
         logging.debug("args: %s", args)
+
+        equals_val = '=<val>'
+        longest_key = max(args.keys(), key=len)
+        key_width = len(longest_key) + len(equals_val)
+
         doc_string = ""
         for key, value in args.items():
-            doc_string += "\n    --{0:24} {1}".format(
-                key.replace('/', '-') + "=<val>",
-                '[' + ', '.join(value) + ']')
+            doc_string += "\n    --{0:{width}} {1}".format(
+                key.replace('/', '-') + equals_val,
+                '[' + ', '.join(value) + ']',
+                width=key_width
+            )
         return doc_string
 
     # ### private ###
