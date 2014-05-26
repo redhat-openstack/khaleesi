@@ -1,7 +1,9 @@
-try:
-    from collections import OrderedDict
-except ImportError:
-    from ordereddict import OrderedDict
+"""
+Generates options list based on the directory structure so that it
+can be used with docstring
+"""
+
+from collections import OrderedDict
 import logging
 import os
 
@@ -9,6 +11,7 @@ import os
 class Generator(object):
     def __init__(self, config_path):
         self._root_dir = os.path.abspath(config_path)
+        self._parse_tree = None
 
     def parse_tree(self):
         self._parse_tree = OrderedDict()
@@ -19,8 +22,9 @@ class Generator(object):
                 logging.debug("  ... skipping root dirs")
                 continue
 
-            yml_files = set([os.path.splitext(x)[0]
-                            for x in files if x.endswith('.yml')])
+            yml_files = {
+                os.path.splitext(x)[0] for x in files
+                if x.endswith('.yml')}
             logging.debug("  files: %s", yml_files)
 
             # don't process dirs without yml files
@@ -71,7 +75,7 @@ class Generator(object):
         parent_option = self._remove_data_dirs(dirname)
 
         basename = os.path.basename(dir_path)
-        key = os.path.join(parent_option,  basename)
+        key = os.path.join(parent_option, basename)
         logging.debug("cleaned up arg: '%s': %s", key, values)
 
         if key not in self._parse_tree:

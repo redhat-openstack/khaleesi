@@ -16,15 +16,13 @@
      generate
 """
 
-from tree import OrderedTree
+from __future__ import print_function
+from ksgen import docstring, log_color, settings, yaml_utils
+from ksgen.tree import OrderedTree
 from docopt import docopt
-import docstring
-import log_color
 import logging
-import settings
 import sys
 import yaml
-import yaml_utils
 
 
 class KeyValueError(Exception):
@@ -52,7 +50,7 @@ Options:
         options=docstring.Generator(config_dir).generate()
     )
     logging.debug("Parsing: %s", args)
-    logging.debug("DocString for Generate: %s",  doc_string)
+    logging.debug("DocString for Generate: %s", doc_string)
 
     parsed = docopt(doc_string, options_first=True, argv=args)
     logging.info("Parsed: \n%s", parsed)
@@ -84,7 +82,7 @@ Options:
         if not value:
             continue
 
-        key = option[2:] + '-' + settings.value_indicator_key
+        key = option[2:] + '-' + settings.VALUES_KEY
         settings_tree[key] = value
         logging.debug("%s: %s", key, value)
 
@@ -134,17 +132,6 @@ def usage(path):
         docs=__doc__,
         config=docstring.Generator(path).generate())
     print(doc_string)
-
-
-def test_generate(args):
-    _setup_logging('DEBUG')
-    doc_string = generate.__doc__.format(
-        options=docstring.Generator('test/data/settings').generate()
-    )
-    logging.debug(doc_string)
-    logging.info("args: %s" % args)
-    parsed = docopt(doc_string, options_first=True)
-    logging.info("parsed dict: %s" % parsed)
 
 
 def _setup_logging(level):

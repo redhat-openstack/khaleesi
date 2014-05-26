@@ -1,10 +1,10 @@
 from configure import Configuration
-from tree import OrderedTree
+from ksgen.tree import OrderedTree
 import logging
 import os
 
 
-value_indicator_key = '!value'
+VALUES_KEY = '!value'
 
 
 class OptionError(Exception):
@@ -17,10 +17,13 @@ class OptionError(Exception):
 
 
 class Loader(object):
-    def __init__(self, config_dir, settings, *args, **kwargs):
+    def __init__(self, config_dir, settings):
         self._settings = settings
         self._config_dir = config_dir
         self._loaded = False
+        self._all_settings = None
+        self._file_list = None
+        self._invalid_paths = None
 
     def settings_tree(self):
         self._load()
@@ -66,7 +69,7 @@ class Loader(object):
 
         for key, sub_tree in settings.items():
             # ignore the special key value
-            if key == value_indicator_key:
+            if key == VALUES_KEY:
                 continue
 
             logging.debug("key: %s, subtree: %s", key, sub_tree)
@@ -74,7 +77,7 @@ class Loader(object):
                 'parent_path': parent_path,
                 'key': key,
                 'sep': os.sep,
-                'file': sub_tree[value_indicator_key]
+                'file': sub_tree[VALUES_KEY]
             }
 
             abs_file_path = os.path.abspath(self._config_dir + os.sep

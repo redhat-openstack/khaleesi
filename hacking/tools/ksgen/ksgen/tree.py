@@ -1,12 +1,8 @@
-#!/usr/bin/env python
+"""
+tree: datastructure that can hold heirachial OrderedDicts
+"""
 
-try:
-    from collections import OrderedDict, Mapping
-except ImportError:
-    from ordereddict import OrderedDict
-    from collections import Mapping
-
-
+from collections import OrderedDict, Mapping
 import logging
 
 
@@ -36,7 +32,7 @@ class OrderedTree(OrderedDict):
         parent = self._parent(key, OrderedTree.Path.AutoCreate, delimiter)
         child = self._key_for_index(key, -1, delimiter)
         logging.debug("parent: %s, child: %s", parent, child)
-        parent._add_child(child, value)
+        OrderedTree._add_child(parent, child, value)
 
     def update(self, other):
         for (k, v) in other.iteritems():
@@ -50,7 +46,7 @@ class OrderedTree(OrderedDict):
                     continue    # ### skip to next one ###
 
                 del self[k]     # self[k] is not a tree so replace it
-            self._add_child(k, v)
+            OrderedTree._add_child(self, k, v)
 
     def __contains__(self, key):
         delimiter = self._delimiter
@@ -105,7 +101,7 @@ class OrderedTree(OrderedDict):
         # with value
         node = self
         for key in keys[:-1]:
-            logging.debug("    ... processing: %s " % key)
+            logging.debug("    ... processing: %s ", key)
             if (create_flag == OrderedTree.Path.AutoCreate and
                     (not node.__contains__(key) or
                      not isinstance(node[key], OrderedTree))):
@@ -127,7 +123,7 @@ class OrderedTree(OrderedDict):
             logging.debug("child: %s not in "
                           "Parent: %s - CREATING", child, self)
             self[child] = OrderedTree(self._delimiter)
-        self[child]._deep_copy(**value)
+        OrderedTree._deep_copy(self[child], **value)
 
     def _deep_copy(self, **kwargs):
         for k, v in kwargs.iteritems():
@@ -136,15 +132,19 @@ class OrderedTree(OrderedDict):
                 self[k] = v
             else:
                 self[k] = OrderedTree(self._delimiter)
-                self[k]._deep_copy(**v)
+                OrderedTree._deep_copy(self[k], **v)
 
 
-def is_dict(x):
-    if (isinstance(x, dict)
-            or isinstance(x, Mapping)):
+def is_dict(obj):
+    """
+    returns True is obj is like a dict
+    """
+
+    if (isinstance(obj, dict)
+            or isinstance(obj, Mapping)):
         return True
     try:
-        k, v = x.items()
+        obj.items()
         return True
-    except:
+    except AttributeError:
         return False
