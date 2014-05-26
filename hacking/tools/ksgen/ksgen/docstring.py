@@ -8,7 +8,7 @@ import os
 
 class Generator(object):
     def __init__(self, config_path):
-        self._root_dir = config_path
+        self._root_dir = os.path.abspath(config_path)
 
     def parse_tree(self):
         self._parse_tree = OrderedDict()
@@ -59,8 +59,6 @@ class Generator(object):
     def _add_option(self, dir_path, values):
         # remove all data-dirs from the dir_path
         logging.info("Add option - dir: '%s': %s", dir_path, values)
-
-        dir_path = os.path.normpath(dir_path)
 
         dirname = os.path.dirname(dir_path)
         parent_option = self._remove_data_dirs(dirname)
