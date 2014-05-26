@@ -1,8 +1,7 @@
 try:
-    from collections import OrderedDict, Mapping
+    from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
-    from collections import Mapping
 import logging
 import os
 
