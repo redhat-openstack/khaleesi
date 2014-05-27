@@ -32,6 +32,7 @@
 
 - name: Debug list config variables
   hosts: local
+  sudo: no
   roles:
     - { role: packstack/debug }
   tags:
