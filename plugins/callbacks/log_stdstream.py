@@ -27,9 +27,10 @@ def log(host, category, data):
             stdout = data.pop('stdout', None)
             stderr = data.pop('stderr', None)
             results = data.pop('results', None)
-            data = json.dumps(data)
+            data = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
             if invocation is not None:
-                data = json.dumps(invocation) + " => %s " % data
+                data = "\n" + json.dumps(invocation, sort_keys=True, indent=4,
+                    separators=(',', ': ')) + "\n===>\n%s\n" % data
 
     path = os.path.join(LOG_PATH, host)
     now = time.strftime(TIME_FORMAT, time.localtime())
