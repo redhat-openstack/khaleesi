@@ -1,4 +1,13 @@
 ---
+- name: Get nodes using Nova
+  sudo: no
+  hosts: local
+  gather_facts: False
+  roles:
+    - { role: get_nodes }
+  tags:
+      - dev
+
 - name: Dump all settings used for this play
   hosts: localhost
   sudo: no
@@ -17,9 +26,11 @@
     - name: dump settings | set filename
       set_fact: run_settings_file="{{ run_settings_file | default('run_settings.yml') }}"
 
-    - name: dump settings | store settings to khaleesi dir
+
+    - name: dump settings | store settings in khaleesi dir
       template: src=dump_settings.j2
           dest="{{khaleesi_root_dir.stdout}}/{{run_settings_file}}"
+
     - name: dump settings |  location of settings used for this run
       debug:
         msg: "Build settings path: {{khaleesi_root_dir.stdout}}/{{run_settings_file}}"
