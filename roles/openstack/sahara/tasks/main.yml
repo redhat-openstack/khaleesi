@@ -68,9 +68,9 @@
 #        endpoint=http://{{ controller_ip }}:5000/v3.0/
 #        name=sahara type=data_processing description="Sahara Data Processing"
 #        region=RegionOne
-#        public_url="http://{{ ansible_default_ipv4.address }}:8386/v1.1/\$(tenant_id)s"
-#        admin_url="http://{{ ansible_default_ipv4.address }}:8386/v1.1/\$(tenant_id)s"
-#        internal_url="http://{{ ansible_default_ipv4.address }}:8386/v1.1/\$(tenant_id)s"
+#        public_url="http://{{ ansible_default_ipv4.address }}:8386/v1.1/$(tenant_id)s"
+#        admin_url="http://{{ ansible_default_ipv4.address }}:8386/v1.1/$(tenant_id)s"
+#        internal_url="http://{{ ansible_default_ipv4.address }}:8386/v1.1/$(tenant_id)s"
 #  tags: sahara
 
 - name: sahara | service | add service
@@ -81,7 +81,7 @@
   tags: sahara
 
 - name: sahara | service | add endpoint
-  command: keystone --os-username={{ admin_username }} --os-password={{ admin_password }}
+  shell: keystone --os-username={{ admin_username }} --os-password={{ admin_password }}
             --os-tenant-name={{ admin_tenant_name }} --os-auth-url=http://{{ controller_ip }}:5000/v2.0/
             endpoint-create --service sahara
             --region RegionOne
