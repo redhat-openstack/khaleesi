@@ -23,7 +23,8 @@
   when: virtual_power_key_present == ""
 
 - name: enable the rdo-release repository
-  yum: pkg={{ rdo_release_pkg }}
+  yum: name="{{ rdo[ config.version ].instack_release_rpm[ ansible_distribution ] }}" state=present #"
+  when: ansible_distribution == 'Fedora'
   sudo_user: root
   sudo: yes
 
