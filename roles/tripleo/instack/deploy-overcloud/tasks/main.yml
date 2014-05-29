@@ -38,7 +38,7 @@
     instack-deploy-overcloud-tuskarcli
 
 - name: check 'heat stack-list'
-  shell: "source { instack_user_home.stdout }}/stackrc; heat stack-list | grep 'COMPLETE'"
+  shell: "source {{ instack_user_home.stdout }}/stackrc; heat stack-list | grep 'COMPLETE'"
   register: heat_stack_list_result
 
 - name: test for 'COMPLETE'
