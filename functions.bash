@@ -182,6 +182,22 @@ parse_settings_args() {
                 SETTINGS_ARGS+=" $1 $2 "
                 shift 2
                 ;;
+            --set-variable)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --delete-variable)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --update-variable)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
+            --create-variable)
+                SETTINGS_ARGS+=" $1 $2 "
+                shift 2
+                ;;
             *)
                 printf >&2 'WARNING: unknown option: %s\n' $1
                 shift
