@@ -218,9 +218,9 @@ generate_settings_file() {
     local foreman_flavor_id=${FOREMAN_FLAVOR_ID:-$default_flavor_id}
     local net_1=${NET_1:-'CHANGE_ME'}
     local net_2=${NET_2:-''}
-    local net_2_name=${NET_2_NAME:-'packstack_int'}
+    local net_2_name=${NET_2_NAME:-''}
     local net_3=${NET_3:-''}
-    local net_3_name=${NET_3_NAME:-'foreman_ext'}
+    local net_3_name=${NET_3_NAME:-''}
 
     local tags=${TAGS:-''}
     local skip_tags=${SKIP_TAGS:-''}
