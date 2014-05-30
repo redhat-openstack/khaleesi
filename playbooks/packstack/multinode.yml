@@ -18,12 +18,10 @@
 ### enable to provison vm
 - include: ../dump_settings.yml
 - include: ../provision.yml
-
+- include: ../group_by.yml tags=provision
 - include: multinode/provision.yml
 
 - include: ../validate_nodes.yml
-
-- include: ../group_by.yml tags=provision
 
 - name: Gather facts from all openstack hosts
   hosts: all:!localhost:!tempest
