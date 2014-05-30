@@ -6,21 +6,21 @@
   sudo: yes
 
 - name: check virtual-power-key exists
-  shell: " [ -e {{ instack_user_home.stdout }}/virtual-power-key.pub ]"
+  stat: path="{{ instack_user_home.stdout }}/virtual-power-key.pub"
   register: virtual_power_key_present
 
 - name: create the virtual-power-key
   shell: >
     chdir={{ instack_user_home.stdout }}
     ssh-keygen -t rsa -N '' -C virtual-power-key -f virtual-power-key
-  when: virtual_power_key_present == ""
+  when: virtual_power_key_present.stat.exists == False
 
 - name: copy the virtual-power-key to the virt host
   shell: >
     chdir={{ instack_user_home.stdout }}
     sshpass -p {{ instack_user }} ssh-copy-id -i virtual-power-key.pub {{ instack_user }}@192.168.122.1
   ignore_errors: true
-  when: virtual_power_key_present == ""
+  when: virtual_power_key_present.stat.exists == False
 
 - name: enable the rdo-release repository
   yum: name="{{ rdo[ config.version ].instack_release_rpm[ ansible_distribution ] }}" state=present #"
@@ -45,16 +45,13 @@
     cp /usr/share/doc/instack-undercloud/instack-virt.answers.sample {{ instack_user_home.stdout }}/instack.answers
 
 - name: check if install undercloud has been run
-  shell: >
-    chdir={{ instack_user_home.stdout }}
-    [ -e .instack/install-undercloud.log ]
+  stat: path="{{ instack_user_home.stdout }}/.instack/install-undercloud.log"
   register: instack_log_present
-  ignore_errors: true
 
 - name: run script to install undercloud
   register: instack_undercloud_result
   command:  chdir={{ instack_user_home.stdout }} instack-install-undercloud-packages
-  when: instack_log_present == ""
+  when: instack_log_present.stat.exists == False
 
 - name: search output for complete status
   shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'instack-install-undercloud-packages complete'"
