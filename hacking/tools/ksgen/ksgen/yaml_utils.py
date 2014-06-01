@@ -12,7 +12,7 @@ non-standard YAML code.
 To use yaml.safe_dump(), you need the following.
 """
 
-from configure import Configuration
+from configure import Configuration, ConfigurationError
 import yaml
 
 
@@ -32,6 +32,62 @@ def to_yaml(header, x):
 def _join_constructor(loader, node):
     seq = loader.construct_sequence(node)
     return ''.join([str(i) for i in seq])
+
+
+class OverwriteDirective(yaml.YAMLObject):
+    yaml_tag = u'!overwrite'
+    yaml_dumper = yaml.SafeDumper
+
+    def __init__(self, value):
+        self.value = value
+
+    @classmethod
+    def from_yaml(cls, loader, node):
+        return OverwriteDirective(loader.construct_sequence(node))
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_sequence(cls.yaml_tag, data.value)
+
+def patch_configure_getattr(self, name):
+    if name.startswith('__'):
+        raise AttributeError(name)
+    return self[name]
+Configuration.__getattr__ = patch_configure_getattr
+
+
+def patch_configure_merge(self, config):
+    from copy import deepcopy
+    from collections import Mapping, Sequence
+    for k, v in config.items():
+        if k not in self:
+            self[k] = deepcopy(v)
+            continue
+
+        if isinstance(v, OverwriteDirective):
+            self[k] = deepcopy(v.value)
+            continue
+
+        if type(self[k]) != type(v):
+            raise ConfigurationError(
+                "cannot merge type '%s' with type '%s' for key '%s'" % (
+                    self[k].__class__.__name__,
+                    v.__class__.__name__,
+                    k
+                ))
+
+        if isinstance(v, Mapping):
+            patch_configure_merge(self[k], v)
+            continue
+
+        if isinstance(v, Sequence) and not hasattr(self[k], 'extend'):
+            self[k] = deepcopy(v)
+        else:
+            self[k].extend(v)
+
+
+
+Configuration._merge = patch_configure_merge
 
 
 def represent_odict(dump, tag, mapping, flow_style=None):
@@ -62,26 +118,21 @@ def represent_odict(dump, tag, mapping, flow_style=None):
 
 
 def register():
-    try:
-        from collections import OrderedDict
-    except:
-        from ordereddict import OrderedDict
-    from configure import Configuration
-    from tree import OrderedTree
+    from collections import OrderedDict
+    from ksgen.tree import OrderedTree
 
     yaml.SafeDumper.add_representer(
         OrderedTree,
-        lambda dumper, value:
-            represent_odict(dumper, u'tag:yaml.org,2002:map', value)
+        lambda dumper, value: represent_odict(
+            dumper, u'tag:yaml.org,2002:map', value)
     )
     yaml.SafeDumper.add_representer(
         Configuration,
-        lambda dumper, value:
-            represent_odict(dumper, u'tag:yaml.org,2002:map', value)
+        lambda dumper, value: represent_odict(
+            dumper, u'tag:yaml.org,2002:map', value)
     )
     yaml.SafeDumper.add_representer(
         OrderedDict,
-        lambda dumper, value:
-            represent_odict(dumper, u'tag:yaml.org,2002:map', value)
+        lambda dumper, value: represent_odict(
+            dumper, u'tag:yaml.org,2002:map', value)
     )
-
