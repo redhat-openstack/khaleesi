@@ -18,8 +18,7 @@
 - name: copy the virtual-power-key to the virt host
   shell: >
     chdir={{ instack_user_home.stdout }}
-    sshpass -p {{ instack_user }} ssh-copy-id -i virtual-power-key.pub {{ instack_user }}@192.168.122.1
-  ignore_errors: true
+    sshpass -p {{ config.pass }} ssh-copy-id -i virtual-power-key.pub {{ instack_user }}@192.168.122.1
   when: virtual_power_key_present.stat.exists == False
 
 - name: enable the rdo-release repository
