@@ -37,7 +37,7 @@
   sudo: yes
 
 - name: search output for complete status
-  shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'install-undercloud Complete!'"
+  shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'install-undercloud-packages complete!'"
   register: grep_output
 
 - name: report failure if install is not complete
