@@ -123,6 +123,39 @@ def test_array_extend():
     assert verify_key_val(merged, other_dict, 'nested_dict.other')
 
 
+def test_overwrite_tag():
+    src_yaml = """
+    foo: bar
+    """
+
+    overwrite_fail_yaml = """
+    foo: [1, 2, 3]
+    """
+    src = Configuration.from_string(src_yaml)
+    print_yaml("Src", src)
+
+    overwrite_fail = Configuration.from_string(overwrite_fail_yaml)
+    print_yaml("Overwrite fail", overwrite_fail)
+
+    error_raised = True
+    with pytest.raises(ConfigurationError):
+        merge = src.merge(overwrite_fail)
+        error_raised = False
+    assert error_raised
+    logging.debug("Raised ConfigurationError")
+    assert src.foo == 'bar'
+
+    # ### use overwrite to overwrite src.foo
+    overwrite_yaml = """
+    foo: !overwrite [1, 2, 3]
+    """
+    overwrite = Configuration.from_string(overwrite_yaml)
+    print_yaml("Overwrite", overwrite)
+    merge = src.merge(overwrite)
+    print_yaml("Merged", merge)
+
+
+
 def test_monkey_patch_merge():
     """
         Monkey patch configure so that merge will
