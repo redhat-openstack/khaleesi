@@ -31,10 +31,10 @@ Ansible 1.5 is now required.
 Std{out,err} callback plugin
 ----------------------------
 
-To use the callback plugin that will log all stdout, stderr, and other data about most tasks, you must set the ANSIBLE_CALLBACK_PLUGINS envvar. You can also set the KHALEESI_LOG_DIR envvar. KHALEESI_LOG_DIR defaults to /tmp/stdstream_logs.
+To use the callback plugin that will log all stdout, stderr, and other data about most tasks, you must set the ANSIBLE_CALLBACK_PLUGINS envvar. You can also set the KHALEESI_LOG_PATH envvar. KHALEESI_LOG_PATH defaults to /tmp/stdstream_logs.
 
     export ANSIBLE_CALLBACK_PLUGINS=$WORKSPACE/khaleesi/plugins/callbacks
-    export KHALEESI_LOG_DIR=$WORKSPACE/ansible_log
+    export KHALEESI_LOG_PATH=$WORKSPACE/ansible_log
 
 Khaleesi use cases
 ------------------
