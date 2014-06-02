@@ -201,6 +201,29 @@ def test_monkey_patch_merge():
     print_yaml("Merged", tree)
 
 
+def test_ref():
+    src_string = """
+    foo: bar
+    ref_foo: !ref:foo
+    """
+
+    src = Configuration.from_string(src_string)
+    print_yaml("yaml for src", src)
+    assert src.ref_foo == src.foo
+
+    missing_ref_string = """
+    foo: bar
+    ref_foo: !ref:bar
+    """
+
+    raised_key_error = True
+    with pytest.raises(KeyError):
+        missing_ref = Configuration.from_string(missing_ref_string)
+        raised_key_error = False
+    assert raised_key_error
+    logging.debug("Raised KeyError")
+
+
 def test_custom_lists():
 
     class OverwriteList(list):
@@ -269,7 +292,7 @@ bar: !overwrite_list
         })
     )
 
-    append_list =  yaml.load("""
+    append_list = yaml.load("""
 foo: !append_list [1, 2, 3]
 """)
     logging.debug(append_list)
