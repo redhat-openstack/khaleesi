@@ -476,7 +476,7 @@ class Job(object):
             networking=self._node_prefix_map['networking'][config['networking']],
             variant=config['variant'],
         )
-        return node_prefix
+        return node_prefix.lower()
 
     def choose_value(self, env_var_name, cli_var_name, keypath_string):
         """
