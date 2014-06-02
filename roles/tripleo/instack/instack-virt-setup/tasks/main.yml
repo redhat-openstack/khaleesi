@@ -6,10 +6,16 @@
   sudo: yes
 
 - name: enable the rdo-release repository
-  yum: pkg={{ rdo_release_pkg }} state=installed
+  yum: name="{{ rdo[ config.version ].instack_release_rpm[ ansible_distribution ] }}" state=present #"
+  when: ansible_distribution == 'Fedora'
 
 - name: install instack-undercloud
-  yum: pkg={{ instack_undercloud_pkg  }}
+  yum: name=instack-undercloud state=latest
+  when: config.instack_undercloud_rpm is not defined
+
+- name: install updated version of instack-undercloud if it exists
+  yum: name= "{{ config.instack_undercloud_rpm }}"
+  when: config.instack_undercloud_rpm is defined
 
 - name: install libguestfs-tools
   yum: name=libguestfs-tools
@@ -33,7 +39,6 @@
   shell: "export LIBVIRT_DEFAULT_URI=\"qemu:///system\" ; sleep 5; virsh list --all; virsh start instack"
   sudo_user: "{{ instack_user }}"
   sudo: yes
-
 
 - name: get ip address of instack vm
   shell: "sleep 10; cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac instack) | awk '{print $3;}'"

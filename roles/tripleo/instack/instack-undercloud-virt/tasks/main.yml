@@ -29,6 +29,13 @@
 
 - name: install instack-undercloud
   yum: name=instack-undercloud state=latest
+  when: config.instack_undercloud_rpm is not defined
+  sudo_user: root
+  sudo: yes
+
+- name: install updated version of instack-undercloud if it exists
+  yum: name= "{{ config.instack_undercloud_rpm }}"
+  when: config.instack_undercloud_rpm is defined
   sudo_user: root
   sudo: yes
 
