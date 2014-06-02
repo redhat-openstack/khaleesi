@@ -32,18 +32,18 @@
     - iptables
 
 - name: Check for SecureRandom
-  shell: grep 'SecureRandom.hex' /usr/share/openstack-foreman-installer/bin/seeds.rb
+  shell: grep 'SecureRandom.hex' {{ astapor_dest }}/bin/seeds.rb
   ignore_errors: True
   register: random_passwords
 
 - name: Make passwords the same for foreman environment
   shell: "/bin/sed -i -e 's/SecureRandom.hex/\"redhat\"/' {{ item }}"
-  with_items: '/usr/share/openstack-foreman-installer/bin/seeds.rb'
+  with_items: '{{ astapor_dest }}/bin/seeds.rb'
   when: random_passwords.rc == 0
 
 - name: Fix seed values
   lineinfile: >
-    dest=/usr/share/openstack-foreman-installer/bin/seeds.rb
+    dest={{ astapor_dest }}/bin/seeds.rb
     regexp="^(.*\"{{ item.name }}\"[ ]*=> )([\"']){{ item.oldvalue }}([\"']),"
     line="\1\g<2>{{ item.newvalue }}\g<3>,"
     backrefs=yes
@@ -52,19 +52,19 @@
 
 - name: Remove the prompt in foreman_server.sh
   lineinfile: >
-    dest=/usr/share/openstack-foreman-installer/bin/foreman_server.sh
+    dest={{ astapor_dest }}/bin/foreman_server.sh
     regexp='^read .*'
     state=absent
 
 - name: Remove 'include passenger' line from foreman_server.sh
   lineinfile: >
-    dest=/usr/share/openstack-foreman-installer/bin/foreman_server.sh
+    dest={{ astapor_dest }}/bin/foreman_server.sh
     regexp='^include passenger'
     state=absent
 
 - name: Run the installer
   shell: >
-    chdir=/usr/share/openstack-foreman-installer/bin
+    chdir={{ astapor_dest }}/bin
     creates=/tmp/foreman_client.sh
     bash -x ./foreman_server.sh
   register: installer_run
