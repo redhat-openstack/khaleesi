@@ -1,5 +1,6 @@
 from configure import Configuration
 from ksgen.tree import OrderedTree
+from ksgen.yaml_utils import LookupDirective
 import logging
 import os
 
@@ -41,11 +42,12 @@ class Loader(object):
         if self._loaded:
             return
 
-        self._all_settings = OrderedTree('/')
+        self._all_settings = OrderedTree('!')
         self._file_list = []
         self._invalid_paths = []
         self._create_file_list(self._settings, "", self._file_list)
-        logging.info("files to load :\n %s", '\n'.join(self._file_list))
+        logging.info("List of files to load :\n %s",
+                     '\n'.join(self._file_list))
         logging.info("invalid files :\n %s", '\n'.join(self._invalid_paths))
         if self._invalid_paths:
             raise OptionError(self._invalid_paths)
@@ -53,12 +55,13 @@ class Loader(object):
         for f in self._file_list:
             self._load_file(f)
 
+        LookupDirective.lookup_table = self._all_settings
         self._loaded = True
 
     def _load_file(self, f):
         logging.debug('Loading file: %s', f)
         cfg = Configuration.from_file(f).configure()
-        self._all_settings.update(cfg)
+        self._all_settings.merge(cfg)
 
     def _create_file_list(self, settings, parent_path, file_list):
         """ Appends list of files to be process to self._file_list
