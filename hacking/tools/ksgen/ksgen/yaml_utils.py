@@ -136,10 +136,9 @@ def patch_configure_merge(self, config):
             self[k] = deepcopy(v)
         else:
             self[k].extend(v)
+    return self
 
-
-
-Configuration._merge = patch_configure_merge
+Configuration.merge = patch_configure_merge
 
 
 def represent_odict(dump, tag, mapping, flow_style=None):
