@@ -13,16 +13,19 @@ To use yaml.safe_dump(), you need the following.
 """
 
 from configure import Configuration, ConfigurationError
+import logging
 import yaml
 
 
 def to_yaml(header, x):
+    """formats x to yaml and adds header on top"""
+
     return """
 %(header)s
 ----------------------
 %(yml)s
 ----------------------
-""" % {
+    """ % {
         "header": header,
         "yml": yaml.safe_dump(x, default_flow_style=False)
     }
@@ -80,6 +83,7 @@ class OverwriteDirective(yaml.YAMLObject):
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_sequence(cls.yaml_tag, data.value)
+
 
 def patch_configure_getattr(self, name):
     if name.startswith('__'):
