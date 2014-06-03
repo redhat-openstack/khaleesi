@@ -38,6 +38,15 @@ def _join_constructor(loader, node):
 
 
 class LookupDirective(yaml.YAMLObject):
+    """
+    Usage
+        foo: !lookup bar.baz
+
+    when the yaml is safe-dumped, the foo.bar is looked up in
+    LookupDirective.lookup_table. The table should be set prior
+    to lookup and should support __getitem__() which accepts
+    the string 'foo.bar' and return value for it
+    """
     lookup_table = None
     yaml_tag = u'!lookup'
     yaml_dumper = yaml.SafeDumper
@@ -47,17 +56,24 @@ class LookupDirective(yaml.YAMLObject):
 
     def lookup(self):
         if not LookupDirective.lookup_table:
+            logging.debug("no lookup table ")
             return '{{ %s }}' % self._key
-        if self._key not in LookupDirective.lookup_table:
-            return '{{ %s }}' % self._key
-        return LookupDirective.lookup_table[self._key]
 
+        key = self._key
+        if hasattr(LookupDirective.lookup_table, 'delimiter'):
+            key = key.replace('.', LookupDirective.lookup_table.delimiter)
+
+        if key not in LookupDirective.lookup_table:
+            logging.warn("key %s not in  lookup table ", self._key)
+            return '{{ %s }}' % self._key
+        return LookupDirective.lookup_table[key]
 
     def __repr__(self):
         return "%(class)s(%(lookup)s)" % {
             'class': self.__class__.__name__,
             'lookup': self._key
         }
+    __str__ = __repr__
 
     @classmethod
     def from_yaml(cls, loader, node):
