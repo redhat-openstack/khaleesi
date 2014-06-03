@@ -8,7 +8,6 @@ from configure import Configuration, ConfigurationError
 from ksgen import yaml_utils
 import logging
 import pytest
-import yaml
 
 yaml_utils.register()
 
@@ -234,102 +233,72 @@ def test_monkey_patch_merge():
     print_yaml("Merged", tree)
 
 
+def test_ref_in_extends():
+    src = Configuration.from_file('extends.yml', configure=False)
+    src.configure()
+    print_yaml("Extends using !lookup:", src)
+    yaml_utils.LookupDirective.lookup_table = src
+    print_yaml("Extends using !lookup:", src)
+
+def test_lookup():
+    src_yaml = """
+    foo: bar
+    ref_foo: !lookup foo
+    """
+
+    src = Configuration.from_string(src_yaml, configure=False)
+    yaml_utils.LookupDirective.lookup_table = src
+    print_yaml("yaml for src", src)
+
+
+    # use previous context ...
+    ref_src_foo_yaml = """
+    ref_src_foo:  !lookup foo
+    missing_lookup: !lookup non.existent.key
+    """
+    ref_src_foo = Configuration.from_string(ref_src_foo_yaml, configure=False)
+    merged = src.merge(ref_src_foo)
+    yaml_utils.LookupDirective.lookup_table = merged
+    print_yaml("yaml that refs src", merged)
+
+    import yaml
+    final_config = Configuration.from_string(yaml.safe_dump(merged))
+    print_yaml("yaml that refs src", final_config)
+    assert final_config.ref_foo == src.foo
+    assert final_config.ref_src_foo == src.foo
+    assert final_config.missing_lookup == '{{ non.existent.key }}'
+
+
 def test_ref():
-    src_string = """
+    src_yaml = """
     foo: bar
     ref_foo: !ref:foo
     """
 
-    src = Configuration.from_string(src_string)
+    src = Configuration.from_string(src_yaml)
     print_yaml("yaml for src", src)
     assert src.ref_foo == src.foo
 
-    missing_ref_string = """
+    missing_ref_yaml = """
     foo: bar
     ref_foo: !ref:bar
     """
 
     raised_key_error = True
     with pytest.raises(KeyError):
-        missing_ref = Configuration.from_string(missing_ref_string)
+        missing_ref = Configuration.from_string(missing_ref_yaml)
         raised_key_error = False
     assert raised_key_error
     logging.debug("Raised KeyError")
 
-
-def test_custom_lists():
-
-    class OverwriteList(list):
-        def __init__(self, values):
-            super(OverwriteList, self).__init__(values)
-            self.values = values
-
-        def merge(self, other):
-            logging.debug(".....................")
-            super(OverwriteList, self).append(other)
-
-    logging.debug(yaml.dump(OverwriteList([1, 2, 3])))
-
-    def overwrite_list_representer(dumper, data):
-        return dumper.represent_sequence(u'!overwrite_list', data)
-
-    yaml.SafeDumper.add_representer(OverwriteList, overwrite_list_representer)
-    logging.debug(yaml.dump(OverwriteList([1, 2, 3])))
-
-    def overwrite_list_constructor(loader, node):
-        values = loader.construct_sequence(node)
-        print(values)
-        return OverwriteList(values)
-
-    yaml.add_constructor(u'!overwrite_list', overwrite_list_constructor)
-
-    src = Configuration.from_string("""
-foo: [1, 2, 3]
-bar: !overwrite_list
-- 11
-- 12
-- 19
-
-""")
-
-    print_yaml("Original config", src)
-
-    other = Configuration.from_string("""
-foo: [2, 3, 8, 9]
-bar: !overwrite_list
-- 25
-- 27
-- 29
-
-""")
-    merged = src.merge(other)
-    print_yaml("Merged", merged)
-
-    class AppendList(list, yaml.YAMLObject):
-        yaml_tag = u'!append_list'
-
-        def __init__(self, values):
-            super(AppendList, self).__init__(values)
-
-        @classmethod
-        def from_yaml(cls, loader, node):
-            return AppendList(loader.construct_sequence(node))
-
-        @classmethod
-        def to_yaml(cls, dumper, data):
-            return dumper.represent_sequence(cls.yaml_tag, data)
-
-    logging.debug(
-        yaml.dump({
-            'foo': AppendList([1, 2, 3])
-        })
-    )
-
-    append_list = yaml.load("""
-foo: !append_list [1, 2, 3]
-""")
-    logging.debug(append_list)
-    assert isinstance(append_list['foo'], AppendList)
+    # use previous context ...
+    ref_src_foo_yaml = """
+    ref_src_foo:  !ref:foo
+    """
+    ref_src_foo = Configuration.from_string(ref_src_foo_yaml, configure=False)
+    merged = src.merge(ref_src_foo)
+    merged.configure()
+    print_yaml("yaml that refs src", merged)
 
 
 def test_merge_error():

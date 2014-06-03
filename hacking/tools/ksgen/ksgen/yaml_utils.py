@@ -34,6 +34,38 @@ def _join_constructor(loader, node):
     return ''.join([str(i) for i in seq])
 
 
+class LookupDirective(yaml.YAMLObject):
+    lookup_table = None
+    yaml_tag = u'!lookup'
+    yaml_dumper = yaml.SafeDumper
+
+    def __init__(self, key):
+        self._key = key
+
+    def lookup(self):
+        if not LookupDirective.lookup_table:
+            return '{{ %s }}' % self._key
+        if self._key not in LookupDirective.lookup_table:
+            return '{{ %s }}' % self._key
+        return LookupDirective.lookup_table[self._key]
+
+
+    def __repr__(self):
+        return "%(class)s(%(lookup)s)" % {
+            'class': self.__class__.__name__,
+            'lookup': self._key
+        }
+
+    @classmethod
+    def from_yaml(cls, loader, node):
+        return LookupDirective(loader.construct_scalar(node))
+
+    @classmethod
+    def to_yaml(cls, dumper, node):
+        value = node.lookup()
+        return dumper.represent_data(value)
+
+
 class OverwriteDirective(yaml.YAMLObject):
     yaml_tag = u'!overwrite'
     yaml_dumper = yaml.SafeDumper
