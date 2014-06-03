@@ -5,29 +5,10 @@ Usage:
 """
 
 from configure import Configuration, ConfigurationError
-from ksgen import yaml_utils
+from copy import deepcopy
+from test_utils import print_yaml, verify_key_val, TEST_DIR
 import logging
 import pytest
-
-yaml_utils.register()
-
-
-def print_yaml(msg, x):
-    logging.info(yaml_utils.to_yaml(msg, x))
-
-
-def verify_key_val(cfg, source_dict, key):
-    """ Assuming cfg is created from source_dict, returns true if
-    cfg[key] == source_dict[key]"""
-
-    keys = key.split('.')
-
-    leaf_cfg = cfg
-    leaf_dict = source_dict
-    for k in keys:
-        leaf_cfg = leaf_cfg[k]
-        leaf_dict = leaf_dict[k]
-    return leaf_cfg == leaf_dict
 
 
 def test_simple_merge():
@@ -49,14 +30,13 @@ def test_simple_merge():
         }
     }
 
-
     src = Configuration.from_dict(src_dict)
     print_yaml("Src", src)
 
     other = Configuration.from_dict(other_dict)
     print_yaml("Other", other)
 
-    merged = src.merge(other)
+    merged = deepcopy(src).merge(other)
     print_yaml("merged", merged)
 
     print_yaml("Src after merge", src)
@@ -74,6 +54,7 @@ def test_simple_merge():
     assert verify_key_val(merged, src_dict, 'src')
     assert verify_key_val(merged, other_dict, 'other')
     return
+
 
 def test_array_extend():
     src_dict = {
@@ -94,14 +75,13 @@ def test_array_extend():
         }
     }
 
-
     src = Configuration.from_dict(src_dict)
     print_yaml("Src", src)
 
     other = Configuration.from_dict(other_dict)
     print_yaml("Other", other)
 
-    merged = src.merge(other)
+    merged = deepcopy(src).merge(other)
     print_yaml("merged", merged)
 
     print_yaml("Src after merge", src)
@@ -138,7 +118,7 @@ def test_overwrite_tag():
 
     error_raised = True
     with pytest.raises(ConfigurationError):
-        merge = src.merge(overwrite_fail)
+        merged = deepcopy(src).merge(overwrite_fail)
         error_raised = False
     assert error_raised
     logging.debug("Raised ConfigurationError")
@@ -150,9 +130,9 @@ def test_overwrite_tag():
     """
     overwrite = Configuration.from_string(overwrite_yaml)
     print_yaml("Overwrite", overwrite)
-    merge = src.merge(overwrite)
-    print_yaml("Merged", merge)
 
+    merged = deepcopy(src).merge(overwrite)
+    print_yaml("Merged", merged)
 
 
 def test_monkey_patch_merge():
@@ -182,22 +162,24 @@ def test_monkey_patch_merge():
         }
     }
     src = Configuration.from_dict(src_dict)
-    print_yaml("Merged", src)
+    print_yaml("Src", src)
 
     other = Configuration.from_dict(other_dict)
-    merged = src.merge(other)
+    print_yaml("Other", src)
+
+    merged = deepcopy(src).merge(other)
     print_yaml("src", merged)
     print_yaml("Merged", src)
     assert merged['d1'] == [1, 2, 3]
     assert merged['d2'] == [1, 3, 5]
     assert merged['a'] == [1, 2, 3, 3, 2, 8]
     assert merged['s'] == 'bar'
-    return
+
     src = Configuration.from_string("""array: [1, 2, 3] """)
     print_yaml("Original config", src)
 
     other = Configuration.from_string("""array: [2, 3, 8, 9] """)
-    merged = src.merge(other)
+    merged = deepcopy(src).merge(other)
     print_yaml("Merged", merged)
     assert merged['array'] == [1, 2, 3, 2, 3, 8, 9]
 
@@ -206,12 +188,13 @@ def test_monkey_patch_merge():
     overwrite = Configuration.from_string(""" array: !overwrite [0, 0, 0] """)
     print_yaml("Overwrite", overwrite)
 
-    merged = src.merge(overwrite)
+    merged = deepcopy(src).merge(overwrite)
     print_yaml('Merge with overwrite', merged)
 
     assert merged['array'] == [0, 0, 0]
 
-    another_overwrite = Configuration.from_string(""" array: !overwrite [1, 1, 1] """)
+    another_overwrite = Configuration.from_string(
+        "array: !overwrite [1, 1, 1] ")
     print_yaml("Another Overwrite", another_overwrite)
 
     merged = merged.merge(another_overwrite)
@@ -226,19 +209,20 @@ def test_monkey_patch_merge():
 
     assert merged['array'] == [1, 1, 1, 1, 2, 3]
 
-
     from ksgen.tree import OrderedTree
     tree = OrderedTree(delimiter='.')
     tree.update(merged)
     print_yaml("Merged", tree)
 
 
-def test_ref_in_extends():
-    src = Configuration.from_file('extends.yml', configure=False)
+def test_lookups_in_extends():
+    src = Configuration.from_file(TEST_DIR + '/data/extends/extends.yml')
+    print_yaml("Extends using !lookup:", src)
     src.configure()
+    from ksgen.yaml_utils import LookupDirective
+    LookupDirective.lookup_table = src
     print_yaml("Extends using !lookup:", src)
-    yaml_utils.LookupDirective.lookup_table = src
-    print_yaml("Extends using !lookup:", src)
+
 
 def test_lookup():
     src_yaml = """
@@ -247,9 +231,9 @@ def test_lookup():
     """
 
     src = Configuration.from_string(src_yaml, configure=False)
-    yaml_utils.LookupDirective.lookup_table = src
+    from ksgen.yaml_utils import LookupDirective
+    LookupDirective.lookup_table = src
     print_yaml("yaml for src", src)
-
 
     # use previous context ...
     ref_src_foo_yaml = """
@@ -257,8 +241,8 @@ def test_lookup():
     missing_lookup: !lookup non.existent.key
     """
     ref_src_foo = Configuration.from_string(ref_src_foo_yaml, configure=False)
-    merged = src.merge(ref_src_foo)
-    yaml_utils.LookupDirective.lookup_table = merged
+    merged = deepcopy(src).merge(ref_src_foo)
+    LookupDirective.lookup_table = merged
     print_yaml("yaml that refs src", merged)
 
     import yaml
@@ -286,7 +270,7 @@ def test_ref():
 
     raised_key_error = True
     with pytest.raises(KeyError):
-        missing_ref = Configuration.from_string(missing_ref_yaml)
+        Configuration.from_string(missing_ref_yaml)
         raised_key_error = False
     assert raised_key_error
     logging.debug("Raised KeyError")
@@ -296,7 +280,7 @@ def test_ref():
     ref_src_foo:  !ref:foo
     """
     ref_src_foo = Configuration.from_string(ref_src_foo_yaml, configure=False)
-    merged = src.merge(ref_src_foo)
+    merged = deepcopy(src).merge(ref_src_foo)
     merged.configure()
     print_yaml("yaml that refs src", merged)
 
@@ -330,7 +314,7 @@ def test_merge_error():
     print_yaml("other", other)
 
     with pytest.raises(ConfigurationError):
-        merged = src.merge(other)
+        merged = deepcopy(src).merge(other)
         print_yaml("Merged", dict(merged))
     logging.info("Merge raised configuration error")
 
@@ -349,18 +333,18 @@ def _enable_logging(level=None):
 
 
 def usage():
-    help = """
-%(usage)s
+    doc_string = """
+    %(usage)s
 
 Methods:
     %(methods)s
-""" % {
+    """ % {
         "usage": __doc__,
         "methods": '\n    '.join([
             m for m in globals().keys() if m.startswith('test_')
         ])
     }
-    print(help)
+    print doc_string
 
 if __name__ == '__main__':
     import sys
@@ -370,5 +354,7 @@ if __name__ == '__main__':
     except IndexError:
         fn = 'usage'
 
+    if fn not in locals():
+        fn = 'usage'
     ret = locals()[fn]()
     sys.exit(ret)
