@@ -100,6 +100,7 @@
   # apply post-packstack workarouds
 - include: ../../workarounds/workarounds-post-run-packstack.yml tags=workaround
 
+- include: ../sahara.yml
 - include: tempest.yml
 
 - name: SELINUX error check
