@@ -143,7 +143,8 @@ def _setup_logging(level):
     logging.basicConfig(level=numeric_val, format=fmt)
 
 
-def main(args=sys.argv):
+def main(args=None):
+    args = args or sys.argv
     yaml_utils.register()
 
     # given a directory tree can you generate docstring?
@@ -151,7 +152,8 @@ def main(args=sys.argv):
     _setup_logging(args['--log-level'])
 
     cmd = args['<command>']
-    config_dir = args['--config-dir']
+    from os.path import abspath
+    config_dir = abspath(args['--config-dir'])
     if cmd == 'help':
         return usage(config_dir)
 
