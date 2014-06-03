@@ -426,9 +426,9 @@ class Job(object):
     """
     _node_prefix_map = {
         "installer": {
-            "foreman": "fore",
-            "packstack": "pack",
-            "tripleo": "trio"
+            "foreman": "f",
+            "packstack": "p",
+            "tripleo": "t"
         },
         "product": {
             "rdo": "rdo",
@@ -440,9 +440,9 @@ class Job(object):
             "grizzly": "G",
         },
         "productreleaserepo": {
-            "production": "prod",
-            "stage": "sta",
-            "testing": "test",
+            "production": "pr",
+            "stage": "st",
+            "testing": "te",
             "poodle": "po",
         },
         "distribution": {
@@ -456,27 +456,29 @@ class Job(object):
             "multinode": "m",
         },
         "networking": {
-            "nova": "nova",
-            "neutron": "neut",
-            "ml2": "ml2",
+            "nova": "nv",
+            "neutron": "nt",
+            "ml2": "m2",
         },
         "variant": {},
         "testsuite": {},
     }
 
     def generate_node_prefix(self, config):
-        node_prefix = "{installer}-{product}-{productrelease}-{productreleaserepo}-{distribution}{distroversion}-{topology}-{networking}-{variant}".format(
-            installer=self._node_prefix_map['installer'][config['installer']],
-            product=self._node_prefix_map['product'][config['product']],
-            productrelease=self._node_prefix_map['productrelease'][config['productrelease']],
-            productreleaserepo=self._node_prefix_map['productreleaserepo'][config['productreleaserepo']],
-            distribution=self._node_prefix_map['distribution'][config['distribution']],
-            distroversion=config['distrorelease'].replace('.', ''),
-            topology=self._node_prefix_map['topology'][config['topology']],
-            networking=self._node_prefix_map['networking'][config['networking']],
-            variant=config['variant'],
-        )
-        return node_prefix.lower()
+        return '-'.join(filter(None, [
+            self._node_prefix_map['installer'][config['installer']],
+            self._node_prefix_map['product'][config['product']],
+            self._node_prefix_map['productrelease'][config['productrelease']],
+            self._node_prefix_map['productreleaserepo'][config['productreleaserepo']],
+            "{distro}{distroversion}".format(
+                distro=self._node_prefix_map['distribution'][config['distribution']],
+                distroversion=config['distrorelease'].replace('.', ''),
+            ),
+            self._node_prefix_map['topology'][config['topology']],
+            self._node_prefix_map['networking'][config['networking']],
+            config['variant'],
+            os.getenv('BUILD_NUMBER', ''),
+        ])).lower() + '-'
 
     def choose_value(self, env_var_name, cli_var_name, keypath_string):
         """
