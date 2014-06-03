@@ -22,8 +22,8 @@ class OrderedTree(OrderedDict):
         Create a Tree
         """
         super(OrderedTree, self).__init__()
-        self._delimiter = delimiter
-        self.update(kwargs)
+        self.delimiter = delimiter
+        self.merge(kwargs)
 
     def insert(self, key, value, delimiter=None):
         """
@@ -34,22 +34,22 @@ class OrderedTree(OrderedDict):
         logging.debug("parent: %s, child: %s", parent, child)
         OrderedTree._add_child(parent, child, value)
 
-    def update(self, other):
+    def merge(self, other):
         for (k, v) in other.iteritems():
             logging.debug("%s, %s", k, v)
             # if the key isn't there, then copy the entire tree
             if k in self:
                 logging.debug("%s is in self", k)
                 if isinstance(self[k], OrderedTree):
-                    logging.debug("Update self[%s] with value: %s", k, v)
-                    self[k].update(v)
+                    logging.debug("merge self[%s] with value: %s", k, v)
+                    self[k].merge(v)
                     continue    # ### skip to next one ###
 
                 del self[k]     # self[k] is not a tree so replace it
             OrderedTree._add_child(self, k, v)
 
     def __contains__(self, key):
-        delimiter = self._delimiter
+        delimiter = self.delimiter
         if delimiter not in key:
             return super(OrderedTree, self).__contains__(key)
 
@@ -64,7 +64,7 @@ class OrderedTree(OrderedDict):
         return True
 
     def __getitem__(self, key):
-        if self._delimiter not in key:
+        if self.delimiter not in key:
             return super(OrderedTree, self).__getitem__(key)
 
         parent = self._parent(key)
@@ -72,13 +72,13 @@ class OrderedTree(OrderedDict):
         return parent[leaf]
 
     def __setitem__(self, key, value):
-        if self._delimiter not in key:
+        if self.delimiter not in key:
             super(OrderedTree, self).__setitem__(key, value)
         else:
             self.insert(key, value)
 
     def __delitem__(self, key):
-        if self._delimiter not in key:
+        if self.delimiter not in key:
             return super(OrderedTree, self).__delitem__(key)
 
         parent = self._parent(key)
@@ -87,11 +87,11 @@ class OrderedTree(OrderedDict):
 
     # ### private ###
     def _key_for_index(self, key, index, delimiter=None):
-        delimiter = delimiter or self._delimiter
+        delimiter = delimiter or self.delimiter
         return key.split(delimiter)[index]
 
     def _parent(self, path, create_flag=Path.NoCreate, delimiter=None):
-        delimiter = delimiter or self._delimiter
+        delimiter = delimiter or self.delimiter
         if not path or len(path) == 0:
             raise KeyError()
 
@@ -105,7 +105,7 @@ class OrderedTree(OrderedDict):
             if (create_flag == OrderedTree.Path.AutoCreate and
                     (not node.__contains__(key) or
                      not isinstance(node[key], OrderedTree))):
-                node[key] = OrderedTree(self._delimiter)  # debated
+                node[key] = OrderedTree(self.delimiter)  # debated
             node = node[key]
         return node
 
@@ -122,7 +122,7 @@ class OrderedTree(OrderedDict):
         if child not in self:
             logging.debug("child: %s not in "
                           "Parent: %s - CREATING", child, self)
-            self[child] = OrderedTree(self._delimiter)
+            self[child] = OrderedTree(self.delimiter)
         OrderedTree._deep_copy(self[child], **value)
 
     def _deep_copy(self, **kwargs):
@@ -131,7 +131,7 @@ class OrderedTree(OrderedDict):
             if not is_dict(v):
                 self[k] = v
             else:
-                self[k] = OrderedTree(self._delimiter)
+                self[k] = OrderedTree(self.delimiter)
                 OrderedTree._deep_copy(self[k], **v)
 
 

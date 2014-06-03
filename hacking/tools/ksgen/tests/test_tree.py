@@ -39,7 +39,7 @@ def test_in():
     print_yaml("tree", tree)
 
 
-def test_update_2():
+def test_merge_2():
     src = OrderedTree()
     src['foo.bar.baz'] = 'boo boo'
 
@@ -47,14 +47,14 @@ def test_update_2():
     other['x.y.z'] = 'xyz'
     other['foo.bar.soo'] = 'moo moo'
     # other['foo.bar.baz.too'] = 'moo moo'
-    src.update(other)
-    print_yaml("add update src and other", src)
+    src.merge(other)
+    print_yaml("add merge src and other", src)
 
-    src.update(other)
-    print_yaml("add update src and other", src)
+    src.merge(other)
+    print_yaml("add merge src and other", src)
 
 
-def test_update():
+def test_merge():
     src = OrderedTree()
     src['a.b.c'] = 'foo'
     src['a.b.d'] = 'foo'
@@ -64,7 +64,7 @@ def test_update():
     other['x.y.z'] = 'foobar'
     print_yaml('other_tree:', other)
 
-    src.update(other)
+    src.merge(other)
     print_yaml("After updating x.y.z: ", src)
     assert 'a.b.c' in src
     assert 'a.b.d' in src
@@ -75,9 +75,9 @@ def test_update():
     print_yaml('add a.b.d.e to other:', other)
     print_yaml('src:', src)
 
-    src.update(other)
+    src.merge(other)
 
-    print_yaml("After update: ", src)
+    print_yaml("After merge: ", src)
     assert 'a.b.c' in src
     assert 'a.b.d' in src
     assert 'x.y.z' in src
@@ -85,7 +85,7 @@ def test_update():
     assert src['a.b.d'] != 'foo'
 
 
-def test_update_dict_objects():
+def test_merge_dict_objects():
     tree = OrderedTree()
     tree['foo'] = 'foo'
     tree['bar'] = 'baz'
@@ -94,7 +94,7 @@ def test_update_dict_objects():
         "foo":  "bar"
     }
 
-    tree.update(obj)
+    tree.merge(obj)
     print_yaml("updating a simple dict", tree)
     assert 'test' in tree
     assert 'foo' in tree
@@ -111,7 +111,7 @@ def test_update_dict_objects():
             }
         }
     }
-    tree.update(replace_bar)
+    tree.merge(replace_bar)
     print_yaml("replace bar with a dict", tree)
     assert 'test' in tree
     assert 'foo' in tree
@@ -131,7 +131,7 @@ def test_update_dict_objects():
             }
         }
     }
-    tree.update(add_to_bar)
+    tree.merge(add_to_bar)
     print_yaml("replace bar with a dict", tree)
 
     assert 'test' in tree
