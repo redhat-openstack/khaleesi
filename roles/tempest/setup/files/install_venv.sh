@@ -20,22 +20,6 @@ main() {
         echo "Virtual Env setup failed after 4 retries, quiting"
         return 1
     }
-
-    local py_version=$(python --version 2>&1)
-    if [[ $py_version =~ "2.7" ]]; then
-        ### HACK: turn off: "treat unset variable as error" {
-            set +u
-            source .venv/bin/activate
-            set -u
-        ### }
-        pip install junitxml >/dev/null 2>&1 ||
-            pip install junitxml >/dev/null 2>&1 ||
-            pip install junitxml >/dev/null 2>&1 || {
-                echo "Installing junit failed after 3 attempts ... Quiting"
-                return 1
-        }
-
-    fi
     echo "Virtual Env setup - complete"
 }
 
