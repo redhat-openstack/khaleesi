@@ -1,0 +1,9 @@
+---
+firewall_services:
+  - http
+  - https
+  - libvirt
+firewall_ports:
+  - 8140/tcp
+  - 8443/tcp
+  - 5900-5930/tcp

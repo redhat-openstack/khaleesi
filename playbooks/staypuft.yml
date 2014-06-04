@@ -1,0 +1,33 @@
+---
+- include: group_by.yml tags=groupby
+
+- name: Common setup
+  hosts: staypuft
+  sudo: yes
+  roles:
+    - { role: common }
+    - { role: linux-common }
+
+- name: Prep staypuft on a fresh box
+  hosts: staypuft
+  sudo: yes
+  roles:
+    - { role: staypuft/selinux }
+    - { role: staypuft/repos }
+    - { role: staypuft/packages }
+    - { role: staypuft/firewall }
+    - { role: staypuft/default_network }
+    - { role: staypuft/fqdn }
+    - { role: staypuft/nfs_server }
+
+- name: f19-specific prep
+  hosts: staypuft:&Fedora
+  sudo: yes
+  roles:
+    - { role: staypuft/fix_fedora_release }
+
+- name: Install foreman
+  hosts: staypuft
+  sudo: yes
+  roles:
+    - { role: staypuft/foreman-install }

@@ -1,0 +1,17 @@
+<network>
+  <name>default</name>
+  <bridge name="virbr0" stp='on' delay='0'/>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <domain name='example.com'/>
+  <ip address="{{ default_ip_prefix }}.1" netmask="255.255.255.0">
+    <tftp root='/var/lib/tftpboot/' />
+    <dhcp>
+      <range start="{{ default_ip_prefix }}.10" end="{{ default_ip_prefix }}.254" />
+      <bootp file='pxelinux.0' />
+    </dhcp>
+  </ip>
+</network>

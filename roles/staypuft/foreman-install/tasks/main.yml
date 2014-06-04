@@ -1,0 +1,6 @@
+---
+- name: Install staypuft installer
+  yum: name=foreman-installer-staypuft state=latest
+
+# - name: Install foreman
+#   command: foreman-installer

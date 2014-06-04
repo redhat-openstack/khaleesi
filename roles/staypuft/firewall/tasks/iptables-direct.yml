@@ -1,0 +1,6 @@
+---
+- name: Set firewall rules to template
+  template: src=iptables.j2 dest=/etc/sysconfig/iptables mode=600 owner=root group=root
+
+- name: Restart firewall
+  service: name=iptables state=restarted enabled=yes
