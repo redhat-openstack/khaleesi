@@ -1,0 +1,66 @@
+- name: config_tempest |  ensure wget is present
+  yum: name=wget state=present
+  tags:
+    - tempest_setup_rpm
+    - tempest_setup_gen_conf
+
+- name: config_tempest |  download config_tempest.py from redhat-openstack if absent
+  command: wget -N --quiet {{ tempest_redhat_repo.config_script }}
+           chdir={{ tempest.checkout_dir }}/tools
+           creates={{tempest.checkout_dir }}/tools/config_tempest.py
+  register: config_tempest_copied
+  tags:
+    - tempest_setup_rpm
+    - tempest_setup_gen_conf
+
+- name: config_tempest |  download tempest.conf.sample from redhat-openstack/tempest
+  command: wget -N --quiet {{tempest_redhat_repo.tempest_conf_sample }}
+           chdir={{ tempest.checkout_dir }}/etc
+  when: config_tempest_copied|changed
+  tags:
+    - tempest_setup_rpm
+    - tempest_setup_gen_conf
+
+# ### cannot use ini_file because it strips away comments which  ###
+# ### config_tempest.py uses to create additional settings       ###
+- name: config_tempest | change the default tempest sample to get config_tempest.py running
+  command: sed
+        -e 's| secret| redhat|g'
+        -e 's|^#uri=.*|uri=http://{{hostvars[controller_name].private_ip}}:35357/v2.0|'
+        -e 's|^#tenant_name=.*|tenant_name=demo|'
+        -e 's|^#username=.*|username=demo|'
+        -e 's|^#password=.*|password=redhat|'
+        -e 's|^#admin_role=.*|admin_role=admin|'
+        -e 's|^#admin_tenant_name=.*|admin_tenant_name=admin|'
+        -e 's|^#admin_username=.*|admin_username=admin|'
+        -e 's|^#admin_password=.*|admin_password=redhat|'
+        -i {{ tempest.checkout_dir }}/etc/tempest.conf.sample
+  tags:
+    - tempest_setup_rpm
+    - tempest_setup_gen_conf
+
+- name: config_tempest |  generating tempest.conf by running
+  debug: msg="'Running:' {{ tempest_config_generate_command }}"
+  tags:
+    - tempest_setup_rpm
+    - tempest_setup_gen_conf
+
+- name: config_tempest |  generate tempest.conf
+  command: "{{ tempest_config_generate_command }}
+           chdir={{ tempest.checkout_dir }}"
+  register: result
+  tags:
+    - tempest_setup_rpm
+    - tempest_setup_gen_conf
+
+- name: config_tempest | Output of generate command
+  debug: var=result.stdout_lines
+  tags:
+    - tempest_setup_rpm
+    - tempest_setup_gen_conf
+
+- debug: var=result.stderr_lines
+  when:  result|failed
+  tags:
+    - tempest_setup_rpm
+    - tempest_setup_gen_conf
