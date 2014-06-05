@@ -1,3 +1,2 @@
 ---
-reboot_options: " ' Reboot is triggered by Ansible' "
 yum_update: true
