@@ -1,7 +1,7 @@
 ---
   - name: dump network and node info
     debug: var=hostvars
-    when: "'debug' in config.verbosity"
+    when: job.verbosity <= verbosity.debug
 
   - name: ensure tempest node can connect to controller (default network)
     command: iptables -I INPUT 1 -s {{ tempest_default_ip }}/32 -p tcp  -j ACCEPT

@@ -1,11 +1,11 @@
 ---
 - name: Install rdo-release
-  yum: name="{{ rdo[ config.version ].release_rpm[ ansible_distribution ] }}"
+  yum: name="{{ product.rpm[ ansible_distribution ] }}"
        state=present
 
 - name: Turn off gpgcheck
   ini_file: dest=/etc/yum.repos.d/rdo-release.repo
-            section=openstack-{{ config.version }}
+            section=openstack-{{ product.version }}
             option=gpgcheck
             value=0
 
