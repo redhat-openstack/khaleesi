@@ -28,15 +28,17 @@ class Loader(object):
 
     def settings_tree(self):
         self._load()
+        LookupDirective.lookup_table = self._all_settings
         return self._all_settings
 
     def load_file(self, f):
         self._load()
-        self._load_file(f)
+        cfg = Configuration.from_file(f).configure()
+        self._all_settings.merge(cfg)
 
-    def update(self, tree):
+    def merge(self, tree):
         self._load()
-        self._all_settings.update(tree)
+        self._all_settings.merge(tree)
 
     def _load(self):
         if self._loaded:
@@ -52,16 +54,13 @@ class Loader(object):
         if self._invalid_paths:
             raise OptionError(self._invalid_paths)
 
+        all_cfg = Configuration.from_dict({})
         for f in self._file_list:
-            self._load_file(f)
-
-        LookupDirective.lookup_table = self._all_settings
+            logging.debug('Loading file: %s', f)
+            cfg = Configuration.from_file(f).configure()
+            all_cfg.merge(cfg)
+        self._all_settings.merge(all_cfg)
         self._loaded = True
-
-    def _load_file(self, f):
-        logging.debug('Loading file: %s', f)
-        cfg = Configuration.from_file(f).configure()
-        self._all_settings.merge(cfg)
 
     def _create_file_list(self, settings, parent_path, file_list):
         """ Appends list of files to be process to self._file_list

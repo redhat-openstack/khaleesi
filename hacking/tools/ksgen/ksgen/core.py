@@ -122,7 +122,7 @@ def _update_extra_vars(extra_vars, loader):
             key, val = var.split('=', 1)
             tree = OrderedTree(delimiter='.')
             tree[key] = val
-            loader.update(tree)
+            loader.merge(tree)
         else:
             raise KeyValueError(var, "No = found between key and value")
 

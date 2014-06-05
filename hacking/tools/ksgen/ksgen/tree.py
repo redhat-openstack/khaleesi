@@ -101,7 +101,6 @@ class OrderedTree(OrderedDict):
         # with value
         node = self
         for key in keys[:-1]:
-            logging.debug("    ... processing: %s ", key)
             if (create_flag == OrderedTree.Path.AutoCreate and
                     (not node.__contains__(key) or
                      not isinstance(node[key], OrderedTree))):
