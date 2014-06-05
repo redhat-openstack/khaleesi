@@ -92,7 +92,7 @@
       - { section: securitygroup, option: firewall_driver, value: dummy_value_to_enable_security_groups_in_server}
       - { section: ml2_type_gre, option: tunnel_id_ranges, value: '1:1000' }
       - { section: database, option: sql_connection,
-                value: 'mysql://neutron:redhat@{{ hostvars[controller_name].private_ip }}/neutron_ml2'  }
+                value: 'mysql://neutron:redhat@{{ hostvars[nodes.controller.name].private_ip }}/neutron_ml2'  }
   tags:
     - ml2-plugin
     - ml2-plugin-config-ini
