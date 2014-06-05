@@ -52,7 +52,7 @@
 - name: Group hosts by product rdo/rhos
   hosts: all:!localhost:!tempest
   tasks:
-    - group_by: key={{ config.product }}
+    - group_by: key={{ product.name }}
   tags:
     - prep
 

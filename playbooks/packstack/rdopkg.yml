@@ -27,7 +27,7 @@
 - name: Group hosts by product rdo/rhos
   hosts: all:!localhost:!tempest
   tasks:
-    - group_by: key={{ config.product }}
+    - group_by: key={{ product.name }}
   tags:
     - prep
 
@@ -48,7 +48,7 @@
 - name: Group hosts by netplugin nova/neutron networking
   hosts: all:!localhost:!tempest
   tasks:
-    - group_by: key={{ config.netplugin }}
+    - group_by: key={{ installer.network.plugin.name }}
   tags:
     - prep
 
