@@ -48,3 +48,11 @@
     - python-virtualenv
   tags:
     - tempest_setup
+
+- name: Install additional rpm dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - python-saharaclient
+  when: config.version != 'grizzly' and config.version != 'havana'
+  tags:
+    - tempest_setup
