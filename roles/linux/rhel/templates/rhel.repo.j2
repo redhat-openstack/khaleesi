@@ -1,21 +1,9 @@
-[rhel-6-server-rpms]
-name=Extra Packages for Enterprise Linux 6 - $basearch
-baseurl=http://{{ rhel_os_repo }}
+{% for repo in distro.rhel.repos %}
+[{{repo.section}}]
+name={{repo.name}}
+baseurl={{repo.baseurl}}
+gpgcheck={{ repo.gpg_check }}
 failovermethod=priority
 enabled=1
-gpgcheck={{ gpg_check }}
 
-[rhel-6-server-updates-rpms]
-name=Extra Packages for Enterprise Linux 6 - $basearch
-baseurl=http://{{ rhel_updates_repo }}
-failovermethod=priority
-enabled=1
-gpgcheck={{ gpg_check }}
-
-[rhel-6-server-optional-rpms]
-name=Extra Packages for Enterprise Linux 6 - $basearch
-baseurl=http://{{ rhel_optional_repo }}
-failovermethod=priority
-enabled=1
-gpgcheck={{ gpg_check }}
-
+{% endfor %}
