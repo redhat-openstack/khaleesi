@@ -1,17 +1,35 @@
-{% if net_2_name is defined and item.0.info.addresses[net_2_name].0.addr is defined %}
-      {{ net_2_name }}="{{ item.0.info.addresses[net_2_name].0.addr }}"
-      tempest_private_ip="{{ item.0.info.addresses[net_2_name].0.addr }}"
+#jinja2: lstrip_blocks:True, trim_blocks:True
+{% set nic = provisioner.network.nic %}
+{% set node_info = item.0.info -%}
+
+{% if nic.net_2 is defined -%}
+    {% set net_name = nic.net_2.name %}
+    {% if  node_info.addresses[net_name].0.addr is defined -%}
+      {% set tmp_addr = node_info.addresses[net_name].0.addr %}
+      {{ net_name }}='{{tmp_addr }}'
+      tempest_private_ip='{{tmp_addr }}'
+    {%- endif %}
+{%- endif %}
+
+{% if nic.net_3 is defined -%}
+    {% set net_name = nic.net_3.name %}
+
+    {% if  node_info.addresses[net_name].0.addr is defined %}
+      {% set tmp_addr = node_info.addresses[net_name].0.addr %}
+      {{ net_name }}='{{tmp_addr}}'
+      tempest_private_ip='{{tmp_addr}}'
+    {% endif %}
+
+{%- endif -%}
+
+
+{% set node_config = item.0.item.value %}
+{% if node_config.hostname is defined -%}
+     priv_hostname="{{ node_config.hostname }}"
+{%- endif %}
+{%- if node_config.node_hostgroup is defined -%}
+      node_hostgroup="{{ node_config.node_hostgroup }}"
 {% endif %}
-{% if net_3_name is defined and item.0.info.addresses[net_3_name] is defined %}
-      {{ net_3_name }}="{{ item.0.info.addresses[net_3_name].0.addr }}"
-      tempest_public_ip="{{ item.0.info.addresses[net_3_name].0.addr }}"
-{% endif %}
-{% if item.0.item.node_hostgroup is defined %}
-      node_hostgroup="{{ item.0.item.node_hostgroup }}"
-{% endif %}
-{% if item.0.item.hostname is defined %}
-     priv_hostname="{{ item.0.item.hostname }}"
-{% endif %}
-{% if item.0.item.bridge_interfaces is defined %}
-     bridge_interfaces="{{ item.0.item.bridge_interfaces }}"
+{%- if node_config.bridge_interfaces is defined -%}
+     bridge_interfaces="{{ node_config.bridge_interfaces }}"
 {% endif %}

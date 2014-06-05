@@ -1,64 +1,65 @@
 ---
+- name: Print host openstack network type (nova/neutron)
+  debug: var=provisioner.network.type
+
 - name: Provision nodes
   nova_compute:
-       auth_url: "{{ os_auth_url }}"
+       auth_url: "{{ provisioner.url }}"
+       login_username: "{{ provisioner.username }}"
+       login_password: "{{ provisioner.password }}"
+       login_tenant_name: "{{ provisioner.tenant_name }}"
+       key_name: "{{ provisioner.key_name }}"
+       wait_for: "{{ distro.config.initial_boot_timeout }}"
        state: present
-       login_username: "{{ os_username }}"
-       login_password: "{{ os_password }}"
-       login_tenant_name: "{{ os_tenant_name }}"
-       name: "{{ item.name }}"
-       image_id: "{{ item.image_id }}"
-       key_name: "{{ item.key_name }}"
-       wait_for: "{{ wait_for_boot }}"
-       flavor_id: "{{ item.flavor_id }}"
-       nics: "{{ item.network_ids }}"
+       name: "{{ item.value.name }}"
+       image_id: "{{ item.value.image_id }}"
+       flavor_id: "{{ item.value.flavor_id }}"
+       nics: "{{ item.value.nics }}"
   register: new_nodes
   retries: 4
   delay: 60
-  with_items: nodes
-
-- name: Print host openstack network type (nova/neutron)
-  debug: var=os_network_type
-
-- name: Assign floating ip (neutron network)
-  quantum_floating_ip:
-       auth_url: "{{ os_auth_url }}"
-       state: present
-       login_username: "{{ os_username }}"
-       login_password: "{{ os_password }}"
-       login_tenant_name: "{{ os_tenant_name }}"
-       network_name: "{{ floating_network_name }}"
-       instance_name: "{{ item.name }}"
-       internal_network_name: default
-  when: 'os_network_type == "neutron"'
-  register: neutron_floating_ips
-  retries: 2
-  delay: 10
-  until: neutron_floating_ips.public_ip is defined
-  with_items: nodes
+  with_dict: nodes
 
 - name: Assign floating ip (nova network)
   nova_floating_ip:
-       auth_url: "{{ os_auth_url }}"
+       auth_url: "{{ provisioner.url }}"
+       login_username: "{{ provisioner.username }}"
+       login_password: "{{ provisioner.password }}"
+       login_tenant_name: "{{ provisioner.tenant_name }}"
+       network_name: "{{ provisioner.network.name }}"
        state: present
-       login_username: "{{ os_username }}"
-       login_password: "{{ os_password }}"
-       login_tenant_name: "{{ os_tenant_name }}"
-       network_name: "{{ floating_network_name }}"
-       instance_name: "{{ item.name }}"
-  when: 'os_network_type == "nova"'
+       instance_name: "{{ item.value.name }}"
+  when: 'provisioner.network.type == "nova"'
   retries: 3
   delay: 10
   until: nova_floating_ips.public_ip is defined
   register: nova_floating_ips
-  with_items: nodes
+  with_dict: nodes
+
+- name: Assign floating ip (neutron network)
+  quantum_floating_ip:
+       auth_url: "{{ provisioner.url }}"
+       login_username: "{{ provisioner.username }}"
+       login_password: "{{ provisioner.password }}"
+       login_tenant_name: "{{ provisioner.tenant_name }}"
+       network_name: "{{ provisioner.network.name }}"
+       internal_network_name: default
+       state: present
+       instance_name: "{{ item.value.name }}"
+  when: 'provisioner.network.type == "neutron"'
+  register: neutron_floating_ips
+  retries: 2
+  delay: 10
+  until: neutron_floating_ips.public_ip is defined
+  with_dict: nodes
+
 
 - { include: add_hosts.yml,
     network_expected: nova,
     nodes_created: "{{ new_nodes.results }}",
     floating_ips: "{{ nova_floating_ips.results }}",
     when: 'new_nodes.results and nova_floating_ips.results
-                and os_network_type == "nova"'
+                and provisioner.network.type == "nova"'
   }
 
 - { include: add_hosts.yml,
@@ -66,11 +67,11 @@
     nodes_created: "{{ new_nodes.results }}",
     floating_ips: "{{ neutron_floating_ips.results}}",
     when: 'new_nodes.results and neutron_floating_ips.results
-                and os_network_type == "neutron"'
+                and provisioner.network.type == "neutron"'
   }
 
 - name: Pause to let the systems boot
-  pause: seconds="{{ wait_for_boot }}"
+  pause: seconds="{{ distro.config.initial_boot_timeout }}"
   when: new_nodes|changed
 
 #note: bug w/ delay var: https://github.com/ansible/ansible/issues/5031

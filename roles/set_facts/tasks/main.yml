@@ -1,4 +1,9 @@
 ---
+- name: Validate all variables are set
+  template:
+    src: addl_vars.j2
+    dest: /tmp/set_facts.txt
+
 - name: Set facts
   set_fact:
       public_ip="{{ public_ip }}"
