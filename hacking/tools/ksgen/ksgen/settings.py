@@ -29,14 +29,18 @@ class Loader(object):
         self._file_list = None
         self._invalid_paths = None
 
-    def settings_tree(self):
+    def settings(self):
         self._load()
         LookupDirective.lookup_table = self._all_settings
         return self._all_settings
 
     def load_file(self, f):
         self._load()
-        cfg = Configuration.from_file(f).configure()
+        try:
+            cfg = Configuration.from_file(f).configure()
+        except ConfigurationError as e:
+            logger.error("Error loading: %s; reason: %s", f, e)
+            raise
         self._all_settings.merge(cfg)
 
     def merge(self, tree):
