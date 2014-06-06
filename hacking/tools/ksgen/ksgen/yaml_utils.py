@@ -17,6 +17,9 @@ import logging
 import yaml
 
 
+safe_dump = lambda x: yaml.safe_dump(x, default_flow_style=False)
+
+
 def to_yaml(header, x):
     """formats x to yaml and adds header on top"""
 
@@ -27,7 +30,7 @@ def to_yaml(header, x):
 ----------------------
     """ % {
         "header": header,
-        "yml": yaml.safe_dump(x, default_flow_style=False)
+        "yml": safe_dump(x)
     }
 
 
