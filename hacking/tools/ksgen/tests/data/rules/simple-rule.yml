@@ -1,0 +1,10 @@
+---
+args:
+    installer: packstack
+    product: rdo
+    extra-vars: node_prefix=st-ih-aio-rh70
+    extra-vars: [ node_prefix=st-ih-aio-rh70, provisioner.password=CHANGEME ]
+
+validation:
+    must_have:
+        - site
