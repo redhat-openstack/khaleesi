@@ -6,6 +6,9 @@ import os
 
 
 VALUES_KEY = '!value'
+logger = logging.getLogger(__name__)
+
+
 
 
 class OptionError(Exception):
@@ -47,34 +50,43 @@ class Loader(object):
         self._all_settings = OrderedTree('!')
         self._file_list = []
         self._invalid_paths = []
-        self._create_file_list(self._settings, "", self._file_list)
-        logging.info("List of files to load :\n %s",
-                     '\n'.join(self._file_list))
-        logging.info("invalid files :\n %s", '\n'.join(self._invalid_paths))
+        self._create_file_list(self._settings, self._file_list)
+
+        logger.info(
+            "\nList of files to load :\n  - %s",
+            '\n  - '.join([
+                x[len(self._config_dir) + 1:] for x in self._file_list
+            ]))
+
         if self._invalid_paths:
+            logger.info("invalid files :\n %s", '\n'.join(self._invalid_paths))
             raise OptionError(self._invalid_paths)
 
         all_cfg = Configuration.from_dict({})
         for f in self._file_list:
-            logging.debug('Loading file: %s', f)
-            cfg = Configuration.from_file(f).configure()
+            logger.debug('Loading file: %s', f)
+            try:
+                cfg = Configuration.from_file(f).configure()
+            except ConfigurationError as e:
+                logger.error("Error loading: %s; reason: %s", f, e)
+                raise
             all_cfg.merge(cfg)
         self._all_settings.merge(all_cfg)
         self._loaded = True
 
-    def _create_file_list(self, settings, parent_path, file_list):
+    def _create_file_list(self, settings, file_list, parent_path=""):
         """ Appends list of files to be process to self._file_list
             and list of invalid file paths to self._invalid_paths
         """
-        logging.debug('settings:\n %s \n parent: %s \n files: %s',
-                      settings, parent_path, file_list)
+        logger.debug('settings:\n %s \n parent: %s \n files: %s',
+                     settings, parent_path, file_list)
 
         for key, sub_tree in settings.items():
             # ignore the special key value
             if key == VALUES_KEY:
                 continue
 
-            logging.debug("key: %s, subtree: %s", key, sub_tree)
+            logger.debug("key: %s, subtree: %s", key, sub_tree)
             path = "%(parent_path)s%(key)s%(sep)s%(file)s" % {
                 'parent_path': parent_path,
                 'key': key,
@@ -82,10 +94,10 @@ class Loader(object):
                 'file': sub_tree[VALUES_KEY]
             }
 
-            abs_file_path = os.path.abspath(self._config_dir + os.sep
-                                            + path + '.yml')
+            abs_file_path = os.path.abspath(
+                self._config_dir + os.sep + path + '.yml')
             file_list.append(abs_file_path)
-            logging.debug('path: %s', abs_file_path)
+            logger.debug('path: %s', abs_file_path)
 
             if not os.path.exists(abs_file_path):
                 self._invalid_paths.append(abs_file_path)
@@ -93,5 +105,5 @@ class Loader(object):
             # recurse if there are sub settings
             if (isinstance(sub_tree, dict)
                     and len(sub_tree.keys()) > 1):
-                logging.debug('recursing into: sub-tree: %s', sub_tree)
-                self._create_file_list(sub_tree, path + os.sep, file_list)
+                logger.debug('recursing into: sub-tree: %s', sub_tree)
+                self._create_file_list(sub_tree, file_list, path + os.sep)
