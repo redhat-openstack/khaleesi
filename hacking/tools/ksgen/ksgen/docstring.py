@@ -77,7 +77,7 @@ class Generator(object):
     # ### private ###
     def _add_option(self, dir_path, values):
         # remove all data-dirs from the dir_path
-        logger.info("Add option - dir: '%s': %s", dir_path, values)
+        logger.debug("Add option - dir: '%s': %s", dir_path, values)
 
         dirname = os.path.dirname(dir_path)
         parent_option = self._remove_data_dirs(dirname)
@@ -91,7 +91,7 @@ class Generator(object):
         else:
             self._parse_tree[key].update(values)
 
-        logger.info("Adding %s: %s", key, values)
+        logger.info("Adding %s: [%s]", key, ', '.join(values))
 
     def _is_data_dir(self, path):
         # is a data dir if  basepath is one of the values of
