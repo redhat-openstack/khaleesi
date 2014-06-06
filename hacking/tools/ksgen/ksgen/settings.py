@@ -2,10 +2,9 @@ from configure import Configuration, ConfigurationError
 from ksgen import docstring, yaml_utils, utils
 from ksgen.tree import OrderedTree
 from ksgen.yaml_utils import LookupDirective
-from docopt import docopt
+from docopt import docopt, DocoptExit
 import logging
 import os
-import yaml
 
 
 VALUES_KEY = '!value'
@@ -38,27 +37,28 @@ Usage:
     generate [--extra-vars=KEY_PAIR]... [options] <output-file>
 
 Options:
-    --rule=<file>...       Rules file that contains generation rules
-                            Process the rules first, so the additional
-                            args will override args in rules file
-    --extra-vars=<val>...   Provide extra vars {options}
+    --rules-file=<file>...       Rules file that contains generation rules
+                                 Process the rules first, so the additional
+                                 args will override args in rules file
+    --extra-vars=<val>...        Provide extra vars {options}
     """
 
     def __init__(self, config_dir, args):
         self.config_dir = config_dir
         self.args = args
-        logger.debug("config_dir: %s, args: %s", config_dir, args)
+        logger.debug("Generator: config_dir: %s, args: %s", config_dir, args)
         self._doc_string = Generator.__doc__.format(
-            options=docstring.Generator(config_dir).generate()
-        )
+            options=docstring.Generator(config_dir).generate())
+
         self.settings = None
         self.output_file = None
         self.rules_file = None
-        self._extra_vars = None
+        self.parsed = None
+        self.extra_vars = None
 
     def run(self):
-        self._parse()
-        # return
+        if not self._parse():
+            return
         loader = Loader(self.config_dir, self.settings)
         self._merge_extra_vars(loader)
         all_settings = loader.settings()
@@ -66,21 +66,9 @@ Options:
         logger.debug(yaml_utils.to_yaml("All Settings", all_settings))
         logger.info("Writing to file: %s", self.output_file)
         with open(self.output_file, 'w') as out:
-            out.write(yaml.safe_dump(all_settings, default_flow_style=False))
+            out.write(yaml_utils.safe_dump(all_settings))
 
     def _parse(self):
-        logger.debug("Parsing: %s", self.args)
-        logger.debug("DocString for Generate: %s", self._doc_string)
-
-        parsed = docopt(self._doc_string, options_first=True, argv=self.args)
-        logger.info("Parsed: \n%s", parsed)
-
-        self.output_file = utils.extract_value(
-            parsed, '<output-file>', optional=False)
-        self.rules_file = utils.extract_value(parsed, '--rule')
-        self._extra_vars = utils.extract_value(parsed, '--extra-vars')
-        self._validate_rules()
-
         # create the settings tree and preserve the order in which arguments
         # are passed.  Convert all args into an ordered tree so that
         # --foo fooz  --too moo --foo-bar baaz  --foo-arg vali
@@ -94,13 +82,37 @@ Options:
         # too:
         #   <special-key>: moo
 
+        logger.debug("Parsing: %s", self.args)
+        logger.debug("DocString for Generate: %s", self._doc_string)
+
+        try:
+            self.parsed = docopt(self._doc_string,
+                                 options_first=True, argv=self.args)
+        except DocoptExit:
+            logger.error(self._doc_string)
+            return False
+        logger.info("Parsed \n%s", self.parsed)
+
+        if not self._apply_rules():
+            logger.error("Error while validating rules: check args %s",
+                         self.args)
+            return False
+
+        logger.debug("New Args: %s", self.args)
+        logger.info("After applying rules Parsed: \n%s", self.parsed)
+
+        self.output_file = utils.extract_value(
+            self.parsed, '<output-file>', optional=False)
+
+        self.extra_vars = utils.extract_value(self.parsed, '--extra-vars')
+
         # filter only options; [ --foo, fooz, --bar baz ] -> [--foo, --bar]
         options = [x for x in self.args if x.startswith('--')]
 
         settings = OrderedTree(delimiter='-')
         for option in options:   # iterate options to preserve order of args
             option = option.split('=')[0]
-            value = parsed.get(option)
+            value = self.parsed.get(option)
             if not value:
                 continue
 
@@ -111,15 +123,64 @@ Options:
         logger.debug(yaml_utils.to_yaml(
             "Directory structure from args:", settings))
         self.settings = settings
+        return True
 
-    def _validate_rules(self):
-        pass
+    def _apply_rules(self):
+        self.rules_file = utils.extract_value(self.parsed, '--rules-file')
+        if not self.rules_file:
+            return True    # No rules to be applied
+
+        self.rules_file = os.path.abspath(self.rules_file)
+        logger.debug('Rule file: %s', self.rules_file)
+        rules = load_configuration(self.rules_file, os.path.curdir)
+
+        # create --key=value pairs from the rules.args
+        args_in_rules = rules.get('args', {})
+        extra_vars = utils.extract_value(args_in_rules, 'extra-vars')
+        args = ['--%s=%s' % (k, v) for k, v in args_in_rules.iteritems()]
+        if extra_vars:
+            extra_vars = utils.to_list(extra_vars)
+            args.extend(['--extra-vars=%s' % x for x in extra_vars])
+
+        logger.debug('Args in rules file: %s', args)
+
+        # prepend the args from the rules file and re-parse the args
+        if args:
+            self.args = args + self.args
+            try:
+                self.parsed = docopt(self._doc_string,
+                                     options_first=True, argv=self.args)
+            except DocoptExit:
+                logger.error(self._doc_string)
+                return False
+            # remove rules-file from the parse tree
+            del self.parsed['--rules-file']
+        # validate args
+        try:
+            mandatory_args = rules.validation.must_have
+        except KeyError:
+            logger.debug('No validations in rules file')
+            return True
+
+        if not mandatory_args:
+            logger.debug('No validations in rules file')
+            return True
+
+        logger.debug('Must have args from rule: %s', mandatory_args)
+        missing_args = [x for x in mandatory_args
+                        if "--" + x not in self.parsed]
+        if missing_args:
+            logger.error("Error: missing mandatory args: %s",
+                         ', '.join(missing_args))
+            return False
+
+        return True
 
     def _merge_extra_vars(self, loader):
-        if not self._extra_vars or len(self._extra_vars) == 0:
+        if not self.extra_vars or len(self.extra_vars) == 0:
             return
 
-        for var in self._extra_vars:
+        for var in self.extra_vars:
             if var.startswith('@'):
                 loader.load_file(var[1:])  # remove @
             elif '=' in var:
@@ -147,11 +208,7 @@ class Loader(object):
 
     def load_file(self, f):
         self._load()
-        try:
-            cfg = Configuration.from_file(f).configure()
-        except ConfigurationError as e:
-            logger.error("Error loading: %s; reason: %s", f, e)
-            raise
+        cfg = load_configuration(f, self._config_dir)
         self._all_settings.merge(cfg)
 
     def merge(self, tree):
@@ -179,12 +236,7 @@ class Loader(object):
 
         all_cfg = Configuration.from_dict({})
         for f in self._file_list:
-            logger.debug('Loading file: %s', f)
-            try:
-                cfg = Configuration.from_file(f).configure()
-            except ConfigurationError as e:
-                logger.error("Error loading: %s; reason: %s", f, e)
-                raise
+            cfg = load_configuration(f, self._config_dir)
             all_cfg.merge(cfg)
         self._all_settings.merge(all_cfg)
         self._loaded = True
@@ -222,3 +274,15 @@ class Loader(object):
                     and len(sub_tree.keys()) > 1):
                 logger.debug('recursing into: sub-tree: %s', sub_tree)
                 self._create_file_list(sub_tree, file_list, path + os.sep)
+
+
+def load_configuration(file_path, rel_dir=None):
+    logger.debug('Loading file: %s', file_path)
+    try:
+        return Configuration.from_file(file_path).configure()
+    except ConfigurationError as e:
+        rel_dir = rel_dir or os.curdir
+        logger.error("Error loading: %s; reason: %s",
+                     os.path.relpath(file_path, rel_dir), e)
+        raise
+    return None
