@@ -32,3 +32,12 @@ Command line:
         --extra-vars @repo_settings.yml \
         --extra-vars @settings.yml \
         --extra-vars yum_update=yes
+
+After you have run this playbook, you can run the staypuft-installer on your
+baremetal machine.
+
+Once Staypuft is installed, you can run the VM population playbook
+
+    ansible-playbook -i staypuft_hosts playbooks/staypuft/virt-populate.yml \
+        --extra-vars @repo_settings.yml \
+        --extra-vars @settings.yml \

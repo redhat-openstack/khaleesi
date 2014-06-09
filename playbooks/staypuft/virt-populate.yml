@@ -1,0 +1,6 @@
+---
+- name: Populate virtual machines for Staypuft deployment
+  hosts: staypuft
+  sudo: yes
+  roles:
+    - { role: staypuft/create_vms, count: 4 }
