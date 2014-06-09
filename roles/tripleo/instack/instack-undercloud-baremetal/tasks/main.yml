@@ -1,16 +1,25 @@
 ---
 
-- name: enable the openstack-m repository
+- name: enable the rdo-release repository
   yum: name="{{ rdo[ config.version ].instack_release_rpm[ ansible_distribution ] }}" state=present #"
   when: ansible_distribution == 'Fedora'
+  register: rdo_repo_output
+
+- name: print rdo_repo_output
+  debug: var=rdo_repo_output.stdout
 
 - name: install instack-undercloud
   yum: name=instack-undercloud state=latest
   when: config.instack_undercloud_rpm is not defined
+  register: instack_undercloud_output
 
 - name: install updated version of instack-undercloud if it exists
   yum: name="{{ config.instack_undercloud_rpm }}"
   when: config.instack_undercloud_rpm is defined
+  register: instack_undercloud_output
+
+- name: print instack_undercloud_output
+  debug: var=instack_undercloud_output.stdout
 
 - name: check answers file exists
   shell: "[ -e /usr/share/doc/instack-undercloud/instack-baremetal.answers.sample]"
@@ -39,6 +48,9 @@
 - name: search output for complete status
   shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'install-undercloud-packages complete!'"
   register: grep_output
+
+- name: print grep_output
+  debug: var=grep_output.stdout
 
 - name: report failure if install is not complete
   fail: msg="report error"

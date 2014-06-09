@@ -8,4 +8,5 @@
     instack-test-overcloud
   register: test_output
 
-# - name: test for test complete status
+- name: print test_output
+  debug: var=test_output.stdout
