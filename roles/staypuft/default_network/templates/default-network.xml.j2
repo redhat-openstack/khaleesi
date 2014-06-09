@@ -7,6 +7,11 @@
     </nat>
   </forward>
   <domain name='example.com'/>
+  <dns>
+    <host ip='{{ default_ip_prefix }}.1'>
+      <hostname>foreman.example.com</hostname>
+    </host>
+  </dns>
   <ip address="{{ default_ip_prefix }}.1" netmask="255.255.255.0">
     <tftp root='/var/lib/tftpboot/' />
     <dhcp>
