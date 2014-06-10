@@ -94,7 +94,7 @@ cat_file() {
 execute() {
   echo "Execute Command:"
   echo "    $@"
-  $DRY_RUN || "$@"
+  ${DRY_RUN:-false} || "$@"
 }
 
 
