@@ -53,6 +53,6 @@
   yum: name={{ item }} state=present
   with_items:
     - python-saharaclient
-  when: product.version not in ('grizzly', havana')
+  when: product.version not in ['grizzly', 'havana']
   tags:
     - tempest_setup
