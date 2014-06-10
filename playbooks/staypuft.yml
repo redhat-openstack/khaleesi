@@ -30,4 +30,4 @@
   hosts: staypuft
   sudo: yes
   roles:
-    - { role: staypuft/foreman-install }
+    - { role: staypuft/install }
