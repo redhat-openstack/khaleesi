@@ -15,10 +15,3 @@ tempest_config_image_url: http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x8
 tempest_config_generate_command: >
   python tools/config_tempest.py --out etc/tempest.conf
         --debug  --create
-
-tempest:
-    setup_method: packstack/provision
-    repo: git://github.com/openstack/tempest.git
-    revision: stable/havana
-    checkout_dir: /var/lib/tempest
-    puppet_file: /tmp/tempest_init.pp
