@@ -58,7 +58,7 @@ Options:
 
     def run(self):
         if not self._parse():
-            return
+            return 1
         loader = Loader(self.config_dir, self.settings)
         self._merge_extra_vars(loader)
         all_settings = loader.settings()
@@ -67,6 +67,7 @@ Options:
         logger.info("Writing to file: %s", self.output_file)
         with open(self.output_file, 'w') as out:
             out.write(yaml_utils.safe_dump(all_settings))
+        return 0
 
     def _parse(self):
         # create the settings tree and preserve the order in which arguments
