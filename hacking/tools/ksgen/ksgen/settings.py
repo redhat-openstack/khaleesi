@@ -37,7 +37,7 @@ Usage:
     generate [--extra-vars=KEY_PAIR]... [options] <output-file>
 
 Options:
-    --rules-file=<file>...       Rules file that contains generation rules
+    --rules-file=<file>          Rules file that contains generation rules
                                  Process the rules first, so the additional
                                  args will override args in rules file
     --extra-vars=<val>...        Provide extra vars {options}
