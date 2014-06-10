@@ -167,8 +167,12 @@ Options:
             return True
 
         logger.debug('Must have args from rule: %s', mandatory_args)
+        logger.debug("New Parsed \n%s", self.parsed)
+
         missing_args = [x for x in mandatory_args
-                        if "--" + x not in self.parsed]
+                        if not self.parsed.get("--" + x)]
+
+        logger.debug('Missing args: %s', missing_args)
         if missing_args:
             logger.error("Error: missing mandatory args: %s",
                          ', '.join(missing_args))
