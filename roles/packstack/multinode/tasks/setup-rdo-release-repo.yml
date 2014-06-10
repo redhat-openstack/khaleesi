@@ -4,15 +4,15 @@
   ignore_errors: yes
 
 - name: yum install rdo-release
-  yum: name="{{ rdo[ config.version ].release_rpm[ ansible_distribution ] }}" state=present     #"
+  yum: name="{{ product.rpm[ ansible_distribution ] }}" state=present     #"
 
-- debug: msg="baseurl= {{ rdo[config.version].repo[config.repo][ansible_distribution }}]"         #"
+- debug: msg="baseurl= {{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"         #"
 
 - name: set baseurl for rdo environment
   lineinfile:
     dest=/etc/yum.repos.d/rdo-release.repo
     regexp=^baseurl=
-    line="baseurl={{ rdo[ config.version ][config.repo].repo[ ansible_distribution ] }}" #"
+    line="baseurl={{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}" #"
 
 - name: yum clean all
   command: yum clean all

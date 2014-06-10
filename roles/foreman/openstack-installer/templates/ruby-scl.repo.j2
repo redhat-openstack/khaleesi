@@ -1,7 +1,7 @@
 [rhscl-ruby193-epel-6-x86_64]
 name=Ruby193 - epel-6-x86_64
 baseurl={{ ruby_scl_url }}
-{% if (config.product == "rhos" and config.version == "havana") or (ansible_distribution != "RedHat") %}
+{% if (product.name == "rhos" and product.version == "havana") or (ansible_distribution != "RedHat") %}
 enabled=0
 {% else %}
 enabled=1
