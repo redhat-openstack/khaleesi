@@ -1,4 +1,12 @@
 ---
+- name: print net_interfaces
+  debug: var=net_interfaces
+  when: job.verbosity <= verbosity.debug
+
+- name:  print hostvars
+  debug: var=hostvars[inventory_hostname]
+  when: job.verbosity <= verbosity.debug
+
 - name: Setup networking (general)
   lineinfile: "dest=/etc/sysconfig/network regexp='^HOSTNAME=.*' line='HOSTNAME={{ hostvars[inventory_hostname].fqdn }}' state=present"
   notify:
