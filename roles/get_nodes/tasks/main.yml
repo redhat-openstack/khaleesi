@@ -13,6 +13,8 @@
        flavor_id: "{{ item.flavor_id }}"
        nics: "{{ item.network_ids }}"
   register: new_nodes
+  retries: 4
+  delay: 60
   with_items: nodes
 
 - name: Print host openstack network type (nova/neutron)
