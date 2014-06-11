@@ -92,6 +92,6 @@
   tags: sahara
 
 - name: sahara | service | openstack-sahara-api is running
-  service: name=openstack-sahara-api state=running
+  service: name=openstack-sahara-api state=running enabled=yes
   tags: sahara
 
