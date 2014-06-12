@@ -1,0 +1,7 @@
+{% set ip = [] %}
+{% for grp in ['controller', 'compute'] -%}
+    {%- for h in groups[grp] %}
+        {%- if ip.append(hostvars[h].private_ip) %} {%- endif %}
+    {%- endfor %}
+{% endfor -%}
+{{ ip | join(',') }}

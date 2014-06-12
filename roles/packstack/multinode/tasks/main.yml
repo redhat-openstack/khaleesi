@@ -2,23 +2,38 @@
 - debug: var=packstack.answer_file
   when: job.verbosity <= verbosity.debug
 
-- debug: var=hostvars
+- debug: var=hostvars[inventory_hostname]
   when: job.verbosity <= verbosity.debug
 
-- name: answer-file Neutron OVS (GRE) Networking
-  lineinfile:
-      dest={{ packstack.answer_file }}
-      regexp='{{ item.option }}=.*'
-      line='{{ item.option }}={{ item.value }}'
-  with_items:
-      config_options
+- name: validate that compute hosts can be calculated
+  template: src=compute_host.j2 dest=/tmp/compute_hosts.txt
 
-- name: answer-file Neutron OVS (GRE) Networking
+- name: remove tmp files from validation
+  file: path=/tmp/compute_hosts.txt state=absent
+
+- name: find compute hosts and store in a var
+  set_fact:
+    tmp_compute_hosts: "{{ lookup('template', '../templates/compute_host.j2') | replace('\n', '') }}"
+
+- name: print compute hosts
+  debug: var=tmp_compute_hosts
+  when: job.verbosity <= verbosity.info
+
+- name: set CONFIG_NOVA_COMPUTE_HOSTS to packstack answer-file
   lineinfile:
       dest={{ packstack.answer_file }}
-      regexp='{{ item.option }}=.*'
-      line='{{ item.option }}={{ item.value }}'
-  with_items:
-      config_rhel_options
-  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
+      regexp='CONFIG_NOVA_COMPUTE_HOSTS=.*'
+      line='CONFIG_NOVA_COMPUTE_HOSTS={{tmp_compute_hosts}}'
+
+- name: warn if CONFIG_NOVA_COMPUTE_HOSTS is overridden in packstack config"
+  debug: msg="'WARNING:' CONFIG_NOVA_COMPUTE_HOSTS overridden by packstack config"
+  when: "'CONFIG_NOVA_COMPUTE_HOSTS' in packstack.config
+           and job.verbosity <= verbosity.warning"
+
+- name: create packstack answer-file from the config
+  lineinfile:
+      dest={{ packstack.answer_file }}
+      regexp='{{ item.key }}=.*'
+      line='{{ item.key }}={{ item.value }}'
+  with_dict: packstack.config
 
