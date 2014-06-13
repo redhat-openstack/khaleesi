@@ -107,6 +107,12 @@ main() {
     if ${TAKE_SNAPSHOT:-false}; then
         on_exit snapshot
     fi
+    # set timeout for the script if specified
+    $TIMEOUT_SET && {
+        sec=$(to_seconds $SCRIPT_TIMEOUT)
+        echo "Playbook timeout set to $SCRIPT_TIMEOUT :($sec) seconds"
+        script.set_timeout $sec
+    }
     execute $cmdline
 }
 
