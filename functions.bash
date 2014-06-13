@@ -22,9 +22,7 @@ debug.print_callstack() {
         # extract the line from the file
         local line=$(sed -n "${cs_line}{s/^ *//;p}" "$cs_file")
 
-        echo -e "  $cs_file[$cs_line]:" \
-            "$cs_fn:\t" \
-            "$line"
+        echo -e "  $cs_file[$cs_line]: $cs_fn:\t$line"
     done
     echo "--------------------------------------------------"
 }
@@ -68,10 +66,80 @@ init.print_result() {
     if [[  $exit_code == 0 ]]; then
         echo "$SCRIPT_CMD: PASSED"
     else
-        echo "$SCRIPT_CMD: FAILED" \
-             " -   exit code: [ $exit_code ]"
+        echo "$SCRIPT_CMD: FAILED  -  exit code: [ $exit_code ]"
     fi
 }
+
+# script._poll_parent timeout interval
+#
+# polls if the parent process $$ exists at every <interval>
+# until <timeout>.
+# returns:
+#   0 if parent process isn't found
+#   1 if it exists
+script._poll_parent() {
+    local -i timeout=$1; shift
+    local -i interval=${1:-1}
+
+    if [[ $interval -gt $timeout ]]; then
+        interval=$(($timeout - 1))
+    fi
+
+    local -i slept=1
+    while [[ $slept -lt $timeout ]]; do
+        sleep $interval
+        kill -s 0 $$ 2>/dev/null || return 0
+        slept=$((slept + $interval))
+
+        if [[ $(($slept + $interval)) -gt $timeout ]]; then
+            interval=$(($timeout - $slept))
+        fi
+    done
+    return 1
+}
+
+
+#script.set_timeout <soft-timeout> [hard-timeout] [timeout-handler]
+# sends HUP after soft-timeout and then KILL if process doesn't
+# exit after <hard-timeout>
+# hard-timeout  [ default: 30 seconds ]
+script.set_timeout() {
+    local -i soft_timeout=$1; shift
+    local -i hard_timeout=${1:-30}
+    [[ $# -ge 1 ]] && shift
+
+    _timeout_handler() { exit 1; }
+
+    local handler=${1:-'_timeout_handler'}
+    [[ $# -ge 1 ]] && shift
+
+    trap  "$handler $@" SIGHUP
+    (
+        script._poll_parent $soft_timeout 4 && exit 0
+
+        echo "$SCRIPT_CMD timed out after $soft_timeout;" \
+            "sending SIGHUP to cleanup"
+        kill -s HUP $$
+
+        script._poll_parent $hard_timeout && exit 0
+
+        echo "$SCRIPT_CMD did not finish cleaning up in $hard_timeout;" \
+            "sending SIGKILL to $$"
+        kill -s KILL $$
+    )&
+}
+
+to_seconds () {
+    IFS=: read h m s <<< "$1"
+    #echo "h: $h | m: $m | s: $s"
+    [[ -z $s ]] && [[ -z $m ]] && { s=$h; h=; }
+    [[ -z $s ]] && { s=$m; m=; }
+    [[ -z $m ]] && { m=$h; h=; }
+    #echo "h: $h | m: $m | s: $s"
+    echo $(( 10#$h * 3600 + 10#$m * 60 + 10#$s ))
+    return 0
+}
+
 
 cat_file() {
     echo "----- [ $1 ]---------------------------------------"
@@ -89,6 +157,7 @@ parse_settings_args() {
 
     # default values for args
     USE_PYTHON_GENERATOR=false
+    TIMEOUT_SET=false
     SETTINGS_ARGS=""
 
     ### while there are args parse them
@@ -116,6 +185,11 @@ parse_settings_args() {
                 ;;
             -N|--nodes)
                 NODES_FILE=$2
+                shift 2
+                ;;
+            --timeout)
+                SCRIPT_TIMEOUT=$2
+                TIMEOUT_SET=true
                 shift 2
                 ;;
             *.yml)
