@@ -4,4 +4,4 @@
         {%- if ip.append(hostvars[h].private_ip) %} {%- endif %}
     {%- endfor %}
 {% endfor -%}
-{{ ip | join(',') }}
+{{ ip | unique | join(',') }}
