@@ -23,21 +23,59 @@
 
 - name: enable the rdo-release repository
   yum: name="{{ rdo[ config.version ].instack_release_rpm[ ansible_distribution ] }}" state=present #"
-  when: ansible_distribution == 'Fedora'
+  when: ansible_distribution == 'Fedora' and config.custom_repo is not defined
   sudo_user: root
   sudo: yes
+  register: rdo_repo_output
+
+- name: print rdo_repo_output
+  debug: var=rdo_repo_output.stdout
+  when: ansible_distribution == 'Fedora' and config.custom_repo is not defined
+
+- name: enable a custom repository
+  yum: name="{{ config.custom_repo }}"
+  when: config.custom_repo is defined
+  sudo_user: root
+  sudo: yes
+  register: rdo_repo_output
+
+- name: print rdo_repo_output
+  debug: var=rdo_repo_output.stdout
+  when: config.custom_repo is defined
 
 - name: install instack-undercloud
   yum: name=instack-undercloud state=latest
   when: config.instack_undercloud_rpm is not defined
   sudo_user: root
   sudo: yes
+  register: instack_undercloud_output
+
+- name: print instack_undercloud_output
+  debug: var=instack_undercloud_output.stdout
+  when: config.instack_undercloud_rpm is not defined
 
 - name: install updated version of instack-undercloud if it exists
   yum: name="{{ config.instack_undercloud_rpm }}"
   when: config.instack_undercloud_rpm is defined
   sudo_user: root
   sudo: yes
+  register: instack_undercloud_output
+
+- name: print instack_undercloud_output
+  debug: var=instack_undercloud_output.stdout
+  when: config.instack_undercloud_rpm is defined
+
+- name: install updated version of other rpms if they exist
+  yum: name={{ item }}
+  with_items: config.updated_rpms_list
+  when: config.updated_rpms_list is defined
+  sudo_user: root
+  sudo: yes
+  register: custom_rpm_output
+
+- name: print custom_rpm_output
+  debug: var=custom_rpm_output.stdout
+  when: config.updated_rpms_list is defined
 
 - name: check answers file exists
   shell: "[ -e /usr/share/doc/instack-undercloud/instack-virt.answers.sample ]"

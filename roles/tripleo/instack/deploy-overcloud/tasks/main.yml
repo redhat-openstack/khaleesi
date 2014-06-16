@@ -4,12 +4,27 @@
   shell: >
     chdir={{ instack_user_home.stdout }}
     source {{ instack_user_home.stdout }}/stackrc;
-    export IMG_SOURCE_URL={{ image_src_dir }};
+    export IMG_SOURCE_URL="{{ rdo[ config.version ].instack_images_repo[ ansible_distribution ] }}";
     instack-prepare-for-overcloud
+  when: ansible_distribution == 'Fedora' and config.custom_instack_images is not defined
   register: instack-prepare-for-overcloud-output
 
 - name: print instack-prepare-for-overcloud-output
   debug: var=instack-prepare-for-overcloud-output.stdout
+  when: ansible_distribution == 'Fedora' and config.custom_instack_images is not defined
+
+- name: prepare for overcloud with custom images
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    source {{ instack_user_home.stdout }}/stackrc;
+    export IMG_SOURCE_URL="{{ config.custom_instack_images }}";
+    instack-prepare-for-overcloud
+  when: config.custom_instack_images is defined
+  register: instack-prepare-for-overcloud-output
+
+- name: print instack-prepare-for-overcloud-output
+  debug: var=instack-prepare-for-overcloud-output.stdout
+  when: config.custom_instack_images is defined
 
 - name: check if virtual-power-key exists
   shell: >
@@ -58,5 +73,5 @@
   fail: msg="overcloud error"
   when: heat_stack_list_result.stdout == ""
 
-- { include: ../../../../openstack/openstack-status/tasks/main.yml }
+#- { include: ../../../../openstack/openstack-status/tasks/main.yml }
 
