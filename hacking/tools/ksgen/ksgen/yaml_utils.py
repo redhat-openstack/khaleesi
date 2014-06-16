@@ -40,6 +40,29 @@ def _join_constructor(loader, node):
     return ''.join([str(i) for i in seq])
 
 
+@Configuration.add_constructor('env')
+def _env_constructor(loader, node):
+    """
+    usage:
+        !env <var-name>
+        !env [<var-name>, [default]]
+    returns value for the environment var-name
+    default may be specified by passing a second parameter
+    in a list
+    """
+    import os
+    # scalar node or string has no defaults, raise KeyError
+    # if absent
+    if isinstance(node, yaml.nodes.ScalarNode):
+        return os.environ[loader.construct_scalar(node)]
+
+    seq = loader.construct_sequence(node)
+    var = seq[0]
+    if len(seq) >= 2:
+        return os.getenv(var, seq[1])  # second item is default val
+    return os.environ[var]
+
+
 class LookupDirective(yaml.YAMLObject):
     """
     Usage
