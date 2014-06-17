@@ -1,5 +1,5 @@
 ---
-- name: Get nodes using Nova
+- name: Provision nodes
   sudo: no
   hosts: local
   gather_facts: False
@@ -15,19 +15,23 @@
       - dev
       - dump-settings
   tasks:
+
     ### try to dump all varibles, if dumping variables fails, then
-    ### print vars, else dump them to the run_settings file
-    ### Needs to be done this way since
-    ### template: ... ignore_errors: doesn't work (Ansible 1.6.2)
+    ### print vars instead
+    ### NOTE:
+    ### template: ... ignore_errors: doesn't work unless we change the
+    ### ansible config to allow undefined values which is a 'BAD' thing
+    ### as it may prevent ansible from identifying typos
+
     - name: dump settings | verify if the setting are alright
-      debug: msg="{{ lookup('template', 'dump_settings.j2') is none  }}"  #"
+      debug: msg="{{ lookup('template', 'dump_settings.j2') is none  }}"
       register: settings_gen_failed
 
-    - name: dump settings | Print vars if some variable cannot be expanded
+    - name: dump settings | print vars if some variables cannot be expanded
       debug: var=vars
       when: settings_gen_failed.msg == "True"
 
-    - name: dump settings | Print reason for failure if variables cannot be expanded
+    - name: dump settings | print reason for failure if variables cannot be expanded
       template: src=dump_settings.j2 dest=/tmp/run_settings.fail
       when: settings_gen_failed.msg == "True"
 
