@@ -3,14 +3,14 @@
   rax:
        credentials : "{{ provisioner.credentials }}"
        state: absent
-       name: "{{ item.name }}"
-       image: "{{ item.image_id }}"
-       key_name: "{{ item.key_name }}"
-       wait: yes
-       wait_timeout: 120
+       name: "{{ item.value.name }}"
+       image: "{{ item.value.image_id }}"
+       key_name: "{{ provisioner.key_name }}"
        flavor: "{{ item.flavor_id }}"
        networks: "{{ item.network_ids }}"
+       wait: yes
+       wait_timeout: 120
        disk_config: manual
-  with_items: nodes
+  with_dict: nodes
   retries: 4
   delay: 60
