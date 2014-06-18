@@ -1,6 +1,10 @@
 ---
+- name: Print host openstack network type (nova/neutron)
+  debug: var=os_network_type
+
 - debug: var=nodes_created
   when: "'debug' in config.verbosity"
+
 - debug: var=floating_ips
   when: "'debug' in config.verbosity"
 
@@ -10,14 +14,10 @@
       groups="{{ item.0.item.groups
         if item.0.item.groups is string
         else item.0.item.groups| join(',') }}"
-      ansible_ssh_host="{{ item.1.public_ip }}"
       ansible_ssh_private_key_file="{{ ssh_private_key }}"
       ansible_ssh_user="{{ item.0.item.remote_user }}"
-      public_ip="{{ item.1.public_ip }}"
-      private_ip="{{ item.0.private_ip }}"
       ansible_fqdn="{{ item.0.item.hostname }}"
       priv_hostname="{{ item.0.item.hostname }}"
-      net_interfaces="{{ item.0.item.net_interfaces }}"
       {{ lookup('template', 'addl_vars.j2') }}
   with_together:
     - nodes_created

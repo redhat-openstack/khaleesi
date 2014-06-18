@@ -1,0 +1,39 @@
+{% if item.0.info is defined %}
+    {% if net_2_name is defined and item.0.info.addresses[net_2_name].0.addr is defined %}
+      {{ net_2_name }}="{{ item.0.info.addresses[net_2_name].0.addr }}"
+      tempest_private_ip="{{ item.0.info.addresses[net_2_name].0.addr }}"
+    {% endif %}
+    {% if net_3_name is defined and item.0.info.addresses[net_3_name] is defined %}
+      {{ net_3_name }}="{{ item.0.info.addresses[net_3_name].0.addr }}"
+      tempest_public_ip="{{ item.0.info.addresses[net_3_name].0.addr }}"
+    {% endif %}
+      ansible_ssh_host="{{ item.1.public_ip }}"
+      public_ip="{{ item.1.public_ip }}"
+      private_ip="{{ item.0.private_ip }}"
+      net_interfaces="{{ item.0.item.net_interfaces }}"
+{% endif %}
+
+{% if item.0.instances is defined %}
+    {% if net_2_name is defined and item.0.instances.0.rax_addresses[net_2_name].0.addr is defined %}
+      {{ net_2_name }}="{{item.0.instances.0.rax_addresses[net_2_name].0.addr }}"
+      tempest_private_ip="{{ item.0.instances.0.rax_addresses[net_2_name].0.addr }}"
+    {% endif %}
+    {% if net_3_name is defined and item.0.instances.0.rax_addresses[net_3_name] is defined %}
+      {{ net_3_name }}="{{ item.0.instances.0.rax_addresses[net_3_name].0.addr }}"
+      tempest_public_ip="{{ item.0.instances.0.rax_addresses[net_3_name].0.addr }}"
+    {% endif %}
+      ansible_ssh_host="{{ item.0.instances.0.accessIPv4 }}"
+      public_ip="{{ item.0.instances.0.accessIPv4 }}"
+      private_ip="{{ item.0.instances.0.rax_addresses.default.0.addr }}"
+      net_interfaces="{{ item.0.instances.0.rax_addresses }}"
+{% endif %}
+
+{% if item.0.item.node_hostgroup is defined %}
+      node_hostgroup="{{ item.0.item.node_hostgroup }}"
+{% endif %}
+{% if item.0.item.hostname is defined %}
+     priv_hostname="{{ item.0.item.hostname }}"
+{% endif %}
+{% if item.0.item.bridge_interfaces is defined %}
+     bridge_interfaces="{{ item.0.item.bridge_interfaces }}"
+{% endif %}

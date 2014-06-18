@@ -289,6 +289,7 @@ generate_settings_file() {
     local default_tempest_flavor_id=2
     local default_tempest_image_id='10a4092c-6ec9-4ddf-b97c-b0f8dff0958e'
     local default_tempest_repo='git://github.com/openstack/tempest.git'
+    local default_provisioner_env='openstack'
 
     local wait_for_boot=${WAIT_FOR_BOOT:-'180'}
 
@@ -302,6 +303,7 @@ generate_settings_file() {
     local floating_nw_name=${FLOATING_NETWORK_NAME:-'external'}
 
     local image_id=$IMAGE_ID
+    local provisioner_env=${PROVISIONER_ENV:-$default_provisioner_env}
     local tempest_image_id=${TEMPEST_IMAGE_ID:-$default_tempest_image_id}
     local tempest_flavor_id=${TEMPEST_FLAVOR_ID:-$default_tempest_flavor_id}
     local foreman_image_id=${FOREMAN_IMAGE_ID:-$IMAGE_ID}
@@ -362,6 +364,7 @@ os_username: $OS_USERNAME
 os_password: $OS_PASSWORD
 os_tenant_name: $OS_TENANT_NAME
 os_network_type: $OS_NETWORK_TYPE
+provisioner_env: $provisioner_env
 
 # instance settings
 job_name: $job_name

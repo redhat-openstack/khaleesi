@@ -1,10 +1,26 @@
 ---
-- name: Get nodes for log collection
-  hosts: local
+- name: Group hosts by provisioner
+  hosts: all
+  tasks:
+    - group_by: key={{ provisioner_env }}
+  tags:
+    - provision
+
+- name: Get openstack nodes for log collection
+  hosts: local:&openstack
   sudo: no
   gather_facts: False
   roles:
-    - { role: get_nodes }
+    - { role: get_nodes/openstack }
+  tags:
+    - provision
+
+- name: Get rax nodes for log collection
+  hosts: local:&rax
+  sudo: no
+  gather_facts: False
+  roles:
+    - { role: get_nodes/rax }
   tags:
     - provision
 

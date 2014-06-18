@@ -1,0 +1,18 @@
+---
+- name: Provision nodes
+  nova_compute:
+       auth_url: "{{ os_auth_url }}"
+       state: present
+       login_username: "{{ os_username }}"
+       login_password: "{{ os_password }}"
+       login_tenant_name: "{{ os_tenant_name }}"
+       name: "{{ item.name }}"
+       image_id: "{{ item.image_id }}"
+       key_name: "{{ item.key_name }}"
+       wait_for: "{{ wait_for_boot }}"
+       flavor_id: "{{ item.flavor_id }}"
+       nics: "{{ item.network_ids }}"
+  register: new_nodes
+  retries: 4
+  delay: 60
+  with_items: nodes

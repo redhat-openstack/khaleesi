@@ -1,0 +1,15 @@
+---
+- name: Provision nodes
+  rax:
+       credentials : "{{ credentials }}"
+       state: present
+       name: "{{ item.name }}"
+       image: "{{ item.image_id }}"
+       key_name: "{{ item.key_name }}"
+       wait: yes
+       wait_timeout: 400
+       flavor: "{{ item.flavor_id }}"
+       networks: "{{ item.network_ids }}"
+       disk_config: manual
+  register: new_nodes
+  with_items: nodes

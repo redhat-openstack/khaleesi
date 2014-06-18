@@ -4,5 +4,5 @@
   gather_facts: False
   user: root
   roles:
-    - { role: get_nodes }
+    - { role: get_nodes/openstack }
 

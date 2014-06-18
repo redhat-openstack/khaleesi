@@ -1,0 +1,16 @@
+---
+- name: Remove nodes
+  rax:
+       credentials : "{{ credentials }}"
+       state: absent
+       name: "{{ item.name }}"
+       image: "{{ item.image_id }}"
+       key_name: "{{ item.key_name }}"
+       wait: yes
+       wait_timeout: 120
+       flavor: "{{ item.flavor_id }}"
+       networks: "{{ item.network_ids }}"
+       disk_config: manual
+  with_items: nodes
+  retries: 4
+  delay: 60
