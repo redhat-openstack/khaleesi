@@ -6,7 +6,6 @@
   user: "{{ remote_user }}"
   sudo: yes
   roles:
-    - { role: common }
     - { role: network-setup }
   tags:
     - provision
