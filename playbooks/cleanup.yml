@@ -1,6 +1,19 @@
 ---
-- name: Cleanup nodes from nova
-  hosts: local
+- name: Group hosts by provisioner
+  hosts: all
+  tasks:
+    - group_by: key={{ provisioner.type }}
+  tags:
+    - provision
+
+- name: Cleanup openstack nodes from nova
+  hosts: local:&openstack
   gather_facts: False
   roles:
-    - { role: cleanup_nodes, nodes: '{{ cleanup_nodes }}' }
+    - { role: cleanup_nodes/openstack, nodes: '{{ cleanup_nodes }}' }
+
+- name: Cleanup rax nodes from nova
+  hosts: local:&rax
+  gather_facts: False
+  roles:
+    - { role: cleanup_nodes/rax, nodes: '{{ cleanup_nodes }}' }

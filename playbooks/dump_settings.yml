@@ -1,12 +1,5 @@
 ---
-- name: Provision nodes
-  sudo: no
-  hosts: local
-  gather_facts: False
-  roles:
-    - { role: get_nodes }
-  tags:
-      - dev
+- include: provision.yml
 
 - name: Dump all settings used for this play
   hosts: localhost

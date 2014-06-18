@@ -1,10 +1,67 @@
 ---
-- name: Get nodes using Nova
-  sudo: no
+- name: Group hosts by provisioner
   hosts: local
+  sudo: no
+  tasks:
+    - group_by: key={{ provisioner.type }}
+    - group_by: key={{ provisioner.network.type }}
+  tags:
+    - provision
+
+- name: Get nodes - OpenStack
+  hosts: local:&openstack
+  sudo: no
   gather_facts: False
   roles:
-    - { role: get_nodes }
+    - { role: get_nodes/openstack }
+  tags:
+    - provision
+
+- name: Get nodes - Rackspace
+  hosts: local:&rax
+  sudo: no
+  gather_facts: False
+  roles:
+    - { role: get_nodes/rax }
+    - { role: get_nodes/add_hosts,
+              nodes_created: "{{ new_nodes.results }}",
+              floating_ips: [],
+              network_expected: rax }
+  tags:
+    - provision
+
+- name: Assign floating IP and add hosts - Nova
+  hosts: local:&openstack:&nova
+  sudo: no
+  gather_facts: False
+  roles:
+    - { role: get_nodes/fip-nova }
+    - { role: get_nodes/add_hosts,
+              nodes_created: "{{ new_nodes.results }}",
+              floating_ips: "{{ new_floating_ips.results }}",
+              network_expected: nova }
+  tags:
+    - provision
+
+- name: Assign floating IP and add hosts - Neutron
+  hosts: local:&openstack:&neutron
+  sudo: no
+  gather_facts: False
+  roles:
+    - { role: get_nodes/fip-neutron }
+    - { role: get_nodes/add_hosts,
+              nodes_created: "{{ new_nodes.results }}",
+              floating_ips: "{{ new_floating_ips.results }}",
+              network_expected: neutron }
+  tags:
+    - provision
+
+- name: Post tasks
+  hosts: local
+  sudo: no
+  gather_facts: False
+  roles:
+    - { role: get_nodes/post }
   tags:
     - provision
 

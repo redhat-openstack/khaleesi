@@ -664,6 +664,8 @@ class Build(object):
             'os_password': ('OS_PASSWORD', None, 'site.controller.password'),
             'os_tenant_name': ('OS_TENANT_NAME', None, 'site.controller.tenant_name'),
             'os_network_type': ('OS_NETWORK_TYPE', None, 'site.controller.network-type'),
+            'provisioner_env':('PROVISIONER_ENV', None, 'site.controller.provisioner_env'),
+
 
             # instance settings
             'image_id': ('IMAGE_ID', None, 'site.images.' + distribution + '.' + distrorelease + '.id'),

@@ -1,6 +1,10 @@
 ---
+- name: Print host openstack network type (nova/neutron)
+  debug: var=provisioner.network.type
+
 - debug: var=nodes_created
   when: job.verbosity <= verbosity.debug
+
 - debug: var=floating_ips
   when: job.verbosity <= verbosity.debug
 
@@ -16,17 +20,13 @@
   add_host:
       name="{{ item.0.item.value.name }}"
       groups="{{ item.0.item.value.groups
-                    if item.0.item.value.groups is string
-                    else item.0.item.value.groups| join(',') }}"
+        if item.0.item.value.groups is string
+        else item.0.item.value.groups| join(',') }}"
       ansible_fqdn="{{ item.0.item.value.hostname }}"
-      priv_hostname="{{ item.0.item.value.hostname }}"
-      net_interfaces="{{ item.0.item.value.net_interfaces }}"
       ansible_ssh_user="{{ item.0.item.value.remote_user }}"
-      private_ip="{{ item.0.private_ip }}"
-      public_ip="{{ item.1.public_ip }}"
-      ansible_ssh_host="{{ item.1.public_ip }}"
       ansible_ssh_private_key_file="{{ provisioner.key_file }}"
-      {{ lookup('template', 'addl_vars.j2') }}
+      priv_hostname="{{ item.0.item.value.hostname }}"
+      {{ lookup('template', '../templates/addl_vars.j2') }}
   with_together:
     - nodes_created
     - floating_ips
