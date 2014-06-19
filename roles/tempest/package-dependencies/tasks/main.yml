@@ -44,6 +44,7 @@
     - python-keystoneclient
     - python-neutronclient
     - python-novaclient
+    - python-ceilometerclient
     - python-pip
     - python-virtualenv
   tags:
