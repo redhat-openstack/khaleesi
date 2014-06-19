@@ -1,4 +1,5 @@
 ---
+# build trust between controller and compute
 - name: Gather facts from all openstack hosts
   hosts: all:!localhost:!tempest
 

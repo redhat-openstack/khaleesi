@@ -1,0 +1,115 @@
+---
+# provison
+- include: dump_settings.yml
+- include: provision.yml
+- include: group_by.yml tags=provision
+
+- name: Prepare network for Packstack install
+  hosts:
+    - controller
+    - compute
+  tags: provision
+  roles:
+    -  network-setup
+
+- include: validate_nodes.yml
+
+- name: Debug list config variables
+  hosts: local
+  sudo: no
+  tags: provision
+  roles:
+    - { role: packstack/debug }
+
+# prep
+
+- include: packstack/setup-ssh-keys.yml tags=prep
+
+- name: Prepare system for packstack
+  hosts: packstack
+  tags:
+    - prep
+  roles:
+    - { role: common }
+    - { role: linux-common }
+
+# apply pre-packstack workarouds
+- include: ../workarounds/workarounds-prep.yml tags=workaround
+
+# Apply rdo or rhos role based on the product
+- name: Group hosts by product rdo/rhos
+  hosts: all:!localhost:!tempest
+  tasks:
+    - group_by: key={{ product.name }}
+  tags:
+    - prep
+
+- name: Setup packstack on Controller
+  hosts: controller:&rdo
+  roles:
+      - packstack/rdo
+  tags: prep
+
+- name: Setup packstack on Controller
+  hosts: controller:&rhos
+  roles:
+      - packstack/rhos
+  tags: prep
+
+# Generate answers
+- name: Setup packstack on Controller
+  hosts: controller
+  roles:
+      - packstack/generate-answers
+  tags: prep
+
+- name: Update RPMs (rdopkg)
+  hosts: controller
+  roles:
+    - { role: rdopkg/prep, tags: ["rdoupdate-preinstall"] }
+    - { role: rdopkg/preinstall, tags: ["rdoupdate-preinstall"] }
+
+- include: ../workarounds/workarounds-pre-run-packstack.yml tags=workaround
+
+# packstack_run
+
+- name: Run packstack
+  hosts: controller
+  roles:
+    - { role: packstack/runner }
+  tags: packstack_run
+
+- include: ../workarounds/workarounds-post-run-packstack.yml tags=workaround
+
+- name: Update RPMs
+  hosts: controller
+  roles:
+    - { role: rdopkg/prep, tags: ["rdoupdate"] }
+    - { role: rdopkg/postinstall, tags: ["rdoupdate"] }
+
+- name: Get Status after reboot
+  hosts: controller
+  tags: packstack-run
+  roles:
+    - { role: openstack/openstack-status }
+
+# tempest
+- name: List ip address of tempest node
+  hosts: tempest
+  roles:
+    - { role: tempest/iptables/node_data }
+  tags: tempest_setup
+
+- name: Ensure iptables is open for tempest
+  hosts: all:!localhost:!tempest
+  roles:
+    - { role: tempest/iptables }
+  tags: tempest_setup
+
+- include: tempest.yml
+
+- name: SELINUX error check
+  hosts: all:!localhost:!tempest
+  roles:
+    - { role: selinux_check }
+  tags: provision

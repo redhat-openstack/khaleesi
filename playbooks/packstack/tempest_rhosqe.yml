@@ -1,5 +1,5 @@
 ---
-- include: aio.yml
+- include: ../packstack.yml
 
 - include: ../tempest.yml
 

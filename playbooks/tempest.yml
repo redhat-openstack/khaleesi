@@ -19,23 +19,21 @@
 
 - name: Create keystonerc and install packages for tempest
   hosts: tempest
+  tags: tempest_setup
   roles:
     - { role: openstack/create-keystonerc }
-  tags:
-    - tempest_setup
 
 - name: Setup tempest
   hosts: tempest
+  tags: tempest_setup
   roles:
     - { role: tempest/package-dependencies }
     - { role: tempest/setup-openstack-elements }
     - { role: tempest/setup }
-  tags:
-    - tempest_setup
 
 - name: Run tempest
   hosts: tempest
   tags: tempest_run
   roles:
-    - { role: tempest/run, tags: ["tempest_run"] }
+    - { role: tempest/run }
 
