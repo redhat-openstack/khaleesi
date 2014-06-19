@@ -1,10 +1,10 @@
 ---
 # cloud-init and python-backports can interfere w/ openstack installs
-- name: remove cloud-init and python-backports
-  yum: name={{ item }} state=absent
-  with_items:
-    - python-backports
-    - cloud-init
+# - name: remove cloud-init and python-backports
+#   yum: name={{ item }} state=absent
+#   with_items:
+#     - python-backports
+#     - cloud-init
 
 - name: Remove the EPEL Repository.
   yum: name=epel-release state=removed
