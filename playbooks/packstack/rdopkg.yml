@@ -28,14 +28,14 @@
 - name: Packstack prep rhos
   hosts: controller:&rhos
   roles:
-    - { role: packstack/rhos }
+    - { role: product/rhos }
   tags:
     - prep
 
 - name: Packstack prep rdo
   hosts: controller:&rdo
   roles:
-    - { role: packstack/rdo }
+    - { role: product/rdo }
   tags:
     - prep
 
@@ -70,7 +70,7 @@
 - name: Ensure EPEL is off for any RHOS install
   hosts: controller:&rhos
   roles:
-    - { role: packstack/rhos/epel }
+    - { role: product/rhos/epel }
   tags:
     - prep
 
