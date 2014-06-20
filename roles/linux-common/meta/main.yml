@@ -1,6 +1,3 @@
 ---
 dependencies:
-    - { role: linux/rhel, when: ansible_distribution == 'RedHat' }
-    - { role: linux/fedora, when: ansible_distribution == 'Fedora' }
-    - { role: linux/centos, when: ansible_distribution == 'CentOS' }
-    - { role: linux/ntp}
+  - { role: linux/ntp}

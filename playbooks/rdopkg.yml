@@ -24,14 +24,7 @@
 # prep
 
 - include: packstack/setup-ssh-keys.yml tags=prep
-
-- name: Prepare system for packstack
-  hosts: packstack
-  tags:
-    - prep
-  roles:
-    - { role: common }
-    - { role: linux-common }
+- include: prep.yml
 
 # apply pre-packstack workarouds
 - include: ../workarounds/workarounds-prep.yml tags=workaround
