@@ -1,6 +1,7 @@
 ---
 - name: Group hosts by provisioner
-  hosts: all
+  hosts: local
+  sudo: no
   tasks:
     - group_by: key={{ provisioner.type }}
   tags:
