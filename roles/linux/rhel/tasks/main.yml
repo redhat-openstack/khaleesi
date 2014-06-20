@@ -1,13 +1,5 @@
 ---
 #RHEL
-- name: Remove yum-rhn-plugin
-  yum: name=yum-rhn-plugin state=absent
-  register: result
-
-- name: Yum clean all
-  command: yum clean all
-  when: result|changed
-
 - name: Ensure redhat-release-server
   yum: name=redhat-release-server state=present
 

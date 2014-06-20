@@ -13,13 +13,7 @@
   tags:
     - provision
 
-- name: Prepare system for packstack
-  hosts: packstack
-  roles:
-    - { role: common }
-    - { role: linux-common }
-  tags:
-    - prep
+- include: ../prep.yml
 
 # apply pre-packstack workarouds
 - include: ../../workarounds/workarounds-prep.yml tags=workaround

@@ -1,0 +1,36 @@
+---
+- name: Prepare system for packstack
+  hosts: all:!localhost
+  roles:
+    - { role: common }
+  tags:
+    - prep
+
+- name: RHEL prep
+  hosts: all:!localhost:&RedHat
+  roles:
+    - { role: linux/rhel }
+  tags:
+    - prep
+
+- name: CentOS prep
+  hosts: all:!localhost:&CentOS
+  roles:
+    - { role: linux/centos }
+  tags:
+    - prep
+
+- name: Fedora prep
+  hosts: all:!localhost:&Fedora
+  roles:
+    - { role: linux/fedora }
+  tags:
+    - prep
+
+- name: Linux common prep
+  hosts: all:!localhost
+  roles:
+    - { role: linux-common }
+  tags:
+    - prep
+
