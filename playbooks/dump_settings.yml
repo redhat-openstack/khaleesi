@@ -1,6 +1,7 @@
 ---
 - name: Group hosts by provisioner
   hosts: all
+  sudo: no
   tasks:
     - group_by: key={{ provisioner_env }}
   tags:
