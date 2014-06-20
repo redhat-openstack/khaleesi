@@ -1,29 +1,5 @@
 ---
-- name: Group hosts by provisioner
-  hosts: all
-  sudo: no
-  tasks:
-    - group_by: key={{ provisioner_env }}
-  tags:
-    - dev
-
-- name: Get openstack nodes for log collection
-  hosts: local:&openstack
-  sudo: no
-  gather_facts: False
-  roles:
-    - { role: get_nodes/openstack }
-  tags:
-    - dev
-
-- name: Get rax nodes for log collection
-  hosts: local:&rax
-  sudo: no
-  gather_facts: False
-  roles:
-    - { role: get_nodes/rax }
-  tags:
-    - dev
+- include: provision.yml
 
 - name: Dump all settings used for this play
   hosts: localhost
