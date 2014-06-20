@@ -35,6 +35,7 @@
   with_items:
     - { name: testtools, version: '0.9.34' }
     - { name: python-subunit, version: '0.0.15'}
+    - { name: python-ceilometerclient, version: '1.0.10'}   # fix: tempest failure
   when: tempest.use_virtual_env | default(true)
   tags:
     - tempest_setup
