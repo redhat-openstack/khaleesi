@@ -1,12 +1,7 @@
 ---
 - include: group_by.yml tags=groupby
 
-- name: Common setup
-  hosts: staypuft
-  sudo: yes
-  roles:
-    - { role: common }
-    - { role: linux-common }
+- include: prep.yml
 
 - name: Prep staypuft on a fresh box
   hosts: staypuft
@@ -14,8 +9,24 @@
   roles:
     - { role: staypuft/selinux }
     - { role: staypuft/repos }
-    - { role: staypuft/packages }
-    - { role: staypuft/firewall }
+    - { role: staypuft/packages, tags: ['packages'] }
+
+- name: IPtables firewall
+  hosts: staypuft:RedHat-6:CentOS-6
+  sudo: yes
+  roles:
+    - { role: staypuft/firewall/iptables }
+
+- name: Firewalld firewall
+  hosts: staypuft:!RedHat-6:!CentOS-6
+  sudo: yes
+  roles:
+    - { role: staypuft/firewall/firewalld }
+
+- name: More prep
+  hosts: staypuft
+  sudo: yes
+  roles:
     - { role: staypuft/default_network }
     - { role: staypuft/fqdn }
     - { role: staypuft/nfs_server }
@@ -31,3 +42,5 @@
   sudo: yes
   roles:
     - { role: staypuft/install }
+  tags:
+    - install
