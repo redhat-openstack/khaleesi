@@ -1,9 +1,0 @@
----
-- include: firewalld.yml
-  when: ansible_distribution == 'Fedora'
-        or (ansible_distribution == 'RedHat'
-            and ansible_distribution_version | version_compare('7.0', '>='))
-
-- include: iptables-direct.yml
-  when: ansible_distribution == 'RedHat'
-        and ansible_distribution_version | version_compare('7.0', '<')
