@@ -48,26 +48,26 @@
 - name: Group hosts by netplugin nova/neutron networking
   hosts: all:!localhost:!tempest
   tasks:
-    - group_by: key={{ config.netplugin }}
+    - group_by: key=packstack-{{ config.netplugin }}
   tags:
     - prep
 
 - name: Packstack Create Answer File for neutron
-  hosts: controller:&neutron
+  hosts: controller:&packstack-neutron
   roles:
     - { role: packstack/packstack-neutron-aio }
   tags:
     - prep
 
 - name: Packstack Create Answer File for nova
-  hosts: controller:&nova
+  hosts: controller:&packstack-nova
   roles:
     - { role: packstack/packstack-nova-aio }
   tags:
     - prep
 
 - name: Packstack Create Answer File for quantum
-  hosts: controller:&quantum
+  hosts: controller:&packstack-quantum
   roles:
     - { role: packstack/packstack-quantum-aio }
   tags:
