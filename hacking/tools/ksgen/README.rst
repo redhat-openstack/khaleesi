@@ -206,17 +206,116 @@ else it will fail with an appropriate message.
 yaml tags:
 ==========
 
-ksgen uses Configure python package to keep the yaml files DRY. It also adds a
-few yaml tags like !overwrite, !lookup, !join to the collection.
+ksgen uses Configure_ python package to keep the yaml files DRY_. It also adds a
+few yaml tags like !overwrite, !lookup, !join, !env to the collection.
 
-!overwrite
-----------
+overwrite
+---------
+Use overwrite_ tag to overwrite value of a key. This is especially useful when
+to clear the contents of an array and add new one
 
-!lookup
+For e.g.: merging
+
+::
+
+  foo: bar
+
+and
+::
+
+ foo: [1, 2, 3]
+
+will fail since there is no reasonable way to merge a string and an array.
+Use overwrite to set the contents of foo to [1, 2, 3] as below
+
+::
+
+ foo: !overwrite [1, 2, 3]
+
+
+lookup
 -------
+Lookup helps keep the yaml files DRY_ by replacing looking up values for keys.
 
-!join
+::
+
+ foo: bar
+ value_of_foo: !lookup foo
+
+After ksgen process the yaml above the `value_of_foo` will be replaced by
+`bar` resulting in the output below.
+
+::
+
+ foo: bar
+ value_of_foo: bar
+
+
+NOTE/Limitation
+~~~~~~~~~~~~~~~
+Lookup is done only after all yaml files are loaded and the values are merged
+so that the entire yaml tree can be searched. This prevents combining other
+yaml tags with lookup_ as most tags are processed when yaml is loaded and not
+when it is written.
+
+For e.g.:
+::
+
+  home: /home/john
+  bashrc: !join [ !lookup home, /bashrc ]
+
+**Will fail** to set bashrc to `/home/john/bashrc` where as the snippet below
+will work as expected
+
+::
+
+  bashrc: !join [ !env HOME, /bashrc ]
+
+
+join
 -----
+Use join tag to join all items in an array into a string. This is quite useful
+when using yaml anchors or env_ tag.
+
+::
+
+  unused:
+    baseurl: &baseurl http://foobar.com/repo/
+
+  repo:
+    epel7: !join[ *baseurl, epel7 ]
+
+  bashrc: !join [ !env HOME, /bashrc ]
+
+
+env
+-----
+Use env tag to lookup value of an environment variable. An optional default
+value can be passed to the tag. if no default values are passed and the lookup
+fails, then a runtime KeyError is generated.
+
+::
+
+ user_home: !env HOME
+ user_shell !env [SHELL, zsh]  # default shell is zsh
+ job_name_parts:
+    - !env [JOB_NAME, 'dev-job']
+    - !env [BUILD_NUMBER, None ]
+
+ job_name: "{{ job_name_parts | reject(none) | join('-') }}"
+
+
+The snippet above effectively uses env_ tag and default option to set the
+`job_name` variable to `$JOB_NAME-$BUILD_NUMBER` if they are defined else to
+'dev-job'.
+
+Debugging errors in settings
+============================
+ksgen is heavily logged and by default the log-level is set to warning.
+Setting the debug level using the `--debug-level` option to **info** or
+**debug** reveals more information about the inner workings of the tool and how
+values are loaded from files and merged.
+
 
 Developing ksgen
 =================
@@ -229,3 +328,5 @@ Running ksgen unit-tests
     or
 - python tests/test_<filename>.py  <method_name>
 
+.. _Configure: http://configure.readthedocs.org/en/latest/
+.. _DRY: https://en.wikipedia.org/wiki/Don't_repeat_yourself
