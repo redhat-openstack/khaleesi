@@ -75,12 +75,6 @@
 
 - include: ../workarounds/workarounds-post-run-packstack.yml tags=workaround
 
-- name: Config ml2-plugin
-  hosts: controller
-  roles:
-    - role: packstack/neutron/ml2-plugin
-  tags: ml2-plugin
-
 - name: Get Status after reboot
   hosts: controller
   tags: packstack-run
