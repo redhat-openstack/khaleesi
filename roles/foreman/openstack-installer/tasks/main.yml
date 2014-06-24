@@ -31,15 +31,11 @@
   tags:
     - iptables
 
-- name: Check for SecureRandom
-  shell: grep 'SecureRandom.hex' {{ astapor_dest }}/bin/seeds.rb
-  ignore_errors: True
-  register: random_passwords
-
 - name: Make passwords the same for foreman environment
-  shell: "/bin/sed -i -e 's/SecureRandom.hex/\"redhat\"/' {{ item }}"
-  with_items: '{{ astapor_dest }}/bin/seeds.rb'
-  when: random_passwords.rc == 0
+  replace: >
+    dest={{ astapor_dest }}/bin/seeds.rb
+    regexp='SecureRandom\.hex'
+    replace='"redhat"'
 
 - name: Fix seed values
   lineinfile: >
