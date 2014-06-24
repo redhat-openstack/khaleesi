@@ -19,19 +19,19 @@ if [ -f $USER_FILE ]; then
 rm -rf $USER_FILE
 fi
 
-sudo echo "$1 ALL=(root) NOPASSWD:ALL" >> $USER_FILE
-sudo chmod 0440 $USER_FILE
+echo "$1 ALL=(root) NOPASSWD:ALL" >> $USER_FILE
+chmod 0440 $USER_FILE
 
 if [ -f $NOTTY_FILE ]; then
 rm -rf $NOTTY_FILE
 fi
 
-sudo echo "Defaults:$1 !requiretty" >> $NOTTY_FILE
-sudo chmod 0440 $NOTTY_FILE
-sudo visudo -c
+echo "Defaults:$1 !requiretty" >> $NOTTY_FILE
+chmod 0440 $NOTTY_FILE
+visudo -c
 
-sudo sed -i "s/=enforcing/=permissive/" /etc/selinux/config
+sed -i "s/=enforcing/=permissive/" /etc/selinux/config
 
-sudo setenforce 0
+setenforce 0
 
 echo "setup complete"
