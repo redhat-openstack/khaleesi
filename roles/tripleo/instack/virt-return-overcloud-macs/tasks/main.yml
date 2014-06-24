@@ -1,0 +1,23 @@
+---
+
+- name: check if install undercloud has been run
+  stat: path="{{ instack_user_home.stdout }}/instack.aswers"
+  register: instack_answers_present
+
+- name: get instack vm ip address
+  shell: >
+     chdir={{ instack_user_home.stdout }}
+     cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac instack) | awk '{print $3;}'
+  sudo_user: "{{ instack_user }}"
+  sudo: yes
+  register: instack_vm_ip_result
+  when: instack_answers_present.stat.exists == False
+
+- name: get mac addresses for overcloud nodes
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    for i in $(seq 0 3); do echo -n $(tripleo get-vm-mac baremetal_$i) " "; done &> mac_temp;
+    sshpass -p {{ config.pass }} scp mac_temp {{ instack_user }}@{{ instack_vm_ip_result.stdout }}:{{ instack_user_home.stdout }}
+  sudo_user: "{{ instack_user }}"
+  sudo: yes
+  when: instack_answers_present.stat.exists == False

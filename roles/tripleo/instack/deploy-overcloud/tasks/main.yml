@@ -36,6 +36,13 @@
 - name: print virtual_power_key_present
   debug: var=virtual_power_key_present.stdout
 
+- name: output mac addresses for vms
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    cat mac_temp
+  register: overcloud_vm_macs
+  when: virtual_power_key_present.stdout != ""
+
 - name: copy template file with virt environment variables
   template:
     src=deploy-overcloudrc-virt.j2
