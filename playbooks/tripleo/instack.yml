@@ -8,12 +8,28 @@
     - { role: tripleo/instack/instack-virt-setup }
   tags: virt-setup
 
+- name: prepare vm for undercloud install
+  hosts: instack-undercloud
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+  sudo_user: root
+  sudo: yes
+  tags: undercloud-virt-prep
+
+- name: return overcloud vm macs
+  hosts: instack-virt-host
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/virt-return-overcloud-macs }
+  tags: virt-overcloud-macs
+
 - name: install undercloud on vm
   hosts: instack-undercloud
   roles:
     - { role: tripleo/instack/common }
     - { role: tripleo/instack/instack-undercloud-virt}
-  tags: undercloud-virt-only
+  tags: undercloud-virt-install
 
 - name: deploy and test overcloud
   hosts: instack-undercloud

@@ -65,7 +65,11 @@
 
 - name: run script to setup virtual environment
   register: instack_virt_result
-  shell: "cd {{ instack_user_home.stdout }}; export LIBVIRT_DEFAULT_URI=\"qemu:///system\" ; instack-virt-setup"
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    export LIBVIRT_DEFAULT_URI="qemu:///system";
+    export UNDERCLOUD_ROOT_PASSWORD={{ config.pass }};
+    instack-virt-setup
   sudo_user: "{{ instack_user }}"
   sudo: yes
 
@@ -106,8 +110,8 @@
 - name: copy keys from root user
   shell: "cat /root/.ssh/authorized_keys >> {{ instack_user_home.stdout }}/.ssh/authorized_keys"
 
-- name: open ssh tunnel to instack vm on port 4067
-  shell: "sudo iptables -I INPUT -p tcp --dport 4067 -j ACCEPT; sshpass -p {{ config.pass }} ssh -o \"StrictHostKeyChecking no\" -g -N -L 4067:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"
+- name: open ssh tunnel to instack vm on port {{ config.vm_ssh_port }}
+  shell: "sudo iptables -I INPUT -p tcp --dport {{ config.vm_ssh_port }} -j ACCEPT; sshpass -p {{ config.pass }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ config.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"
   register: tunnel_port_output
   sudo_user: "{{ instack_user }}"
   sudo: yes
