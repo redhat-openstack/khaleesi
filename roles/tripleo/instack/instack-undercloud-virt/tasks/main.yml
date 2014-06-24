@@ -15,6 +15,12 @@
     ssh-keygen -t rsa -N '' -C virtual-power-key -f virtual-power-key
   when: virtual_power_key_present.stat.exists == False
 
+- name: ssh to virt-host
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    sshpass -p {{ config.pass}} ssh -o 'StrictHostKeyChecking=no' {{ instack_user }}@192.168.122.1 &
+  when: virtual_power_key_present.stat.exists == False
+
 - name: copy the virtual-power-key to the virt host
   shell: >
     chdir={{ instack_user_home.stdout }}
