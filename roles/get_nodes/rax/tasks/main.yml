@@ -1,4 +1,7 @@
 ---
+- debug: var=provisioner
+  when: job.verbosity <= verbosity.debug
+
 - name: Provision nodes
   rax:
        credentials : "{{ provisioner.credentials }}"
@@ -9,7 +12,7 @@
        wait: yes
        wait_timeout: 400
        flavor: "{{ item.value.flavor_id }}"
-       networks: "{{ item.value.nics }}"
+       networks: "{{ provisioner.network_rax }}"
        disk_config: manual
   register: new_nodes
   with_dict: nodes

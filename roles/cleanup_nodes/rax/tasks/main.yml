@@ -1,7 +1,7 @@
 ---
 - name: Remove nodes
   rax:
-       credentials : "{{ credentials }}"
+       credentials : "{{ provisioner.credentials }}"
        state: absent
        name: "{{ item.name }}"
        image: "{{ item.image_id }}"
