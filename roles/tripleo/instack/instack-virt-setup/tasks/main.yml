@@ -110,6 +110,9 @@
 - name: copy keys from root user
   shell: "cat /root/.ssh/authorized_keys >> {{ instack_user_home.stdout }}/.ssh/authorized_keys"
 
+- name: install sshpass for tunnel
+  yum: name=sshpass state=present
+
 - name: open ssh tunnel to instack vm on port {{ config.vm_ssh_port }}
   shell: "sudo iptables -I INPUT -p tcp --dport {{ config.vm_ssh_port }} -j ACCEPT; sshpass -p {{ config.pass }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ config.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"
   register: tunnel_port_output
