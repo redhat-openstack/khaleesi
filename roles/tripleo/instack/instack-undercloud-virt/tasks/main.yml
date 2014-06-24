@@ -5,6 +5,11 @@
   sudo_user: root
   sudo: yes
 
+- name: disable require tty for remote access
+  shell: "sed -i 's/Defaults    requiretty/#Defaults    requiretty/g' /etc/sudoers"
+  sudo_user: root
+  sudo: yes
+
 - name: check virtual-power-key exists
   stat: path="{{ instack_user_home.stdout }}/virtual-power-key.pub"
   register: virtual_power_key_present
