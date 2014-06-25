@@ -35,7 +35,8 @@ def _setup_logging(level):
     numeric_val = getattr(logging, level.upper(), None)
     if not isinstance(numeric_val, int):
         raise ValueError("Invalid log level: %s" % level)
-    fmt = "%(filename)s:%(lineno)3s| %(funcName)20s() |%(levelname)8s: %(message)s"
+    fmt = ("%(filename)s:%(lineno)3s| "
+           "%(funcName)20s() |%(levelname)8s: %(message)s")
     logging.basicConfig(level=numeric_val, format=fmt)
 
 
