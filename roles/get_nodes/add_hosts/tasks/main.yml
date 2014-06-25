@@ -30,3 +30,8 @@
   with_together:
     - nodes_created
     - floating_ips
+
+- debug: var=hostvars
+  when: job.verbosity <= verbosity.debug
+
+

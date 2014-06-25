@@ -38,8 +38,9 @@ net_interfaces="{{ floating_ip.item.value.net_interfaces }}"
     {%- endif %}
 
     {% if nic.net_3 is defined -%}
-        {{ net_add(addresses, nic.net_3.name, 'tempest_private_ip') }}
+        {{ net_add(addresses, nic.net_3.name, 'tempest_public_ip') }}
     {%- endif %}
+
 ansible_ssh_host="{{ rax_node.accessIPv4 }}"
 public_ip="{{ rax_node.accessIPv4 }}"
 private_ip="{{ rax_node.rax_addresses.default.0.addr }}"
