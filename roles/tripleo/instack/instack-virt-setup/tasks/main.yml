@@ -118,5 +118,5 @@
   register: tunnel_port_output
   sudo_user: "{{ instack_user }}"
   sudo: yes
-  async: 4500
+  async: 36000
   poll: 0
