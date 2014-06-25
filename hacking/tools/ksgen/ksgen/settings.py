@@ -53,6 +53,7 @@ Options:
         self.settings = None
         self.output_file = None
         self.rules_file = None
+        self._rules = None
         self.parsed = None
         self.extra_vars = None
 
@@ -60,6 +61,15 @@ Options:
         if not self._parse():
             return 1
         loader = Loader(self.config_dir, self.settings)
+        try:
+            logger.debug("Try loading exports in rules file %s",
+                         self.rules_file)
+            loader.merge(self._rules.export)
+            logger.info('Loaded exports from rules file: %s', self.rules_file)
+        except KeyError:
+            logger.debug("No 'exports' in rules file %s", self.rules_file)
+
+        loader.load()
         self._merge_extra_vars(loader)
         all_settings = loader.settings()
 
@@ -133,10 +143,10 @@ Options:
 
         self.rules_file = os.path.abspath(self.rules_file)
         logger.debug('Rule file: %s', self.rules_file)
-        rules = load_configuration(self.rules_file, os.path.curdir)
+        self._rules = load_configuration(self.rules_file, os.path.curdir)
 
         # create --key=value pairs from the rules.args
-        args_in_rules = rules.get('args', {})
+        args_in_rules = self._rules.get('args', {})
         extra_vars = utils.extract_value(args_in_rules, 'extra-vars')
         args = ['--%s=%s' % (k, v) for k, v in args_in_rules.iteritems()]
         if extra_vars:
@@ -157,8 +167,12 @@ Options:
             # remove rules-file from the parse tree
             del self.parsed['--rules-file']
         # validate args
+        return self._validate_args()
+
+    def _validate_args(self):
+        # validate args
         try:
-            mandatory_args = rules.validation.must_have
+            mandatory_args = self._rules.validation.must_have
         except KeyError:
             logger.debug('No validations in rules file')
             return True
@@ -178,7 +192,6 @@ Options:
             logger.error("Error: missing mandatory args: %s",
                          ', '.join(missing_args))
             return False
-
         return True
 
     def _merge_extra_vars(self, loader):
@@ -205,26 +218,25 @@ class Loader(object):
         self._all_settings = None
         self._file_list = None
         self._invalid_paths = None
+        self._all_settings = OrderedTree('!')
 
     def settings(self):
-        self._load()
+        self.load()
         LookupDirective.lookup_table = self._all_settings
         return self._all_settings
 
     def load_file(self, f):
-        self._load()
+        self.load()
         cfg = load_configuration(f, self._config_dir)
         self._all_settings.merge(cfg)
 
     def merge(self, tree):
-        self._load()
         self._all_settings.merge(tree)
 
-    def _load(self):
+    def load(self):
         if self._loaded:
             return
 
-        self._all_settings = OrderedTree('!')
         self._file_list = []
         self._invalid_paths = []
         self._create_file_list(self._settings, self._file_list)
@@ -282,6 +294,12 @@ class Loader(object):
 
 
 def load_configuration(file_path, rel_dir=None):
+    """ Return the Configuration for the file_path. Also logs an error if
+        there is an error while parsing the file.
+        If the optional rel_dir is passed the error message would print
+        the file_path relative to rel_dir instead of current directory
+    """
+
     logger.debug('Loading file: %s', file_path)
     try:
         return Configuration.from_file(file_path).configure()
