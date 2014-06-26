@@ -1,0 +1,12 @@
+---
+- name: Release floating ip (nova)
+  nova_floating_ip:
+       auth_url: "{{ provisioner.url }}"
+       state: absent
+       login_username: "{{ provisioner.username }}"
+       login_password: "{{ provisioner.password }}"
+       login_tenant_name: "{{ provisioner.tenant_name }}"
+       network_name: "{{ provisioner.network.name }}"
+       instance_name: "{{ item.value.name }}"
+  with_dict: nodes
+  ignore_errors: yes

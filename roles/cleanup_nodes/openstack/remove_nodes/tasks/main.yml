@@ -1,0 +1,13 @@
+---
+- debug: var=nodes
+
+- name: Remove nodes
+  nova_compute:
+       auth_url: "{{ provisioner.url }}"
+       state: absent
+       login_username: "{{ provisioner.username }}"
+       login_password: "{{ provisioner.password }}"
+       login_tenant_name: "{{ provisioner.tenant_name }}"
+       name: "{{ item.value.name }}"
+       image_id: "{{ item.value.image_id }}"
+  with_dict: nodes
