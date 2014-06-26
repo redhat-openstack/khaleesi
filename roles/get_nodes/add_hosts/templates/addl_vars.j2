@@ -1,6 +1,6 @@
 #jinja2: lstrip_blocks:True, trim_blocks:True
 {% macro net_add(addresses, name) -%}
-    {% if addresses[name].0.addr is defined -%}
+    {% if name in addresses and addresses[name].0.addr is defined -%}
         {% set addr = addresses[name].0.addr -%}
         {{name}}="{{ addr }}"
         {% for var_name in varargs -%}
