@@ -1,4 +1,4 @@
-{% for repo in distro.rhel.repos %}
+{% for repo in distro.rhel[ansible_distribution_version].repos %}
 [{{repo.section}}]
 name={{repo.name}}
 baseurl={{repo.baseurl}}
