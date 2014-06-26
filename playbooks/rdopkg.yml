@@ -40,13 +40,13 @@
 - name: Setup packstack on Controller
   hosts: controller:&rdo
   roles:
-      - packstack/rdo
+      - product/rdo
   tags: prep
 
 - name: Setup packstack on Controller
   hosts: controller:&rhos
   roles:
-      - packstack/rhos
+      - product/rhos
   tags: prep
 
 # Generate answers
