@@ -4,3 +4,17 @@ baseurl=http://{{ rhel7_os_repo }}
 failovermethod=priority
 enabled=1
 gpgcheck={{ gpg_check }}
+
+[rhel-7-server-update-rpms]
+name=Update Packages for Enterprise Linux 7 - $basearch
+baseurl=http://{{ rhel7_updates_repo }}
+failovermethod=priority
+enabled=1
+gpgcheck={{ gpg_check }}
+
+[rhel-7-server-optional-rpms]
+name=Optional Packages for Enterprise Linux 7 - $basearch
+baseurl=http://{{ rhel7_optional_repo }}
+failovermethod=priority
+enabled=1
+gpgcheck={{ gpg_check }}
