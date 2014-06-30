@@ -28,19 +28,10 @@
   sudo: yes
   roles:
     - { role: staypuft/default_network }
-    - { role: staypuft/fqdn }
     - { role: staypuft/nfs_server }
-
-- name: f19-specific prep
-  hosts: staypuft:&Fedora
-  sudo: yes
-  roles:
-    - { role: staypuft/fix_fedora_release }
 
 - name: Install foreman
   hosts: staypuft
   sudo: yes
   roles:
     - { role: staypuft/install }
-  tags:
-    - install

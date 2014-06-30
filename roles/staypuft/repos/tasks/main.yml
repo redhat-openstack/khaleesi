@@ -1,9 +1,15 @@
 ---
-- name: Get current staypuft repo
-  get_url: url={{ staypuft_repo }}
-           dest=/etc/yum.repos.d/staypuft.repo
-           force=yes mode=644 owner=root group=root
+- name: Create backup dir for current yum repositories
+  file: path="{{ repo_backup_dir }}" state=directory
 
-- name: SCL Repo Release
-  template: src=rhscl-1.0-z.repo.j2 dest=/etc/yum.repos.d/rhscl-1.0-z.repo
-  when: ansible_distribution != 'Fedora'
+- name: Move all current yum repositories to backup dir
+  shell: if [ -f /etc/yum.repos.d/*.repo ]; then mv /etc/yum.repos.d/*.repo "{{repo_backup_dir}}"; fi
+
+- name: Create the RHOS Release Repository
+  template: src=rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
+
+- name: install rhos-release
+  yum: name=rhos-release state=latest
+
+- name: Exectute rhos-release {{ rhos_release_version }}
+  command: rhos-release {{ rhos_release_version }}
