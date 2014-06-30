@@ -4,4 +4,4 @@
   when: product.repo_type != 'distribution'
 
 - debug: msg="Distribution = '{{ ansible_distribution }}' and  Release = '{{ ansible_distribution_version }}' and  major = '{{ ansible_distribution_version }}' "
-  when: "'debug' in config.verbosity"
+  when: job.verbosity <= verbosity.debug

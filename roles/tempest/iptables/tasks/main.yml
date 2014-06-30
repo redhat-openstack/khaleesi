@@ -9,7 +9,7 @@
   - name: ensure tempest node can connect to controller (private network)
     command: iptables -I INPUT 1 -s {{ tempest_private_ip }}/32 -p tcp  -j ACCEPT
 
-  - name: ensure tempest node can connect to connter  (ansible default ipv4)
+  - name: ensure tempest node can connect to controller (ansible default ipv4)
     command: iptables -I INPUT 1 -s {{ tempest_ip }}/32 -p tcp  -j ACCEPT
 
   - name: save iptables

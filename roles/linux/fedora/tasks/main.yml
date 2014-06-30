@@ -4,7 +4,7 @@
 - name: Ensure fedora-release
   yum: name=fedora-release state=present
 
-- name: ensure f19 rpm ggp key
+- name: Ensure f19 rpm gpg key
   copy: src=f19-gpg dest=/etc/pki/rpm-gpg/RPM-GPG-KEY-fedora-19-x86_64 owner=root group=root force=no
   when: ansible_distribution_version == "19"
 
