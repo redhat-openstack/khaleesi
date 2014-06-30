@@ -3,15 +3,5 @@
 - debug: msg="Setting baseurl to {{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"
   when: product.repo_type != 'distribution'
 
-- name: Find diff between current repo {{ product.repo_type }} and production
-  shell: repodiff --old={{ repo_production }} --new={{ repo_current }} | tee /var/log/rdo_stage_prod_repo.txt
-  register: result
-  when:  product.repo_type != 'production'
-  ignore_errors: yes
-
-- name: print diff between current repo {{ product.repo_type }} and production repo
-  debug: var=result.stdout_lines
-  when:  product.repo_type != 'production'
-
 - debug: msg="Distribution = '{{ ansible_distribution }}' and  Release = '{{ ansible_distribution_version }}' and  major = '{{ ansible_distribution_version }}' "
   when: "'debug' in config.verbosity"
