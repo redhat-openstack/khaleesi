@@ -2,10 +2,6 @@
 - name: Add OS specific vars
   include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
 
-- name: Install foreman release rpm
-  yum: name=http://yum.theforeman.org/releases/1.5/{{ distro_short }}/x86_64/foreman-release.rpm state=present
-  when: false
-
 - name: Install foreman dependencies
   yum: name={{ item }} state=latest
   with_items:

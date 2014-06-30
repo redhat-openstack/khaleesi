@@ -1,15 +1,15 @@
 ---
 - name: Create VM images
   qemu_img: dest=/var/lib/libvirt/images/{{ item }}.qcow2 size=10000 format=qcow2 opt=preallocation=metadata state=present
-  with_sequence: count={{ count }} format={{ name_format }}
+  with_sequence: count={{ staypuft_guest_count }} format={{ name_format }}
 
 - name: Create VMs
   virt: name={{ item }}
         command=define
         xml="{{ lookup('template', 'server.xml.j2') }}"
-  with_sequence: count={{ count }} format={{ name_format }}
+  with_sequence: count={{ staypuft_guest_count }} format={{ name_format }}
 
 - name: Start VMs
   virt: name={{ item }}
         command=start
-  with_sequence: count={{ count }} format={{ name_format }}
+  with_sequence: count={{ staypuft_guest_count }} format={{ name_format }}

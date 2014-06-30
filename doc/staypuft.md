@@ -19,7 +19,7 @@ Installation
     ANSIBLE_LIBRARY=/path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible
     ANSIBLE_LOOKUP_PLUGINS=/path/to/khaleesi/plugins/lookups
 
-To execute the staypuft prep with a baremetal node (RHEL 6.5 or Fedora 19):
+To execute the staypuft prep with a baremetal node (RHEL 6.5):
 
 Inventory (staypuft_hosts):
 
@@ -31,13 +31,15 @@ Command line:
     ansible-playbook -i staypuft_hosts playbooks/staypuft.yml \
         --extra-vars @repo_settings.yml \
         --extra-vars @settings.yml \
-        --extra-vars yum_update=yes
+        --extra-vars yum_update=yes \
+        --extra-vars rhos_release_version=5
 
-After you have run this playbook, you can run the staypuft-installer on your
-baremetal machine.
-
-Once Staypuft is installed, you can run the VM population playbook
+After you have run this playbook, you can run the staypuft-installer on your baremetal machine.
+Once the Redhat OpenStack installer (foreman) is up and running, you can execute:
 
     ansible-playbook -i staypuft_hosts playbooks/staypuft/virt-populate.yml \
         --extra-vars @repo_settings.yml \
         --extra-vars @settings.yml \
+        --extra-vars @staypuft_guest_count=4
+
+
