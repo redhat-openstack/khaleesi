@@ -6,6 +6,8 @@
     source {{ instack_user_home.stdout }}/stackrc;
     export IMG_SOURCE_URL="{{ rdo[ config.version ].instack_images_repo[ ansible_distribution ] }}";
     instack-prepare-for-overcloud
+  async: 9000
+  poll: 300
   when: ansible_distribution == 'Fedora' and config.custom_instack_images is not defined
   register: instack-prepare-for-overcloud-output
 
@@ -19,6 +21,8 @@
     source {{ instack_user_home.stdout }}/stackrc;
     export IMG_SOURCE_URL="{{ config.custom_instack_images }}";
     instack-prepare-for-overcloud
+  async: 9000
+  poll: 300
   when: config.custom_instack_images is defined
   register: instack-prepare-for-overcloud-output
 
