@@ -1,7 +1,5 @@
 ---
 
-- include: instack-common.yml
-
 - name: setup virt environment for undercloud install
   hosts: instack-virt-host
   roles:
@@ -9,6 +7,15 @@
     - { role: tripleo/instack/common }
     - { role: tripleo/instack/instack-virt-setup }
   tags: virt-setup
+
+- name: prepare vm for undercloud install
+  hosts: instack-undercloud
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+  sudo_user: root
+  sudo: yes
+  tags: undercloud-virt-prep
 
 - name: install undercloud on vm
   hosts: instack-undercloud
@@ -33,6 +40,14 @@
     - { role: tripleo/instack/deploy-overcloud }
     - { role: tripleo/instack/test-overcloud}
   tags: undercloud-deploy-test-virt
+
+- name: install undercloud on baremetal
+  hosts: instack-undercloud
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-baremetal}
+  tags: undercloud-baremetal-only
 
 - name: update overcloud images
   hosts: instack
