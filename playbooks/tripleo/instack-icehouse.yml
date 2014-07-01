@@ -7,21 +7,28 @@
   roles:
     - { role: tripleo/instack/common-undercloud }
     - { role: tripleo/instack/common }
-    - { role: tripleo/instack/instack-virt-setup }
+    - { role: tripleo/instack/icehouse/instack-virt-setup }
   tags: virt-setup
+
+- name: return overcloud vm macs
+  hosts: instack-virt-host
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/virt-return-overcloud-macs }
+  tags: virt-overcloud-macs
 
 - name: install undercloud on vm
   hosts: instack-undercloud
   roles:
     - { role: tripleo/instack/common }
-    - { role: tripleo/instack/instack-undercloud-virt}
+    - { role: tripleo/instack/icehouse/instack-undercloud-virt}
   tags: undercloud-virt-install
 
 - name: deploy and test overcloud
   hosts: instack-undercloud
   roles:
     - { role: tripleo/instack/common }
-    - { role: tripleo/instack/deploy-overcloud }
+    - { role: tripleo/instack/icehouse/deploy-overcloud }
     - { role: tripleo/instack/test-overcloud}
   tags: deploy-test-overcloud
 
@@ -29,8 +36,8 @@
   hosts: instack-undercloud
   roles:
     - { role: tripleo/instack/common }
-    - { role: tripleo/instack/instack-undercloud-virt }
-    - { role: tripleo/instack/deploy-overcloud }
+    - { role: tripleo/instack/icehouse/instack-undercloud-virt }
+    - { role: tripleo/instack/icehouse/deploy-overcloud }
     - { role: tripleo/instack/test-overcloud}
   tags: undercloud-deploy-test-virt
 
@@ -39,6 +46,6 @@
   roles:
     - { role: tripleo/instack/common }
     # - { role: tripleo/instack/update-overcloud-images }
-    - { role: tripleo/instack/deploy-overcloud }
+    - { role: tripleo/instack/icehouse/deploy-overcloud }
     - { role: tripleo/instack/test-overcloud}
   tags: update-overcloud-images

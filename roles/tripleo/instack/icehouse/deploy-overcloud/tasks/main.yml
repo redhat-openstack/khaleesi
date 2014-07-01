@@ -6,7 +6,7 @@
     source {{ instack_user_home.stdout }}/stackrc;
     export IMG_SOURCE_URL="{{ rdo[ config.version ].instack_images_repo[ ansible_distribution ] }}";
     instack-prepare-for-overcloud
-  async: 10800
+  async: 9000
   poll: 300
   when: ansible_distribution == 'Fedora' and config.custom_instack_images is not defined
   register: instack-prepare-for-overcloud-output
@@ -21,7 +21,7 @@
     source {{ instack_user_home.stdout }}/stackrc;
     export IMG_SOURCE_URL="{{ config.custom_instack_images }}";
     instack-prepare-for-overcloud
-  async: 10800
+  async: 9000
   poll: 300
   when: config.custom_instack_images is defined
   register: instack-prepare-for-overcloud-output
@@ -30,29 +30,36 @@
   debug: var=instack-prepare-for-overcloud-output.stdout
   when: config.custom_instack_images is defined
 
-- name: check if .ssh/id_rsa_virt_power exists
+- name: check if virtual-power-key exists
   shell: >
     chdir={{ instack_user_home.stdout }}
-    cat instack.answers | grep '.ssh/id_rsa_virt_power'
-  register: id_rsa_virt_power_present
+    cat instack.answers | grep 'virtual-power-key'
+  register: virtual_power_key_present
   ignore_errors: true
 
-- name: print id_rsa_virt_power_present
-  debug: var=id_rsa_virt_power_present.stdout
+- name: print virtual_power_key_present
+  debug: var=virtual_power_key_present.stdout
 
-- name: copy generated deploy-virt-overcloudrc to deploy-overcloudrc
+- name: output mac addresses for vms
   shell: >
     chdir={{ instack_user_home.stdout }}
-    cp deploy-virt-overcloudrc deploy-overcloudrc;
-    chmod 755 deploy-overcloudrc
-  when: id_rsa_virt_power_present.stdout != ""
+    cat mac_temp
+  register: overcloud_vm_macs
+  when: virtual_power_key_present.stdout != ""
+
+- name: copy template file with virt environment variables
+  template:
+    src=deploy-overcloudrc-virt.j2
+    dest={{ instack_user_home.stdout }}/deploy-overcloudrc
+    mode=0755
+  when: virtual_power_key_present.stdout != ""
 
 - name: copy template file with baremetal environment variables
   template:
     src=deploy-overcloudrc-baremetal.j2
     dest={{ instack_user_home.stdout }}/deploy-overcloudrc
     mode=0755
-  when: id_rsa_virt_power_present.stdout == ""
+  when: virtual_power_key_present.stdout == ""
 
 - name: run script to deploy overcloud from packages
   shell: >
