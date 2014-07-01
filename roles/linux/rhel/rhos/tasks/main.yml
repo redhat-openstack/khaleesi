@@ -1,10 +1,4 @@
 ---
-- name: Create backup dir for current yum repositories
-  file: path="{{ repo_backup_dir }}" state=directory
-
-- name: Move all current yum repositories to backup dir
-  shell: if [ -f /etc/yum.repos.d/*.repo ]; then mv /etc/yum.repos.d/*.repo "{{repo_backup_dir}}"; fi
-
 - name: Create the RHOS Release Repository
   template: src=rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
 
