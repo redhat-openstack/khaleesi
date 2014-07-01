@@ -104,3 +104,10 @@
   tags:
     - provision
 
+- name: RHOS SELINUX error check
+  hosts: all:!localhost:!tempest:&rhos
+  roles:
+    - { role: selinux_check/rhos }
+  tags:
+    - provision
+
