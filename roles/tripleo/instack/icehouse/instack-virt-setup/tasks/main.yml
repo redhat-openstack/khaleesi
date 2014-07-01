@@ -78,10 +78,27 @@
   sudo_user: "{{ instack_user }}"
   sudo: yes
 
+- name: get ip address of instack vm
+  shell: "sleep 10; cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac instack) | awk '{print $3;}'"
+  register: instack_ip_address
+  sudo_user: "{{ instack_user }}"
+  sudo: yes
+
+- name: print instack_ip_address
+  debug: var=instack_ip_address.stdout
+
+- name: get mac addresses for overcloud nodes
+  shell: "for i in $(seq 0 3); do echo -n $(tripleo get-vm-mac baremetal_$i) \" \"; done; echo"
+  register: overcloud_node_ips
+  sudo_user: "{{ instack_user }}"
+  sudo: yes
+
+- name: print overcloud_node_ips
+  debug: var=overcloud_node_ips.stdout
+
 - name: get instack vm ip address
   shell: >
      chdir={{ instack_user_home.stdout }}
-     sleep 10;
      cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac instack) | awk '{print $3;}'
   sudo_user: "{{ instack_user }}"
   sudo: yes

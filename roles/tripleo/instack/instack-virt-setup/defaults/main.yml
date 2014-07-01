@@ -2,5 +2,3 @@
 instack_user: stack
 instack_user_password: $6$rounds=100000$j/3ka1xIqD.du6XZ$RX2NLJ50W9aE4FPqb3WLA7c.Djt2fFNKrfGyqVd.4aoDvrV11pri7sLluAg..WIw980ZBem/EkO/Ts4CtyERm0
 root_password: $6$rounds=100000$j/3ka1xIqD.du6XZ$RX2NLJ50W9aE4FPqb3WLA7c.Djt2fFNKrfGyqVd.4aoDvrV11pri7sLluAg..WIw980ZBem/EkO/Ts4CtyERm0
-rdo_release_pkg: http://rdo.fedorapeople.org/openstack-icehouse/rdo-release-icehouse.rpm
-instack_undercloud_pkg: instack-undercloud
