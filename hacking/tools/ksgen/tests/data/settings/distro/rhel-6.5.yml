@@ -1,0 +1,9 @@
+distro:
+    name: rhel
+    version: "7.0"
+    rhel:
+        "7.0"
+            repo:
+                - a
+                - b
+                - c

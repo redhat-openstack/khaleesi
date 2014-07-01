@@ -3,21 +3,25 @@ Generates options list based on the directory structure so that it
 can be used with docstring
 """
 
-from collections import OrderedDict
+from ksgen.tree import OrderedTree
 import logging
 import os
 
 
 logger = logging.getLogger(__name__)
 
+VALUES = ".values"
+MULTIPLE_ALLOWED = ".multiple_allowed"
+
 
 class Generator(object):
-    def __init__(self, config_path):
+    def __init__(self, config_path, **kwargs):
         self._config_dir = os.path.abspath(config_path)
+        self._kwargs = kwargs
         self._parse_tree = None
 
     def parse_tree(self):
-        self._parse_tree = OrderedDict()
+        self._parse_tree = OrderedTree()
         if not os.path.isdir(self._config_dir):
             logger.error("Error: config dir %s does not exist",
                          self._config_dir)
@@ -57,41 +61,61 @@ class Generator(object):
             logger.debug('sub dirs matching : %s', subdirs)
         return self._parse_tree
 
-    def generate(self):
+    def options(self):
         args = self.parse_tree()
-        logger.debug("args: %s", args)
+        from ksgen.yaml_utils import to_yaml
+        logger.debug(to_yaml("Args: ", args))
 
         equals_val = '=<val>'
         longest_key = max(args.keys(), key=len)
         key_width = len(longest_key) + len(equals_val)
 
-        doc_string = ""
-        for key, value in args.items():
-            doc_string += "\n    --{0:{width}} {1}".format(
+        options = ""
+        for key, option in args.items():
+            options += "    --{0:{width}}  {1}\n".format(
                 key.replace('/', '-') + equals_val,
-                '[' + ', '.join(value) + ']',
+                '[' + ', '.join(option['values']) + ']',
                 width=key_width
             )
-        return doc_string
+        return options
+
+    def usage(self):
+        txt = "    {program} {options} [options] {arguments}"
+        options = self._kwargs['repeatable_options'] + [
+            '[--%s=<val>...]' % key for key, option in self.parse_tree().items()
+            if option[MULTIPLE_ALLOWED]
+        ]
+        return txt.format(
+            program=self._kwargs['program'],
+            options=' '.join(options),
+            arguments=self._kwargs['arguments'],
+        )
 
     # ### private ###
-    def _add_option(self, dir_path, values):
+    def _add_option(self, dir_path, options):
         # remove all data-dirs from the dir_path
-        logger.debug("Add option - dir: '%s': %s", dir_path, values)
+        logger.warn("Add option - dir: '%s': %s", dir_path, options)
 
         dirname = os.path.dirname(dir_path)
         parent_option = self._remove_data_dirs(dirname)
 
         basename = os.path.basename(dir_path)
         key = os.path.join(parent_option, basename)
-        logger.debug("cleaned up arg: '%s': %s", key, values)
+        logger.debug("cleaned up arg: '%s': %s", key, options)
 
+        values = key + VALUES
         if key not in self._parse_tree:
-            self._parse_tree[key] = values
+            logger.debug("Add new key %s: [%s]", key, ', '.join(options))
+            self._parse_tree[values] = options
+            self._parse_tree[key + MULTIPLE_ALLOWED] = os.path.exists(
+                os.path.join(dir_path, 'multiple'))
         else:
-            self._parse_tree[key].update(values)
+            logger.debug("Update  %s: [%s]", key, ', '.join(options))
+            self._parse_tree[values].update(options)
 
-        logger.info("Adding %s: [%s]", key, ', '.join(values))
+        logger.info("Adding %s: [%s]", key, ', '.join(options))
+        logger.info("   key %s:  multiple allowed: %s", key,
+                    self._parse_tree[key + MULTIPLE_ALLOWED])
 
     def _is_data_dir(self, path):
         # is a data dir if  basepath is one of the values of
@@ -110,9 +134,9 @@ class Generator(object):
         parent_option = self._remove_data_dirs(parent_dir)
         logger.debug("Checking if '%s' is a data of '%s': %s",
                      basename, parent_option,
-                     self._parse_tree[parent_option])
+                     self._parse_tree[parent_option + VALUES])
 
-        return basename in self._parse_tree[parent_option]
+        return basename in self._parse_tree[parent_option + VALUES]
 
     def _remove_data_dirs(self, path):
         """

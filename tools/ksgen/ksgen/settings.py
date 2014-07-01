@@ -35,21 +35,30 @@ class Generator(object):
     """
 Usage:
     generate [options] <output-file>
-    generate [--extra-vars=KEY_PAIR]... [options] <output-file>
+{usage}
 
 Options:
-    --rules-file=<file>          Rules file that contains generation rules
-                                 Process the rules first, so the additional
-                                 args will override args in rules file
-    --extra-vars=<val>...        Provide extra vars {options}
+    --rules-file=<file>   Rules file that contains generation rules
+                          Process the rules first, so the additional
+                          args will override args in rules file
+    --extra-vars=<val>    Provide extra vars
+{additional_options}
     """
 
     def __init__(self, config_dir, args):
         self.config_dir = config_dir
         self.args = _normalize_args(args)
         logger.debug("Generator: config_dir: %s, args: %s", config_dir, args)
+        docs_gen = docstring.Generator(
+            config_dir,
+            program='generate',
+            repeatable_options=['[--extra-vars=<key-pair>...]'],
+            arguments='<output-file>'
+        )
         self._doc_string = Generator.__doc__.format(
-            options=docstring.Generator(config_dir).generate())
+            usage=docs_gen.usage(),
+            additional_options=docs_gen.options()
+        )
 
         self.settings = None
         self.output_file = None
@@ -61,6 +70,9 @@ Options:
     def run(self):
         if not self._parse():
             return 1
+        # ### del me ###
+        return 0
+        # ### del me ###
         loader = Loader(self.config_dir, self.settings)
         self._merge_rules_file_exports(loader)
         loader.load()
@@ -102,7 +114,7 @@ Options:
         #   <special-key>: moo
 
         logger.debug("Parsing: %s", self.args)
-        logger.debug("DocString for Generate: %s", self._doc_string)
+        logger.info("DocString for Generate: %s", self._doc_string)
 
         try:
             self.parsed = docopt(self._doc_string,

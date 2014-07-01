@@ -2,31 +2,35 @@
 
 """ksgen generates settings based on the settings directory.
 
- Usage:
-    ksgen -h | --help
-    ksgen [options] --config-dir=<PATH> <command> [<args> ...]
+Usage:
+   ksgen -h | --help
+   ksgen [options] --config-dir=<PATH> <command> [<args> ...]
 
- Options:
-    --log-level=<log-level>     Log levels: debug, info, warning
-                                            error, critical
-                                [default: warning]
+Options:
+   --log-level=<log-level>     Log levels: debug, info, warning
+                                           error, critical
+                               [default: warning]
 
- Commands:
-     help
-     generate
+Commands:
+    help
+    generate
+
+Valid options based on '{path}' are:
+{options}
 """
 
 from __future__ import print_function
 from ksgen import docstring, log_color, settings, yaml_utils
 from docopt import docopt
+from os.path import abspath, relpath
 import logging
 import sys
 
 
 def usage(path):
-    doc_string = "{docs} \n Valid configs are: {config}".format(
-        docs=__doc__,
-        config=docstring.Generator(path).generate())
+    doc_string = __doc__.format(
+        path=relpath(path),
+        options=docstring.Generator(path).options())
     print(doc_string)
 
 
@@ -49,7 +53,6 @@ def main(args=None):
     _setup_logging(args['--log-level'])
 
     cmd = args['<command>']
-    from os.path import abspath
     config_dir = abspath(args['--config-dir'])
     if cmd == 'help':
         return usage(config_dir)
