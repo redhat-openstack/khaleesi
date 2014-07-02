@@ -16,10 +16,10 @@
 - name: Find diff between current repo {{ config.repo }} and production
   shell: repodiff --old={{ repo_production }} --new={{ repo_current }} | tee /var/log/rdo_stage_prod_repo.txt
   register: result
-  when:  config.repo != 'production'
+  when:  config.repo != 'production' or config.repo != 'distribution'
   ignore_errors: yes
 
 - name: print diff between current repo {{ config.repo }} and production repo
   debug: var=result.stdout_lines
-  when:  config.repo != 'production'
+  when:  config.repo != 'production' or config.repo != 'distribution'
 
