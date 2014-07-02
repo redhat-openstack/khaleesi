@@ -12,6 +12,7 @@
        wait_for: "{{ distro.config.initial_boot_timeout }}"
        flavor_id: "{{ item.value.flavor_id }}"
        nics: "{{ item.value.nics }}"
+       config_drive: True
   register: new_nodes
   retries: 4
   delay: 60
