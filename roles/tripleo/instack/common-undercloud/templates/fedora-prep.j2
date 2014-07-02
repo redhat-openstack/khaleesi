@@ -1,11 +1,8 @@
 #!/bin/bash
 
-# This file prepares a fedora OS install for Tripleo use by
-# adding passwordless sudo and notty for a given user. The
-# script also sets SELinux to permissive and updates the
-# SELinux config for permissive after a reboot. This script
-# can be ran multiple times and will delete files if present
-# before creation.
+# This file prepares a fedora OS install for Tripleo use by adding passwordless
+# sudo and notty for a given user.  This script can be ran multiple times and
+# will delete files if present before creation.
 
 # This script takes a username as a single positional argument.
 # usage example fedora-prep myusername
@@ -29,9 +26,5 @@ fi
 echo "Defaults:$1 !requiretty" >> $NOTTY_FILE
 chmod 0440 $NOTTY_FILE
 visudo -c
-
-sed -i "s/=enforcing/=permissive/" /etc/selinux/config
-
-setenforce 0
 
 echo "setup complete"
