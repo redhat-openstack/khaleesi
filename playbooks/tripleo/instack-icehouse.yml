@@ -3,7 +3,7 @@
 - name: setup virt environment for undercloud install
   hosts: instack-virt-host
   roles:
-    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/icehouse/common-undercloud }
     - { role: tripleo/instack/common }
     - { role: tripleo/instack/icehouse/instack-virt-setup }
   tags: virt-setup
@@ -11,7 +11,7 @@
 - name: prepare vm for undercloud install
   hosts: instack-undercloud
   roles:
-    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/icehouse/common-undercloud }
     - { role: tripleo/instack/common }
   sudo_user: root
   sudo: yes
@@ -51,7 +51,7 @@
 - name: install undercloud on baremetal
   hosts: instack-undercloud
   roles:
-    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/icehouse/common-undercloud }
     - { role: tripleo/instack/common }
     - { role: tripleo/instack/instack-undercloud-baremetal}
   tags: undercloud-baremetal-only
