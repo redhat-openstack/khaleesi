@@ -12,6 +12,7 @@
        wait_for: "{{ wait_for_boot }}"
        flavor_id: "{{ item.flavor_id }}"
        nics: "{{ item.network_ids }}"
+       config_drive: True
   register: new_nodes
   retries: 4
   delay: 60
