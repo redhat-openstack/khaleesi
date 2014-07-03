@@ -19,15 +19,15 @@
   debug: var=tmp_compute_hosts
   when: job.verbosity <= verbosity.info
 
-- name: set CONFIG_NOVA_COMPUTE_HOSTS to packstack answer-file
+- name: set CONFIG_COMPUTE_HOSTS to packstack answer-file
   lineinfile:
       dest={{ packstack.answer_file }}
-      regexp='CONFIG_NOVA_COMPUTE_HOSTS=.*'
-      line='CONFIG_NOVA_COMPUTE_HOSTS={{tmp_compute_hosts}}'
+      regexp='CONFIG_COMPUTE_HOSTS=.*'
+      line='CONFIG_COMPUTE_HOSTS={{tmp_compute_hosts}}'
 
-- name: warn if CONFIG_NOVA_COMPUTE_HOSTS is overridden in packstack config"
-  debug: msg="'WARNING:' CONFIG_NOVA_COMPUTE_HOSTS overridden by packstack config"
-  when: "'CONFIG_NOVA_COMPUTE_HOSTS' in packstack.config
+- name: warn if CONFIG_COMPUTE_HOSTS is overridden in packstack config"
+  debug: msg="'WARNING:' CONFIG_COMPUTE_HOSTS overridden by packstack config"
+  when: "'CONFIG_COMPUTE_HOSTS' in packstack.config
            and job.verbosity <= verbosity.warning"
 
 - name: create packstack answer-file from the config
