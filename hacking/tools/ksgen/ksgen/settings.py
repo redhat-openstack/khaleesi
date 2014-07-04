@@ -61,14 +61,7 @@ Options:
         if not self._parse():
             return 1
         loader = Loader(self.config_dir, self.settings)
-        try:
-            logger.debug("Try loading exports in rules file %s",
-                         self.rules_file)
-            loader.merge(self._rules.export)
-            logger.info('Loaded exports from rules file: %s', self.rules_file)
-        except KeyError:
-            logger.debug("No 'exports' in rules file %s", self.rules_file)
-
+        self._merge_rules_file_exports(loader)
         loader.load()
         self._merge_extra_vars(loader)
         all_settings = loader.settings()
@@ -78,6 +71,18 @@ Options:
         with open(self.output_file, 'w') as out:
             out.write(yaml_utils.safe_dump(all_settings))
         return 0
+
+    def _merge_rules_file_exports(self, loader):
+        if not self._rules:
+            return
+
+        try:
+            logger.debug("Try loading exports in rules file %s",
+                         self.rules_file)
+            loader.merge(self._rules.export)
+            logger.info('Loaded exports from rules file: %s', self.rules_file)
+        except KeyError:
+            logger.debug("No 'exports' in rules file %s", self.rules_file)
 
     def _parse(self):
         # create the settings tree and preserve the order in which arguments

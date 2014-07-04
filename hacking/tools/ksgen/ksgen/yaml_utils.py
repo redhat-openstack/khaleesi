@@ -19,13 +19,15 @@ import yaml
 
 safe_dump = lambda x: yaml.safe_dump(x, default_flow_style=False)
 
+logger = logging.getLogger(__name__)
+
 
 def to_yaml(header, x):
     """formats x to yaml and adds header on top"""
 
     return """
 %(header)s
-----------------------
+======================
 %(yml)s
 ----------------------
     """ % {
