@@ -5,8 +5,8 @@
 - name: install rhos-release
   yum: name=rhos-release state=latest
 
-- name: Execute rhos-release {{ rhos_release_version }}
-  command: rhos-release {{ rhos_release_version }}
+- name: Execute rhos-release {{ product.version|int }}
+  command: rhos-release {{ product.version|int }}
 
 - name: Inject poodle URL into repo if defined
   ini_file: dest=/etc/yum.repos.d/rhos-release-{{ product.version|int }}-rhel-{{ ansible_distribution_version|int }}.repo
