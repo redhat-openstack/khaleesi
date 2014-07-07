@@ -37,7 +37,7 @@ def main(args):
     child.sendline('1')
 
     repo_path = 'Set RHEL repo path.*\r\n'
-    child.expect(repo_path, timeout=180)
+    child.expect(repo_path, timeout=300)
     child.sendline('1')
     child.sendline(
         'http://download.eng.bos.redhat.com/rel-eng/repos/rhel-7.0/x86_64/')
