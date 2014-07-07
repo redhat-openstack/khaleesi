@@ -5,5 +5,13 @@
 - name: install rhos-release
   yum: name=rhos-release state=latest
 
-- name: Exectute rhos-release {{ rhos_release_version }}
+- name: Execute rhos-release {{ rhos_release_version }}
   command: rhos-release {{ rhos_release_version }}
+
+- name: Inject poodle URL into repo if defined
+  ini_file: dest=/etc/yum.repos.d/rhos-release-{{ product.version|int }}-rhel-{{ ansible_distribution_version|int }}.repo
+            section=rhelosp-{{ product.version }}-el{{ ansible_distribution_version|int}}
+            option=baseurl
+            value={{ product.repo.puddle[ansible_distribution][ansible_distribution_version] }}
+  when: "product.repo.puddle[ansible_distribution][ansible_distribution_version] is defined"
+
