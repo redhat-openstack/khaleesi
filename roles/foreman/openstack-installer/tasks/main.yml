@@ -9,7 +9,7 @@
     - { repo: foreman, section: foreman-plugins, option: enabled, value: 1 }
     - { repo: puppetlabs, section: puppetlabs-products, option: enabled, value: 1 }
     - { repo: puppetlabs, section: puppetlabs-deps, option: enabled, value: 1 }
-  when: product.name == rdo
+  when: product.name == "rdo"
 
 - name: Install Ruby SCL
   template: src=ruby-scl.repo.j2 dest=/etc/yum.repos.d/ruby-scl.repo owner=root group=root mode=644
