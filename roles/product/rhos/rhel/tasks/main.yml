@@ -3,11 +3,6 @@
 - name: Remove python-backports if installed
   yum: name=python-backports state=removed
 
-- name: Create the RHOS poodle repositories for RHEL
-  template: src=rhos_poodle.repo.j2 dest=/etc/yum.repos.d/rhos_poodle.repo
-  notify:
-    - Yum clean all
-
 - name: List available yum repositories
   command: yum -d 9 repolist
   register: result
