@@ -6,22 +6,29 @@
   tags:
     - prep
 
-- name: RHEL prep
-  hosts: all:!localhost:&RedHat
+- name: RHEL RHOS prep
+  hosts: all:!localhost:&RedHat:&rhos
   roles:
-    - { role: linux/rhel }
+    - { role: linux/rhel/rhos }
   tags:
     - prep
 
-- name: CentOS prep
-  hosts: all:!localhost:&CentOS
+- name: RHEL RDO prep
+  hosts: all:!localhost:&RedHat:&rdo
+  roles:
+    - { role: linux/rhel/rdo }
+  tags:
+    - prep
+
+- name: CentOS RDO prep
+  hosts: all:!localhost:&CentOS:&rdo
   roles:
     - { role: linux/centos }
   tags:
     - prep
 
-- name: Fedora prep
-  hosts: all:!localhost:&Fedora
+- name: Fedora RDO prep
+  hosts: all:!localhost:&Fedora:&rdo
   roles:
     - { role: linux/fedora }
   tags:

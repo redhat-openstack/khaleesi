@@ -8,7 +8,6 @@
   sudo: yes
   roles:
     - { role: staypuft/selinux }
-    - { role: staypuft/repos }
     - { role: staypuft/packages, tags: ['packages'] }
 
 - name: IPtables firewall
