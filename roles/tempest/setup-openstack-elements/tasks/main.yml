@@ -52,6 +52,7 @@
         login_tenant_name={{ admin_tenant_name }}
         auth_url={{ keystone_endpoint }}
         state=present
+  when: installer.network.plugin.name == 'neutron'
 
 - name: Setup of public subnet
   quantum_subnet:
@@ -67,6 +68,7 @@
         login_tenant_name={{ admin_tenant_name }}
         auth_url={{ keystone_endpoint }}
         state=present
+  when: installer.network.plugin.name == 'neutron'
 
 - name: Setup of private network
   quantum_network:
@@ -77,6 +79,7 @@
         login_tenant_name={{ admin_tenant_name }}
         auth_url={{ keystone_endpoint }}
         state=present
+  when: installer.network.plugin.name == 'neutron'
 
 - name: Setup of private subnet
   quantum_subnet:
@@ -90,6 +93,7 @@
         login_tenant_name={{ admin_tenant_name }}
         auth_url={{ keystone_endpoint }}
         state=present
+  when: installer.network.plugin.name == 'neutron'
 
 - name: Create router
   quantum_router:
@@ -100,6 +104,7 @@
         login_tenant_name={{ admin_tenant_name }}
         auth_url={{ keystone_endpoint }}
         state=present
+  when: installer.network.plugin.name == 'neutron'
 
 - name: Add interface to router
   quantum_router_interface:
@@ -111,6 +116,7 @@
         login_tenant_name={{ admin_tenant_name }}
         auth_url={{ keystone_endpoint }}
         state=present
+  when: installer.network.plugin.name == 'neutron'
 
 - name: Set gateway
   quantum_router_gateway:
@@ -121,6 +127,7 @@
         login_tenant_name={{ admin_tenant_name }}
         auth_url={{ keystone_endpoint }}
         state=present
+  when: installer.network.plugin.name == 'neutron'
 
 - name: Set security group rules
   script: setup_security_group_rules.sh
