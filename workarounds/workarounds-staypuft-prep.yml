@@ -1,0 +1,8 @@
+---
+- name: Workarounds | Staypuft node
+  hosts: staypuft
+  tags: workaround
+  roles:
+    - { role: workarounds/staypuft-rhel7-tftp,
+        when: workaround_staypuft-rhel7-tftp is defined
+                  and workaround_staypuft-rhel7-tftp }

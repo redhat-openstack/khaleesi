@@ -7,3 +7,4 @@
 
 - name: Install staypuft installer
   yum: name=foreman-installer-staypuft state=latest
+
