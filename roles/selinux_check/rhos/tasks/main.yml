@@ -4,6 +4,6 @@
     when: ansible_distribution_version == "7.0"
 
   - name: execute openstack-selinux-test
-    command: /usr/share/openstack-selinux/*/tests/check_all
+    shell: /usr/share/openstack-selinux/*/tests/check_all
     when: ansible_distribution_version == "7.0"
     ignore_errors: yes
