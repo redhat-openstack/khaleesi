@@ -5,13 +5,6 @@
 
 - include: ../prep.yml
 
-- name: Group hosts by product rdo/rhos
-  hosts: all:!localhost:!tempest
-  tasks:
-    - group_by: key={{ config.product }}
-  tags:
-    - prep
-
 - name: Prepare for install - RDO common
   hosts: foreman_installer:&rdo
   sudo: yes
