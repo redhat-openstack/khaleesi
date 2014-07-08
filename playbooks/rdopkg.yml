@@ -29,14 +29,6 @@
 # apply pre-packstack workarouds
 - include: ../workarounds/workarounds-prep.yml tags=workaround
 
-# Apply rdo or rhos role based on the product
-- name: Group hosts by product rdo/rhos
-  hosts: all:!localhost:!tempest
-  tasks:
-    - group_by: key={{ product.name }}
-  tags:
-    - prep
-
 - name: Setup packstack on Controller
   hosts: controller:&rdo
   roles:
