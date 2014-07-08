@@ -1,0 +1,7 @@
+---
+- name: Run rhel-osp-installer
+  hosts: staypuft
+  sudo: yes
+  roles:
+      - { role: staypuft/install/foreman }
+
