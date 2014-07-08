@@ -13,11 +13,11 @@
 - meta: flush_handlers
 
 - name: rpm | install tempest rpm
-  command: yum install -y openstack-tempest
+  command: yum install -y openstack-tempest-icehouse
   tags: tempest_setup_rpm
 
 - name: rpm | get tempest install directory
-  shell: rpm -ql openstack-tempest | grep 'openstack-tempest$'
+  shell: rpm -ql openstack-tempest-icehouse | grep 'openstack-tempest-icehouse$'
   register: tempest_install_dir
   tags: tempest_setup_rpm
 
