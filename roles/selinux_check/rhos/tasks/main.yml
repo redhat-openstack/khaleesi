@@ -6,4 +6,10 @@
   - name: execute openstack-selinux-test
     shell: /usr/share/openstack-selinux/*/tests/check_all
     when: ansible_distribution_version == "7.0"
+    register: result
+    ignore_errors: yes
+
+  - name: out of selinux-selinux-test
+    debug: var=result.stdout_lines
+    when: ansible_distribution_version == "7.0"
     ignore_errors: yes
