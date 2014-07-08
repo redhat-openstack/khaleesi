@@ -8,14 +8,6 @@
   notify:
     - Yum clean all
     - yum -y update to latest packages
-  when: ansible_distribution_version != "7.0"
-
-- name: Create the RHEL-7 Repositories
-  template: src=rhel7.repo.j2 dest=/etc/yum.repos.d/rhel.repo
-  notify:
-    - Yum clean all
-    - yum -y update to latest packages
-  when: ansible_distribution_version == "7.0"
 
 - name: Create the EPEL Repository
   template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
