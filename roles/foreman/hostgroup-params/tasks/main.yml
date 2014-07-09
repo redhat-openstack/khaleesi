@@ -11,6 +11,6 @@
         HEADER_Content-Type="application/json"
         HEADER_Accept="application/json,version=2"
   with_subelements:
-    - hostgroups
+    - foreman.hostgroups
     - params
 
