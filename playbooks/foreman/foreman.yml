@@ -14,7 +14,7 @@
     - prep
 
 - name: Prepare for install - RDO - RHEL and CentOS
-  hosts: foreman_installer:RedHat:CentOS:&rdo
+  hosts: foreman_installer:RedHat:CentOS:!Fedora:&rdo
   sudo: yes
   roles:
     - { role: product/rdo/rhel }
@@ -22,7 +22,7 @@
     - prep
 
 - name: Prepare for install - RDO - Fedora
-  hosts: foreman_installer:Fedora:&rdo
+  hosts: foreman_installer:&Fedora:&rdo
   roles:
     - { role: product/rdo/fedora }
   tags:
