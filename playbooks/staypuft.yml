@@ -29,8 +29,11 @@
     - { role: staypuft/default_network }
     - { role: staypuft/nfs_server }
 
-- name: Install foreman
+- name: Install staypuft
   hosts: staypuft
   sudo: yes
   roles:
     - { role: staypuft/install }
+
+# apply post-install workarouds
+- include: ../workarounds/workarounds-staypuft-prep.yml tags=workaround
