@@ -15,3 +15,6 @@ tempest_config_image_url: http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x8
 tempest_config_generate_command: >
   python tools/config_tempest.py --out etc/tempest.conf
         --debug  --create
+        identity.uri http://{{ hostvars[controller_name].ansible_default_ipv4.address }}:5000/v2.0/
+        compute.allow_tenant_isolation true
+        object-storage.operator_role SwiftOperator

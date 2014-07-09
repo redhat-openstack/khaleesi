@@ -27,4 +27,7 @@
 - debug: msg="{{ tempest.dir }}"
   tags: tempest_setup_rpm
 
+- name: rpm | create tempest.dir
+  file: path="{{ tempest.dir }}" state=directory
+
 - include: generate-tempest-conf.yml
