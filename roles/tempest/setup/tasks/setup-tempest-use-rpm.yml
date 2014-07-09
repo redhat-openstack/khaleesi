@@ -27,12 +27,4 @@
 - debug: msg="{{ tempest.dir }}"
   tags: tempest_setup_rpm
 
-
-- name: rpm | fail if the install dir is different from
-        tempest.dir
-  fail: msg="failing because install dir {{ tempest_install_dir.stdout }}
-             is not equal to {{tempest.dir}}" #"
-  when: tempest_install_dir.stdout != tempest.dir
-  tags: tempest_setup_rpm
-
 - include: generate-tempest-conf.yml
