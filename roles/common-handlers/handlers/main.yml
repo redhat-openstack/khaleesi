@@ -5,14 +5,14 @@
 - name: Wait for host to stop
   local_action:
         wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }}
-                 port={{ ansible_ssh_port | default(22) }}
+                 port=22
                  state=stopped timeout=600
   sudo: no
 
 - name: Wait for host to come back
   local_action:
         wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }}
-                 port={{ ansible_ssh_port | default(22) }}
+                 port=22
                  state=started timeout=600
   sudo: no
 
