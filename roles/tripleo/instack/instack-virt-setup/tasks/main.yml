@@ -2,54 +2,54 @@
 
 - name: add export of LIVBIRT_DEFAULT_URI to bashrc file
   shell: "echo 'export LIBVIRT_DEFAULT_URI=\"qemu:///system\"' >> ~/.bashrc"
-  sudo_user: "{{ instack_user }}"
+  sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
 - name: enable the rdo-release repository
-  yum: name="{{ rdo[ config.version ].instack_release_rpm[ ansible_distribution ] }}" state=present #"
-  when: ansible_distribution == 'Fedora' and config.custom_repo is not defined
+  yum: name="{{  product.rpm[ ansible_distribution ] }}" state=present #"
+  when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined
   register: rdo_repo_output
 
 - name: print rdo_repo_output
   debug: var=rdo_repo_output.stdout
-  when: ansible_distribution == 'Fedora' and config.custom_repo is not defined
+  when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined
 
 - name: enable a custom repository
-  yum: name="{{ config.custom_repo }}"
-  when: config.custom_repo is defined
+  yum: name="{{ installer.custom_repo }}"
+  when: installer.custom_repo is defined
   register: rdo_repo_output
 
 - name: print rdo_repo_output
   debug: var=rdo_repo_output.stdout
-  when: config.custom_repo is defined
+  when: installer.custom_repo is defined
 
 - name: install instack-undercloud
   yum: name=instack-undercloud state=latest
-  when: config.instack_undercloud_rpm is not defined
+  when: installer.instack_undercloud_rpm is not defined
   register: instack_undercloud_output
 
 - name: print instack_undercloud_output
   debug: var=instack_undercloud_output.stdout
-  when: config.instack_undercloud_rpm is not defined
+  when: installer.instack_undercloud_rpm is not defined
 
 - name: install updated version of instack-undercloud if it exists
-  yum: name="{{ config.instack_undercloud_rpm }}"
-  when: config.instack_undercloud_rpm is defined
+  yum: name="{{ installer.instack_undercloud_rpm }}"
+  when: installer.instack_undercloud_rpm is defined
   register: instack_undercloud_output
 
 - name: print instack_undercloud_output
   debug: var=instack_undercloud_output.stdout
-  when: config.instack_undercloud_rpm is defined
+  when: installer.instack_undercloud_rpm is defined
 
 - name: install updated version of other rpms if they exist
   yum: name={{ item }}
-  with_items: config.updated_rpms_list
-  when: config.updated_rpms_list is defined
+  with_items: installer.updated_rpms_list
+  when: installer.updated_rpms_list is defined
   register: custom_rpm_output
 
 - name: print custom_rpm_output
   debug: var=custom_rpm_output.stdout
-  when: config.updated_rpms_list is defined
+  when: installer.updated_rpms_list is defined
 
 - name: install libguestfs-tools
   yum: name=libguestfs-tools
@@ -60,7 +60,7 @@
 - name: run script to install required dependencies
   shell: "cd {{ instack_user_home.stdout }}; export LIBVIRT_DEFAULT_URI=\"qemu:///system\" ; source /usr/libexec/openstack-tripleo/devtest_variables.sh; tripleo install-dependencies"
   ignore_errors: yes
-  sudo_user: "{{ instack_user }}"
+  sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
 - name: run script to setup virtual environment
@@ -68,14 +68,14 @@
   shell: >
     chdir={{ instack_user_home.stdout }}
     export LIBVIRT_DEFAULT_URI="qemu:///system";
-    export UNDERCLOUD_ROOT_PASSWORD={{ config.pass }};
+    export UNDERCLOUD_ROOT_PASSWORD={{ instack.environ.vm_pw }};
     instack-virt-setup
-  sudo_user: "{{ instack_user }}"
+  sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
 - name: start instack vm
   shell: "export LIBVIRT_DEFAULT_URI=\"qemu:///system\" ; sleep 5; virsh list --all; virsh start instack"
-  sudo_user: "{{ instack_user }}"
+  sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
 - name: get instack vm ip address
@@ -83,7 +83,7 @@
      chdir={{ instack_user_home.stdout }}
      sleep 30;
      cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac instack) | awk '{print $3;}'
-  sudo_user: "{{ instack_user }}"
+  sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
   register: instack_vm_ip_result
 
@@ -96,10 +96,10 @@
 - name: install sshpass for tunnel
   yum: name=sshpass state=present
 
-- name: open ssh tunnel to instack vm on port {{ config.vm_ssh_port }}
-  shell: "sudo iptables -I INPUT -p tcp --dport {{ config.vm_ssh_port }} -j ACCEPT; sshpass -p {{ config.pass }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ config.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"
+- name: open ssh tunnel to instack vm on port {{ instack.environ.vm_ssh_port }}
+  shell: "sudo iptables -I INPUT -p tcp --dport {{ instack.environ.vm_ssh_port }} -j ACCEPT; sshpass -p {{ instack.user.stack.password }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ instack.environ.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"
   register: tunnel_port_output
-  sudo_user: "{{ instack_user }}"
+  sudo_user: "{{ instack.user.stack.name}}"
   sudo: yes
   async: 36000
   poll: 0
