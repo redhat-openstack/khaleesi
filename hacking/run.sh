@@ -27,6 +27,7 @@ Options:
    --no-create-run-settings     skip dumping the settings
    --run-settings-file FILE     file to dump settings used when running the playbook
    --silent                     show only minimal details, skips showing files
+   --verbose                    show a lot of output, enables -vvvv on ansible playbook
    --dry-run                    Only print the commands that would be executed
 
 Creating settings file:
@@ -48,6 +49,7 @@ parse_args() {
         case $1 in
         -h|--help)      SHOW_USAGE=true;   break ;;    # exit the loop
         -q|--silent)    SILENT=true; shift ;;
+        --verbose)      KHALEESI_VERBOSE=true; KHALEESI_SSH_VERBOSE=true; shift ;;
         --use)          SETTINGS_FILE=$2;  shift 2 ;;
         --no-logs)      COLLECT_LOGS=false; shift 1 ;;
         --take-snapshot)      TAKE_SNAPSHOT=true; shift ;;
