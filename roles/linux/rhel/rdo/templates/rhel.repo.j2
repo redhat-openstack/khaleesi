@@ -1,4 +1,4 @@
-{% macro repos(distrover, os_repo, updates_repo, optional_repo) -%}
+{% macro repos(distrover, os_repo, updates_repo, optional_repo, extras_repo) -%}
 [rhel-{{distrover}}-server-rpms]
 name=Main Packages for Enterprise Linux {{distrover}} - $basearch
 baseurl=http://{{ os_repo }}
@@ -19,17 +19,17 @@ baseurl=http://{{ optional_repo }}
 failovermethod=priority
 enabled=1
 gpgcheck={{ gpg_check }}
+
+[rhel-{{distrover}}-server-extras-rpms]
+name=Extra Packages for Enterprise Linux {{distrover}} - $basearch
+baseurl=http://{{ extras_repo }}
+failovermethod=priority
+enabled=1
+gpgcheck={{ gpg_check }}
 {%- endmacro %}
 {%  set distrover = "%s" | format(ansible_distribution_version|int) -%}
 {%  if distrover == "6" -%}
 {{ repos(distrover, rhel_os_repo, rhel_updates_repo, rhel_optional_repo) }}
 {%  elif distrover == "7" -%}
-{{ repos(distrover, rhel7_os_repo, rhel7_updates_repo, rhel7_optional_repo) }}
-
-[rhel-{{distrover}}-server-extras-rpms]
-name=Extra Packages for Enterprise Linux {{distrover}} - $basearch
-baseurl=http://{{ rhel7_extras_repo }}
-failovermethod=priority
-enabled=1
-gpgcheck={{ gpg_check }}
+{{ repos(distrover, rhel7_os_repo, rhel7_updates_repo, rhel7_optional_repo, rhel7_extras_repo) }}
 {%  endif -%}
