@@ -81,6 +81,7 @@
 
 - name: Ensure iptables is open for tempest
   hosts: all:!localhost:!tempest
+  sudo: yes
   roles:
     - { role: tempest/iptables }
   tags: tempest_setup
