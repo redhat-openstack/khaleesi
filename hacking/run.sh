@@ -76,7 +76,7 @@ take_snapshot() {
 ansible_playbook() {
     local playbook=$1; shift
 
-    local cmdline="ansible-playbook -s -i local_hosts --extra-vars @${SETTINGS_FILE}"
+    local cmdline="ansible-playbook -i local_hosts --extra-vars @${SETTINGS_FILE}"
 
     if $KHALEESI_VERBOSE || $KHALEESI_SSH_VERBOSE; then
         cmdline+=" -v"
@@ -92,7 +92,7 @@ generate_build_settings() {
     echo "Generating build settings file"
     rm -f $RUN_SETTINGS_FILE
     ansible_playbook playbooks/dump_settings.yml \
-        --extra-var "'run_settings_file=${RUN_SETTINGS_FILE}'"
+         --extra-vars "'run_settings_file=${RUN_SETTINGS_FILE}'"
 
    $SILENT || cat_file $RUN_SETTINGS_FILE
 }
