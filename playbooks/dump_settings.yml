@@ -26,7 +26,8 @@
 
     - name: dump settings | print reason for failure if variables cannot be expanded
       template: src=dump_settings.j2 dest=/tmp/run_settings.fail
-      when: settings_gen_failed.msg == "True"
+      when: settings_gen_failed.msg == "True" and
+            not {{ dump_settings_ignore_fail | default(true) }}
 
     - name: dump settings | get khaleesi root dir
       command:  readlink -f $PWD/..
