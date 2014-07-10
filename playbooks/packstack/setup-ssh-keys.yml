@@ -5,6 +5,7 @@
 
 - name: Create ssh key if one does not exist
   hosts: controller
+  sudo: yes
   tasks:
       - name: create key
         #this will not overwrite an existing key
@@ -14,6 +15,7 @@
 
 - name: Setup packstack on Controller
   hosts: controller
+  sudo: yes
   tasks:
       - name: fetch ssh-key generated from controller
         fetch: src=/root/.ssh/id_rsa.pub dest=/tmp/ssh_keys/ flat=yes fail_on_missing=yes
@@ -22,6 +24,7 @@
 
 - name: Copy ssh-key to compute hosts
   hosts: compute
+  sudo: yes
   tasks:
     - name: copy ssh-key to compute
       authorized_key: user=root key="{{ lookup('file', '/tmp/ssh_keys/id_rsa.pub') }}" #"

@@ -1,6 +1,7 @@
 ---
 - name: Prepare system for packstack
   hosts: all:!localhost
+  sudo: yes
   roles:
     - { role: common }
   tags:
@@ -8,6 +9,7 @@
 
 - name: RHEL RHOS prep
   hosts: all:!localhost:&RedHat:&rhos
+  sudo: yes
   roles:
     - { role: linux/rhel/rhos }
   tags:
@@ -15,6 +17,7 @@
 
 - name: RHEL RDO prep
   hosts: all:!localhost:&RedHat:&rdo
+  sudo: yes
   roles:
     - { role: linux/rhel/rdo }
   tags:
@@ -22,6 +25,7 @@
 
 - name: CentOS RDO prep
   hosts: all:!localhost:&CentOS:&rdo
+  sudo: yes
   roles:
     - { role: linux/centos }
   tags:
@@ -29,6 +33,7 @@
 
 - name: Fedora RDO prep
   hosts: all:!localhost:&Fedora:&rdo
+  sudo: yes
   roles:
     - { role: linux/fedora }
   tags:
@@ -36,6 +41,7 @@
 
 - name: Linux common prep
   hosts: all:!localhost
+  sudo: yes
   roles:
     - { role: linux-common }
   tags:
