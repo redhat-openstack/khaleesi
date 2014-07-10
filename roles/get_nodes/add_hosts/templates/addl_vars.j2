@@ -13,7 +13,7 @@
 {% set floating_ip = item.1 %}
 {% set nic = provisioner.network.nic %}
 
-{# provisioner is rackspace if node contains 'info' #}
+{# provisioner is openstack if node contains 'info' #}
 {%- if node.info is defined -%}
     {% set addresses = node.info.addresses -%}
     {%- if nic.net_2 is defined -%}
@@ -23,6 +23,7 @@
     {% if nic.net_3 is defined -%}
         {{ net_add(addresses, nic.net_3.name, 'tempest_public_ip') }}
     {%- endif %}
+
 ansible_ssh_host="{{ floating_ip.public_ip }}"
 public_ip="{{ floating_ip.public_ip }}"
 private_ip="{{ node.private_ip }}"
