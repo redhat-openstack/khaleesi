@@ -1,7 +1,7 @@
 ---
 - name: Get the host from foreman
   uri: >
-        url=https://{{ foreman_fqdn }}/api/hosts?search=name=\"{{ fqdn }}\"
+        url=https://{{ foreman.fqdn }}/api/hosts?search=name=\"{{ fqdn }}\"
         method=GET
         user=admin
         password=changeme

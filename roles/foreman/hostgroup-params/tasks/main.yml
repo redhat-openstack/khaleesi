@@ -1,7 +1,7 @@
 ---
 - name: Set hostgroup params
   uri: >
-        url=https://{{ foreman_fqdn }}/api/puppetclasses/{{ item.0.name }}/smart_class_parameters/{{ item.1.key }}
+        url=https://{{ foreman.fqdn }}/api/puppetclasses/{{ item.0.name }}/smart_class_parameters/{{ item.1.key }}
         body='{"default_value": "{{ item.1.value }}", "parameter_type": "{{ item.1.type }}"}'
         method=PUT
         user=admin

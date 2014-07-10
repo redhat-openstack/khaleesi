@@ -3,7 +3,7 @@ openstack_foreman_installer_rpm: openstack-foreman-installer
 ruby_scl_url: http://dev.centos.org/centos/6/SCL/x86_64/
 astapor_dest: /usr/share/openstack-foreman-installer
 opm_dest: /usr/share/openstack-puppet/modules
-controller_name: "{{ lookup('template', 'controller_name.j2')|trim }}"
+controller_name: "{{ node.controller.name }}"
 controller_priv_ip: "{{ hostvars[controller_name].ansible_eth1.ipv4.address }}"
 controller_pub_ip: "{{ hostvars[controller_name].ansible_eth0.ipv4.address }}"
 private_interface: eth1

@@ -3,14 +3,14 @@
   template: src=rdo.repo.j2 dest=/etc/yum.repos.d/rdo-release.repo
   notify:
     - Yum clean all
-  when: ( "{{ config.repo }}" != 'distribution' )
+  when: ( "{{ product.repo_type }}" != 'distribution' )
 
 - name: disable gpgcheck for rdo for every non production repo
   lineinfile:
     dest=/etc/yum.repos.d/rdo-release.repo
     regexp=^gpgcheck=1
     line=gpgcheck=0
-  when: ( "{{ config.repo }}" == 'stage' )
+  when: ( "{{ product.repo_type }}" == 'stage' )
 
 - name: List available yum repositories
   command: yum -d 7 repolist
