@@ -4,7 +4,7 @@
 {% if net_3_name is defined %}
       {{ net_3_name }}="{{ hostvars[inventory_hostname][net_3_name] }}"
 {% endif %}
-{% if node_hostgroup is defined %}
+{% if hostvars[inventory_hostname][node_hostgroup] is defined %}
       node_hostgroup="{{ hostvars[inventory_hostname][node_hostgroup] }}"
 {% endif %}
 {% if bridge_interfaces is defined %}
