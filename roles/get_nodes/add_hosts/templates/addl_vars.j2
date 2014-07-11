@@ -51,7 +51,7 @@ net_interfaces="{{ rax_node.rax_addresses }}"
 {% if node.item.value.node_hostgroup is defined %}
       node_hostgroup="{{ node.item.value.node_hostgroup }}"
 {% endif %}
-{% if node.item.value..hostname is defined %}
+{% if node.item.value.hostname is defined %}
      priv_hostname="{{ node.item.value.hostname }}"
 {% endif %}
 {% if node.item.value.bridge_interfaces is defined %}
