@@ -31,14 +31,14 @@
   sudo: yes
   tags: tempest_setup
   roles:
-    - { role: tempest/package-dependencies }
+    - { role: tempest/package-dependencies, sudo: yes }
     - { role: tempest/setup-openstack-elements }
-    - { role: tempest/setup }
+    - { role: tempest/setup, sudo: no }
 
 - name: Run tempest
   hosts: tempest
   sudo: yes
   tags: tempest_run
   roles:
-    - { role: tempest/run }
+    - { role: tempest/run, sudo: no }
 

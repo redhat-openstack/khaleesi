@@ -1,5 +1,6 @@
 - name: config_tempest |  ensure wget is present
   yum: name=wget state=present
+  sudo: yes
   tags:
     - tempest_setup_rpm
     - tempest_setup_gen_conf

@@ -4,6 +4,7 @@
 
 - name: rpm | create the tempest Repository
   template: src=tempest.repo.j2 dest=/etc/yum.repos.d/tempest.repo
+  sudo: yes
   tags:
     - tempest_setup_rpm
   notify:
@@ -14,6 +15,7 @@
 
 - name: rpm | install tempest rpm
   command: yum install -y openstack-tempest-icehouse
+  sudo: yes
   tags: tempest_setup_rpm
 
 - name: rpm | get tempest install directory
