@@ -48,9 +48,14 @@
         HEADER_Accepts="application/json"
   register: host_json
 
+- debug: var=host_json
+        var=host_json.json
+        var=hostgroup_json
+        var=hostgroup_json.json
+
 - name: Set the hostgroup
   uri: >
-        url=https://{{ foreman.fqdn }}/api/hosts/{{host_json.json[1].host.id}}
+        url=https://{{ foreman.fqdn }}/api/hosts/{{host_json.json[0].host.id}}
         body='{"host": {"id": "{{ host_json.json[0].host.id }}", "hostgroup_id": "{{ hostgroup_json.json[0].hostgroup.id }}"}}'
         method=PUT
         user=admin
