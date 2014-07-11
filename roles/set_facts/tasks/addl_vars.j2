@@ -1,11 +1,11 @@
 {% if net_2_name is defined  %}
-      {{ net_2_name }}="{{ hostvars[inventory_hostname][net_2_name] }}"
+      {{ net_2_name }}="{{ hostvars[inventory_hostname][net_2_name] }}
 {% endif %}
 {% if net_3_name is defined %}
       {{ net_3_name }}="{{ hostvars[inventory_hostname][net_3_name] }}"
 {% endif %}
 {% if node_hostgroup is defined %}
-      node_hostgroup="{{ node_hostgroup }}"
+      node_hostgroup="{{ hostvars[inventory_hostname][node_hostgroup] }}"
 {% endif %}
 {% if bridge_interfaces is defined %}
       bridge_interfaces="{{ bridge_interfaces }}"
