@@ -48,12 +48,12 @@ private_ip="{{ rax_node.rax_addresses.default.0.addr }}"
 net_interfaces="{{ rax_node.rax_addresses }}"
 {%- endif %}
 
-{% if nodes.item.node_hostgroup is defined %}
-      node_hostgroup="{{ nodes.item.node_hostgroup }}"
+{% if node.item.node_hostgroup is defined %}
+      node_hostgroup="{{ node.node_hostgroup }}"
 {% endif %}
-{% if nodes.item.hostname is defined %}
-     priv_hostname="{{ nodes.item.hostname }}"
+{% if node.item.hostname is defined %}
+     priv_hostname="{{ node.hostname }}"
 {% endif %}
-{% if nodes.item.bridge_interfaces is defined %}
-     bridge_interfaces="{{ nodes.item.bridge_interfaces }}"
+{% if node.item.bridge_interfaces is defined %}
+     bridge_interfaces="{{ node.bridge_interfaces }}"
 {% endif %}
