@@ -66,7 +66,7 @@ parse_args() {
 
 
 collect_logs() {
-    ansible_playbook playbooks/collect_logs.yml $ARGS_FOR_ANSIBLE
+    ansible_playbook playbooks/collect_logs.yml $ARGS_FOR_ANSIBLE > collect_logs.txt 2>&1
 }
 
 take_snapshot() {
