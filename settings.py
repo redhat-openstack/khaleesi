@@ -426,6 +426,7 @@ class Job(object):
     """
     _node_prefix_map = {
         "installer": {
+            "devstack": "d",
             "foreman": "f",
             "packstack": "p",
             "tripleo": "t"

@@ -1,0 +1,3 @@
+---
+- name: Run tempest smoke
+  shell: ./run_tempest.sh -V -s chdir=/opt/stack/tempest

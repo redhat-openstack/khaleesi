@@ -1,0 +1,8 @@
+---
+- name: Ensure git
+  sudo: yes
+  sudo_user: root
+  yum: name=git state=latest
+
+- name: Clone devstack repo
+  git: repo=https://github.com/openstack-dev/devstack.git dest={{ ansible_env.HOME }}/devstack
