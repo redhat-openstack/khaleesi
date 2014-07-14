@@ -10,4 +10,7 @@
        login_tenant_name: "{{ provisioner.tenant_name }}"
        name: "{{ item.value.name }}"
        image_id: "{{ item.value.image_id }}"
+       wait_for: "{{ distro.config.initial_boot_timeout }}"
   with_dict: nodes
+  retries: 2
+  delay: 60
