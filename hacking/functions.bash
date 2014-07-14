@@ -17,7 +17,11 @@ declare -r BOLD='\e[1m'
 declare -r NORMAL='\e[0m'
 
 log_error() {
-    echo -e "$RED${BOLD}Error:$NORMAL" "$@"
+    echo -e "$RED${BOLD}ERROR:$NORMAL" "$@"
+}
+
+log_warning() {
+    echo -e "${RED}WARNING:$NORMAL" "$@"
 }
 
 debug.print_callstack() {
@@ -86,9 +90,10 @@ init.print_result() {
 }
 
 cat_file() {
-    echo "----- [ $1 ]---------------------------------------"
-    cat $1 | sed -e "s/\(.*\)\(password\|pass\|passwd\)\(.*\)/\1\2 <rest of the line is hidden>/"
-    echo "---------------------------------------------------"
+    echo -e "$BOLD$BLUE----[ $1 ]---------------------------------------$NORMAL"
+    execute cat $1 | sed -e "s/\(.*\)\(password\|pass\|passwd\)\(.*\)/\1\2 <rest of the line is hidden>/"
+    echo -e "$BLUE---------------------------------------------------$NORMAL"
+    return 0
 }
 
 execute() {
@@ -96,6 +101,5 @@ execute() {
   echo "    $@"
   ${DRY_RUN:-false} || "$@"
 }
-
 
 fi # FUNCTIONS_SOURCED

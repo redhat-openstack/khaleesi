@@ -6,11 +6,9 @@ cd $SCRIPT_DIR/../   ### TODO: experimental
 
 source $SCRIPT_DIR/functions.bash
 
+print_usage() {
 
-usage() {
-    local exit_val=${1:-1}
-
-    read -r -d '' help <<EOF_HELP
+    read -r -d '' help <<-EOF_HELP || true
 Usage:
     $( basename $0)  --use <settings> <playbook>
     $( basename $0)  -h|--help
@@ -24,22 +22,34 @@ Options:
    --no-logs                    do not collect logs after running playbook
    --take-snapshot              take snapshot of the VM after running playbook
    --only-create-run-settings   only run 'dump the settings' playbook
-   --no-create-run-settings     skip dumping the settings
+   --create-run-settings        run 'dump the settings' playbook before running the
+                                actual playbook
    --run-settings-file FILE     file to dump settings used when running the playbook
    --silent                     show only minimal details, skips showing files
    --verbose                    show a lot of output, enables -vvvv on ansible playbook
    --dry-run                    Only print the commands that would be executed
 
+$BOLD${RED}Deprecated options: ${NORMAL}
+   --no-create-run-settings     skip dumping the settings
+
 Creating settings file:
    use khaleesi-settings utility to generate settings file
 
 EOF_HELP
-    # use stdout if exit value is 0 else stderr
+
+    echo -e "$help"
+    return 0
+}
+
+usage() {
+    local exit_val=${1:-1}
+
     if [[ $exit_val -eq 0 ]]; then
-       echo "$help"
+        print_usage
     else
-       echo "$help" >&2
+        print_usage  >&2
     fi
+    # use stdout if exit value is 0 else stderr
     exit $exit_val
 }
 
@@ -53,15 +63,18 @@ parse_args() {
         --use)          SETTINGS_FILE=$2;  shift 2 ;;
         --no-logs)      COLLECT_LOGS=false; shift 1 ;;
         --take-snapshot)      TAKE_SNAPSHOT=true; shift ;;
+        --create-run-settings)    CREATE_RUN_SETTINGS=true; shift ;;
+        --only-create-run-settings)  ONLY_RUN_SETTINGS_CREATION=true
+                                     CREATE_RUN_SETTINGS=true; shift ;;
         --run-settings-file)  RUN_SETTINGS_FILE=$2; shift 2 ;;
-        --no-create-run-settings)    SKIP_RUN_SETTINGS_CREATION=true; shift ;;
-        --only-create-run-settings)  ONLY_RUN_SETTINGS_CREATION=true; shift ;;
+        --no-create-run-settings) DEPRECATED_OPTIONS_USED=true; shift ;;
         --dry-run)  DRY_RUN=true; shift ;;
         *.yml)      PLAYBOOK=$1;  shift ;;
         *) ARGS_FOR_ANSIBLE+=" $1"; shift ;;   # pass anything that run.sh
                                                # doesn't need to ansible
         esac
     done
+    return 0
 }
 
 
@@ -116,6 +129,15 @@ validate_args() {
         no $BLUE${BOLD}*.yml$NORMAL found in args "
         usage
      }
+
+    $DEPRECATED_OPTIONS_USED && {
+        log_warning "Deprecated options used: ${RED}Ignoring $NORMAL"
+        echo -e $BOLD$RED------------------------------------------ $NORMAL
+        print_usage
+        echo -e '-----------------------------------------------------------\n'
+
+    }
+    return 0
 }
 
 main() {
@@ -127,20 +149,21 @@ main() {
     COLLECT_LOGS=true
     TAKE_SNAPSHOT=false
     RUN_SETTINGS_FILE='run_settings.yml'
-    SKIP_RUN_SETTINGS_CREATION=false
     ONLY_RUN_SETTINGS_CREATION=false
     ARGS_FOR_ANSIBLE=""
     SILENT=false
     DRY_RUN=false
+    DEPRECATED_OPTIONS_USED=false
+    CREATE_RUN_SETTINGS=false
 
-    $SILENT || on_exit init.print_result
     parse_args "$@"
     validate_args
 
+    $SILENT || on_exit init.print_result
     $SILENT || cat_file $SETTINGS_FILE
 
     ## create build settings file unless skipped
-    $SKIP_RUN_SETTINGS_CREATION || generate_build_settings
+    $CREATE_RUN_SETTINGS && generate_build_settings
     $ONLY_RUN_SETTINGS_CREATION && exit 0
 
     # collect logs only if the settings are proper
@@ -151,5 +174,4 @@ main() {
     ansible_playbook $PLAYBOOK $ARGS_FOR_ANSIBLE
 }
 
-# requires a 0 exit code for clean.sh to execute
-main "$@" || true
+main "$@"
