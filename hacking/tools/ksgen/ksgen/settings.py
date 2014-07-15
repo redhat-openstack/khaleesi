@@ -5,6 +5,7 @@ from ksgen.yaml_utils import LookupDirective
 from docopt import docopt, DocoptExit
 import logging
 import os
+import yaml
 
 
 VALUES_KEY = '!value'
@@ -69,7 +70,8 @@ Options:
         logger.debug(yaml_utils.to_yaml("All Settings", all_settings))
         logger.info("Writing to file: %s", self.output_file)
         with open(self.output_file, 'w') as out:
-            out.write(yaml_utils.safe_dump(all_settings))
+            out.write(yaml.safe_dump(
+                all_settings, default_flow_style=False))
         return 0
 
     def _merge_rules_file_exports(self, loader):

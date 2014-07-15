@@ -18,8 +18,6 @@ import logging
 import yaml
 
 
-safe_dump = lambda x: yaml.safe_dump(x, default_flow_style=False)
-
 _MAPPING_TAG = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 logger = logging.getLogger(__name__)
 
@@ -34,7 +32,7 @@ def to_yaml(header, x):
 ----------------------
     """ % {
         "header": header,
-        "yml": safe_dump(x)
+        "yml": yaml.safe_dump(x, default_flow_style=False)
     }
 
 
