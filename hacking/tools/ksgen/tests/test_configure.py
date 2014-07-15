@@ -10,6 +10,7 @@ from test_utils import print_yaml, verify_key_val, TEST_DIR
 import logging
 import pytest
 
+logger = logging.getLogger(__name__)
 
 def test_simple_merge():
     src_dict = {
@@ -54,6 +55,25 @@ def test_simple_merge():
     assert verify_key_val(merged, src_dict, 'src')
     assert verify_key_val(merged, other_dict, 'other')
     return
+
+
+def test_dict_order():
+    import ksgen.yaml_utils
+    yaml = """
+        too: boo
+        loo: too
+        foo: bar
+        moo:
+            - soo
+    """
+    cfg = Configuration.from_string(yaml).configure()
+    assert cfg.keys() == ['too', 'loo', 'foo', 'moo']
+    for k in cfg.iterkeys():
+        logger.debug('%s', k)
+    for k, v in cfg.iteritems():
+        logger.debug('%s: %s', k, v)
+
+    print_yaml("src", cfg)
 
 
 def test_array_extend():
