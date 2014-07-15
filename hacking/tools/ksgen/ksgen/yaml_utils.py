@@ -13,12 +13,14 @@ To use yaml.safe_dump(), you need the following.
 """
 
 from configure import Configuration, ConfigurationError
+from collections import OrderedDict
 import logging
 import yaml
 
 
 safe_dump = lambda x: yaml.safe_dump(x, default_flow_style=False)
 
+_MAPPING_TAG = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 logger = logging.getLogger(__name__)
 
 
@@ -34,6 +36,12 @@ def to_yaml(header, x):
         "header": header,
         "yml": safe_dump(x)
     }
+
+
+def dict_constructor(loader, node):
+    if isinstance(node, yaml.nodes.MappingNode):
+        loader.flatten_mapping(node)
+    return OrderedDict(loader.construct_pairs(node))
 
 
 @Configuration.add_constructor('join')
@@ -197,8 +205,9 @@ def represent_odict(dump, tag, mapping, flow_style=None):
 
 
 def register():
-    from collections import OrderedDict
     from ksgen.tree import OrderedTree
+
+    yaml.add_constructor(_MAPPING_TAG, dict_constructor)
 
     yaml.SafeDumper.add_representer(
         OrderedTree,
