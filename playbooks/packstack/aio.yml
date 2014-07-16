@@ -27,6 +27,7 @@
 
 - name: Packstack prep rdo
   hosts: controller:&rdo
+  sudo: yes
   roles:
     - { role: product/rdo }
   tags:
