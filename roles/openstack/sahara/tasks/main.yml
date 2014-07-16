@@ -1,9 +1,11 @@
 ---
 - name: sahara | service | is installed
+  sudo: yes
   yum: name=openstack-sahara state=installed
   tags: sahara
 
 - name: sahara | service | is configued
+  sudo: yes
   template: src=sahara.conf.j2 dest=/etc/sahara/sahara.conf
   tags: sahara
 
@@ -18,6 +20,7 @@
   tags: sahara
 
 - name: sahara | service | configure database
+  sudo: yes
   command: sahara-db-manage
             --config-file /etc/sahara/sahara.conf
               upgrade head
@@ -92,6 +95,7 @@
   tags: sahara
 
 - name: sahara | service | openstack-sahara-api is running
+  sudo: yes
   service: name=openstack-sahara-api state=running enabled=yes
   tags: sahara
 
