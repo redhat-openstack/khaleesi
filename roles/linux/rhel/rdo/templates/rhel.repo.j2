@@ -4,21 +4,21 @@ name=Main Packages for Enterprise Linux {{distrover}} - $basearch
 baseurl=http://{{ os_repo }}
 failovermethod=priority
 enabled=1
-gpgcheck={{ gpg_check }}
+gpgcheck=0
 
 [rhel-{{distrover}}-server-updates-rpms]
 name=Update Packages for Enterprise Linux {{distrover}} - $basearch
 baseurl=http://{{ updates_repo }}
 failovermethod=priority
 enabled=1
-gpgcheck={{ gpg_check }}
+gpgcheck=0
 
 [rhel-{{distrover}}-server-optional-rpms]
 name=Optional Packages for Enterprise Linux {{distrover}} - $basearch
 baseurl=http://{{ optional_repo }}
 failovermethod=priority
 enabled=1
-gpgcheck={{ gpg_check }}
+gpgcheck=0
 {%- endmacro %}
 {%  set distrover = "%s" | format(ansible_distribution_version|int) -%}
 {%  if distrover == "6" -%}
@@ -31,5 +31,5 @@ name=Extra Packages for Enterprise Linux {{distrover}} - $basearch
 baseurl=http://{{ rhel7_extras_repo }}
 failovermethod=priority
 enabled=1
-gpgcheck={{ gpg_check }}
+gpgcheck=0
 {%  endif -%}
