@@ -17,6 +17,7 @@
     - reboot
     - Wait for host to stop
     - Wait for host to come back
+    - Wait after ssh service is back
     - Reload facts
 
 - name: Set /etc/hostname for those that need it
@@ -25,6 +26,7 @@
     - reboot
     - Wait for host to stop
     - Wait for host to come back
+    - Wait after ssh service is back
     - Reload facts
 
 - name: Setup networking (interfaces)
