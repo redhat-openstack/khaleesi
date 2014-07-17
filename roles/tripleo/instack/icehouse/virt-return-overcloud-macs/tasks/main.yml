@@ -14,14 +14,14 @@
   when: instack_answers_present.stat.exists == False
 
 - name: ssh from virt host to instack vm
-  shell: "sshpass -p {{ instack.user.stack.password }} ssh -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@{{ instack_vm_ip_result.stdout }} &"
+  shell: "sshpass -p {{ instack.environ.vm_pw }} ssh -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@{{ instack_vm_ip_result.stdout }} &"
   when: instack_answers_present.stat.exists == False
 
 - name: get mac addresses for overcloud nodes
   shell: >
     chdir={{ instack_user_home.stdout }}
     for i in $(seq 0 3); do echo -n $(tripleo get-vm-mac baremetal_$i) " "; done &> mac_temp;
-    sshpass -p {{ instack.user.stack.password }} scp -o 'StrictHostKeyChecking=no' mac_temp {{ instack.user.stack.name }}@{{ instack_vm_ip_result.stdout }}:{{ instack_user_home.stdout }}
+    sshpass -p {{ instack.environ.vm_pw }} scp -o 'StrictHostKeyChecking=no' mac_temp {{ instack.user.stack.name }}@{{ instack_vm_ip_result.stdout }}:{{ instack_user_home.stdout }}
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
   when: instack_answers_present.stat.exists == False
