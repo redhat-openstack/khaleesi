@@ -8,7 +8,7 @@
             mode=0755
 
 - name: run fedora-prep script
-  command: ./fedora-prep {{ instack_user }}
+  command: ./fedora-prep {{ instack.user.stack.name }}
   register: fredora_prep_output
 
 - name: print fedora_prep_output

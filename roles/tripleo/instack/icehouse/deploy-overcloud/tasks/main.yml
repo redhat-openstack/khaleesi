@@ -4,31 +4,31 @@
   shell: >
     chdir={{ instack_user_home.stdout }}
     source {{ instack_user_home.stdout }}/stackrc;
-    export IMG_SOURCE_URL="{{ rdo[ config.version ].instack_images_repo[ ansible_distribution ] }}";
+    export IMG_SOURCE_URL="{{product.instack_images[ ansible_distribution ] }}";
     instack-prepare-for-overcloud
-  async: 10800
+  async: 21600
   poll: 300
-  when: ansible_distribution == 'Fedora' and config.custom_instack_images is not defined
+  when: ansible_distribution == 'Fedora' and installer.custom_instack_images is not defined
   register: instack-prepare-for-overcloud-output
 
 - name: print instack-prepare-for-overcloud-output
   debug: var=instack-prepare-for-overcloud-output.stdout
-  when: ansible_distribution == 'Fedora' and config.custom_instack_images is not defined
+  when: ansible_distribution == 'Fedora' and installer.custom_instack_images is not defined
 
 - name: prepare for overcloud with custom images
   shell: >
     chdir={{ instack_user_home.stdout }}
     source {{ instack_user_home.stdout }}/stackrc;
-    export IMG_SOURCE_URL="{{ config.custom_instack_images }}";
+    export IMG_SOURCE_URL="{{ installer.custom_instack_images }}";
     instack-prepare-for-overcloud
-  async: 10800
+  async: 21600
   poll: 300
-  when: config.custom_instack_images is defined
+  when: installer.custom_instack_images is defined
   register: instack-prepare-for-overcloud-output
 
 - name: print instack-prepare-for-overcloud-output
   debug: var=instack-prepare-for-overcloud-output.stdout
-  when: config.custom_instack_images is defined
+  when: installer.custom_instack_images is defined
 
 - name: check if virtual-power-key exists
   shell: >
