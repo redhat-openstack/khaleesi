@@ -12,6 +12,7 @@
     when: result.rc == 0
     changed_when: True
     notify:
-      - reboot
-      - Wait for host to stop
-      - Wait for host to come back
+    - reboot
+    - Wait for host to stop
+    - Wait for host to come back
+    - Wait after ssh service is back
