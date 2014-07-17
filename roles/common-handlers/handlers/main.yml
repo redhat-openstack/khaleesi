@@ -3,18 +3,20 @@
   command: "/sbin/shutdown -r  {{ distro.config.reboot_delay }} {{distro_reboot_options}}"
 
 - name: Wait for host to stop
+  sudo: no
   local_action:
         wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }}
                  port=22
-                 state=stopped timeout=600
-  sudo: no
+                 state=stopped
+                 timeout=120
 
 - name: Wait for host to come back
+  sudo: no
   local_action:
         wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }}
                  port=22
-                 state=started timeout=600
-  sudo: no
+                 state=started
+                 timeout=600
 
 - name: Reload facts
   action: setup
