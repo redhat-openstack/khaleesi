@@ -17,6 +17,13 @@
 - name: Wait after ssh service is back
   pause: seconds=60
 
+- name: Check instance uptime
+  command: uptime
+  register: uptime
+
+- name: Print instance uptime
+  debug: var=uptime.stdout_lines
+
 - name: Reload facts
   action: setup
 
@@ -34,6 +41,8 @@
     - reboot
     - Wait for host to stop
     - Wait for host to come back
+    - Check instance uptime
+    - Print instance uptime
     - Reload facts
   when: yum_update | bool
 

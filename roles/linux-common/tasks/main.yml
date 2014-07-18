@@ -8,8 +8,8 @@
 - name: collect performance data, uname
   command: uname -a
 
-- name: collect performance data, uptime
-  command: uptime
+- name: collect performance data, memory
+  command: free -m
 
 - name: collect performance data, vmstat
   command: vmstat

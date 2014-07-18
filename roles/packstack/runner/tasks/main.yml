@@ -46,5 +46,7 @@
     - Wait for host to stop
     - Wait for host to come back
     - Wait after ssh service is back
+    - Check instance uptime
+    - Print instance uptime
 
 
