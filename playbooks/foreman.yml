@@ -1,9 +1,9 @@
 ---
-- include: ../provision.yml
-- include: ../validate_nodes.yml
-- include: ../group_by.yml tags=groupby
+- include: provision.yml
+- include: validate_nodes.yml
+- include: group_by.yml tags=groupby
 
-- include: ../prep.yml
+- include: prep.yml
 
 - name: Prepare for install - RDO common
   hosts: foreman_installer:&rdo
@@ -54,7 +54,7 @@
     - prep
 
 # apply pre-foreman workarouds
-- include: ../../workarounds/workarounds-prep.yml tags=workaround
+- include: ../workarounds/workarounds-prep.yml tags=workaround
 
 - name: Install Foreman
   hosts: foreman
@@ -66,7 +66,7 @@
   tags:
     - install
 
-- include: ../../workarounds/workarounds-pre-run-foreman.yml tags=workaround
+- include: ../workarounds/workarounds-pre-run-foreman.yml tags=workaround
 
 - name: Install Controller node
   hosts: controller
@@ -93,7 +93,7 @@
   tags:
     - install_nodes
 
-#- include: ../../workarounds/workarounds-post-run-foreman.yml tags=workaround
+#- include: ../workarounds/workarounds-post-run-foreman.yml tags=workaround
 
 - name: Create Keystone RC files and OpenStack Status
   hosts: foreman_node
@@ -111,7 +111,7 @@
   tags:
     - openstack-status
 
-- include: ../tempest.yml
+- include: tempest.yml
 
 - name: SELINUX error check
   hosts: all:!localhost:!tempest
