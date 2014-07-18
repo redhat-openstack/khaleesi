@@ -5,8 +5,14 @@
   with_items:
     - cloud-init
 
-- name: linux common tasks
+- name: collect performance data, uname
   command: uname -a
+
+- name: collect performance data, uptime
+  command: uptime
+
+- name: collect performance data, vmstat
+  command: vmstat
 
 - name: Ensure redhat-lsb-core
   yum: name={{ item }} state=present
