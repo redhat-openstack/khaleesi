@@ -1,6 +1,6 @@
 ---
   - name: install openstack-selinux-test
-    yum: name=openstack-selinux-test state=latest
+    yum: name=openstack-selinux-test state=latest enablerepo=rhos-poodle
     when: ansible_distribution_version == "7.0"
 
   - name: execute openstack-selinux-test

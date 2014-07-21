@@ -8,10 +8,13 @@
 - name: Execute rhos-release {{ product.version|int }}
   command: rhos-release {{ product.version|int }}
 
-- name: Inject poodle URL into repo if defined
-  ini_file: dest=/etc/yum.repos.d/rhos-release-{{ product.version|int }}-rhel-{{ ansible_distribution_version|int }}.repo
-            section=rhelosp-{{ product.version }}-el{{ ansible_distribution_version|int}}
-            option=baseurl
-            value={{ product.repo.poodle[ansible_distribution][ansible_distribution_version] }}
-  when: product.repo_type == "poodle"
+- name: Create the RHOS poodle repository (disabled)
+  template: src=rhos-poodle.repo.j2 dest=/etc/yum.repos.d/rhos-poodle.repo
+
+- name: Enable poodle repository if this is a poodle
+  ini_file: dest=/etc/yum.repos.d/rhos-poodle.repo
+            section=rhos-poodle
+            option=enabled
+            value=1
+  when: product.repo_type == 'poodle'
 
