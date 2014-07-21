@@ -71,6 +71,9 @@
   roles:
     - { role: openstack/openstack-status }
 
+# sahara
+- include: sahara.yml
+
 # tempest
 - name: List ip address of tempest node
   hosts: tempest
