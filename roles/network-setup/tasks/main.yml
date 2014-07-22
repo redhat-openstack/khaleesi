@@ -11,7 +11,7 @@
   lineinfile:
       dest: /etc/sysconfig/network
       regexp: '^HOSTNAME=.*'
-      line: 'HOSTNAME={{ hostvars[inventory_hostname].fqdn }}'
+      line: 'HOSTNAME={{ fqdn }}'
       state: present
   notify:
     - reboot

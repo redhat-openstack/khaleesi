@@ -8,24 +8,22 @@
 - debug: var=floating_ips
   when: job.verbosity <= verbosity.debug
 
-- name: Validate all variables are set
-  template:
-    src: addl_vars.j2
-    dest: /tmp/get_nodes.txt
-  with_together:
-    - nodes_created
-    - floating_ips
-
 - name: Network {{ provisioner.network.type }} == {{ network_expected }} | Add hosts
   add_host:
     name="{{ item.0.item.value.name }}"
     groups="{{ item.0.item.value.groups
-      if item.0.item.value.groups is string
-      else item.0.item.value.groups| join(',') }}"
+        if item.0.item.value.groups is string
+        else item.0.item.value.groups| join(',') }}"
     ansible_fqdn="{{ item.0.item.value.hostname }}"
     ansible_ssh_user="{{ item.0.item.value.remote_user }}"
     ansible_ssh_private_key_file="{{ provisioner.key_file }}"
-    {{ lookup('template', '../templates/addl_vars.j2') }}
+    ansible_ssh_host="{{
+        item.1.public_ip if item.0.info is defined
+        else item.0.accessIPv4 if item.0.instances is defined
+        else ''
+    }}"
+    nodes_created_dict="{{ item.0 }}"
+    floating_ip_dict="{{ item.1 }}"
   with_together:
     - nodes_created
     - floating_ips
