@@ -1,6 +1,6 @@
 ---
 - name: Setup networking (general)
-  lineinfile: "dest=/etc/sysconfig/network regexp='^HOSTNAME=.*' line='HOSTNAME={{ hostvars[inventory_hostname].fqdn }}' state=present"
+  lineinfile: "dest=/etc/sysconfig/network regexp='^HOSTNAME=.*' line='HOSTNAME={{ fqdn }}' state=present"
   notify:
     - reboot
     - Wait for host to stop

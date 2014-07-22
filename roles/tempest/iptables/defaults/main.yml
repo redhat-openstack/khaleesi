@@ -1,4 +1,0 @@
----
-tempest_ip: "{{ hostvars[tempest_name].ansible_default_ipv4.address }}"
-tempest_default_ip: "{{ hostvars[tempest_name].tempest_default_ip }}"
-tempest_private_ip: "{{ hostvars[tempest_name].tempest_private_ip }}"

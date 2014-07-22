@@ -17,7 +17,9 @@
       ansible_ssh_private_key_file="{{ ssh_private_key }}"
       ansible_ssh_user="{{ item.0.item.remote_user }}"
       ansible_fqdn="{{ item.0.item.hostname }}"
-      {{ lookup('template', 'addl_vars.j2') }}
+      ansible_ssh_host="{% if item.0.instances is defined %}{{ item.0.instances.0.accessIPv4 }}{% else %}{{ item.1.public_ip}}{% endif %}"
+      nodes_created_dict="{{ item.0 }}"
+      floating_ip_dict="{{ item.1 }}"
   with_together:
     - nodes_created
     - floating_ips
