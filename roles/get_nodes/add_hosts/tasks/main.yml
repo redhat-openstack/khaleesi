@@ -18,15 +18,14 @@
 
 - name: Network {{ provisioner.network.type }} == {{ network_expected }} | Add hosts
   add_host:
-      name="{{ item.0.item.value.name }}"
-      groups="{{ item.0.item.value.groups
-        if item.0.item.value.groups is string
-        else item.0.item.value.groups| join(',') }}"
-      ansible_fqdn="{{ item.0.item.value.hostname }}"
-      ansible_ssh_user="{{ item.0.item.value.remote_user }}"
-      ansible_ssh_private_key_file="{{ provisioner.key_file }}"
-      priv_hostname="{{ item.0.item.value.hostname }}"
-      {{ lookup('template', '../templates/addl_vars.j2') }}
+    name="{{ item.0.item.value.name }}"
+    groups="{{ item.0.item.value.groups
+      if item.0.item.value.groups is string
+      else item.0.item.value.groups| join(',') }}"
+    ansible_fqdn="{{ item.0.item.value.hostname }}"
+    ansible_ssh_user="{{ item.0.item.value.remote_user }}"
+    ansible_ssh_private_key_file="{{ provisioner.key_file }}"
+    {{ lookup('template', '../templates/addl_vars.j2') }}
   with_together:
     - nodes_created
     - floating_ips
