@@ -88,9 +88,9 @@
             --os-tenant-name={{ admin_tenant_name }} --os-auth-url=http://{{ controller_ip }}:5000/v2.0/
             endpoint-create --service sahara
             --region RegionOne
-            --publicurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/$(tenant_id)s'
-            --adminurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/$(tenant_id)s'
-            --internalurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/$(tenant_id)s'
+            --publicurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/%(tenant_id)s'
+            --adminurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/%(tenant_id)s'
+            --internalurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/%(tenant_id)s'
 
   tags: sahara
 
