@@ -3,6 +3,10 @@
   debug: var=hostvars
   when: job.verbosity <= verbosity.debug
 
+- name: dump network and node info  of tempest
+  debug: var=hostvars[nodes.tempest.name].ansible_interfaces
+  when: job.verbosity <= verbosity.debug
+
 - name: ensure tempest node can connect to controller
   command: >
     iptables -I INPUT 1
