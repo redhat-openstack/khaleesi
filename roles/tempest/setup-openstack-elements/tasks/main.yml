@@ -125,15 +125,12 @@
 - name: Set security group rules
   script: setup_security_group_rules.sh
 
-- name: Download cirros image
-  get_url: url={{ cirros_image_url }} dest=~/{{ cirros_image_file }} mode=0440
-
-- name: Upload cirros image to OpenStack using downloaded file
+- name: Upload cirros image to OpenStack
   glance_image: >
         name={{ cirros_image_name }}
         container_format={{ cirros_image_container_format }}
         disk_format={{ cirros_image_disk_format }}
-        file={{ cirros_image_file }}
+        copy_from={{ cirros_image_url }}
         is_public=yes
         login_username={{ demo_username }}
         login_password={{ demo_password }}

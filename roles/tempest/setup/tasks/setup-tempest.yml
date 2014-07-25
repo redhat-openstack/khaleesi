@@ -19,13 +19,3 @@
         value: "{{ swift_operator_role }}" }
     - { section: identity, option: uri_v3,
         value: "http://{{ hostvars[controller_name].ansible_default_ipv4.address }}:5000/v3"}
-
-- name: Set arbitrary things in tempest.conf - required by instack install
-  ini_file: dest={{ tempest.checkout_dir }}/etc/tempest.conf
-            section={{ item.section }}
-            option={{ item.option }}
-            value={{ item.value }}
-  with_items:
-    - { section: identity, option: region,
-        value: "regionOne"}
-  when: alt_defaults.installer is defined and alt_defaults.installer == 'instack'
