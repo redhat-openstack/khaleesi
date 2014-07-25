@@ -18,7 +18,7 @@
 - name: sahara | dashboard | is configured (local_settings)
   lineinfile: dest=/etc/openstack-dashboard/local_settings
               insertafter=EOF
-              line="SAHARA_USE_NEUTRON = {{provisioner.network.type == 'neutron'}}"
+              line="SAHARA_USE_NEUTRON = {{installer.network.plugin.name == 'neutron'}}"
   tags: sahara
 
 - name: sahara | dashboard | is running (restarted)
