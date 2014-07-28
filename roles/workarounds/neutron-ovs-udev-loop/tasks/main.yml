@@ -1,6 +1,8 @@
 ---
 - name: BZ 1122968 - remove ifcfg-br-tun file
+  sudo: yes
   file: state=absent path=/etc/sysconfig/network-scripts/ifcfg-br-tun
 
 - name: BZ 1122968 - remove ifcfg-br-int file
+  sudo: yes
   file: state=absent path=/etc/sysconfig/network-scripts/ifcfg-br-int
