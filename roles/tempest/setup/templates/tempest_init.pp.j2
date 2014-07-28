@@ -21,7 +21,7 @@ class { 'tempest':
   identity_uri              => $::identity_uri,
   # non admin user
   username                  => 'demo',
-  password                  => 'redhat',
+  password                  => {{ tempest.demo_password | default('redhat') }},
   tenant_name               => 'demo',
   # another non-admin user
   alt_username              => undef,
@@ -29,7 +29,7 @@ class { 'tempest':
   alt_tenant_name           => undef,
   # admin user
   admin_username            => 'admin',
-  admin_password            => 'redhat',
+  admin_password            => {{ tempest.admin_password | default('redhat') }},
   admin_tenant_name         => 'admin',
   ## image information
   image_name                => 'cirros',

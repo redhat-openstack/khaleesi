@@ -1,5 +1,5 @@
 export OS_USERNAME=demo
 export OS_TENANT_NAME=demo
-export OS_PASSWORD=redhat
+export OS_PASSWORD={{ tempest.demo_password | default('redhat') }}
 export OS_AUTH_URL=http://{{ controller_ip }}:35357/v2.0/
 export PS1='[\u@\h \W(keystonerc_demo)]\$ '
