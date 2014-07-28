@@ -1,0 +1,9 @@
+---
+
+- name: Workarounds | specific to RedHat distro
+  hosts: RedHat:&networker:&compute
+  roles:
+      - { role: workarounds/neutron-ovs-udev-loop,
+         tags: workaround,
+         when: workaround_neutron_ovs_udev_loop is defined and workaround_neutron_ovs_udev_loop
+      }
