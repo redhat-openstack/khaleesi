@@ -1,4 +1,4 @@
 ---
 - name: BZ 1122968 - inhibits creation of ifcfg bridge configuration files
   sudo: yes
-  copy: src=ovs.pp path=/usr/share/openstack-puppet/modules/neutron/manifests/agents/ovs.pp
+  copy: src=ovs.pp dest=/usr/share/openstack-puppet/modules/neutron/manifests/agents/ovs.pp
