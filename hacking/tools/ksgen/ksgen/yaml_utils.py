@@ -164,12 +164,16 @@ def patch_configure_merge(self, config):
 
         if isinstance(v, Mapping):
             patch_configure_merge(self[k], v)
-            continue
-
-        if isinstance(v, Sequence) and not hasattr(self[k], 'extend'):
-            self[k] = deepcopy(v)
-        else:
+        elif isinstance(v, Sequence) :
+            if hasattr(self[k], 'extend'):
+                self[k].extend(v)
+            else:
+                self[k] = deepcopy(v)
+        elif hasattr(self[k], 'extend'):
             self[k].extend(v)
+        else:
+            self[k] = deepcopy(v)
+
     return self
 
 Configuration.merge = patch_configure_merge
