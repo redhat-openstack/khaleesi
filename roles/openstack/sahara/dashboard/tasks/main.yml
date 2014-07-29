@@ -21,6 +21,13 @@
               line="SAHARA_USE_NEUTRON = {{installer.network.plugin.name == 'neutron'}}"
   tags: sahara
 
+- name: sahara | dashboard | floating IP auto assignment (local_settings)
+  lineinfile: dest=/etc/openstack-dashboard/local_settings
+              insertafter=EOF
+              line="AUTO_ASSIGNMENT_ENABLED = False"
+  when: installer.network.auto_assign_floating_ip == False
+  tags: sahara
+
 - name: sahara | dashboard | is running (restarted)
   service: name=httpd state=restarted
   tags: sahara
