@@ -1,8 +1,4 @@
 ---
-- name: BZ 1122968 - remove ifcfg-br-tun file
+- name: BZ 1122968 - inhibits creation of ifcfg bridge configuration files
   sudo: yes
-  file: state=absent path=/etc/sysconfig/network-scripts/ifcfg-br-tun
-
-- name: BZ 1122968 - remove ifcfg-br-int file
-  sudo: yes
-  file: state=absent path=/etc/sysconfig/network-scripts/ifcfg-br-int
+  copy: src=ovs.pp path=/usr/share/openstack-puppet/modules/neutron/manifests/agents/ovs.pp
