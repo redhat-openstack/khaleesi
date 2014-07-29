@@ -58,7 +58,6 @@ def test_simple_merge():
 
 
 def test_dict_order():
-    import ksgen.yaml_utils
     yaml = """
         too: boo
         loo: too
@@ -122,6 +121,31 @@ def test_array_extend():
     assert verify_key_val(merged, other_dict, 'nested_dict.other')
 
 
+def test_merge_lookup():
+    lookup_yaml = """
+    foo: bar
+    merge: !lookup foo
+    """
+
+    lookup = Configuration.from_string(lookup_yaml)
+    print_yaml("Lookup yaml", lookup)
+
+    new_yaml = """
+    merge: baz
+    """
+    new_values = Configuration.from_string(new_yaml)
+    print_yaml("merge", new_values)
+
+    error_raised = True
+    with pytest.raises(ConfigurationError):
+        logger.debug("Going to merge configs that should fail")
+        deepcopy(lookup).merge(new_values)
+        logger.critical("You should never see this")
+        error_raised = False
+    assert error_raised
+    logger.debug("Raised ConfigurationError")
+
+
 def test_overwrite_tag():
     src_yaml = """
     foo: bar
@@ -138,10 +162,12 @@ def test_overwrite_tag():
 
     error_raised = True
     with pytest.raises(ConfigurationError):
+        logger.debug("Going to merge configs that should fail")
         merged = deepcopy(src).merge(overwrite_fail)
+        logger.critical("You should never see this")
         error_raised = False
     assert error_raised
-    logging.debug("Raised ConfigurationError")
+    logger.debug("Raised ConfigurationError")
     assert src.foo == 'bar'
 
     # ### use overwrite to overwrite src.foo
@@ -293,7 +319,7 @@ def test_ref():
         Configuration.from_string(missing_ref_yaml)
         raised_key_error = False
     assert raised_key_error
-    logging.debug("Raised KeyError")
+    logger.debug("Raised KeyError")
 
     # use previous context ...
     ref_src_foo_yaml = """
@@ -336,7 +362,7 @@ def test_merge_error():
     with pytest.raises(ConfigurationError):
         merged = deepcopy(src).merge(other)
         print_yaml("Merged", dict(merged))
-    logging.info("Merge raised configuration error")
+    logger.info("Merge raised configuration error")
 
 
 def _enable_logging(level=None):

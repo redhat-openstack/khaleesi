@@ -128,11 +128,18 @@ class OverwriteDirective(yaml.YAMLObject):
 
     @classmethod
     def from_yaml(cls, loader, node):
-        return OverwriteDirective(loader.construct_sequence(node))
+        if isinstance(node, yaml.nodes.ScalarNode):
+            return OverwriteDirective(loader.construct_scalar(node))
+
+        if isinstance(node, yaml.nodes.SequenceNode):
+            return OverwriteDirective(loader.construct_sequence(node))
+
+        if isinstance(node, yaml.nodes.MappingNode):
+            return OverwriteDirective(loader.construct_mapping(node))
 
     @classmethod
     def to_yaml(cls, dumper, data):
-        return dumper.represent_sequence(cls.yaml_tag, data.value)
+        return dumper.represent_data(data.value)
 
 
 def patch_configure_getattr(self, name):
