@@ -33,7 +33,7 @@
         tags: ['nova-compute-fix'] }
 
 - name: Workarounds | foreman installer
-  hosts: foreman_installer:&RedHat
+  hosts: foreman:&RedHat
   roles:
       - { role: workarounds/neutron-ovs-udev-loop,
          tags: workaround,
