@@ -56,13 +56,4 @@ Puppet::Type.type(:vs_port).provide(:ovs_redhat) do
       }
     }
   end
-    # The idea here to have a fixed MAC address
-    datapath_id = vsctl("get", "bridge", @resource[:bridge], 'datapath_id')
-    bridge_mac_address = datapath_id[-14..-3].scan(/.{1,2}/).join(':') if datapath_id
-
-    if bridge_mac_address
-      bridge_file << "OVS_EXTRA=\"set bridge #{@resource[:bridge]} other-config:hwaddr=#{bridge_mac_address}\"\n"
-    end
-    bridge_file.close
-  end
 end
