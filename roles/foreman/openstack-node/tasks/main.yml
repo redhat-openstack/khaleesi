@@ -1,7 +1,7 @@
 ---
 - name: Get the host from foreman
   uri: >
-        url=https://{{ foreman.fqdn }}/api/hosts?search=name=\"{{ fqdn }}\"
+        url='https://{{ foreman.fqdn }}/api/hosts?search=name="{{ fqdn }}"'
         method=GET
         user=admin
         password=changeme
@@ -26,7 +26,7 @@
 
 - name: Get hostgroup
   uri: >
-        url=https://{{ foreman.fqdn }}/api/hostgroups?search=name=\"{{ node_hostgroup|replace(' ', '+') }}\"
+        url='https://{{ foreman.fqdn }}/api/hostgroups?search=name="{{ node_hostgroup|replace(' ', '+') }}"'
         method=GET
         user=admin
         password=changeme
@@ -38,7 +38,7 @@
 
 - name: Get the host back from foreman
   uri: >
-        url=https://{{ foreman.fqdn }}/api/hosts?search=name=\"{{ fqdn }}\"
+        url='https://{{ foreman.fqdn }}/api/hosts?search=name="{{ fqdn }}"'
         method=GET
         user=admin
         password=changeme
@@ -55,7 +55,7 @@
 
 - name: Set the hostgroup
   uri: >
-        url=https://{{ foreman.fqdn }}/api/hosts/{{host_json.json[0].host.id}}
+        url='https://{{ foreman.fqdn }}/api/hosts/{{host_json.json[0].host.id}}'
         body='{"host": {"id": "{{ host_json.json[0].host.id }}", "hostgroup_id": "{{ hostgroup_json.json[0].hostgroup.id }}"}}'
         method=PUT
         user=admin
