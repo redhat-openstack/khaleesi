@@ -19,6 +19,7 @@ Options:
    -h|--help                    show this help
    --tags TAGS,...              execute only TAGS
    --skip-tags TAGS,...
+   --inventory FILE             Specify an alternate inventory file than local_hosts
    --no-logs                    do not collect logs after running playbook
    --take-snapshot              take snapshot of the VM after running playbook
    --only-create-run-settings   only run 'dump the settings' playbook
@@ -67,6 +68,7 @@ parse_args() {
         --only-create-run-settings)  ONLY_RUN_SETTINGS_CREATION=true
                                      CREATE_RUN_SETTINGS=true; shift ;;
         --run-settings-file)  RUN_SETTINGS_FILE=$2; shift 2 ;;
+        --inventory) INVENTORY_FILE=$2; shift 2 ;;
         --no-create-run-settings) DEPRECATED_OPTIONS_USED=true; shift ;;
         --dry-run)  DRY_RUN=true; shift ;;
         *.yml)      PLAYBOOK=$1;  shift ;;
@@ -88,8 +90,7 @@ take_snapshot() {
 
 ansible_playbook() {
     local playbook=$1; shift
-
-    local cmdline="ansible-playbook -i local_hosts --extra-vars @${SETTINGS_FILE}"
+    local cmdline="ansible-playbook -i ${INVENTORY_FILE} --extra-vars @${SETTINGS_FILE}"
 
     if $KHALEESI_VERBOSE || $KHALEESI_SSH_VERBOSE; then
         cmdline+=" -v"
@@ -144,6 +145,7 @@ main() {
     # set global defaults
     KHALEESI_VERBOSE=${KHALEESI_VERBOSE:-false}
     KHALEESI_SSH_VERBOSE=${KHALEESI_SSH_VERBOSE:-false}
+    INVENTORY_FILE=${INVENTORY_FILE:-local_hosts}
 
     SHOW_USAGE=false
     COLLECT_LOGS=true
