@@ -48,10 +48,12 @@
         HEADER_Accepts="application/json"
   register: host_json
 
-- debug: var=host_json
-        var=host_json.json
-        var=hostgroup_json
-        var=hostgroup_json.json
+- debug: var={{item}}
+  with_items:
+    - host_json
+    - host_json.json
+    - hostgroup_json
+    - hostgroup_json.json
 
 - name: Set the hostgroup
   uri: >
