@@ -1,0 +1,232 @@
+{% set dhcp_ipv4 = hostvars[inventory_hostname]['ansible_' + job.dhcp_interface]['ipv4'] %}
+# Format:
+# <classname>: false - don't include this class
+# <classname>: true - include and use the defaults
+# <classname>:
+#   <param>: <value> - include and override the default(s)
+#
+# See params.pp in each class for what options are available
+
+---
+  "foreman::plugin::staypuft":
+    ntp_host: {{ distro.config.ntp_server }}
+    interface: {{ job.dhcp_interface }}
+    ip: "{{ dhcp_ipv4['address'] }}"
+    own_gateway: "{{ ansible_default_ipv4.gateway }}"
+    domain: example.com
+    from: "192.168.100.2"
+    gateway: "{{ dhcp_ipv4['address'] }}"
+    base_url: "https://{{ ansible_fqdn }}"
+    dns: "{{ distro.config.dns_servers[0] }}"
+    network: "{{ dhcp_ipv4['network'] }}"
+    root_password: "$1$u6Xnr8DXmF0Z4JAYiJwPnw==\n"
+    netmask: "{{ dhcp_ipv4['netmask'] }}"
+    to: "{{ dhcp_ipv4['network'] | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3})(\.\d{1,3})', '\\1.254') }}"
+    configure_networking: false
+    ssh_public_key: "{{ staypuft.ssh_public_key }}"
+    configure_firewall: true
+  foreman:
+    server_ssl_cert: /var/lib/puppet/ssl/certs/{{ ansible_fqdn }}.pem
+    passenger_interface: ""
+    user: foreman
+    app_root: /usr/share/foreman
+    db_username: foreman
+    db_port:
+    db_adapter:
+    use_vhost: true
+    server_ssl_ca: /var/lib/puppet/ssl/certs/ca.pem
+    db_host:
+    db_type: postgresql
+    configure_epel_repo: false
+    ssl: true
+    passenger_scl: ruby193
+    foreman_url: "https://{{ ansible_fqdn }}"
+    organizations_enabled: false
+    db_sslmode:
+    db_database:
+    selinux:
+    configure_scl_repo: true
+    authentication: true
+    environment: production
+    version: present
+    oauth_consumer_key: GQTw9yViUFui5fe2owwD4Lg4VxyFiGBd
+    oauth_map_users: true
+    group: foreman
+    gpgcheck: true
+    passenger: true
+    oauth_consumer_secret: vJXJQvyPRTddhdqat7osjWMudCBbyxhm
+    oauth_active: true
+    db_password: R5HsZsmzPGpakya44UFi2QrX59VhVb8h
+    repo: nightly
+    server_ssl_chain: /var/lib/puppet/ssl/certs/ca.pem
+    db_manage: true
+    custom_repo: true
+    unattended: true
+    puppet_home: /var/lib/puppet
+    server_ssl_key: /var/lib/puppet/ssl/private_keys/{{ ansible_fqdn }}.pem
+    locations_enabled: false
+    user_groups:
+      - puppet
+  "foreman::plugin::discovery":
+    kernel: foreman-discovery-image-latest.el6.iso-vmlinuz
+    source: "http://yum.theforeman.org/discovery/releases/latest/"
+    install_images: false
+    initrd: foreman-discovery-image-latest.el6.iso-img
+    version: latest
+  foreman_proxy:
+    customrun_cmd: /bin/false
+    dhcp_range: "{{ dhcp_ipv4['network'] | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3})(\.\d{1,3})', '\\1.2') }} {{ dhcp_ipv4['network'] | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3})(\.\d{1,3})', '\\1.254') }}"
+    puppetdir: /etc/puppet
+    registered_proxy_url: "https://{{ ansible_fqdn }}:8443"
+    dhcp: true
+    tftp_root: /var/lib/tftpboot/
+    bmc: false
+    freeipa_remove_dns: true
+    dns: true
+    dns_interface: {{ job.dns_interface }}
+    bmc_default_provider: ipmitool
+    use_sudoersd: true
+    dns_tsig_keytab: /etc/foreman-proxy/dns.keytab
+    puppetrun_provider: ""
+    dir: /usr/share/foreman-proxy
+    puppetca_cmd: "/usr/bin/puppet cert"
+    tftp_dirs:
+      - /var/lib/tftpboot//pxelinux.cfg
+      - /var/lib/tftpboot//boot
+    virsh_network: default
+    puppetrun: true
+    tftp_syslinux_files:
+      - pxelinux.0
+      - menu.c32
+      - chain.c32
+      - memdisk
+    ssl_cert: /var/lib/puppet/ssl/certs/{{ ansible_fqdn }}.pem
+    dhcp_key_secret: ""
+    gpgcheck: true
+    foreman_base_url: "https://{{ ansible_fqdn }}"
+    dns_server: "127.0.0.1"
+    oauth_consumer_secret: vJXJQvyPRTddhdqat7osjWMudCBbyxhm
+    tftp_syslinux_root: /usr/share/syslinux
+    ssldir: /var/lib/puppet/ssl
+    port: 8443
+    puppetrun_cmd: "/usr/bin/puppet kick"
+    tftp_servername: "{{ dhcp_ipv4['address'] }}"
+    realm_keytab: /etc/foreman-proxy/freeipa.keytab
+    dns_reverse: "100.168.192.in-addr.arpa"
+    dns_tsig_principal: "foremanproxy/{{ ansible_fqdn }}@EXAMPLE.COM"
+    ssl_key: /var/lib/puppet/ssl/private_keys/{{ ansible_fqdn }}.pem
+    customrun_args: "-ay -f -s"
+    dhcp_nameservers: "{{ dhcp_ipv4['address'] }}"
+    dns_forwarders:
+      - "{{ distro.config.dns_servers[0] }}"
+    manage_sudoersd: true
+    custom_repo: true
+    dns_zone: example.com
+    puppet_group: puppet
+    puppetssh_user: root
+    dhcp_managed: true
+    log: /var/log/foreman-proxy/proxy.log
+    puppet_user: root
+    realm: false
+    puppetssh_keyfile: /etc/foreman-proxy/id_rsa
+    dhcp_key_name: ""
+    dhcp_vendor: isc
+    dhcp_config: /etc/dhcp/dhcpd.conf
+    autosign_location: /etc/puppet/autosign.conf
+    user: foreman-proxy
+    realm_provider: freeipa
+    dns_managed: true
+    puppetssh_sudo: false
+    trusted_hosts: []
+    register_in_foreman: true
+    puppetca: true
+    dns_provider: nsupdate
+    oauth_effective_user: admin
+    repo: nightly
+    ssl_ca: /var/lib/puppet/ssl/certs/ca.pem
+    dns_ttl: "86400"
+    dhcp_leases: /var/lib/dhcpd/dhcpd.leases
+    registered_name: {{ ansible_fqdn }}
+    keyfile: /etc/rndc.key
+    tftp: true
+    realm_principal: "realm-proxy@EXAMPLE.COM"
+    ssl: true
+    dhcp_gateway: "{{ dhcp_ipv4['address'] }}"
+    oauth_consumer_key: GQTw9yViUFui5fe2owwD4Lg4VxyFiGBd
+    puppetssh_command: "/usr/bin/puppet agent --onetime --no-usecacheonfailure"
+    dhcp_interface: "{{ job.dhcp_interface }}"
+  puppet:
+    server_foreman_ssl_ca: /var/lib/puppet/ssl/certs/ca.pem
+    server_report_api: v2
+    server_enc_api: v2
+    server_config_version:
+    server_service_fallback: true
+    port: 8140
+    user: puppet
+    server_foreman_ssl_cert: /var/lib/puppet/ssl/certs/{{ ansible_fqdn }}.pem
+    server_template: puppet/server/puppet.conf.erb
+    server: true
+    main_template: puppet/puppet.conf.erb
+    configtimeout: 120
+    show_diff: false
+    server_facts: true
+    server_ca_proxy: ""
+    server_git_repo: false
+    server_reports: foreman
+    server_vardir: /var/lib/puppet
+    server_port: 8140
+    allow_any_crl_auth: false
+    ca_server: ""
+    server_dir: /etc/puppet
+    dir: /etc/puppet
+    server_git_repo_path: /var/lib/puppet/puppet.git
+    server_dynamic_environments: false
+    agent_noop: false
+    listen: false
+    server_foreman_ssl_key: /var/lib/puppet/ssl/private_keys/{{ ansible_fqdn }}.pem
+    server_foreman_url: "https://{{ ansible_fqdn }}"
+    server_strict_variables: false
+    server_package:
+      - puppet-server
+    server_ssl_dir: /var/lib/puppet/ssl
+    server_post_hook_content: puppet/server/post-receive.erb
+    server_envs_dir: /etc/puppet/environments
+    server_external_nodes: /etc/puppet/node.rb
+    server_ca: true
+    client_package:
+      - puppet
+    runinterval: 1800
+    splay: false
+    version: present
+    server_git_branch_map: {}
+    server_environments_owner: puppet
+    server_passenger_max_pool: 12
+    agent_template: puppet/agent/puppet.conf.erb
+    runmode: service
+    pluginsync: true
+    group: puppet
+    server_app_root: /etc/puppet/rack
+    server_passenger: true
+    agent: true
+    server_puppet_basedir: /usr/lib/ruby/site_ruby/1.8/puppet
+    server_certname: {{ ansible_fqdn }}
+    server_manifest_path: /etc/puppet/manifests
+    server_group: puppet
+    server_user: puppet
+    auth_template: puppet/auth.conf.erb
+    cron_cmd:
+    server_puppet_home: /var/lib/puppet
+    server_post_hook_name: post-receive
+    server_common_modules_path:
+      - /etc/puppet/environments/common
+      - /usr/share/puppet/modules
+    server_environments:
+      - development
+      - production
+    server_httpd_service: httpd
+    classfile: "$vardir/classes.txt"
+    server_storeconfigs_backend:
+    puppetmaster:
+    nsauth_template: puppet/namespaceauth.conf.erb
+  "foreman::plugin::tasks": {}
+  "foreman::plugin::bootdisk": false

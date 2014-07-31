@@ -1,0 +1,92 @@
+{% for repo in distro.rhel[ansible_distribution_version].repos %}
+{% if 'server-rpms' in repo.section %}
+{% set baseurl = repo.baseurl %}
+{% endif %}
+{% endfor %}
+---
+  :log_dir: /var/log/foreman-installer
+  :dont_save_answers: false
+  :mapping:
+    :"foreman::plugin::puppetdb":
+      :manifest_name: plugin/puppetdb
+      :dir_name: foreman
+    "foreman::plugin::staypuft":
+      :manifest_name: plugin/staypuft
+      :dir_name: foreman
+    :"foreman::plugin::discovery":
+      :manifest_name: plugin/discovery
+      :params_name: plugin/discovery/params
+      :dir_name: foreman
+    :"foreman::plugin::tasks":
+      :manifest_name: plugin/tasks
+      :dir_name: foreman
+    :"foreman::plugin::setup":
+      :manifest_name: plugin/setup
+      :dir_name: foreman
+    :"foreman::compute::vmware":
+      :manifest_name: compute/vmware
+      :dir_name: foreman
+    :"foreman::compute::ec2":
+      :manifest_name: compute/ec2
+      :dir_name: foreman
+    :"foreman::compute::rackspace":
+      :manifest_name: compute/rackspace
+      :dir_name: foreman
+    :"foreman::plugin::bootdisk":
+      :manifest_name: plugin/bootdisk
+      :dir_name: foreman
+    :"foreman::plugin::hooks":
+      :manifest_name: plugin/hooks
+      :dir_name: foreman
+    :"foreman::compute::ovirt":
+      :manifest_name: compute/ovirt
+      :dir_name: foreman
+    :"foreman::plugin::templates":
+      :manifest_name: plugin/templates
+      :dir_name: foreman
+    :"foreman::plugin::default_hostgroup":
+      :manifest_name: plugin/default_hostgroup
+      :dir_name: foreman
+    :"foreman::plugin::chef":
+      :manifest_name: plugin/chef
+      :dir_name: foreman
+    :"foreman::compute::libvirt":
+      :manifest_name: compute/libvirt
+      :dir_name: foreman
+    :"foreman::compute::gce":
+      :manifest_name: compute/gce
+      :dir_name: foreman
+    :"foreman::compute::openstack":
+      :manifest_name: compute/openstack
+      :dir_name: foreman
+  :colors: true
+  :verbose:
+  :log_name: foreman-installer.log
+  :verbose_log_level: info
+  :log_level: :debug
+  :default_values_dir: /tmp
+  :installer_dir: /usr/share/foreman-installer
+  :hook_dirs: []
+  :interactive:
+  :ignore_undocumented: false
+  :reset_foreman_db: false
+  :provisioning_wizard: non-interactive
+  :order:
+    - foreman
+    - foreman_proxy
+    - puppet
+  :custom:
+    :repositories: rhel-7-server-openstack-5.0-rpms
+    :skip_repo_path: false
+    :sm_username: "{{ distro.rhel.subscription.username }}"
+    :repo_path: "{{ distro.rhel[distro.version].kickstart_url }}"
+    :sm_password: "{{ distro.rhel.subscription.password }}"
+    :skip_subscription_seeding: true
+    :sm_pool: ""
+  :noop: false
+  :name: Foreman
+  :modules_dir: /usr/share/foreman-installer/modules
+  :color_of_background: :dark
+  :password: "30EAEikacDKoo7BCoGe8_feDSobAQSxKnbgLTXgLGgo"
+  :no_prefix: false
+  :answer_file: /etc/foreman/rhel-osp-installer.answers.yaml

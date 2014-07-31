@@ -1,7 +1,0 @@
----
-- name: ensure pexpect is installed
-  yum: pkg=pexpect state=present
-
-- name: Run pexpect script to install foreman
-  script: automate_installer.py
-

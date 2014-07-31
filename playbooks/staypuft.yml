@@ -37,3 +37,11 @@
 
 # apply post-install workarouds
 - include: ../workarounds/workarounds-staypuft-prep.yml tags=workaround
+
+- name: Run staypuft installer
+  hosts: staypuft
+  sudo: yes
+  roles:
+    - { role: staypuft/run_install }
+
+- include: staypuft/virt-populate.yml
