@@ -13,4 +13,4 @@
   ignore_errors: true
 
 - name: fetch log archive
-  fetch: src=/tmp/archive.tbz2 flat=yes dest=../../collect_logs/{{ inventory_hostname }}/
+  fetch: src=/tmp/archive.tbz2 flat=yes dest=../../collect_logs/{{ inventory_hostname }}.tbz2
