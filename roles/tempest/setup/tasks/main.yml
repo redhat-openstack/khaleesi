@@ -25,6 +25,7 @@
     - junitxml
     - unittest2
     - nose
+    - testrepository
   when: tempest.use_virtual_env | default(true)
   tags:
     - tempest_setup
