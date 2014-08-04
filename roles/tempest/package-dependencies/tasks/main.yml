@@ -47,6 +47,7 @@
     - python-ceilometerclient
     - python-pip
     - python-virtualenv
+    - python-testrepository
   tags:
     - tempest_setup
 
