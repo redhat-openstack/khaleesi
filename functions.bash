@@ -7,12 +7,35 @@ declare -i __init_script_exit_code=0
 
 declare -r SCRIPT_CMD="$0"
 declare -r SCRIPT_PATH=$(readlink -f "$0")
-declare -r TOP_DIR=$(cd $(dirname "$0") && pwd)
+declare -r SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
+
+declare -r RED='\e[31m'
+declare -r GREEN='\e[32m'
+declare -r YELLOW='\e[33m'
+declare -r BLUE='\e[34m'
+declare -r MAGENTA='\e[35m'
+declare -r CYAN='\e[36m'
+declare -r WHITE='\e[37m'
+declare -r BOLD='\e[1m'
+declare -r NORMAL='\e[0m'
+
+log_info() {
+    echo -e "$BLUE${BOLD}INFO:$NORMAL" "$@"
+}
+
+log_error() {
+    echo -e "$RED${BOLD}ERROR:$NORMAL" "$@"
+}
+
+log_warning() {
+    echo -e "${RED}WARNING:$NORMAL" "$@"
+}
 
 debug.print_callstack() {
     local i=0;
     local cs_frames=${#BASH_SOURCE[@]}
 
+    echo "--------------------------------------------------"
     echo "Traceback ... "
     for (( i=$cs_frames - 1; i >= 2; i-- )); do
         local cs_file=${BASH_SOURCE[i]}
@@ -22,7 +45,9 @@ debug.print_callstack() {
         # extract the line from the file
         local line=$(sed -n "${cs_line}{s/^ *//;p}" "$cs_file")
 
-        echo -e "  $cs_file[$cs_line]: $cs_fn:\t$line"
+        echo -e "  $cs_file[$cs_line]:" \
+            "$cs_fn:\t" \
+            "$line"
     done
     echo "--------------------------------------------------"
 }
@@ -66,387 +91,22 @@ init.print_result() {
     if [[  $exit_code == 0 ]]; then
         echo "$SCRIPT_CMD: PASSED"
     else
-        echo "$SCRIPT_CMD: FAILED  -  exit code: [ $exit_code ]"
+        echo "$SCRIPT_CMD: FAILED" \
+             " -   exit code: [ $exit_code ]"
     fi
 }
-
-# script._poll_parent timeout interval
-#
-# polls if the parent process $$ exists at every <interval>
-# until <timeout>.
-# returns:
-#   0 if parent process isn't found
-#   1 if it exists
-script._poll_parent() {
-    local -i timeout=$1; shift
-    local -i interval=${1:-1}
-
-    if [[ $interval -gt $timeout ]]; then
-        interval=$(($timeout - 1))
-    fi
-
-    local -i slept=1
-    while [[ $slept -lt $timeout ]]; do
-        sleep $interval
-        kill -s 0 $$ 2>/dev/null || return 0
-        slept=$((slept + $interval))
-
-        if [[ $(($slept + $interval)) -gt $timeout ]]; then
-            interval=$(($timeout - $slept))
-        fi
-    done
-    return 1
-}
-
-
-#script.set_timeout <soft-timeout> [hard-timeout] [timeout-handler]
-# sends HUP after soft-timeout and then KILL if process doesn't
-# exit after <hard-timeout>
-# hard-timeout  [ default: 30 seconds ]
-script.set_timeout() {
-    local -i soft_timeout=$1; shift
-    local -i hard_timeout=${1:-30}
-    [[ $# -ge 1 ]] && shift
-
-    _timeout_handler() { exit 1; }
-
-    local handler=${1:-'_timeout_handler'}
-    [[ $# -ge 1 ]] && shift
-
-    trap  "$handler $@" SIGHUP
-    (
-        script._poll_parent $soft_timeout 4 && exit 0
-
-        echo "$SCRIPT_CMD timed out after $soft_timeout;" \
-            "sending SIGHUP to cleanup"
-        kill -s HUP $$
-
-        script._poll_parent $hard_timeout && exit 0
-
-        echo "$SCRIPT_CMD did not finish cleaning up in $hard_timeout;" \
-            "sending SIGKILL to $$"
-        kill -s KILL $$
-    )&
-}
-
-to_seconds () {
-    IFS=: read h m s <<< "$1"
-    #echo "h: $h | m: $m | s: $s"
-    [[ -z $s ]] && [[ -z $m ]] && { s=$h; h=; }
-    [[ -z $s ]] && { s=$m; m=; }
-    [[ -z $m ]] && { m=$h; h=; }
-    #echo "h: $h | m: $m | s: $s"
-    echo $(( 10#$h * 3600 + 10#$m * 60 + 10#$s ))
-    return 0
-}
-
 
 cat_file() {
-    echo "----- [ $1 ]---------------------------------------"
-    cat $1
-    echo "---------------------------------------------------"
+    echo -e "$BOLD$BLUE----[ $1 ]---------------------------------------$NORMAL"
+    execute cat $1 | sed -e "s/\(.*\)\(password\|pass\|passwd\)\(.*\)/\1\2 <rest of the line is hidden>/"
+    echo -e "$BLUE---------------------------------------------------$NORMAL"
+    return 0
 }
 
 execute() {
   echo "Execute Command:"
   echo "    $@"
-  "$@"
-}
-
-parse_settings_args() {
-
-    # default values for args
-    USE_PYTHON_GENERATOR=false
-    TIMEOUT_SET=false
-    SETTINGS_ARGS=""
-
-    ### while there are args parse them
-    while [[ -n "${1+xxx}" ]]; do
-        case $1 in
-            --use-python-generator)
-                USE_PYTHON_GENERATOR=true
-                shift 1
-                ;;
-            --tags)
-                TAGS=$2
-                shift 2
-                ;;
-            --skip-tags)
-                SKIP_TAGS=$2
-                shift 2
-                ;;
-            -I|--inventory)
-                INVENTORY_FILE=$2
-                shift 2
-                ;;
-            -P|--playbook)
-                PLAYBOOK=$2
-                shift 2
-                ;;
-            -N|--nodes)
-                NODES_FILE=$2
-                shift 2
-                ;;
-            --timeout)
-                SCRIPT_TIMEOUT=$2
-                TIMEOUT_SET=true
-                shift 2
-                ;;
-            *.yml)
-                PLAYBOOK=$1
-                shift 1
-                ;;
-            --settings-path)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --build)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --tempest)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --site)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --installer)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --product)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --productreleaserepo)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --productrelease)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --distribution)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --distrorelease)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --topology)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --networking)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --variant)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --testsuite)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --job-name)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --set-variable)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --delete-variable)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --update-variable)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            --create-variable)
-                SETTINGS_ARGS+=" $1 $2 "
-                shift 2
-                ;;
-            *)
-                printf >&2 'WARNING: unknown option: %s\n' $1
-                shift
-                ;;
-        esac
-    done
-}
-
-generate_settings_file() {
-    local out_file=${1:-'settings.yml'}
-
-    local OS_NETWORK_TYPE=${OS_NETWORK_TYPE:-'neutron'}
-    local default_floating_nw_name='external'
-    local default_flavor_id=4
-    local default_tempest_flavor_id=2
-    local default_tempest_image_id='10a4092c-6ec9-4ddf-b97c-b0f8dff0958e'
-    local default_tempest_repo='git://github.com/openstack/tempest.git'
-    local default_provisioner_env='openstack'
-
-    local wait_for_boot=${WAIT_FOR_BOOT:-'180'}
-
-    local key_file=${KEY_FILE:-/key.pem }
-    local key_name=${SSH_KEY_NAME:-'key'}
-    chmod 600 $key_file
-
-    local job_name=${JOB_NAME}
-    local node_prefix=${NODE_PREFIX:-''}
-    local flavor_id=${FLAVOR_ID:-$default_flavor_id}
-    local floating_nw_name=${FLOATING_NETWORK_NAME:-'external'}
-
-    local image_id=$IMAGE_ID
-    local provisioner_env=${PROVISIONER_ENV:-$default_provisioner_env}
-    local tempest_image_id=${TEMPEST_IMAGE_ID:-$default_tempest_image_id}
-    local tempest_flavor_id=${TEMPEST_FLAVOR_ID:-$default_tempest_flavor_id}
-    local foreman_image_id=${FOREMAN_IMAGE_ID:-$IMAGE_ID}
-    local foreman_flavor_id=${FOREMAN_FLAVOR_ID:-$default_flavor_id}
-    local net_1=${NET_1:-'CHANGE_ME'}
-    local net_2=${NET_2:-''}
-    local net_2_name=${NET_2_NAME:-''}
-    local net_3=${NET_3:-''}
-    local net_3_name=${NET_3_NAME:-''}
-
-    local tags=${TAGS:-''}
-    local skip_tags=${SKIP_TAGS:-''}
-    local skip_tags_collect=${SKIP_TAGS_COLLECT:-''}
-    local tempest_tests=${TEMPEST_TEST_NAME:-'tempest.scenario.test_network_basic_ops'}
-    local remote_user=${REMOTE_USER:-'cloud-user'}
-    local tempest_repo=${TEMPEST_REPO:-$default_tempest_repo}
-    local tempest_branch=${TEMPEST_BRANCH:-'master'}
-    local tempest_remote_user=${TEMPEST_REMOTE_USER:-'fedora'}
-    local tempest_setup_method=${TEMPEST_SETUP_METHOD:-'packstack/provision'}
-    local foreman_remote_user=${FOREMAN_REMOTE_USER:-$REMOTE_USER}
-
-    local sm_username=${SM_USERNAME:-''}
-    local sm_password=${SM_PASSWORD:-''}
-
-    local host_env=${HOST_ENV:-'neutron'}
-    local product=${PRODUCT:-'rdo'} #product
-    local productrelease=${PRODUCTRELEASE:-'icehouse'} #rdo_release
-    local productreleaserepo=${PRODUCTRELEASEREPO:-'production'} #rdo_repo
-    local netplugin=${NETPLUGIN:-'neutron'} #network_driver
-
-    local update_rpms_tarball=${UPDATE_RPMS_TARBALL:-''}
-
-    local net_ids="[{ net-id: '$net_1' }"
-    if [[ ! -z $net_2 ]]; then
-      net_ids="$net_ids, { net-id: '$net_2' }"
-    fi
-    if [[ ! -z $net_3 ]]; then
-      net_ids="$net_ids, { net-id: '$net_3' }"
-    fi
-    net_ids="$net_ids ]"
-
-cat > $out_file <<-EOF
-# job config
-
-packstack_int: whayutin
-
-config:
-  product: $product
-  version: $productrelease
-  repo: $productreleaserepo
-  netplugin: $netplugin
-  verbosity:
-    - info
-
-# OpenStack controller settings, can be set by sourcing a keystonerc file
-os_auth_url: '$OS_AUTH_URL'
-os_username: $OS_USERNAME
-os_password: $OS_PASSWORD
-os_tenant_name: $OS_TENANT_NAME
-os_network_type: $OS_NETWORK_TYPE
-provisioner_env: $provisioner_env
-
-# instance settings
-job_name: $job_name
-node_prefix: $node_prefix
-network_ids: $net_ids
-net_2_name: $net_2_name
-net_3_name: $net_3_name
-image_id: $image_id
-ssh_private_key: $key_file
-ssh_key_name: $key_name
-flavor_id: $flavor_id
-floating_network_name: $floating_nw_name
-tempest_image_id: $tempest_image_id
-tempest_flavor_id: $tempest_flavor_id
-tempest_remote_user: $tempest_remote_user
-foreman_image_id: $foreman_image_id
-foreman_flavor_id: $foreman_flavor_id
-foreman_remote_user: $foreman_remote_user
-sm_username: $sm_username
-sm_password: $sm_password
-
-cleanup_nodes: "{{ nodes }}"
-
-#VM settings
-epel_repo: download.fedoraproject.org/pub/epel/6/
-gpg_check: 0
-ntp_server: clock.redhat.com
-reboot_delay: +1
-wait_for_boot: $wait_for_boot
-
-update_rpms_tarball: $update_rpms_tarball
-
-# Currently sudo w/ NOPASSWD must be enabled in /etc/sudoers for sudo to work
-# running w/ -u $remote_user and -s will override these options
-remote_user: $remote_user
-
-tempest:
-    setup_method: $tempest_setup_method
-    repo: $tempest_repo
-    revision: $tempest_branch
-    checkout_dir: /var/lib/tempest
-    puppet_file: /tmp/tempest_init.pp
-    test_name: $tempest_tests
-    exclude:
-        files:
-            - test_server_rescue
-            - test_server_actions
-            - test_load_balancer
-            - test_vpnaas_extensions
-        tests:
-            - test_rescue_unrescue_instance
-            - test_create_get_delete_object
-            - test_create_volume_from_snapshot
-            - test_service_provider_list
-            - test_ec2_
-            - test_stack_crud_no_resources
-            - test_stack_list_responds
-
-log_files:
-  - /var/tmp/packstack
-  - /root/
-  - "{{ tempest.checkout_dir }}/etc/"
-  - "{{ tempest.checkout_dir }}/run.log"
-  - "{{ tempest.checkout_dir }}/tempest.log"
-  - "{{ tempest.checkout_dir }}/*.log"
-  - "{{ tempest.checkout_dir }}/*.xml"
-  - /var/log/
-  - /etc/nova
-  - /etc/ceilometer
-  - /etc/cinder
-  - /etc/glance
-  - /etc/keystone
-  - /etc/neutron
-  - /etc/ntp
-  - /etc/puppet
-  - /etc/qpid
-  - /etc/qpidd.conf
-  - /etc/selinux
-  - /etc/yum.repos.d
-
-EOF
-
+  ${DRY_RUN:-false} || "$@"
 }
 
 fi # FUNCTIONS_SOURCED
