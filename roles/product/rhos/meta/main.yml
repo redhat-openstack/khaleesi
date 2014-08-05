@@ -3,5 +3,5 @@ dependencies:
     - { role: common }
     - { role: packstack/common }
     - { role: product/rhos/common }
-    - { role: product/rhos/rhel, when: ansible_distribution == 'RedHat' and product.repo_type == "poodle" }
+    - { role: product/rhos/rhel, when: ansible_distribution == 'RedHat' }
 
