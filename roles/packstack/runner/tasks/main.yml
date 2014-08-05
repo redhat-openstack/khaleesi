@@ -1,23 +1,18 @@
 ---
-# cloud-init and python-backports can interfere w/ openstack installs
-# - name: remove cloud-init and python-backports
-#   yum: name={{ item }} state=absent
-#   with_items:
-#     - python-backports
-#     - cloud-init
+#This task is simply to ensure that epel is not installed
+#prior to a packstack install.  This is not implying that epel has
+# already been installed on the box.
 
 - name: Remove the EPEL Repository.
   yum: name=epel-release state=removed
   when: ansible_distribution == "RedHat"
   notify:
     - Yum clean all
-  when: ansible_distribution_version != "7.0"
 
 - name: Ensure the EPEL Repository files are removed
   file: path=/etc/yum.repos.d/epel.repo state=absent
   notify:
     - Yum clean all
-  when: ansible_distribution_version != "7.0"
 
 - debug: msg="run packstack installer"
   tags: run-packstack
