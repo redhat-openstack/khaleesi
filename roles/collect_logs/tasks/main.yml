@@ -9,8 +9,8 @@
   shell: rpm -qa > {{ rpm_list }}
 
 - name: collect logs
-  shell: tar cjPf /tmp/archive.tbz2 {{ rpm_list }} {{ job.archive|join(' ') }}
+  shell: tar cjPf /tmp/archive.tar.bz2 {{ rpm_list }} {{ job.archive|join(' ') }}
   ignore_errors: true
 
 - name: fetch log archive
-  fetch: src=/tmp/archive.tbz2 flat=yes dest=../../collect_logs/{{ inventory_hostname }}.tbz2
+  fetch: src=/tmp/archive.tar.bz2 flat=yes dest=../../collect_logs/{{ inventory_hostname }}.tar.bz2
