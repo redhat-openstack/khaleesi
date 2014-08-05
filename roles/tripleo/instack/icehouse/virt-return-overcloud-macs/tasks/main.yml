@@ -8,20 +8,20 @@
   shell: >
      chdir={{ instack_user_home.stdout }}
      cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac instack) | awk '{print $3;}'
-  sudo_user: "{{ instack_user }}"
+  sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
   register: instack_vm_ip_result
   when: instack_answers_present.stat.exists == False
 
 - name: ssh from virt host to instack vm
-  shell: "sshpass -p {{ config.pass }} ssh -o 'StrictHostKeyChecking=no' {{ instack_user }}@{{ instack_vm_ip_result.stdout }} &"
+  shell: "sshpass -p {{ instack.environ.vm_pw }} ssh -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@{{ instack_vm_ip_result.stdout }} &"
   when: instack_answers_present.stat.exists == False
 
 - name: get mac addresses for overcloud nodes
   shell: >
     chdir={{ instack_user_home.stdout }}
     for i in $(seq 0 3); do echo -n $(tripleo get-vm-mac baremetal_$i) " "; done &> mac_temp;
-    sshpass -p {{ config.pass }} scp -o 'StrictHostKeyChecking=no' mac_temp {{ instack_user }}@{{ instack_vm_ip_result.stdout }}:{{ instack_user_home.stdout }}
-  sudo_user: "{{ instack_user }}"
+    sshpass -p {{ instack.environ.vm_pw }} scp -o 'StrictHostKeyChecking=no' mac_temp {{ instack.user.stack.name }}@{{ instack_vm_ip_result.stdout }}:{{ instack_user_home.stdout }}
+  sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
   when: instack_answers_present.stat.exists == False

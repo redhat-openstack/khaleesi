@@ -1,4 +1,0 @@
----
-packstack_config: /root/packstack_config.txt
-aio_config_options:
-      - { option: 'CONFIG_USE_EPEL', value: n }

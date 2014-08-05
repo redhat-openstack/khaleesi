@@ -19,7 +19,7 @@
 
 - name: Packstack | run
   register: result
-  command: packstack --debug --answer-file={{ packstack_config }}
+  command: packstack --debug --answer-file={{ packstack.answer_file }}
   sudo: yes
   sudo_user: root
   retries: 1

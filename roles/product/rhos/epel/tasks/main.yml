@@ -1,6 +1,0 @@
----
-  - name: answer-file neutron all-in-one config
-    lineinfile:
-        dest={{ packstack_config }}
-        regexp='CONFIG_USE_EPEL=.*'
-        line='CONFIG_USE_EPEL=n'

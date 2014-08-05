@@ -6,5 +6,5 @@
   sudo_user: root
 
 - name: Install staypuft installer
-  yum: name=foreman-installer-staypuft state=latest
+  yum: name=rhel-osp-installer state=latest
 

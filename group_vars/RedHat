@@ -1,2 +1,2 @@
 ---
-workaround_test: no
+yum_update: yes

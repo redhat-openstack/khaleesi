@@ -9,9 +9,9 @@
   command: curl {{ poodle_timestamp }}
   register: poodle_date
   ignore_errors: yes
-  when: config.repo == "poodle" and config.product == "rdo"
+  when: product.repo_type == "poodle" and product.name == "rdo"
 
 - name: Get Poodle Build
   debug: 'msg="Build mark: puddle={{ poodle_date.stdout }}"'
   ignore_errors: yes
-  when: config.repo == "poodle" and config.product == "rdo"
+  when: product.repo_type == "poodle" and product.name == "rdo"

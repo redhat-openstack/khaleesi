@@ -15,12 +15,12 @@
         tags: ['tempest_setup']}
 
 - { include: setup-tempest-use-rpm.yml,  #"
-        tempest_rpm_repo: "{{ repo.tempest[ansible_distribution][ansible_distribution_version] }}",
+        tempest_rpm_repo: "{{ tempest.repo[ansible_distribution][ansible_distribution_version] }}",
         when: "tempest.setup_method == 'tempest/rpm'",
         tags: ['tempest_setup'] }
 
 - name: pip install junitxml, unittest2, testtools
-  pip: name={{ item }} virtualenv={{ tempest.checkout_dir }}/.venv
+  pip: name={{ item }} virtualenv={{ tempest.dir }}/.venv
   with_items:
     - junitxml
     - unittest2
@@ -31,7 +31,7 @@
 
 - name: pip install testtools, specific version
   pip: name={{ item.name }} version={{ item.version }}
-       virtualenv={{ tempest.checkout_dir }}/.venv
+       virtualenv={{ tempest.dir }}/.venv
   with_items:
     - { name: testtools, version: '0.9.34' }
     - { name: python-subunit, version: '0.0.15'}
@@ -41,8 +41,8 @@
     - tempest_setup
 
 - name: pip install requirements
-  pip: requirements={{ tempest.checkout_dir }}/requirements.txt
-       virtualenv={{ tempest.checkout_dir }}/.venv
+  pip: requirements={{ tempest.dir }}/requirements.txt
+       virtualenv={{ tempest.dir }}/.venv
   when: tempest.use_virtual_env | default(true)
   tags:
     - tempest_setup

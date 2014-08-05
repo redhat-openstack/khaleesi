@@ -1,16 +1,16 @@
-- debug: msg="git clone {{ tempest.repo }} branch {{ tempest.revision }}
-            to {{tempest.checkout_dir}}"
+- debug: msg="git clone {{ tempest.git.repo }} branch {{ tempest.git.revision }}
+            to {{tempest.dir}}"
   when: "'info' in config.verbosity"
   tags: tempest_setup_gen_conf
 
 - name: Git clone tempest repo
-  git: repo={{ tempest.repo }} version={{tempest.revision}}
-       dest={{ tempest.checkout_dir }}
+  git: repo={{ tempest.git.repo }} version={{tempest.git.revision}}
+       dest={{ tempest.dir }}
   tags: tempest_setup_gen_conf
 
 
 - name: install virtualenv
-  script: install_venv.sh {{ tempest.checkout_dir }}
+  script: install_venv.sh {{ tempest.dir }}
   tags: tempest_setup_gen_conf
 
 - include: generate-tempest-conf.yml

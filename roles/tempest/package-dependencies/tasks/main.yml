@@ -1,16 +1,16 @@
 ---
 - name: Install rdo-release
-  yum: name="{{ rdo[ config.version ].release_rpm[ ansible_distribution ] }}"
-       state=present
+  yum: name="{{ tempest.rdo.rpm }}" state=present
 
-- name: Turn off gpgcheck
+- name: Turn off gpgcheck for OpenStack repo
   ini_file: dest=/etc/yum.repos.d/rdo-release.repo
-            section=openstack-{{ config.version }}
+            section=openstack-{{ tempest.rdo.version }}
             option=gpgcheck
             value=0
+  when: product.version in ['grizzly', 'havana', 'icehouse']
 
 - name: Turn off foreman repos
-  ini_file: dest=/etc/yum.repos.d/{{ item }}.repo
+  ini_file: dest=/etc/yum.repos.d/foreman.repo
             section={{ item }}
             option=enabled
             value=0
@@ -47,6 +47,7 @@
     - python-ceilometerclient
     - python-pip
     - python-virtualenv
+    - python-testrepository
   tags:
     - tempest_setup
 
@@ -54,6 +55,6 @@
   yum: name={{ item }} state=present
   with_items:
     - python-saharaclient
-  when: config.version != 'grizzly' and config.version != 'havana'
+  when: product.version not in ['grizzly', 'havana']
   tags:
     - tempest_setup

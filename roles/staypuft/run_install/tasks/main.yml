@@ -1,0 +1,9 @@
+---
+- name: Copy templates to foreman server
+  template: src="{{ item }}.j2" dest="/etc/foreman/{{ item }}" owner=root group=root mode=600
+  with_items:
+    - rhel-osp-installer.answers.yaml
+    - rhel-osp-installer.yaml
+
+- name: Run rhel-osp-installer
+  command: rhel-osp-installer --provisioning-wizard non-interactive

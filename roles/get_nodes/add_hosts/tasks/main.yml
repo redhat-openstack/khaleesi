@@ -1,25 +1,34 @@
 ---
 - name: Print host openstack network type (nova/neutron)
-  debug: var=os_network_type
+  debug: var=provisioner.network.type
 
 - debug: var=nodes_created
-  when: "'debug' in config.verbosity"
+  when: job.verbosity <= verbosity.debug
 
 - debug: var=floating_ips
-  when: "'debug' in config.verbosity"
+  when: job.verbosity <= verbosity.debug
 
-- name: Network {{ os_network_type }} == {{ network_expected }} | Add hosts
+- name: Network {{ provisioner.network.type }} == {{ network_expected }} | Add hosts
   add_host:
-      name="{{ item.0.item.name }}"
-      groups="{{ item.0.item.groups
-        if item.0.item.groups is string
-        else item.0.item.groups| join(',') }}"
-      ansible_ssh_private_key_file="{{ ssh_private_key }}"
-      ansible_ssh_user="{{ item.0.item.remote_user }}"
-      ansible_fqdn="{{ item.0.item.hostname }}"
-      ansible_ssh_host="{% if item.0.instances is defined %}{{ item.0.instances.0.accessIPv4 }}{% else %}{{ item.1.public_ip}}{% endif %}"
-      nodes_created_dict="{{ item.0 }}"
-      floating_ip_dict="{{ item.1 }}"
+    name="{{ item.0.item.value.name }}"
+    groups="{{ item.0.item.value.groups
+        if item.0.item.value.groups is string
+        else item.0.item.value.groups| join(',') }}"
+    ansible_fqdn="{{ item.0.item.value.hostname }}"
+    ansible_ssh_user="{{ item.0.item.value.remote_user }}"
+    ansible_ssh_private_key_file="{{ provisioner.key_file }}"
+    ansible_ssh_host="{{
+        item.1.public_ip if item.0.info is defined
+        else item.0.accessIPv4 if item.0.instances is defined
+        else ''
+    }}"
+    nodes_created_dict="{{ item.0 }}"
+    floating_ip_dict="{{ item.1 }}"
   with_together:
     - nodes_created
     - floating_ips
+
+- debug: var=hostvars
+  when: job.verbosity <= verbosity.debug
+
+

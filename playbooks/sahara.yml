@@ -8,6 +8,7 @@
 
 - name: Install and configure Sahara Dashboard
   hosts: controller:&sahara
+  sudo: yes
   roles:
     - { role: openstack/sahara/dashboard }
   tags:

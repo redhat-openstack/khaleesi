@@ -1,12 +1,14 @@
 ---
 - name: Gather facts from controller and compute
   hosts: all:!localhost:!tempest
+  sudo: yes
   tags:
     - tempest_setup
     - tempest_run
 
 - name: tempest | Workaround | config_tempest.py | create openstack resources
   hosts: controller
+  sudo: yes
   tags:
     - workaround
     - workaround-tempest-config-tool
@@ -19,23 +21,22 @@
 
 - name: Create keystonerc and install packages for tempest
   hosts: tempest
+  sudo: yes
+  tags: tempest_setup
   roles:
     - { role: openstack/create-keystonerc }
-  tags:
-    - tempest_setup
 
 - name: Setup tempest
   hosts: tempest
+  tags: tempest_setup
   roles:
-    - { role: tempest/package-dependencies }
+    - { role: tempest/package-dependencies, sudo: yes }
     - { role: tempest/setup-openstack-elements }
     - { role: tempest/setup }
-  tags:
-    - tempest_setup
 
 - name: Run tempest
   hosts: tempest
   tags: tempest_run
   roles:
-    - { role: tempest/run, tags: ["tempest_run"] }
+    - { role: tempest/run }
 

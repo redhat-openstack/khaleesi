@@ -1,15 +1,15 @@
 ---
 - name: Assign floating ip
   nova_floating_ip:
-       auth_url: "{{ os_auth_url }}"
+       auth_url: "{{ provisioner.url }}"
        state: present
-       login_username: "{{ os_username }}"
-       login_password: "{{ os_password }}"
-       login_tenant_name: "{{ os_tenant_name }}"
-       network_name: "{{ floating_network_name }}"
-       instance_name: "{{ item.name }}"
+       login_username: "{{ provisioner.username }}"
+       login_password: "{{ provisioner.password }}"
+       login_tenant_name: "{{ provisioner.tenant_name }}"
+       network_name: "{{ provisioner.network.name }}"
+       instance_name: "{{ item.value.name }}"
   retries: 3
   delay: 10
   until: new_floating_ips.public_ip is defined
   register: new_floating_ips
-  with_items: nodes
+  with_dict: nodes

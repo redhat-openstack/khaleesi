@@ -1,19 +1,19 @@
 ---
 - name: Provision nodes
   nova_compute:
-       auth_url: "{{ os_auth_url }}"
+       auth_url: "{{ provisioner.url }}"
        state: present
-       login_username: "{{ os_username }}"
-       login_password: "{{ os_password }}"
-       login_tenant_name: "{{ os_tenant_name }}"
-       name: "{{ item.name }}"
-       image_id: "{{ item.image_id }}"
-       key_name: "{{ item.key_name }}"
-       wait_for: "{{ wait_for_boot }}"
-       flavor_id: "{{ item.flavor_id }}"
-       nics: "{{ item.network_ids }}"
+       login_username: "{{ provisioner.username }}"
+       login_password: "{{ provisioner.password }}"
+       login_tenant_name: "{{ provisioner.tenant_name }}"
+       name: "{{ item.value.name }}"
+       image_id: "{{ item.value.image_id }}"
+       key_name: "{{ provisioner.key_name }}"
+       wait_for: "{{ distro.config.initial_boot_timeout }}"
+       flavor_id: "{{ item.value.flavor_id }}"
+       nics: "{{ item.value.nics }}"
        config_drive: True
   register: new_nodes
   retries: 4
   delay: 60
-  with_items: nodes
+  with_dict: nodes

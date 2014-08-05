@@ -14,11 +14,11 @@
   command: getenforce
   register: result
 
-- debug: msg="Setting SELINUX to {{selinux}}"   #"
-  when: result.stdout|capitalize != selinux|capitalize
+- debug: msg="Setting SELINUX to {{distro.config.selinux}}"   #"
+  when: result.stdout|capitalize != distro.config.selinux|capitalize
 
-- selinux: policy=targeted state={{selinux}}
-  when: result.stdout|capitalize != selinux|capitalize
+- selinux: policy=targeted state={{distro.config.selinux}}
+  when: result.stdout|capitalize != distro.config.selinux|capitalize
 
 - name: getenforce
   command: getenforce

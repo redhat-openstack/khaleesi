@@ -4,37 +4,31 @@
   roles:
      - { role: workarounds/fix-puppet-utf8,
           tags: workaround,
-          when: workaround_puppet_utf8 is defined and workaround_puppet_utf8
-       }
+          when: workaround_puppet_utf8 | default(false) }
      - { role: workarounds/pycadf-install,
           tags: workaround,
-          when: workaround_pycadf is defined and workaround_pycadf
-       }
+          when: workaround_pycadf | default(false) }
 
 - name: Workarounds | specific to fedora 19 distro
   hosts: Fedora-19:&controller
   roles:
      - { role: workarounds/f19-iptables,
-          tags: workaround,
-          #when: workaround_f19_iptables is defined and workaround_f19_iptables
-       }
+         tags: workaround,
+         when: workaround_f19_iptables | default(false) }
 
 - name: Workarounds | specific to RedHat distro
   hosts: RedHat:&controller
   roles:
     - { role: workarounds/fix-puppet-utf8,
          tags: workaround,
-         when: workaround_puppet_utf8 is defined and workaround_puppet_utf8
-      }
+         when: workaround_puppet_utf8 | default(false) }
 
 - name: Workarounds | specific to RedHat distro RHEL 7.x
   hosts: RedHat-7
   roles:
      - { role: workarounds/fix-lvm2-libs,
          tags: workaround,
-         when: workaround_rhel7_lvm2_libs is defined and
-                     workaround_rhel7_lvm2_libs
-      }
+         when: workaround_rhel7_lvm2_libs | default(false) }
 
 - name: Workaround | BZ 1080369  | patch packstack provision
   hosts: controller
@@ -42,5 +36,4 @@
       - workaround-packstack-provision
   roles:
       - { role: workarounds/patch-packstack-provision,
-           when: workaround_packstack_provision is defined and workaround_packstack_provision
-      }
+          when: workaround_packstack_provision | default(false) }

@@ -1,6 +1,6 @@
 ---
 - name: reboot
-  shell: logger -p local3.info -s "ANSIBLE REBOOT" && /sbin/shutdown -r {{ reboot_delay }} {{ reboot_options }}
+  shell: logger -p local3.info -s "ANSIBLE REBOOT" && /sbin/shutdown -r {{ distro.config.reboot_delay }} {{ distro_reboot_options }}
 
 - name: Wait for host to stop
   sudo: no

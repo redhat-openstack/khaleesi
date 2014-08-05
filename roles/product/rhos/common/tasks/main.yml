@@ -1,7 +1,7 @@
 ---
  ## for e.g: baseurl={{ rdo.icehouse.production.repo.fedora }} ##
-- debug: msg="Setting baseurl to {{ rhos[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version] }}"         #"
-  when: "'debug' in config.verbosity"
+- debug: msg="Setting baseurl to {{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"
+  when: product.repo_type not in ('distribution', 'puddle')
 
 - debug: msg="Distribution = '{{ ansible_distribution }}' and  Release = '{{ ansible_distribution_version }}' and  major = '{{ ansible_distribution_version }}' "
-  when: "'debug' in config.verbosity"
+  when: job.verbosity <= verbosity.debug

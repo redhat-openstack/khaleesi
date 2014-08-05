@@ -1,7 +1,2 @@
 ---
-config:
-  verbosity:
-    - info
-
-wait_for_boot: 180
 ping_retries: 6

@@ -1,17 +1,30 @@
 ---
 - name: Group hosts by provisioner
-  hosts: all
+  hosts: local
   sudo: no
   tasks:
-    - group_by: key={{ provisioner_env }}
+    - group_by: key={{ provisioner.type }}
+    - group_by: key={{ provisioner.network.type }}
   tags:
     - provision
 
 - name: Cleanup openstack nodes from nova
-  hosts: local:&openstack
+  hosts: local:&openstack:&nova
+  sudo: no
   gather_facts: False
   roles:
-    - { role: cleanup_nodes/openstack, nodes: '{{ cleanup_nodes }}' }
+    - { role: cleanup_nodes/openstack/fip-nova,
+              nodes: '{{ cleanup_nodes }}' }
+    - { role: cleanup_nodes/openstack/remove_nodes }
+
+- name: Cleanup openstack nodes from nova/neutron-network
+  hosts: local:&openstack:&neutron
+  sudo: no
+  gather_facts: False
+  roles:
+    - { role: cleanup_nodes/openstack/fip-neutron,
+              nodes: '{{ cleanup_nodes }}' }
+    - { role: cleanup_nodes/openstack/remove_nodes }
 
 - name: Cleanup rax nodes from nova
   hosts: local:&rax

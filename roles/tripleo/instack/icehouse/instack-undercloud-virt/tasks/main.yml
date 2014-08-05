@@ -23,70 +23,70 @@
 - name: ssh to virt-host
   shell: >
     chdir={{ instack_user_home.stdout }}
-    sshpass -p {{ config.pass}} ssh -o 'StrictHostKeyChecking=no' {{ instack_user }}@192.168.122.1 &
+    sshpass -p {{ instack.environ.vm_pw }} ssh -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1 &
   when: virtual_power_key_present.stat.exists == False
 
 - name: copy the virtual-power-key to the virt host
   shell: >
     chdir={{ instack_user_home.stdout }}
-    sshpass -p {{ config.pass }} ssh-copy-id -i virtual-power-key.pub {{ instack_user }}@192.168.122.1
+    sshpass -p {{ instack.environ.vm_pw }} ssh-copy-id -i virtual-power-key.pub {{ instack.user.stack.name }}@192.168.122.1
   when: virtual_power_key_present.stat.exists == False
 
 - name: enable the rdo-release repository
-  yum: name="{{ rdo[ config.version ].instack_release_rpm[ ansible_distribution ] }}" state=present #"
-  when: ansible_distribution == 'Fedora' and config.custom_repo is not defined
+  yum: name="{{ product.rpm[ ansible_distribution ] }}" state=present #"
+  when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined
   sudo_user: root
   sudo: yes
   register: rdo_repo_output
 
 - name: print rdo_repo_output
   debug: var=rdo_repo_output.stdout
-  when: ansible_distribution == 'Fedora' and config.custom_repo is not defined
+  when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined
 
 - name: enable a custom repository
-  yum: name="{{ config.custom_repo }}"
-  when: config.custom_repo is defined
+  yum: name="{{ installer.custom_repo }}"
+  when: installer.custom_repo is defined
   sudo_user: root
   sudo: yes
   register: rdo_repo_output
 
 - name: print rdo_repo_output
   debug: var=rdo_repo_output.stdout
-  when: config.custom_repo is defined
+  when: installer.custom_repo is defined
 
 - name: install instack-undercloud
   yum: name=instack-undercloud state=latest
-  when: config.instack_undercloud_rpm is not defined
+  when: installer.instack_undercloud_rpm is not defined
   sudo_user: root
   sudo: yes
   register: instack_undercloud_output
 
 - name: print instack_undercloud_output
   debug: var=instack_undercloud_output.stdout
-  when: config.instack_undercloud_rpm is not defined
+  when: installer.instack_undercloud_rpm is not defined
 
 - name: install updated version of instack-undercloud if it exists
-  yum: name="{{ config.instack_undercloud_rpm }}"
-  when: config.instack_undercloud_rpm is defined
+  yum: name="{{ installer.instack_undercloud_rpm }}"
+  when: installer.instack_undercloud_rpm is defined
   sudo_user: root
   sudo: yes
   register: instack_undercloud_output
 
 - name: print instack_undercloud_output
   debug: var=instack_undercloud_output.stdout
-  when: config.instack_undercloud_rpm is defined
+  when: installer.instack_undercloud_rpm is defined
 
 - name: install updated version of other rpms if they exist
   yum: name={{ item }}
-  with_items: config.updated_rpms_list
-  when: config.updated_rpms_list is defined
+  with_items: installer.updated_rpms_list
+  when: installer.updated_rpms_list is defined
   sudo_user: root
   sudo: yes
   register: custom_rpm_output
 
 - name: print custom_rpm_output
   debug: var=custom_rpm_output.stdout
-  when: config.updated_rpms_list is defined
+  when: installer.updated_rpms_list is defined
 
 - name: check answers file exists
   shell: "[ -e /usr/share/doc/instack-undercloud/instack-virt.answers.sample ]"

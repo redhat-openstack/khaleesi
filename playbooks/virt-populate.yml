@@ -1,6 +1,0 @@
----
-- name: Create vm's for OSP install
-  hosts: staypuft
-  sudo: yes
-  roles:
-    - { role: staypuft/create_vms }

@@ -1,6 +1,18 @@
 ---
+- name: print net_interfaces
+  debug: var=net_interfaces
+  when: job.verbosity <= verbosity.debug
+
+- name:  print hostvars
+  debug: var=hostvars[inventory_hostname]
+  when: job.verbosity <= verbosity.debug
+
 - name: Setup networking (general)
-  lineinfile: "dest=/etc/sysconfig/network regexp='^HOSTNAME=.*' line='HOSTNAME={{ fqdn }}' state=present"
+  lineinfile:
+      dest: /etc/sysconfig/network
+      regexp: '^HOSTNAME=.*'
+      line: 'HOSTNAME={{ fqdn }}'
+      state: present
   notify:
     - reboot
     - Wait for host to stop
@@ -16,7 +28,12 @@
     - Reload facts
 
 - name: Setup networking (interfaces)
-  template: "src=ifcfg-interface dest=/etc/sysconfig/network-scripts/ifcfg-{{ item.interface }} owner=root group=root mode=644"
+  template:
+        src: ifcfg-interface
+        dest: /etc/sysconfig/network-scripts/ifcfg-{{ item.interface }}
+        owner: root
+        group: root
+        mode: 644
   with_items: net_interfaces
   notify:
     - restart network

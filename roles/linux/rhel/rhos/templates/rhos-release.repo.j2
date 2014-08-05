@@ -1,6 +1,6 @@
 [rhos-release]
 name=rhos-release
-baseurl={{ rhos_release }}
+baseurl={{ product.rpmrepo[ansible_distribution] }}
 enabled=1
 gpgcheck=0
 

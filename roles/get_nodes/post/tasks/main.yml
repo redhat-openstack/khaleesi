@@ -1,6 +1,6 @@
 ---
 - name: Pause to let the systems boot
-  pause: seconds="{{ wait_for_boot }}"
+  pause: seconds="{{ distro.config.initial_boot_timeout }}"
   when: new_nodes|changed
 
 #note: bug w/ delay var: https://github.com/ansible/ansible/issues/5031

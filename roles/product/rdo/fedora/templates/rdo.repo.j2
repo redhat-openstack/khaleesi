@@ -1,9 +1,9 @@
-[openstack-{{ config.version }}]
-name=OpenStack {{ config.version|capitalize }} Repository
+[openstack-{{ product.version }}]
+name=OpenStack {{ product.version|capitalize }} Repository
 failovermethod=priority
-baseurl={{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version] }}
+baseurl={{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}
 enabled=1
 metadata_expire=7d
-gpgcheck={{ gpg_check }}
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RDO-{{ config.version|capitalize }}
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RDO-{{ product.version|capitalize }}
 priority=98

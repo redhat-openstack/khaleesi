@@ -1,8 +1,0 @@
----
-  aio_nova_config_options:
-    - { option: 'CONFIG_NEUTRON_INSTALL', value: 'n' }
-    - { option: 'CONFIG_NEUTRON_USE_NAMESPACES', value: 'n' }
-    - { option: 'CONFIG_NOVA_COMPUTE_PRIVIF', value: 'eth0'}
-    - { option: 'CONFIG_NOVA_NETWORK_PRIVIF', value: 'eth0'}
-
-  ntp_server: clock.redhat.com

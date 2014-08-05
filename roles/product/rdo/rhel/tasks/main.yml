@@ -1,6 +1,6 @@
 ---
 - name: yum install rdo-release for EL environment
-  yum: name="{{ rdo[ config.version ].release_rpm[ ansible_distribution ] }}" state=present     #"
+  yum: name="{{ product.rpm[ ansible_distribution ] }}" state=present     #"
   when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
 
 - name: disable foreman repo
@@ -12,13 +12,13 @@
     dest=/etc/yum.repos.d/rdo-release.repo
     regexp=^gpgcheck=1
     line=gpgcheck=0
-  when: ( "{{ config.repo }}" != 'production' )
+  when: product.repo_type != 'production'
 
 - name: set baseurl for rdo for EL environment
   lineinfile:
     dest=/etc/yum.repos.d/rdo-release.repo
     regexp=^baseurl=
-    line="baseurl={{ rdo[config.version][config.repo].repo[ansible_distribution][ansible_distribution_version] }}"
+    line="baseurl={{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"
   notify:
     - Yum clean all
 
@@ -28,3 +28,6 @@
 
 - name: Print repolist
   debug: var=result.stdout_lines
+
+- name: update
+  command: yum update -y

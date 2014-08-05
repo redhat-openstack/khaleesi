@@ -1,15 +1,18 @@
 ---
+- debug: var=provisioner
+  when: job.verbosity <= verbosity.debug
+
 - name: Provision nodes
   rax:
-       credentials : "{{ credentials }}"
+       credentials : "{{ provisioner.credentials }}"
        state: present
-       name: "{{ item.name }}"
-       image: "{{ item.image_id }}"
-       key_name: "{{ item.key_name }}"
+       name: "{{ item.value.name }}"
+       image: "{{ item.value.image_id }}"
+       key_name: "{{ provisioner.key_name }}"
        wait: yes
        wait_timeout: 400
-       flavor: "{{ item.flavor_id }}"
-       networks: "{{ item.network_ids }}"
+       flavor: "{{ item.value.flavor_id }}"
+       networks: "{{ provisioner.network_rax }}"
        disk_config: manual
   register: new_nodes
-  with_items: nodes
+  with_dict: nodes

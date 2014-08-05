@@ -1,2 +1,3 @@
 ---
-workaround_test: no
+distro_reboot_options: "'Reboot is triggered by Ansible'"
+yum_update: no
