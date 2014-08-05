@@ -17,6 +17,6 @@ local_settings.sh
 westest.pem
 collect_logs.txt
 teardown.txt
-
+*.egg-info/
 #kytoon
 tmp/
