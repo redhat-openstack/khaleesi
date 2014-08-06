@@ -8,8 +8,14 @@
 - name: Execute rhos-release {{ product.version|int }}
   command: rhos-release {{ product.version|int }}
 
+#only disable the openstack repos, not the supporting repos
+- name: Disable default puddle rhelosp repo when using poodle
+  command: yum-config-manager --disable 'rhelosp-{{ product.version}}*'
+  when: product.repo_type == 'poodle'
+
 - name: Create the RHOS poodle repository (disabled)
   template: src=rhos-poodle.repo.j2 dest=/etc/yum.repos.d/rhos-poodle.repo
+  when: product.repo_type == 'poodle'
 
 - name: Enable poodle repository if this is a poodle
   ini_file: dest=/etc/yum.repos.d/rhos-poodle.repo
