@@ -7,7 +7,6 @@ declare -i __init_script_exit_code=0
 
 declare -r SCRIPT_CMD="$0"
 declare -r SCRIPT_PATH=$(readlink -f "$0")
-declare -r SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
 
 declare -r RED='\e[31m'
 declare -r GREEN='\e[32m'

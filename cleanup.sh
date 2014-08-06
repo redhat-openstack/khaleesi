@@ -1,6 +1,10 @@
 #! /usr/bin/env bash
 set -e -u
+
+declare -r SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
+cd $SCRIPT_DIR
 source functions.bash
+
 
 cleanup() {
   local settings_file=${1:-settings.yml}

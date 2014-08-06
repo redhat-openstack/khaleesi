@@ -1,10 +1,10 @@
 #! /usr/bin/env bash
 set -e -u
 
-declare SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
+declare -r SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
 cd $SCRIPT_DIR
 
-source $SCRIPT_DIR/functions.bash
+source functions.bash
 
 print_usage() {
 
