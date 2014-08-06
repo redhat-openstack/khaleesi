@@ -10,7 +10,7 @@
 
 #only disable the openstack repos, not the supporting repos
 - name: Disable default puddle rhelosp repo when using poodle
-  command: yum-config-manager --disable 'rhelosp-{{ product.version}}*'
+  shell: yum-config-manager --disable 'rhelosp-{{ product.version}}*'
   when: product.repo_type == 'poodle'
 
 # this is always needed (albeit disabled) for some test packages which
