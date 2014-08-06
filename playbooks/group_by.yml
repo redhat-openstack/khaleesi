@@ -13,5 +13,6 @@
   hosts: all:!localhost:!tempest
   tasks:
     - group_by: key={{ product.name }}
+      when: product is defined
   tags:
     - prep
