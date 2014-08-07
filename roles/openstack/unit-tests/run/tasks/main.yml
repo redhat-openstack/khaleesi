@@ -1,0 +1,23 @@
+---
+### validate ###
+- { include: validate.yml }
+
+### run tests ###
+- { include: testrun.yml }
+
+### run tests in virtenv if actual run fails ###
+- { include: testrun_in_venv.yml, when: test_run|failed }
+
+### print result of original testrun ###
+
+- debug:
+    msg: >
+        Test run fails using packages but passes in venv;
+        something wrong with rpm packages?
+        check- "{{test_deps_file.split('/') | last }}"
+        and re-run
+  when: (test_run | failed)  and (venv_testrun | success)
+
+- fail: msg="Test run fails in both venv and using packages"
+  when: (test_run | failed)  and (venv_testrun | failed)
+

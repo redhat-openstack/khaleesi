@@ -1,0 +1,49 @@
+- name: load rpms needed to run test in virtualenv
+  include_vars: "{{component.name}}.yml"
+
+### TODO: may be include_vars: '{{ component.name }}/{{ ansible_distribution ... }}'
+
+- name: install rpms needed for virtualenv run
+  yum: pkg={{item}} state=present
+  sudo: yes
+  with_items: virtenv.rpm.install
+
+- name: remove virtualenv if already present
+  file: path={{ansible_env.HOME}}/testbed/{{component_basename}}/.venv state=absent
+
+- name: install virtualenv to run tests
+  shell: python tools/install_venv.py > ../logs/venv-install.logs 2>&1;
+  args:
+      chdir: testbed/{{component_basename}}
+
+- name: going to run tests in virtualenv
+  debug: msg="--------------------------------------"
+
+- pause: seconds=1
+
+- name: run tests in virtualenv to find out if failures are due to old rpm packages
+  shell: ./run_tests.sh -V -P >../logs/venv-testrun.log 2>&1
+  args:
+      chdir: testbed/{{component_basename}}
+      executable: /bin/bash
+  register: venv_testrun
+  ignore_errors: yes
+
+#- name: run tests in virtualenv to find out if failures are due to old rpm packages
+  #shell: >
+      #source .venv/bin/activate;
+      #find . -iname '*.pyc' -type f -delete;
+      #python -m nova.openstack.common.lockutils python setup.py testr --testr-args='--subunit --concurrency 0  '
+      #| subunit-2to1
+      #| tools/colorizer.py >../logs/venv-testrun.log 2>&1
+  #args:
+      #chdir: testbed/{{component_basename}}
+      #executable: /bin/bash
+  #register: venv_testrun
+  #ignore_errors: yes
+
+- name: copy virtualenv test results to logs dir
+  fetch: src={{ansible_env.HOME}}/testbed/logs/{{item}}
+         dest=../../logs/ flat=yes
+  with_items:
+      - venv-testrun.log

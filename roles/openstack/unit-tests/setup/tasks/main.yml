@@ -1,0 +1,65 @@
+---
+- name: print variables used in role
+  debug: var=component.dir
+- debug: var=ansible_env.HOME
+
+- name: compute the directory basename
+  set_fact: component_basename={{component.dir.split('/')|last}}
+
+- name: find the test dependencies file used for the test-run
+  set_fact: test_deps_file={{item}}
+  with_first_found:
+      - "{{ component.dir + '/' + ansible_distribution + '-'
+            + ansible_distribution_version }}.rpms.yml"
+      - "{{ component.dir + '/' + ansible_distribution }}.rpms.yml"
+      - "{{ component.dir + '/' + ansible_os_family }}.rpms.yml"
+
+- name: print the test dependencies filename
+  debug: msg="Going to install rpms listed in {{ test_deps_file.split('/') | last }}"
+#"
+
+- name: install default set of package needed to run testr
+  sudo: yes
+  yum: pkg={{item}} state=latest
+  with_items:
+      - python-testrepository
+      - python-tox
+      - python-subunit
+      - python-junitxml
+
+- name: load list of additional repos and rpms to be installed
+  include_vars: "{{test_deps_file}}"
+
+- name: Create additional repos if specified
+  sudo: yes
+  template: src=repo.j2
+            dest=/etc/yum.repos.d/{{item.filename}}
+  with_items: test_dependencies.rpm.repos
+  when: test_dependencies.rpm.repos
+
+
+- name: install test dependencies rpm needed to run test
+  sudo: yes
+  yum: pkg={{item}} state=present
+  with_items: test_dependencies.rpm.install
+  when: test_dependencies.rpm.install | default(false)
+
+- name: remove unwanted rpms specified in test dependencies
+  sudo: yes
+  yum: pkg={{item}} state=absent
+  with_items: test_dependencies.rpm.remove
+  when: test_dependencies.rpm.remove | default(false)
+
+- name: remove virtualenv used for running tests if already present
+  file: path={{ansible_env.HOME}}/testbed/venv state=absent
+
+- name: create a virtualenv for overridding system-site-packages
+  pip: name={{item}} virtualenv=~/testbed/venv virtualenv_site_packages=yes
+  with_items: test_dependencies.pip.override
+  when: test_dependencies.pip.override | default(false)
+
+- name: copy git repo to testbed vm
+  synchronize:
+      src='{{component.dir}}'
+      dest="{{ansible_env.HOME}}/testbed"
+  register: result

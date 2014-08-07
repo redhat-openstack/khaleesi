@@ -1,0 +1,26 @@
+---
+
+- include: provision.yml
+- include: group_by.yml tags=provision
+
+- name: Prepare local host
+  hosts: local
+  tasks:
+    - name: clear logs dir
+      file: path=../../logs state=absent
+
+    - debug: msg="creating logs dir - {{playbook_dir}}/../../logs"
+    - file: path="{{playbook_dir}}/../../logs" state=directory
+
+- name: Prepare tested
+  hosts: testbed
+  sudo: yes
+  tags: prep
+  roles:
+    - openstack/unit-tests/prep
+
+- name: Run tests
+  hosts: testbed
+  roles:
+    - openstack/unit-tests/setup
+    - openstack/unit-tests/run
