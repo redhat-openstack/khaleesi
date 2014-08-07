@@ -13,9 +13,10 @@
   command: yum-config-manager --disable 'rhelosp-{{ product.version}}*'
   when: product.repo_type == 'poodle'
 
+# this is always needed (albeit disabled) for some test packages which
+# are only in poodles
 - name: Create the RHOS poodle repository (disabled)
   template: src=rhos-poodle.repo.j2 dest=/etc/yum.repos.d/rhos-poodle.repo
-  when: product.repo_type == 'poodle'
 
 - name: Enable poodle repository if this is a poodle
   ini_file: dest=/etc/yum.repos.d/rhos-poodle.repo
