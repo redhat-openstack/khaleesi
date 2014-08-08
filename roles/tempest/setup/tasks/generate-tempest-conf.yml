@@ -34,12 +34,22 @@
         -e 's|^#uri=.*|uri=http://{{hostvars[controller_name].private_ip}}:35357/v2.0|'
         -e 's|^#tenant_name=.*|tenant_name=demo|'
         -e 's|^#username=.*|username=demo|'
-        -e 's|^#password=.*|password=redhat|'
+        -e 's|^#password=.*|password={{ tempest.demo_password | default("redhat") }}|'
         -e 's|^#admin_role=.*|admin_role=admin|'
         -e 's|^#admin_tenant_name=.*|admin_tenant_name=admin|'
         -e 's|^#admin_username=.*|admin_username=admin|'
-        -e 's|^#admin_password=.*|admin_password=redhat|'
+        -e 's|^#admin_password=.*|admin_password={{ tempest.admin_password | default("redhat") }}|'
         -i {{ tempest.dir }}/etc/tempest.conf.sample
+  tags:
+    - tempest_setup_rpm
+    - tempest_setup_gen_conf
+
+- name: config_tempest | installer specific changes for the default tempest sample file
+  command: sed
+        -e 's|^#region=.*|region={{ tempest.region | default("RegionOne") }}|'
+        -e 's|^#tenant_network_cidr=.*|tenant_network_cidr={{ tempest.network_cidr | default("10.100.0.0/16") }}|'
+        -i {{ tempest.dir }}/etc/tempest.conf.sample
+  when: tempest.region is defined and tempest.network_cidr is defined
   tags:
     - tempest_setup_rpm
     - tempest_setup_gen_conf
