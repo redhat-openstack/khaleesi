@@ -181,6 +181,23 @@ def test_overwrite_tag():
     print_yaml("Merged", merged)
 
 
+def test_env():
+    src_yaml = """
+    user: !env [USER]
+    invalid: !env [DOES_NOT_EXIST, ~]
+    same_user: !env [ DOES_NOT_EXIST, !env [USER, baaaz] ]
+    default: !env [ DOES_NOT_EXIST, !env [FOOO, default] ]
+
+    """
+    src = Configuration.from_string(src_yaml)
+    print_yaml("Src", src)
+
+    assert src.user is not None
+    assert src.invalid is None
+    assert src.same_user == src.user
+    assert src.default == 'default'
+
+
 def test_monkey_patch_merge():
     """
         Monkey patch configure so that merge will
