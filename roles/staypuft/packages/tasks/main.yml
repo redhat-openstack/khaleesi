@@ -1,7 +1,4 @@
 ---
-- name: Add OS specific vars
-  include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
-
 - name: Install foreman dependencies
   yum: name={{ item }} state=latest
   with_items:

@@ -1,4 +1,4 @@
-{% set dhcp_ipv4 = hostvars[inventory_hostname]['ansible_' + job.dhcp_interface]['ipv4'] %}
+{% set dhcp_ipv4 = hostvars[inventory_hostname]['ansible_' + staypuft.dhcp_interface]['ipv4'] %}
 # Format:
 # <classname>: false - don't include this class
 # <classname>: true - include and use the defaults
@@ -10,21 +10,21 @@
 ---
   "foreman::plugin::staypuft":
     ntp_host: {{ distro.config.ntp_server }}
-    interface: {{ job.dhcp_interface }}
+    interface: {{ staypuft.dhcp_interface }}
     ip: "{{ dhcp_ipv4['address'] }}"
     own_gateway: "{{ ansible_default_ipv4.gateway }}"
     domain: example.com
-    from: "192.168.100.2"
+    from: "{{ dhcp_ipv4['network'] | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3})(\.\d{1,3})', '\\1') }}.100"
     gateway: "{{ dhcp_ipv4['address'] }}"
     base_url: "https://{{ ansible_fqdn }}"
     dns: "{{ distro.config.dns_servers[0] }}"
     network: "{{ dhcp_ipv4['network'] }}"
     root_password: "$1$u6Xnr8DXmF0Z4JAYiJwPnw==\n"
     netmask: "{{ dhcp_ipv4['netmask'] }}"
-    to: "{{ dhcp_ipv4['network'] | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3})(\.\d{1,3})', '\\1.254') }}"
+    to: "{{ dhcp_ipv4['network'] | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3})(\.\d{1,3})', '\\1') }}.254"
     configure_networking: false
     ssh_public_key: "{{ staypuft.ssh_public_key }}"
-    configure_firewall: true
+    configure_firewall: false
   foreman:
     server_ssl_cert: /var/lib/puppet/ssl/certs/{{ ansible_fqdn }}.pem
     passenger_interface: ""
@@ -75,7 +75,7 @@
     version: latest
   foreman_proxy:
     customrun_cmd: /bin/false
-    dhcp_range: "{{ dhcp_ipv4['network'] | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3})(\.\d{1,3})', '\\1.2') }} {{ dhcp_ipv4['network'] | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3})(\.\d{1,3})', '\\1.254') }}"
+    dhcp_range: "{{ dhcp_ipv4['network'] | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3})(\.\d{1,3})', '\\1') }}.100 {{ dhcp_ipv4['network'] | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3})(\.\d{1,3})', '\\1') }}.254"
     puppetdir: /etc/puppet
     registered_proxy_url: "https://{{ ansible_fqdn }}:8443"
     dhcp: true
@@ -83,7 +83,7 @@
     bmc: false
     freeipa_remove_dns: true
     dns: true
-    dns_interface: {{ job.dns_interface }}
+    dns_interface: {{ staypuft.dns_interface }}
     bmc_default_provider: ipmitool
     use_sudoersd: true
     dns_tsig_keytab: /etc/foreman-proxy/dns.keytab
@@ -112,7 +112,7 @@
     puppetrun_cmd: "/usr/bin/puppet kick"
     tftp_servername: "{{ dhcp_ipv4['address'] }}"
     realm_keytab: /etc/foreman-proxy/freeipa.keytab
-    dns_reverse: "100.168.192.in-addr.arpa"
+    dns_reverse: "{{ dhcp_ipv4['address'] | regex_replace('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})', '\\3.\\2.\\1') }}.in-addr.arpa"
     dns_tsig_principal: "foremanproxy/{{ ansible_fqdn }}@EXAMPLE.COM"
     ssl_key: /var/lib/puppet/ssl/private_keys/{{ ansible_fqdn }}.pem
     customrun_args: "-ay -f -s"
@@ -151,10 +151,10 @@
     tftp: true
     realm_principal: "realm-proxy@EXAMPLE.COM"
     ssl: true
-    dhcp_gateway: "{{ dhcp_ipv4['address'] }}"
+    dhcp_gateway: "{{ dhcp_ipv4['address'] | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3})(\.\d{1,3})', '\\1') }}.1"
     oauth_consumer_key: GQTw9yViUFui5fe2owwD4Lg4VxyFiGBd
     puppetssh_command: "/usr/bin/puppet agent --onetime --no-usecacheonfailure"
-    dhcp_interface: "{{ job.dhcp_interface }}"
+    dhcp_interface: "{{ staypuft.dhcp_interface }}"
   puppet:
     server_foreman_ssl_ca: /var/lib/puppet/ssl/certs/ca.pem
     server_report_api: v2

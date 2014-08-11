@@ -1,0 +1,19 @@
+---
+- name: Install nfs-utils
+  yum: name=nfs-utils state=latest
+
+- name: Create vm-share directory
+  file: path=/mnt/vm-share state=directory mode=777 owner=root group=root
+
+- name: Manage exports
+  lineinfile: dest=/etc/exports
+        regexp=^\/mnt\/vm-share
+        line='/mnt/vm-share 192.168.0.0/16(rw,sync,no_root_squash)'
+        state=present
+
+- name: Turn on rpcbind
+  service: name=rpcbind state=started enabled=yes
+
+- name: Turn on nfs
+  service: name=nfs state=restarted enabled=yes
+

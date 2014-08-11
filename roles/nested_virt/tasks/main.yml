@@ -1,0 +1,24 @@
+---
+- name: Load kvm_intel to check for nested caps
+  sudo: yes
+  modprobe: name=kvm_intel state=present
+
+- name: Check for nested
+  stat: path=/sys/module/kvm_intel/parameters/nested
+  register: can_nest_result
+
+- name: Copy kvm.conf
+  sudo: yes
+  template: src=kvm.conf.j2 dest=/etc/modprobe.d/kvm.conf
+  when: can_nest_result.stat.exists
+
+- name: Unload kvm_intel
+  sudo: yes
+  modprobe: name=kvm_intel state=absent
+
+- name: Reload kvm_intel
+  sudo: yes
+  modprobe: name=kvm_intel state=present
+
+- name: Restart libvirtd
+  service: name=libvirtd state=restarted

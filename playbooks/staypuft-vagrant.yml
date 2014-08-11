@@ -3,45 +3,44 @@
 
 - include: prep.yml
 
-- name: Prep staypuft on a fresh box
-  hosts: staypuft
+- name: Set hostname of staypuft node
+  hosts: foreman
   sudo: yes
   roles:
-    - { role: staypuft/host/selinux }
-    - { role: staypuft/packages, tags: ['packages'] }
+    - { role: knopki.hostname,
+        hostname_name: 'foreman',
+        hostname_domain: 'example.com',
+        hostname_fqdn: 'foreman.example.com' }
 
 - name: IPtables firewall
-  hosts: staypuft:RedHat-6:CentOS-6
+  hosts: foreman:RedHat-6:CentOS-6:!~(Fedora-20|(RedHat|CentOS)-7)
   sudo: yes
   roles:
     - { role: staypuft/host/firewall/iptables }
 
 - name: Firewalld firewall
-  hosts: staypuft:!RedHat-6:!CentOS-6
+  hosts: foreman:!~(RedHat|CentOS)-6
   sudo: yes
   roles:
     - { role: staypuft/host/firewall/firewalld }
 
-- name: More prep
-  hosts: staypuft
+- name: Create NFS
+  hosts: foreman
   sudo: yes
   roles:
-    - { role: staypuft/default_network }
-    - { role: staypuft/host/nfs_server }
+    - { role: staypuft/nfs_server }
 
 - name: Install staypuft
-  hosts: staypuft
+  hosts: foreman
   sudo: yes
   roles:
     - { role: staypuft/install }
 
 - name: Run staypuft installer
-  hosts: staypuft
+  hosts: foreman
   sudo: yes
   roles:
     - { role: staypuft/run_install }
 
 # apply post-install workarouds
 - include: ../workarounds/workarounds-staypuft-prep.yml tags=workaround
-
-- include: staypuft/virt-populate.yml

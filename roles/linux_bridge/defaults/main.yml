@@ -1,0 +1,3 @@
+---
+physical_interface: eth0
+bridge_name: br0

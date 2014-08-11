@@ -1,7 +1,14 @@
 ---
+- name: Add OS specific vars
+  include_vars: "{{ ansible_distribution }}.yml"
+
 - name: Create VM images
   qemu_img: dest=/var/lib/libvirt/images/{{ item }}.qcow2 size=10000 format=qcow2 opt=preallocation=metadata state=present
   with_sequence: count={{ staypuft_guest_count }} format={{ name_format }}
+
+- name: Create templates
+  template: src=./server.xml.j2 dest=/tmp/server{{item}}.xml
+  with_sequence: count={{ staypuft_guest_count }}
 
 - name: Create VMs
   virt: name={{ item }}

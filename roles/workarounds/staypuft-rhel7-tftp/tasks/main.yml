@@ -5,12 +5,14 @@
 # that is critical to the kickstart process
 
 - name: Fetch rhel7 base kernel
+  sudo: yes
   get_url:
         url=http://download.eng.tlv.redhat.com/pub/rhel/rel-eng/latest-RHEL-7/compose/Server/x86_64/os/isolinux/vmlinuz
         dest=/var/lib/tftpboot/boot/RedHat-7.0-x86_64-vmlinuz
         force=yes
 
 - name: Fetch rhel7 base initrd
+  sudo: yes
   get_url:
         url=http://download.eng.tlv.redhat.com/pub/rhel/rel-eng/latest-RHEL-7/compose/Server/x86_64/os/isolinux/initrd.img
         dest=/var/lib/tftpboot/boot/RedHat-7.0-x86_64-initrd.img

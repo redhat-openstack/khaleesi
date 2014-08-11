@@ -1,0 +1,3 @@
+---
+hostname_fqdn: "{{ansible_fqdn}}"
+hostname_name: "{{hostname_fqdn.split('.').0}}"

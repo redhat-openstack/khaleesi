@@ -1,0 +1,26 @@
+---
+- name: Install ksgen
+  command: "{{ ansible_env.HOME }}/.venv/bin/python setup.py develop
+           chdir={{ ansible_env.HOME }}/khaleesi/tools/ksgen"
+
+- name: Run ksgen
+  command: "{{ ansible_env.HOME }}/.venv/bin/ksgen
+              --config-dir={{ ansible_env.HOME }}/khaleesi-settings/settings generate
+              --rules-file={{ ansible_env.HOME }}/khaleesi-settings/rules/staypuft-rhos-vagrant.yml
+              --distro=rhel-7.0
+              ksgen_settings.yml
+            chdir={{ ansible_env.HOME }}/khaleesi"
+- name: Run vagrant
+  command: "vagrant up foreman chdir={{ ansible_env.HOME }}/khaleesi"
+  environment:
+    VAGRANT_DEFAULT_PROVIDER: "libvirt"
+    VAGRANT_PLAYBOOK: "{{ ansible_env.HOME }}/khaleesi/playbooks/staypuft-vagrant.yml"
+    VAGRANT_KHALEESI_SETTINGS: "{{ ansible_env.HOME }}/khaleesi/ksgen_settings.yml"
+    PATH: "{{ ansible_env.HOME }}/.venv/bin:{{ ansible_env.PATH }}"
+    WORKSPACE: "{{ ansible_env.HOME }}"
+    KHALEESI_SETTINGS_PATH: "khaleesi-settings"
+    ANSIBLE_HOST_KEY_CHECKING: False
+    ANSIBLE_ROLES_PATH: "{{ ansible_env.HOME }}/khaleesi/roles"
+    ANSIBLE_LIBRARY: "{{ ansible_env.HOME }}/khaleesi/library:{{ ansible_env.HOME }}/.venv/share/ansible"
+    ANSIBLE_CALLBACK_PLUGINS: "{{ ansible_env.HOME }}/khaleesi/plugins/callbacks"
+    KHALEESI_LOG_PATH: "{{ ansible_env.HOME }}/khaleesi-stdstreams"

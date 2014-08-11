@@ -1,8 +1,3 @@
-{% for repo in distro.rhel[ansible_distribution_version].repos %}
-{% if 'server-rpms' in repo.section %}
-{% set baseurl = repo.baseurl %}
-{% endif %}
-{% endfor %}
 ---
   :log_dir: /var/log/foreman-installer
   :dont_save_answers: false

@@ -1,0 +1,38 @@
+---
+- include: group_by.yml tags=groupby
+
+- include: prep.yml
+
+- name: Prep staypuft on a fresh box
+  hosts: staypuft_host
+  sudo: yes
+  roles:
+    - { role: staypuft/host/selinux }
+    - { role: staypuft/packages, tags: ['packages'] }
+
+- name: IPtables firewall
+  hosts: staypuft_host:~(RedHat|CentOS)-6:!~(Fedora-20|(RedHat|CentOS)-7)
+  sudo: yes
+  roles:
+    - { role: staypuft/host/firewall/iptables }
+
+- name: Firewalld firewall
+  hosts: staypuft_host:!~(RedHat|CentOS)-6
+  sudo: yes
+  roles:
+    - { role: staypuft/host/firewall/firewalld }
+
+- name: Continue config and run vagrant
+  hosts: staypuft_host
+  sudo: yes
+  roles:
+    - { role: nested_virt }
+    - { role: linux_bridge, physical_interface: "{{ ansible_default_ipv4.interface }}", bridge_name: br0 }
+    - { role: dnsmasq, dnsmasq_interface: br0, dhcp_range_start: 10.13.63.100, dhcp_range_end: 10.13.63.200 }
+    - { role: staypuft/host/nfs_server }
+    - { role: staypuft/host/vagrant }
+    - { role: staypuft/host/ansible }
+    - { role: staypuft/host/khaleesi }
+    - { role: staypuft/vagrant_run }
+
+- include: staypuft/virt-populate.yml

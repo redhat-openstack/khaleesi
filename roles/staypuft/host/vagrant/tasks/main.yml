@@ -1,0 +1,25 @@
+---
+- name: Install Vagrant deps
+  yum: name={{ item }} state=present
+  with_items:
+    - ruby
+    - ruby-devel
+    - rubygems
+    - libxslt-devel
+    - libxml2-devel
+    - libvirt-devel
+
+- name: Install vagrant
+  yum: name=https://dl.bintray.com/mitchellh/vagrant/vagrant_1.6.3_x86_64.rpm state=present
+
+- name: Install vagrant-libvirt
+  command: vagrant plugin install vagrant-libvirt --plugin-version 0.0.19
+
+- name: Install boxes
+  command: vagrant box add {{ item.url }} --name {{ item.name }} --force
+  with_items:
+    - { name: 'staypuft/rhel65', url: 'http://file.rdu.redhat.com/~bcrochet/vagrant/rhel65.box' }
+    - { name: 'staypuft/pxeboot', url: 'http://file.rdu.redhat.com/~bcrochet/vagrant/pxeboot.box' }
+
+- name: Enable libvirt and start it
+  service: name=libvirtd state=started enabled=yes

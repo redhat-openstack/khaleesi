@@ -1,0 +1,17 @@
+---
+- name: stop VMs
+  virt: name={{ item }}
+        command=destroy
+  with_sequence: count={{ staypuft_guest_count }} format={{ name_format }}
+
+- name: undefine VMs
+  virt: name={{ item }}
+        command=undefine
+  with_sequence: count={{ staypuft_guest_count }} format={{ name_format }}
+
+- name: delete  vagrant host
+  command: "vagrant destroy foreman chdir={{ ansible_env.HOME }}/khaleesi"
+  environment:
+    VAGRANT_DEFAULT_PROVIDER: "libvirt"
+    VAGRANT_PLAYBOOK: "{{ ansible_env.HOME }}/khaleesi/playbooks/staypuft-vagrant.yml"
+    VAGRANT_KHALEESI_SETTINGS: "{{ ansible_env.HOME }}/khaleesi/ksgen_settings.yml"

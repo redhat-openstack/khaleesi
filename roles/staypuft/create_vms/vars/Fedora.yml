@@ -1,0 +1,2 @@
+---
+emulator: /usr/bin/qemu-kvm

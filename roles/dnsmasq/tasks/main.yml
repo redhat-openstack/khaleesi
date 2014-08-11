@@ -1,0 +1,10 @@
+---
+- name: Ensure dnsmasq installed
+  yum: name=dnsmasq state=present
+
+- name: Set dnsmsq config
+  template: src=dnsmasq.conf.j2 dest=/etc/dnsmasq.conf
+            owner=root group=root mode=0644
+
+- name: Start and enable service on interface
+  service: name=dnsmasq state=started enabled=yes

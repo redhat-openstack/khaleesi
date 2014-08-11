@@ -3,6 +3,7 @@ firewall_services:
   - http
   - https
   - libvirt
+  - nfs
 firewall_ports:
   - 8140/tcp
   - 8443/tcp

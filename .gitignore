@@ -20,3 +20,5 @@ teardown.txt
 *.egg-info/
 #kytoon
 tmp/
+# Vagrant
+.vagrant/

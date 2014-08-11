@@ -1,0 +1,6 @@
+---
+- name: Cleanup virtual machines Staypuft host
+  hosts: staypuft_host
+  sudo: yes
+  roles:
+    - { role: staypuft/delete_vms, staypuft_guest_count: 5 }

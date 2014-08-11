@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  author: Sergey Korolev
+  description: Set hostname and domain
+  license: MIT
+  min_ansible_version: 1.4
+  platforms:
+  - name: EL
+    versions:
+    - all
+  - name: Ubuntu
+    versions:
+    - all
+  - name: Debian
+    versions:
+    - all
+  categories:
+  - networking
+  - system
+
+dependencies: []

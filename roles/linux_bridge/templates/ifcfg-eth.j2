@@ -1,0 +1,7 @@
+DEVICE="{{ physical_interface }}"
+BOOTPROTO="none"
+HWADDR={{ hostvars[inventory_hostname]['ansible_' + physical_interface].macaddress }}
+NM_CONTROLLED="no"
+ONBOOT="yes"
+TYPE="Ethernet"
+BRIDGE={{ bridge_name }}
