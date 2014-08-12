@@ -181,6 +181,20 @@ def test_overwrite_tag():
     print_yaml("Merged", merged)
 
 
+def test_random():
+    src_yaml = """
+    random: !random 8
+
+    """
+    random_so_far = set()
+
+    for x in range(2 ** 12):
+        src = Configuration.from_string(src_yaml)
+        if src.random in random_so_far:
+            print len(random_so_far)
+            assert src.random not in random_so_far
+        random_so_far.add(src.random)
+
 def test_env():
     src_yaml = """
     user: !env [USER]

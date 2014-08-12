@@ -12,9 +12,10 @@ non-standard YAML code.
 To use yaml.safe_dump(), you need the following.
 """
 
-from configure import Configuration, ConfigurationError
 from collections import OrderedDict
+from configure import Configuration, ConfigurationError
 import logging
+import string
 import yaml
 
 
@@ -36,6 +37,11 @@ def to_yaml(header, x):
     }
 
 
+def random_generator(size=32, chars=string.ascii_uppercase + string.digits):
+    import random
+    return ''.join(random.choice(chars) for x in range(size))
+
+
 def dict_constructor(loader, node):
     if isinstance(node, yaml.nodes.MappingNode):
         loader.flatten_mapping(node)
@@ -46,6 +52,18 @@ def dict_constructor(loader, node):
 def _join_constructor(loader, node):
     seq = loader.construct_sequence(node)
     return ''.join([str(i) for i in seq])
+
+
+@Configuration.add_constructor('random')
+def _random_constructor(loader, node):
+    """
+    usage:
+        !random <length>
+    returns a random string of <length> characters
+    """
+
+    num_chars = loader.construct_scalar(node)
+    return random_generator(int(num_chars))
 
 
 @Configuration.add_constructor('env')
