@@ -1,7 +1,4 @@
 ---
-- name: ensure yum-utils
-  yum: name=yum-utils state=present
-
 - name: Create the RHOS Release Repository
   template: src=rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
 
@@ -10,6 +7,9 @@
 
 - name: Execute rhos-release {{ product.version|int }}
   command: rhos-release {{ product.version|int }}
+
+- name: ensure yum-utils
+  yum: name=yum-utils state=present
 
 #only disable the openstack repos, not the supporting repos
 - name: Disable default puddle rhelosp repo when using poodle
