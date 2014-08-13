@@ -79,3 +79,12 @@
   tags:
     - tempest_setup_rpm
     - tempest_setup_gen_conf
+
+- name: Set arbitrary things in tempest.conf
+  ini_file: dest={{ tempest.dir }}/etc/tempest.conf
+            section={{ item.section }}
+            option={{ item.option }}
+            value={{ item.value }}
+  with_items:
+    tempest.additional_default_settings
+
