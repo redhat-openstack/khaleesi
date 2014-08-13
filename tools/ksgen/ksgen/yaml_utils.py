@@ -37,7 +37,7 @@ def to_yaml(header, x):
     }
 
 
-def random_generator(size=32, chars=string.ascii_uppercase + string.digits):
+def random_generator(size=32, chars=string.ascii_lowercase + string.digits):
     import random
     return ''.join(random.choice(chars) for x in range(size))
 
