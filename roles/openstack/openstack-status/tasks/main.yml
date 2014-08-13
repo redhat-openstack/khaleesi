@@ -11,9 +11,7 @@
   when: wait_for_openstack|failed
 
 - name: Status
-  shell: |
-      source /root/keystonerc_admin
-      openstack-status
+  shell: source /root/keystonerc_admin; openstack-status
   register: result
   ignore_errors: yes
 
