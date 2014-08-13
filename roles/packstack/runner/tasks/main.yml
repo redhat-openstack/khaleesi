@@ -22,8 +22,6 @@
   command: packstack --debug --answer-file={{ packstack.answer_file }}
   sudo: yes
   sudo_user: root
-  retries: 1
-  until: result.rc == 0
   tags: run-packstack
 
 - name: print result of packstack install
