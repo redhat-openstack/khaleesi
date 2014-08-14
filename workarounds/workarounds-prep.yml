@@ -2,6 +2,10 @@
 - name: Workarounds | specific to fedora distro
   hosts: Fedora:&controller
   roles:
+     - { role: workarounds/m2crypto,
+          tags: workaround,
+          when: job.workaround_m2crypto is defined and job.workaround_m2crypto
+       }
      - { role: workarounds/deltarpm-install,
           tags: workaround,
           when: workaround_deltarpm is defined and workaround_deltarpm
