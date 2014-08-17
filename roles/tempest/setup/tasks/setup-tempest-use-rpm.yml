@@ -14,7 +14,7 @@
 - meta: flush_handlers
 
 - name: rpm | install tempest rpm
-  command: yum install -y openstack-tempest-icehouse
+  yum: name=openstack-tempest-icehouse-{{ tempest.version }} state=present
   sudo: yes
   tags: tempest_setup_rpm
 
