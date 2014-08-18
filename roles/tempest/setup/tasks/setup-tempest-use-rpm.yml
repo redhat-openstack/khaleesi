@@ -14,16 +14,8 @@
 - meta: flush_handlers
 
 - name: rpm | install tempest rpm
-  yum: name=openstack-tempest-icehouse-{{ tempest.version }} state=present
+  yum: name=openstack-tempest-{{ tempest.rdo.version }}-{{ tempest.rpm.version }} state=present
   sudo: yes
-  tags: tempest_setup_rpm
-
-- name: rpm | get tempest install directory
-  shell: rpm -ql openstack-tempest-icehouse | grep 'openstack-tempest-icehouse$'
-  register: tempest_install_dir
-  tags: tempest_setup_rpm
-
-- debug: msg="{{ tempest_install_dir.stdout }}"
   tags: tempest_setup_rpm
 
 - debug: msg="{{ tempest.dir }}"
