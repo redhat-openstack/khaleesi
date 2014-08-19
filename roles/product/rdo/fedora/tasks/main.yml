@@ -1,6 +1,11 @@
 ---
 - name: install rdo gpg key
   copy: src=RPM-GPG-KEY-RDO-Icehouse dest=/etc/pki/rpm-gpg/ owner=root group=root
+  when: product.version == "icehouse"
+
+- name: install rdo gpg key
+  copy: src=RPM-GPG-KEY-RDO-Havana dest=/etc/pki/rpm-gpg/ owner=root group=root
+  when: product.version == "havana"
 
 - name: Create the rdo-release repositories for Fedora
   template: src=rdo.repo.j2 dest=/etc/yum.repos.d/rdo-release.repo
