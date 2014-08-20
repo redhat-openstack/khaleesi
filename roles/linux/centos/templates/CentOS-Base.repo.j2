@@ -5,7 +5,7 @@
 # geographically close to the client.  You should use this for CentOS updates
 # unless you are manually picking other mirrors.
 #
-# If the mirrorlist= does not work for you, as a fall back you can try the 
+# If the mirrorlist= does not work for you, as a fall back you can try the
 # remarked out baseurl= line instead.
 #
 #
@@ -15,15 +15,15 @@ name=CentOS-$releasever - Base
 mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os
 #baseurl=http://mirror.centos.org/centos/$releasever/os/$basearch/
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-$releasever
 
-#released updates 
+#released updates
 [updates]
 name=CentOS-$releasever - Updates
 mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates
 #baseurl=http://mirror.centos.org/centos/$releasever/updates/$basearch/
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-$releasever
 
 #additional packages that may be useful
 [extras]
@@ -31,7 +31,7 @@ name=CentOS-$releasever - Extras
 mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras
 #baseurl=http://mirror.centos.org/centos/$releasever/extras/$basearch/
 gpgcheck=1
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-$releasever
 
 #additional packages that extend functionality of existing packages
 [centosplus]
@@ -40,7 +40,7 @@ mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo
 #baseurl=http://mirror.centos.org/centos/$releasever/centosplus/$basearch/
 gpgcheck=1
 enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-$releasever
 
 #contrib - packages by Centos Users
 [contrib]
@@ -49,4 +49,4 @@ mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo
 #baseurl=http://mirror.centos.org/centos/$releasever/contrib/$basearch/
 gpgcheck=1
 enabled=0
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-6
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-$releasever
