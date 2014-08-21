@@ -37,3 +37,21 @@
   roles:
       - { role: workarounds/patch-packstack-provision,
           when: workaround_packstack_provision | default(false) }
+
+- name: Workarounds | BZ 1117871 | mysql on centos 7
+  hosts: controller:&CentOS-7
+  sudo: yes
+  roles:
+      - { role: workarounds/mysql-centos7,
+          tags: workaround,
+          when: workaround_mysql_centos7 is defined and workaround_mysql_centos7
+      }
+      - { role: workarounds/iptables-install,
+          tags: workaround,
+          when: workaround_iptables_install is defined and workaround_iptables_install
+      }
+      - { role: workarounds/messagebus-centos7,
+          tags: workaround,
+          when: workaround_messagebus_centos7 is defined and workaround_messagebus_centos7
+      }
+

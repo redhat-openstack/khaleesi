@@ -49,6 +49,13 @@
   when:
     - "'Timeout' in host_stopped.msg and host_stopped.msg is defined"
 
+# this workaround has to be applied here, if ansible gets to reload facts with this file in place
+# it will get a completely invalid ansible_distribution_version and the only way to classify the node
+# will be with the group, all other test on version variables will fail
+- name: Fix centos naming scheme
+  lineinfile: dest=/etc/redhat-release regexp=7.0.[0-9]* line='CentOS Linux release 7.0 (Core)'
+  when: ansible_distribution == 'CentOS' and ansible_distribution_version|int == 7
+
 - name: Reload facts
   action: setup
 
@@ -68,6 +75,7 @@
     - Wait for host to come back
     - Check instance uptime
     - Print instance uptime
+    - Fix centos naming scheme
     - Reload facts
   when: yum_update | bool
 

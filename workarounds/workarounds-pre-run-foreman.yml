@@ -39,3 +39,12 @@
          tags: workaround,
          when: workaround_neutron_ovs_udev_loop is defined and workaround_neutron_ovs_udev_loop
       }
+
+- name: Workarounds | mysql on centos 7
+  hosts: controller:&CentOS-7
+  sudo: yes
+  roles:
+      - { role: workarounds/mysql-centos7,
+          tags: workaround,
+          when: workaround_mysql_centos7 is defined and workaround_mysql_centos7
+      }
