@@ -3,7 +3,7 @@ set -e -u
 
 declare -r SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
 cd $SCRIPT_DIR
-source functions.bash
+source tools/lib/functions.bash
 
 
 cleanup() {
