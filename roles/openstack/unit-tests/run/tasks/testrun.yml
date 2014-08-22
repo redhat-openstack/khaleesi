@@ -1,25 +1,23 @@
-- name: Remove old testrun dirs if present
-  file: path="{{ansible_env.HOME}}/testbed/{{item}}" state=absent
-  with_items:
-  - logs/
-  - "{{component_basename}}/.testrepository/"
-  - "{{component_basename}}/.venv/"
+- name: cleanup git repo prior to running tests
+  command: git clean -qdffx
+  args:
+    chdir: testbed/{{component_basename}}
 
-- name: Create new logs dir
+- name: create new logs dir
   file: path={{ansible_env.HOME}}/testbed/logs/ state=directory
-      #python -m nova.openstack.common.lockutils testr run --parallel --subunit
 
 - name: Run test using only installed packages
   shell: >
-      source ~/testbed/venv/bin/activate;
-      find . -iname '*.pyc' -type f -delete;
-      testr init;
-      python -m nova.openstack.common.lockutils python setup.py testr --testr-args='--subunit --concurrency 0  '
+    source ~/testbed/venv/bin/activate;
+    python setup.py egg_info;
+    python -m nova.openstack.common.lockutils
+          python setup.py testr --testr-args='--subunit --concurrency 0  '
       | subunit2junitxml --output-to=../logs/testresult.xml -f
       | subunit-2to1 | tools/colorizer.py >../logs/testrun.log 2>&1
+
   args:
-      chdir: testbed/{{component_basename}}
-      executable: /bin/bash
+    chdir: testbed/{{component_basename}}
+    executable: /bin/bash
   register: test_run
   ignore_errors: yes
 
