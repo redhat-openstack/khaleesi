@@ -1,6 +1,6 @@
 ---
 - fail: msg="Must also use astapor from source"
-  when: use_astapor is not defined or not use_astapor
+  when: use_astapor is not defined or not use_astapor|bool
 
 - name: Remove openstack puppet modules rpm - Source
   yum: name={{ item }} state=absent

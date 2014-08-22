@@ -2,6 +2,10 @@
 - name: be sure ntp is installed
   yum: name=ntp state=installed
   tags: ntp
+  retries: 3
+  delay: 30
+  register: ntp_result
+  until: ntp_result.rc == 0
 
 - name: be sure ntp is configured
   template: src=ntp.conf.j2 dest=/etc/ntp.conf
