@@ -12,7 +12,27 @@
 
 - name: Status
   shell: source /root/keystonerc_admin; openstack-status
-  register: result
+  register: openstack_status
   ignore_errors: yes
 
-- debug: var=result.stdout_lines
+- debug: var=openstack_status.stdout_lines
+
+- name: Check if openstack-status reports dead services
+  shell: >
+    sed -n '/== Keystone users ==/q;p' <<<'{{ openstack_status.stdout }}' | grep -v '==' | grep -v "(disabled on boot)" | grep dead
+  register: dead_services
+  failed_when: dead_services.rc >= 2
+
+- name: Get names of failed services, if any
+  shell: >
+    tr -d [[:blank:]] <<<'{{ dead_services.stdout }}' | awk -F: '{print $1}'
+  register: dead_services_names
+  when: dead_services.stdout != ""
+
+- name: Names of failed services
+  debug: var=dead_services_names.stdout_lines
+  when: dead_services.stdout != ""
+
+- name: Fail playbook in case of dead services
+  fail: msg=" There are dead services"
+  when: dead_services.stdout != ""
