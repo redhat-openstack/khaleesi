@@ -1,30 +1,31 @@
+- name: print component testbed path
+  debug: var=component_path
+
 - name: cleanup git repo prior to running tests
   command: git clean -qdffx
   args:
-    chdir: testbed/{{component_basename}}
+    chdir: "{{component_path}}"
 
 - name: create new logs dir
   file: path={{ansible_env.HOME}}/testbed/logs/ state=directory
 
+- name: print the test run command
+  debug: var=test_env.rpm.run
+
 - name: Run test using only installed packages
   shell: >
-    source ~/testbed/venv/bin/activate;
-    python setup.py egg_info;
-    python -m nova.openstack.common.lockutils
-          python setup.py testr --testr-args='--subunit --concurrency 0  '
-      | subunit2junitxml --output-to=../logs/testresult.xml -f
-      | subunit-2to1 | tools/colorizer.py >../logs/testrun.log 2>&1
+    test -s  ~/testbed/venv/bin/activate &&
+        source ~/testbed/venv/bin/activate;
 
+    {{test_env.rpm.run.replace('\n', '')}}
   args:
-    chdir: testbed/{{component_basename}}
+    chdir: "{{component_path}}"
     executable: /bin/bash
   register: test_run
   ignore_errors: yes
 
 - name: copy test results to logs dir
-  fetch: src={{ansible_env.HOME}}/testbed/logs/{{item}}
+  fetch: src="{{component_path}}/{{item}}"
          dest=../../logs/ flat=yes
-  with_items:
-      - testresult.xml
-      - testrun.log
+  with_items: test_env.rpm.archive
 

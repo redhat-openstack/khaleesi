@@ -18,6 +18,9 @@
   debug: msg="Going to install rpms listed in {{ test_deps_file.split('/') | last }}"
 #"
 
+- name: load list of additional repos and rpms to be installed
+  include_vars: "{{test_deps_file}}"
+
 - name: install default set of package needed to run testr
   sudo: yes
   yum: pkg={{item}} state=latest
@@ -27,8 +30,6 @@
       - python-subunit
       - python-junitxml
 
-- name: load list of additional repos and rpms to be installed
-  include_vars: "{{test_deps_file}}"
 
 - name: Create additional repos if specified
   sudo: yes
@@ -40,7 +41,7 @@
 
 - name: install test dependencies rpm needed to run test
   sudo: yes
-  yum: pkg={{item}} state=present
+  yum: pkg={{item}} state=latest
   with_items: test_dependencies.rpm.install
   when: test_dependencies.rpm.install | default(false)
 
@@ -63,3 +64,7 @@
       src='{{component.dir}}'
       dest="{{ansible_env.HOME}}/testbed"
   register: result
+
+- name: compute the testbed path
+  set_fact:
+    component_path={{ansible_env.HOME + '/testbed/' + component_basename }}

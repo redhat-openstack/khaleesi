@@ -4,5 +4,5 @@
 
 - name: validate that virtualenv needed to run test is created
   file: path={{ansible_env.HOME}}/testbed/venv/bin/activate state=file
-
+  when: test_dependencies.pip.override | default(false)
 
