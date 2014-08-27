@@ -1,6 +1,6 @@
 ---
 - name: be sure ntp is installed
-  yum: name=ntp state=installed
+  yum: name=ntp state=present
   tags: ntp
   retries: 3
   delay: 30
