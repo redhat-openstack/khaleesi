@@ -1,0 +1,128 @@
+---
+
+- name: download key files
+  shell: >
+    chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+    wget {{ job_var.key_file_remote }} -O {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }};
+    chmod 600 {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{job_var.key_file }};
+
+- name: remove host name from known_hosts
+  shell: >
+    sed -i  "/{{ job_var.instack_virt_host }}/d" {{ jenkins.rhos_ci_home }}/.ssh/known_hosts;
+    sed -i  "/{{ job_var.tempest_machine }}/d" {{ jenkins.rhos_ci_home }}/.ssh/known_hosts;
+    cat {{ jenkins.rhos_ci_home }}/.ssh/known_hosts
+
+- name: remove host name ~/.ssh/from known_hosts
+  shell: >
+    sed -i  "/{{ job_var.instack_virt_host }}/d" ~/.ssh/known_hosts;
+    sed -i  "/{{ job_var.tempest_machine }}/d" ~/.ssh/known_hosts;
+    cat ~/.ssh/known_hosts
+
+- name: get overcloud tripleo-overcloud-passwords from undercloud
+  shell: >
+    sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }}:/home/stack/tripleo-overcloud-passwords {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/tripleo-overcloud-passwords &
+
+- name: define overcloud demo password
+  shell: sleep 3; cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/tripleo-overcloud-passwords | grep 'OVERCLOUD_DEMO_PASSWORD' | awk -F= '{print $NF}'
+  register: overcloud_demo_passwd
+
+- name: define overcloud admin password
+  shell: cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/tripleo-overcloud-passwords | grep 'OVERCLOUD_ADMIN_PASSWORD' | awk -F= '{print $NF}'
+  register: overcloud_admin_passwd
+
+- name: get overcloud controller node IP address from undercloud
+  shell: >
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.instack_virt_host }} "source stackrc; nova list > temp_list" ;
+    sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }}:/home/stack/temp_list {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/temp_list &
+
+- name: define controller ip
+  shell: sleep 3; cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/temp_list | grep notCompute0 | awk -F= '{print $NF}' | grep -o '[0-9 \.]*' | sed 's/ //'
+  register: controller_node_ip
+
+- name: remove controller node ip from ~/.ssh/from known_hosts
+  shell: >
+    sed -i  "/{{ controller_node_ip.stdout }}/d" /home/rhos-ci/.ssh/known_hosts;
+    sed -i  "/{{ controller_node_ip.stdout }}/d" ~/.ssh/known_hosts
+
+- name: asymmetrical routing - copy template of filter file
+  template:
+    src=filter_num.j2
+    dest={{ jenkins.workspace }}/{{ jenkins.job_name }}/filter_num.sh
+    mode=0755
+
+- name: asymmetrical routing - copy filter_num.sh file to the undercloud machine
+  shell: >
+    chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+    sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' filter_num.sh stack@{{ job_var.instack_virt_host }}:/home/stack
+
+- name: asymmetrical routing - copy filter_num to the controller node
+  shell: >
+    sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l stack {{ job_var.instack_virt_host }} "scp /home/stack/filter_num.sh heat-admin@{{ controller_node_ip.stdout }}:/home/heat-admin"
+
+- name: asymmetrical routing - make filet_num.sh executable
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l stack {{ job_var.instack_virt_host }} "ssh -t heat-admin@{{ controller_node_ip.stdout }} 'chmod 0755 /home/heat-admin/filter_num.sh'"
+
+- name: asymmetrical routing - run filter_num.sh to open ping routes
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l stack {{ job_var.instack_virt_host }} "ssh -t heat-admin@{{ controller_node_ip.stdout }} 'sudo -i /home/heat-admin/filter_num.sh'"
+
+- name: check if ping route to the controller node exists from local
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l root `hostname` 'ip route show 172.17.0.0/16 | wc -l'
+  register: exist_local_route
+
+- name: add route to ping the controller node from local machine
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l root `hostname` "route add -net 172.17.0.0 netmask 255.255.0.0 gw {{ job_var.instack_virt_host }}"
+  when: exist_local_route.stdout == ""
+
+- name: check if ping route to the controller node exists from tempest machine
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l root {{ job_var.tempest_machine }} 'ip route show 172.17.0.0/16 | wc -l'
+  register: exist_tempest_route
+
+- name: add route to ping the controller node from tempest machine
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l root {{ job_var.tempest_machine }} "route add -net 172.17.0.0 netmask 255.255.0.0 gw {{ job_var.instack_virt_host }}"
+  when: exist_tempest_route.stdout == ""
+
+- name: copy ssh keys to tempest machine and controller node
+  shell: >
+    sshpass -p {{ job_var.vm_pass }} ssh-copy-id -i /home/rhos-ci/.ssh/id_rsa.pub root@{{ job_var.tempest_machine }} -o 'StrictHostKeyChecking=no';
+    sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' /home/rhos-ci/.ssh/id_rsa.pub stack@{{ job_var.instack_virt_host }}:/home/stack/id_rsa.pub;
+    sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' /home/rhos-ci/.ssh/id_rsa stack@{{ job_var.instack_virt_host }}:/home/stack/id_rsa;
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.instack_virt_host }} "ssh-copy-id -i '/home/stack/id_rsa.pub' heat-admin@{{ controller_node_ip.stdout }}"
+
+- name: ssh to controller node
+  shell: ssh -o 'StrictHostKeyChecking=no' -x -l heat-admin {{ controller_node_ip.stdout }}
+
+- name: create keys for tempest machine and copy those keys to controller node
+  shell: >
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l root {{ job_var.tempest_machine }} "yum install -y sshpass";
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.tempest_machine }} "echo -e  'y\n'|ssh-keygen -q -t rsa -N '' -C tempest-key -f tempest-key";
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l root {{ job_var.tempest_machine }} "cp /home/stack/tempest-key .ssh/id_rsa; cp /home/stack/tempest-key.pub .ssh/id_rsa.pub";
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.tempest_machine }} "sshpass -p {{ job_var.vm_pass }} ssh stack@{{ job_var.instack_virt_host }} -o 'StrictHostKeyChecking=no' &";
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.tempest_machine }} "sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' '/home/stack/tempest-key.pub' stack@{{ job_var.instack_virt_host }}:/home/stack/tempest-key.pub";
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.tempest_machine }} "sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' '/home/stack/tempest-key' stack@{{ job_var.instack_virt_host }}:/home/stack/tempest-key";
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.instack_virt_host }} "ssh-copy-id -i '/home/stack/tempest-key.pub' heat-admin@{{ controller_node_ip.stdout }}"
+
+- name: add instack-undercloud host
+  add_host: name={{ job_var.instack_virt_host }} groups=instack-undercloud ansible_ssh_user=stack ansible_ssh_private_key_file={{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }}
+
+- name: add tempest host
+  add_host: name={{ job_var.tempest_machine }} groups=tempest ansible_ssh_user=root ansible_default_ipv4.address={{ job_var.tempest_machine_ip }}
+
+- name: add controller host
+  add_host: name={{ controller_node_ip.stdout }} groups=controller ansible_ssh_user=heat-admin private_ip={{ controller_node_ip.stdout }} ansible_default_ipv4.address={{ controller_node_ip.stdout }}
+
+- name: ssh to instack-undercloud host
+  shell: ssh -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }}
+
+- name: ssh to tempest host
+  shell: ssh -o 'StrictHostKeyChecking=no' root@{{ job_var.tempest_machine }}
+
+- name: ssh to controller host
+  shell: ssh -o 'StrictHostKeyChecking=no' heat-admin@{{ controller_node_ip.stdout }}
+
+- name: replace settings values
+  shell: >
+    sed -i "s/admin_password: null/admin_password: {{ overcloud_admin_passwd.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
+    sed -i "s/demo_password: null/demo_password: {{ overcloud_demo_passwd.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
+    sed -i "0,/name: null/s/name: null/name: {{ controller_node_ip.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
+    sed -i "0,/name: null/s/name: null/name: {{ job_var.tempest_machine }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml
+

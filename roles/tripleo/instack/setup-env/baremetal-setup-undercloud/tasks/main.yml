@@ -1,0 +1,61 @@
+---
+
+- name: download key files
+  shell: >
+    chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+    wget {{ job_var.key_file_remote }} -O {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }};
+    chmod 600 {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{job_var.key_file }};
+    cp {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{job_var.key_file }} {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{job_var.id_rsa }};
+    chmod 600 {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{job_var.id_rsa }};
+    wget {{job_var.id_rsa_pub_remote }} -O {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }};
+    chmod 644 {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }}
+
+- name: get remote config file with custom options
+  shell: >
+    chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+    wget {{ job_var.config_file_remote }} -O {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.config_file_name }};
+    cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.config_file_name }}
+  when: jenkins.job_name == '*custom*'
+
+- name: remove host name from known_hosts
+  shell: >
+    sed -i  "/{{ job_var.instack_virt_host }}/d" {{ jenkins.rhos_ci_home }}/.ssh/known_hosts;
+    cat {{ jenkins.rhos_ci_home }}/.ssh/known_hosts
+
+- name: remove host name ~/.ssh/from known_hosts
+  shell: >
+    sed -i  "/{{ job_var.instack_virt_host }}/d" ~/.ssh/known_hosts;
+    cat ~/.ssh/known_hosts
+
+- name: wait copy ssh keys
+  shell: >
+    chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+    sleep 5
+
+- name: prep for copy ssh keys
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -v &
+
+- name: prep for copy ssh keys - root
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' root@{{ job_var.instack_virt_host }} -v &
+
+- name: copy ssh keys
+  shell: >
+    chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+    sleep 5;
+    sshpass -p {{ job_var.vm_pass }} ssh-copy-id -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }}  stack@{{ job_var.instack_virt_host }};
+    sshpass -p {{ job_var.vm_pass }} ssh-copy-id -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }} root@{{ job_var.instack_virt_host }}
+
+- name: disable tty requirement for remote access
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l root {{ job_var.instack_virt_host }} "sed -i 's/Defaults requiretty/#Defaults requiretty/g' /etc/sudoers"
+
+- name: add host with root user
+  add_host: name={{ job_var.instack_virt_host }} groups=instack-undercloud ansible_ssh_host={{ job_var.instack_virt_host }} ansible_ssh_user=root ansible_ssh_private_key_file={{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }}
+
+- name: add host with stack user
+  add_host: name={{ job_var.instack_virt_host }}-stack groups=instack-undercloud-stack ansible_ssh_host={{ job_var.instack_virt_host }} ansible_ssh_user=stack ansible_ssh_private_key_file={{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }}
+
+- name: ssh to host as root user
+  shell: ssh -o 'StrictHostKeyChecking=no' root@{{ job_var.instack_virt_host }} -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }}
+
+- name: ssh to host as stack user
+  shell: ssh -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }}

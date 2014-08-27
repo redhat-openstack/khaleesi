@@ -1,0 +1,43 @@
+---
+# provision
+- include: beaker-provision.yml
+
+- name: set up for installing the virt host
+  hosts: local
+  roles:
+    - { role: tripleo/instack/setup-env/virt-setup-virthost }
+
+- name: create instack vm for undercloud install
+  hosts: instack-virt-host
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-virt-setup }
+
+- name: set up for installing the undercloud on instack vm
+  hosts: local
+  roles:
+    - { role: tripleo/instack/setup-env/virt-setup-undercloud }
+
+- name: prepare vm for undercloud inst
+  hosts: instack-undercloud
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+  sudo_user: root
+  sudo: yes
+
+- name: install undercloud on vm
+  hosts: instack-undercloud-stack
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-virt}
+
+- name: deploy and test overcloud
+  hosts: instack-undercloud-stack
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/deploy-overcloud }
+    - { role: tripleo/instack/test-overcloud}
+
+

@@ -1,0 +1,8 @@
+---
+
+- name: set up environment
+  hosts: local
+  roles:
+    - { role: tripleo/instack/setup-env/virt-setup-tempest }
+
+- include: ../tempest.yml
