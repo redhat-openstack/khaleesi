@@ -63,3 +63,7 @@
       src='{{component.dir}}'
       dest="{{ansible_env.HOME}}/testbed"
   register: result
+
+- name: compute the testbed path
+  set_fact:
+    component_path={{ansible_env.HOME + '/testbed/' + component_basename }}
