@@ -11,12 +11,7 @@
 - name: cleanup git repo prior to running tests
   command: git clean -qdffx
   args:
-    chdir: testbed/{{component_basename}}
-
-- name: install virtualenv to run tests
-  shell: python tools/install_venv.py > ../logs/venv-install.logs 2>&1;
-  args:
-      chdir: testbed/{{component_basename}}
+    chdir: "{{component_path}}"
 
 - name: going to run tests in virtualenv
   debug: msg="--------------------------------------"
@@ -25,20 +20,14 @@
 
 - name: run test in virtualenv (no junitxml)
   shell: >
-    find . -iname '*.pyc' -type f -delete;
-    source .venv/bin/activate;
-    python -m nova.openstack.common.lockutils
-            python setup.py testr --testr-args='--subunit --concurrency 0  '
-      | subunit-2to1 | tools/colorizer.py >../logs/venv-testrun.log 2>&1
-
+    {{test_env.venv.run.replace('\n', '')}}
   args:
-    chdir: testbed/{{component_basename}}
+    chdir: "{{component_path}}"
     executable: /bin/bash
   register: venv_testrun
   ignore_errors: yes
 
 - name: copy virtualenv test results to logs dir
-  fetch: src={{ansible_env.HOME}}/testbed/logs/{{item}}
+  fetch: src="{{component_path}}/{{item}}"
          dest=../../logs/ flat=yes
-  with_items:
-      - venv-testrun.log
+  with_items: test_env.venv.archive
