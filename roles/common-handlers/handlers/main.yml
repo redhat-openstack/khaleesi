@@ -27,7 +27,7 @@
                  port=22 state=started delay=10 timeout=600
 
 - name: Wait after ssh service is back
-  pause: seconds=60
+  pause: seconds=120
 
 - name: Check instance uptime
   command: uptime
