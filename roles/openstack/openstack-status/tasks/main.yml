@@ -33,6 +33,7 @@
   debug: var=dead_services_names.stdout_lines
   when: dead_services.stdout != ""
 
-- name: Fail playbook in case of dead services
-  fail: msg=" There are dead services"
-  when: dead_services.stdout != ""
+# This is falsely reporting that swift is dead, going to leave this as a warning until we've figured out the issue
+#- name: Fail playbook in case of dead services
+# fail: msg=" There are dead services"
+# when: dead_services.stdout != ""
