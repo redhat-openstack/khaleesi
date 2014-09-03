@@ -22,7 +22,6 @@ Options:
    --inventory FILE             Specify an alternate inventory file than local_hosts
    --no-logs                    do not collect logs after running playbook
    --take-snapshot              take snapshot of the VM after running playbook
-   --run-settings-file FILE     file to dump settings used when running the playbook
    --silent                     show only minimal details, skips showing files
    --verbose                    show a lot of output, enables -vvvv on ansible playbook
    --dry-run                    Only print the commands that would be executed
@@ -58,7 +57,6 @@ parse_args() {
         --use)          SETTINGS_FILE=$2;  shift 2 ;;
         --no-logs)      COLLECT_LOGS=false; shift 1 ;;
         --take-snapshot)      TAKE_SNAPSHOT=true; shift ;;
-        --run-settings-file)  RUN_SETTINGS_FILE=$2; shift 2 ;;
         --inventory) INVENTORY_FILE=$2; shift 2 ;;
         --dry-run)  DRY_RUN=true; shift ;;
         *.yml)      PLAYBOOK=$1;  shift ;;
@@ -92,16 +90,6 @@ ansible_playbook() {
 }
 
 
-generate_build_settings() {
-    echo "Generating build settings file"
-    rm -f $RUN_SETTINGS_FILE
-    ansible_playbook playbooks/dump_settings.yml \
-         --extra-vars "'run_settings_file=${RUN_SETTINGS_FILE}'"
-
-   $SILENT || cat_file $RUN_SETTINGS_FILE
-}
-
-
 validate_args() {
     # usage
     $SHOW_USAGE && usage 0      # if  --help show usage and exit 0
@@ -113,8 +101,6 @@ validate_args() {
         usage   # exit 1 if no settings file
     }
 
-    # no playbook and is not trying to generate
-    # run_settings
     [ -z ${PLAYBOOK+xxx} ] &&  {
         log_error "No playbook file passed: \
         no $BLUE${BOLD}*.yml$NORMAL found in args "
