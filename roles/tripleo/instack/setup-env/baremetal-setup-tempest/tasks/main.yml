@@ -105,7 +105,7 @@
   add_host: name={{ job_var.instack_virt_host }} groups=instack-undercloud ansible_ssh_user=stack ansible_ssh_private_key_file={{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }}
 
 - name: add tempest host
-  add_host: name={{ job_var.tempest_machine }} groups=tempest ansible_ssh_user=root ansible_default_ipv4.address={{ job_var.tempest_machine_ip }}
+  add_host: name={{ job_var.tempest_machine }} groups=tempest ansible_ssh_user=root private_ip={{ job_var.tempest_machine_ip }} ansible_default_ipv4.address={{ job_var.tempest_machine_ip }}
 
 - name: add controller host
   add_host: name={{ controller_node_ip.stdout }} groups=controller ansible_ssh_user=heat-admin private_ip={{ controller_node_ip.stdout }} ansible_default_ipv4.address={{ controller_node_ip.stdout }}
