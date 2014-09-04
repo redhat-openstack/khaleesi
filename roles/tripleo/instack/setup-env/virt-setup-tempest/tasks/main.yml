@@ -41,6 +41,14 @@
   shell: sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.instack_virt_host }} 'cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac tempest) | cut -d " " -f3'
   register: tempest_machine_ip
 
+- name: replace settings values in ksgen_settings
+  shell: >
+    sed -i "s/admin_password: null/admin_password: {{ overcloud_admin_passwd.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
+    sed -i "s/demo_password: null/demo_password: {{ overcloud_demo_passwd.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
+    sed -i "0,/name: null/s/name: null/name: {{ controller_node_ip.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
+    sed -i "0,/name: null/s/name: null/name: {{ tempest_machine_ip.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
+    sed -i "s,network_cidr: 172.172.0.0/16,network_cidr: 172.18.0.0/16," {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml
+
 - name: try if tunnels already exist
   shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l root {{ job_var.instack_virt_host }} 'netstat -tulpn'
   register: tunnels_exist
@@ -112,14 +120,6 @@
 - name: add controller host
   add_host: name={{ controller_node_ip.stdout }} groups=controller ansible_ssh_host={{ job_var.instack_virt_host }} ansible_ssh_port={{ job_var.vm_tempest_port }} ansible_ssh_user=heat-admin private_ip={{ controller_node_ip.stdout }} ansible_default_ipv4.address={{ controller_node_ip.stdout }}
 
-- name: replace settings values
-  shell: >
-    sed -i "s/admin_password: null/admin_password: {{ overcloud_admin_passwd.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
-    sed -i "s/demo_password: null/demo_password: {{ overcloud_demo_passwd.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
-    sed -i "0,/name: null/s/name: null/name: {{ controller_node_ip.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
-    sed -i "0,/name: null/s/name: null/name: {{ tempest_machine_ip.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
-    sed -i "s,network_cidr: 172.172.0.0/16,network_cidr: 172.18.0.0/16," {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml
-
 - name: ssh to instack-undercloud
   shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l stack {{ job_var.instack_virt_host }} -p {{ job_var.vm_ssh_port }}
 
@@ -128,4 +128,7 @@
 
 - name: ssh to controller node
   shell: ssh -o 'StrictHostKeyChecking=no' -x -l heat-admin {{ job_var.instack_virt_host }} -p {{ job_var.vm_tempest_port }}
+
+- name: delay before starting tempest tests
+  shell: sleep 60
 

@@ -39,6 +39,13 @@
   shell: sleep 3; cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/temp_list | grep notCompute0 | awk -F= '{print $NF}' | grep -o '[0-9 \.]*' | sed 's/ //'
   register: controller_node_ip
 
+- name: replace settings values
+  shell: >
+    sed -i "s/admin_password: null/admin_password: {{ overcloud_admin_passwd.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
+    sed -i "s/demo_password: null/demo_password: {{ overcloud_demo_passwd.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
+    sed -i "0,/name: null/s/name: null/name: {{ controller_node_ip.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
+    sed -i "0,/name: null/s/name: null/name: {{ job_var.tempest_machine }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml
+
 - name: remove controller node ip from ~/.ssh/from known_hosts
   shell: >
     sed -i  "/{{ controller_node_ip.stdout }}/d" /home/rhos-ci/.ssh/known_hosts;
@@ -119,10 +126,5 @@
 - name: ssh to controller host
   shell: ssh -o 'StrictHostKeyChecking=no' heat-admin@{{ controller_node_ip.stdout }}
 
-- name: replace settings values
-  shell: >
-    sed -i "s/admin_password: null/admin_password: {{ overcloud_admin_passwd.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
-    sed -i "s/demo_password: null/demo_password: {{ overcloud_demo_passwd.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
-    sed -i "0,/name: null/s/name: null/name: {{ controller_node_ip.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
-    sed -i "0,/name: null/s/name: null/name: {{ job_var.tempest_machine }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml
-
+- name: delay before running tempest tests
+  shell: sleep 60
