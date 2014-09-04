@@ -13,7 +13,9 @@
 #    cp {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ provisioner.beaker_checkout_script }} .
 
 - name: download beakerCheckOut.sh
-  shell: wget --no-check-certificate {{ provisioner.beaker_checkout_url }}
+  shell: >
+    chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+    wget --no-check-certificate {{ provisioner.beaker_checkout_url }}
 
 - name: check if beakerCheckOut.sh script exists
   stat: path="{{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh"
