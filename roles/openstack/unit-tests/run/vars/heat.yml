@@ -1,0 +1,16 @@
+virtenv:
+    rpm:
+        install:
+        - gcc
+        - git
+        - libffi-devel
+        - libvirt-devel
+        - libxml2-devel
+        - libxslt-devel
+        - mariadb-devel
+        - openssl-devel
+        - postgresql-devel
+        - python-devel
+        - python-pip
+        - python-virtualenv
+
