@@ -7,16 +7,20 @@
   command: rm -rf {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh
   when: beakerCheckOut_present.stat.exists == True
 
-- name: get beakerCheckOut.sh file from khaleesi-settings
-  shell: >
-    chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
-    cp {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ provisioner.beaker_checkout_script }} .
+#- name: get beakerCheckOut.sh file from khaleesi-settings
+#  shell: >
+#    chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+#    cp {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ provisioner.beaker_checkout_script }} .
+
+- name: download beakerCheckOut.sh
+  shell: wget --no-check-certificate {{ provisioner.beaker_checkout_url }}
 
 - name: check if beakerCheckOut.sh script exists
   stat: path="{{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh"
   register: beakerCheckOut_downloaded
 
-- fail: msg="Cannot get {{ provisioner.beaker_checkout_script }}. Exiting with failure."
+#- fail: msg="Cannot get {{ provisioner.beaker_checkout_script }}. Exiting with failure."
+- fail: msg="cannot get beakerCheckOut.sh. Exiting with failure."
   when: beakerCheckOut_downloaded.stat.exists == False
 
 - name: chmod if file exists
