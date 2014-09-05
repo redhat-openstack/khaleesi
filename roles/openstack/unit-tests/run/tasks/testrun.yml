@@ -10,14 +10,14 @@
   file: path={{ansible_env.HOME}}/testbed/logs/ state=directory
 
 - name: print the test run command
-  debug: var=test_env.rpm.run
+  debug: msg="{{test_env.run.replace('\n', '')}}"
 
 - name: Run test using only installed packages
   shell: >
     test -s  ~/testbed/venv/bin/activate &&
         source ~/testbed/venv/bin/activate;
 
-    {{test_env.rpm.run.replace('\n', '')}}
+    {{test_env.run.replace('\n', '')}}
   args:
     chdir: "{{component_path}}"
     executable: /bin/bash
@@ -27,5 +27,4 @@
 - name: copy test results to logs dir
   fetch: src="{{component_path}}/{{item}}"
          dest=../../logs/ flat=yes
-  with_items: test_env.rpm.archive
-
+  with_items: test_env.archive

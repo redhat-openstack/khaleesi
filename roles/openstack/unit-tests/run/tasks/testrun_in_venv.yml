@@ -1,12 +1,9 @@
-- name: load rpms needed to run test in virtualenv
-  include_vars: "{{component.name}}.yml"
-
-### TODO: may be include_vars: '{{ component.name }}/{{ ansible_distribution ... }}'
+- debug: var=test_virt_env
 
 - name: install rpms needed for virtualenv run
   yum: pkg={{item}} state=present
   sudo: yes
-  with_items: virtenv.rpm.install
+  with_items: test_virt_env.setup.install
 
 - name: cleanup git repo prior to running tests
   command: git clean -qdffx
@@ -14,13 +11,13 @@
     chdir: "{{component_path}}"
 
 - name: going to run tests in virtualenv
-  debug: msg="--------------------------------------"
+  debug: msg="{{test_virt_env.run.replace('\n', '')}}"
 
 - pause: seconds=2
 
 - name: run test in virtualenv (no junitxml)
   shell: >
-    {{test_env.venv.run.replace('\n', '')}}
+    {{test_virt_env.run.replace('\n', '')}}
   args:
     chdir: "{{component_path}}"
     executable: /bin/bash
@@ -30,4 +27,4 @@
 - name: copy virtualenv test results to logs dir
   fetch: src="{{component_path}}/{{item}}"
          dest=../../logs/ flat=yes
-  with_items: test_env.venv.archive
+  with_items: test_virt_env.archive

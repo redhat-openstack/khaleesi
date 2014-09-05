@@ -1,5 +1,4 @@
 ---
-
 - include: provision.yml
 - include: group_by.yml tags=provision
 

@@ -7,57 +7,58 @@
   set_fact: component_basename={{component.dir.split('/')|last}}
 
 - name: find the test dependencies file used for the test-run
-  set_fact: test_deps_file={{item}}
-  with_first_found:
-      - "{{ component.dir + '/' + ansible_distribution + '-'
-            + ansible_distribution_version }}.rpms.yml"
-      - "{{ component.dir + '/' + ansible_distribution }}.rpms.yml"
-      - "{{ component.dir + '/' + ansible_os_family }}.rpms.yml"
+  set_fact: test_deps_file="{{ component.dir + '/jenkins-config.yml'}}"
 
 - name: print the test dependencies filename
   debug: msg="Going to install rpms listed in {{ test_deps_file.split('/') | last }}"
 #"
 
-- name: load list of additional repos and rpms to be installed
+- name: load test config file
   include_vars: "{{test_deps_file}}"
 
-- name: install default set of package needed to run testr
-  sudo: yes
-  yum: pkg={{item}} state=latest
-  with_items:
-      - python-testrepository
-      - python-tox
-      - python-subunit
-      - python-junitxml
+- debug: msg="going to setup env based on {{test.env_name}}"
+
+- name: set test config variables
+  include_vars: test_config.yml
 
 
-- name: Create additional repos if specified
+- name: create additional repos if specified
   sudo: yes
   template: src=repo.j2
             dest=/etc/yum.repos.d/{{item.filename}}
-  with_items: test_dependencies.rpm.repos
-  when: test_dependencies.rpm.repos
+  with_items: test_env.setup.repos
+  when: test_env.setup.repos | default(false)
 
+- name: install default set of package needed to run tests
+  sudo: yes
+  yum: pkg={{item}} state=latest
+  with_items:
+      - which
+      - python-junitxml
+      - python-virtualenv
 
 - name: install test dependencies rpm needed to run test
   sudo: yes
   yum: pkg={{item}} state=latest
-  with_items: test_dependencies.rpm.install
-  when: test_dependencies.rpm.install | default(false)
+  with_items: test_env.setup.install
+  when: test_env.setup.install | default(false)
 
 - name: remove unwanted rpms specified in test dependencies
   sudo: yes
   yum: pkg={{item}} state=absent
-  with_items: test_dependencies.rpm.remove
-  when: test_dependencies.rpm.remove | default(false)
+  with_items: test_env.setup.remove
+  when: test_env.setup.remove | default(false)
 
 - name: remove virtualenv used for running tests if already present
   file: path={{ansible_env.HOME}}/testbed/venv state=absent
 
+
 - name: create a virtualenv for overridding system-site-packages
   pip: name={{item}} virtualenv=~/testbed/venv virtualenv_site_packages=yes
-  with_items: test_dependencies.pip.override
-  when: test_dependencies.pip.override | default(false)
+  with_items: test_env.setup.pip.overrides
+  when:
+    test_env.setup.pip | default(false) and
+    test_env.setup.pip.overrides | default(false)
 
 - name: copy git repo to testbed vm
   synchronize:
