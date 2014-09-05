@@ -14,7 +14,7 @@ inventory*
 *.sublime-*
 archive.*
 local_settings.sh
-westest.pem
+*.pem
 collect_logs.txt
 teardown.txt
 *.egg-info/
