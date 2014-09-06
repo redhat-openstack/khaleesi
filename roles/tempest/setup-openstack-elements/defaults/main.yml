@@ -1,9 +1,9 @@
 ---
-public_subnet_cidr: 192.168.201.0/24
+public_subnet_cidr: 172.16.8.0/24
 public_net_name: public
 public_subnet_name: public_sub
-public_allocation_start: 192.168.201.200
-public_allocation_end: 192.168.201.220
+public_allocation_start: 172.16.8.200
+public_allocation_end: 172.16.8.220
 public_net_tenant: "{{ tempest.public_net_tenant | default('services') }}"
 private_subnet_cidr: 192.168.20.0/24
 private_net_name: private
