@@ -42,27 +42,10 @@
         endpoint={{ keystone_endpoint }}
         state=present
 
-- name: Setup of public network
-  quantum_network:
-        name={{ public_net_name }}
-        router_external=yes
-        tenant_name={{ public_net_tenant }}
-        login_username={{ admin_username }}
-        login_password={{ admin_password }}
-        login_tenant_name={{ admin_tenant_name }}
-        auth_url={{ keystone_endpoint }}
-        state=present
-  when: installer.network.plugin.name == 'neutron'
-
-- name: Setup of public subnet
-  quantum_subnet:
-        name={{ public_subnet_name }}
-        network_name={{ public_net_name }}
-        cidr={{ public_subnet_cidr }}
-        allocation_pool_start={{ public_allocation_start }}
-        allocation_pool_end={{ public_allocation_end }}
-        enable_dhcp=false
-        tenant_name={{ public_net_tenant }}
+- name: Create router
+  quantum_router:
+        name={{ router_name }}
+        tenant_name={{ demo_tenant_name }}
         login_username={{ admin_username }}
         login_password={{ admin_password }}
         login_tenant_name={{ admin_tenant_name }}
@@ -95,9 +78,10 @@
         state=present
   when: installer.network.plugin.name == 'neutron'
 
-- name: Create router
-  quantum_router:
-        name={{ router_name }}
+- name: Add interface to router
+  quantum_router_interface:
+        router_name={{ router_name }}
+        subnet_name={{ private_subnet_name }}
         tenant_name={{ demo_tenant_name }}
         login_username={{ admin_username }}
         login_password={{ admin_password }}
@@ -106,11 +90,27 @@
         state=present
   when: installer.network.plugin.name == 'neutron'
 
-- name: Add interface to router
-  quantum_router_interface:
-        router_name={{ router_name }}
-        subnet_name={{ private_subnet_name }}
-        tenant_name={{ demo_tenant_name }}
+- name: Setup of public network
+  quantum_network:
+        name={{ public_net_name }}
+        router_external=yes
+        tenant_name={{ public_net_tenant }}
+        login_username={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        auth_url={{ keystone_endpoint }}
+        state=present
+  when: installer.network.plugin.name == 'neutron'
+
+- name: Setup of public subnet
+  quantum_subnet:
+        name={{ public_subnet_name }}
+        network_name={{ public_net_name }}
+        cidr={{ tempest.public_subnet_cidr }}
+        allocation_pool_start={{ tempest.public_allocation_start }}
+        allocation_pool_end={{ tempest.public_allocation_end }}
+        enable_dhcp=false
+        tenant_name={{ public_net_tenant }}
         login_username={{ admin_username }}
         login_password={{ admin_password }}
         login_tenant_name={{ admin_tenant_name }}

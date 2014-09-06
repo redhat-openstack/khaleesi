@@ -4,14 +4,27 @@
 - include: provision.yml
 - include: group_by.yml tags=provision
 
+# prep
+- include: packstack/setup-ssh-keys.yml tags=prep
+- include: prep.yml
+
 - name: Prepare network for Packstack install
   sudo: yes
   hosts:
     - controller
     - compute
+    - tempest
   tags: provision
   roles:
     -  network-setup
+
+- name: Prepare  network bridge
+  hosts: controller
+  sudo: yes
+  roles:
+    - { role: bridge-setup }
+  tags:
+    - prep
 
 - include: validate_nodes.yml
 
@@ -22,9 +35,6 @@
   roles:
     - { role: packstack/debug }
 
-# prep
-- include: packstack/setup-ssh-keys.yml tags=prep
-- include: prep.yml
 
 # apply pre-packstack workarouds
 - include: ../workarounds/workarounds-prep.yml tags=workaround
