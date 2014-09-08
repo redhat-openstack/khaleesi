@@ -35,11 +35,11 @@
         -e 's|^#uri=.*|uri=http://{{hostvars[controller_name].private_ip}}:35357/v2.0|'
         -e 's|^#tenant_name=.*|tenant_name=demo|'
         -e 's|^#username=.*|username=demo|'
-        -e 's|^#password=.*|password={{ tempest.demo_password | default("redhat") }}|'
+        -e 's|^#password=.*|password={{ hostvars[controller_name].demo_password | default("redhat") }}|'
         -e 's|^#admin_role=.*|admin_role=admin|'
         -e 's|^#admin_tenant_name=.*|admin_tenant_name=admin|'
         -e 's|^#admin_username=.*|admin_username=admin|'
-        -e 's|^#admin_password=.*|admin_password={{ tempest.admin_password | default("redhat") }}|'
+        -e 's|^#admin_password=.*|admin_password={{ hostvars[controller_name].admin_password | default("redhat") }}|'
         -i {{ tempest.dir }}/etc/tempest.conf.sample
   tags:
     - tempest_setup_rpm

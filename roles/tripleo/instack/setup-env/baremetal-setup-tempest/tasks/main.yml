@@ -39,13 +39,6 @@
   shell: sleep 3; cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/temp_list | grep notCompute0 | awk -F= '{print $NF}' | grep -o '[0-9 \.]*' | sed 's/ //'
   register: controller_node_ip
 
-- name: replace settings values
-  shell: >
-    sed -i "s/admin_password: null/admin_password: {{ overcloud_admin_passwd.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
-    sed -i "s/demo_password: null/demo_password: {{ overcloud_demo_passwd.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
-    sed -i "0,/name: null/s/name: null/name: {{ controller_node_ip.stdout }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml;
-    sed -i "0,/name: null/s/name: null/name: {{ job_var.tempest_machine }}/" {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ksgen_settings.yml
-
 - name: remove controller node ip from ~/.ssh/from known_hosts
   shell: >
     sed -i  "/{{ controller_node_ip.stdout }}/d" /home/rhos-ci/.ssh/known_hosts;
@@ -112,10 +105,10 @@
   add_host: name={{ job_var.instack_virt_host }} groups=instack-undercloud ansible_ssh_user=stack ansible_ssh_private_key_file={{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }}
 
 - name: add tempest host
-  add_host: name={{ job_var.tempest_machine }} groups=tempest ansible_ssh_user=root private_ip={{ job_var.tempest_machine_ip }} ansible_default_ipv4.address={{ job_var.tempest_machine_ip }}
+  add_host: name=tempest ansible_ssh_host={{ job_var.tempest_machine }} groups=tempest ansible_ssh_user=root private_ip={{ job_var.tempest_machine_ip }} ansible_default_ipv4.address={{ job_var.tempest_machine_ip }}
 
 - name: add controller host
-  add_host: name={{ controller_node_ip.stdout }} groups=controller ansible_ssh_user=heat-admin private_ip={{ controller_node_ip.stdout }} ansible_default_ipv4.address={{ controller_node_ip.stdout }}
+  add_host: name=controller ansible_ssh_host={{ controller_node_ip.stdout }} groups=controller ansible_ssh_user=heat-admin private_ip={{ controller_node_ip.stdout }} ansible_default_ipv4.address={{ controller_node_ip.stdout }} admin_password={{ overcloud_admin_passwd.stdout }} demo_password={{ overcloud_demo_passwd.stdout }}
 
 - name: ssh to instack-undercloud host
   shell: ssh -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }}
@@ -125,6 +118,3 @@
 
 - name: ssh to controller host
   shell: ssh -o 'StrictHostKeyChecking=no' heat-admin@{{ controller_node_ip.stdout }}
-
-- name: delay before running tempest tests
-  shell: sleep 60

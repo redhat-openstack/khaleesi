@@ -1,5 +1,5 @@
 export OS_USERNAME=admin
 export OS_TENANT_NAME=admin
-export OS_PASSWORD={{ tempest.admin_password | default('redhat') }}
+export OS_PASSWORD={{ hostvars[controller_name].admin_password | default('redhat') }}
 export OS_AUTH_URL=http://{{ controller_ip }}:35357/v2.0/
 export PS1='[\u@\h \W(keystonerc_admin)]\$ '
