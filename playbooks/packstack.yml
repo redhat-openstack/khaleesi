@@ -13,6 +13,7 @@
   hosts:
     - controller
     - compute
+    - tempest
   tags: provision
   roles:
     -  network-setup

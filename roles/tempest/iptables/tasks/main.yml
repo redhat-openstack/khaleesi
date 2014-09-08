@@ -1,4 +1,9 @@
 ---
+- name: ensure bridge interface is up
+  service: name=network state=restarted args={{ item.name }}
+  sudo: yes
+  with_items: bridge_interfaces
+
 - name: dump network and node info
   debug: var=hostvars
   when: job.verbosity <= verbosity.debug
