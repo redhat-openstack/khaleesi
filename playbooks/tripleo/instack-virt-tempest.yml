@@ -1,5 +1,7 @@
 ---
 
+- include: ../vm_kickstart.yml
+
 - name: set up environment
   hosts: local
   roles:

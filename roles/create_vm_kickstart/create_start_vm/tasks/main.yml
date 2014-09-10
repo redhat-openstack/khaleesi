@@ -1,0 +1,45 @@
+---
+
+- name: Install virt-manager
+  yum: name=virt-manager state=present
+
+- name: Install virt-install
+  yum: name=virt-install state=present
+
+- name: Copy kickstart template
+  template:
+    src=base.ks.j2
+    dest=/tmp/base.ks
+    mode=0755
+
+- name: Create image file
+  qemu_img: dest={{ provisioner.strategy.libvirt.poolpath }}/{{ nodes[provisioner.strategy.libvirt.node].initimage }}.qcow2 size={{ nodes[provisioner.strategy.libvirt.node].initdisksize }} format=qcow2 opt=preallocation=metadata state=present
+
+- name: Kick off the virt-install
+  shell: virt-install --connect=qemu:///system
+           --network network:default
+           --initrd-inject=/tmp/base.ks
+           --extra-args="ks=file:/base.ks ksdevice=eth0 keymap=us lang=en_US {{ provisioner.strategy.libvirt.ks_extra_args }}"
+           --name={{ nodes[provisioner.strategy.libvirt.node].name }}
+           --location={{ nodes[provisioner.strategy.libvirt.node].image_install_url }}
+           --disk {{ provisioner.strategy.libvirt.poolpath }}/{{ nodes[provisioner.strategy.libvirt.node].initimage }}.qcow2,format=qcow2,size={{ nodes[provisioner.strategy.libvirt.node].initdisksize }}
+           --ram {{ nodes[provisioner.strategy.libvirt.node].initmemsize }}
+           --vcpus {{ nodes[provisioner.strategy.libvirt.node].vcpus }}
+           --cpu host
+           --hvm
+           --os-variant {{ nodes[provisioner.strategy.libvirt.node].os_variant }}
+           --vnc
+           --noreboot
+           --wait=-1
+           creates=/etc/libvirt/qemu/{{ nodes[provisioner.strategy.libvirt.node].initimage }}.xml
+  register: vm_create
+
+- name: Pause for a bit to let the vm finish shutdown
+  pause: seconds=15
+
+- name: start vm
+  shell: virsh start {{ nodes[provisioner.strategy.libvirt.node].name }}
+
+- name: Pause for a bit to let the vm  start
+  pause: seconds=45
+

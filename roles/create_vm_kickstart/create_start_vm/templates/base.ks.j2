@@ -1,0 +1,61 @@
+%packages --ignoremissing
+@core
+emacs
+expect
+gcc
+libxml2-python
+make
+nfs-utils
+ntp
+procmail
+psmisc
+pyOpenSSL
+redhat-lsb
+rhsm
+sendmail
+vim-enhanced
+wget
+nc
+net-tools
+libselinux-python
+perl
+%end
+
+reboot
+firewall --disabled
+install
+url --url="{{ nodes[provisioner.strategy.libvirt.node].image_install_url }}"
+rootpw --plaintext "{{ nodes[provisioner.strategy.libvirt.node].rt_password }}"
+user --name={{ nodes[provisioner.strategy.libvirt.node].user_name }} --password={{ nodes[provisioner.strategy.libvirt.node].user_password }} --plaintext
+auth --useshadow --passalgo=sha512
+graphical
+keyboard us
+lang en_US
+selinux --disabled
+skipx
+logging --level=info
+timezone America/New_York
+bootloader --location=mbr --append="console=tty0 console=ttyS0,115200 rd_NO_PLYMOUTH"
+clearpart --all
+part /boot --fstype ext4 --size=400
+part swap --size=100
+part pv.01 --size=1000 --grow
+volgroup lv_admin --pesize=32768 pv.01
+logvol / --fstype ext4 --name=lv_root --vgname=lv_admin --size=4000 --grow
+zerombr
+network --bootproto=dhcp --device=eth0
+
+%post
+
+mkdir -p /mnt/vm-share
+mount {{ provisioner.strategy.libvirt.default_ip_prefix }}.1:/mnt/vm-share /mnt/vm-share
+if [ ! -d /root/.ssh ]; then
+  mkdir -p /root/.ssh
+  chmod 700 /root/.ssh
+fi
+if [ -f /mnt/vm-share/authorized_keys ]; then
+  cp /mnt/vm-share/authorized_keys /root/.ssh/authorized_keys
+  chmod 0600 /root/.ssh/authorized_keys
+fi
+
+%end
