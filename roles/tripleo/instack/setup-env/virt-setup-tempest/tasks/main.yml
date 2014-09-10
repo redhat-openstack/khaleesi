@@ -16,7 +16,7 @@
     sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' -P {{ job_var.vm_ssh_port }} stack@{{ job_var.instack_virt_host }}:/home/stack/tripleo-overcloud-passwords {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/tripleo-overcloud-passwords &
 
 - name: define overcloud demo password
-  shell: sleep 3; cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/tripleo-overcloud-passwords | grep 'OVERCLOUD_DEMO_PASSWORD' | awk -F= '{print $NF}'
+  shell: sleep 6; cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/tripleo-overcloud-passwords | grep 'OVERCLOUD_DEMO_PASSWORD' | awk -F= '{print $NF}'
   register: overcloud_demo_passwd
 
 - name: define overcloud admin password
@@ -30,7 +30,7 @@
     sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' -P {{ job_var.vm_ssh_port }} stack@{{ job_var.instack_virt_host }}:/home/stack/temp_list {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ &
 
 - name: define controller ip
-  shell: sleep 3; cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/temp_list | grep notCompute0 | awk -F= '{print $NF}' | grep -o '[0-9 \.]*' | sed 's/ //'
+  shell: sleep 6; cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/temp_list | grep notCompute0 | awk -F= '{print $NF}' | grep -o '[0-9 \.]*' | sed 's/ //'
   register: controller_node_ip
 
 - name: get instack_vm ip address
