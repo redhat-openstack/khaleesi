@@ -2,22 +2,38 @@
 ### validate ###
 - { include: validate.yml }
 
+- name: create logs dir
+  file: path={{ansible_env.HOME}}/testbed/logs/ state=absent
+- file: path={{ansible_env.HOME}}/testbed/logs/ state=directory
+
 ### run tests ###
-- { include: testrun.yml }
+- { include: testrun.yml,
+    test_cfg: '{{test_env}}',
+    env_init: test -s  ~/testbed/venv/bin/activate &&
+              source ~/testbed/venv/bin/activate
+  }
+
+- set_fact: test_env_passed={{test_run|success}} venv_passed=True
 
 ### run tests in virtenv if actual run fails ###
-- { include: testrun_in_venv.yml, when: test_run|failed }
+- { include: testrun.yml,
+    test_cfg: '{{test_virt_env}}',
+    env_init: 'true',
+    when:  test_run|failed
+  }
+
+- set_fact: venv_passed={{test_run|success}}
+  when:  not (test_env_passed|bool)
 
 ### print result of original testrun ###
 
 - debug:
     msg: >
-        Test run fails using packages but passes in venv;
-        something wrong with rpm packages?
-        check- "{{test_deps_file.split('/') | last }}"
+        Test run fails using packages but passes in venv; something wrong
+        with rpm packages? check- "{{test_deps_file.split('/') | last }}"
         and re-run
-  when: (test_run | failed)  and (venv_testrun | success)
+  when: not (test_env_passed|bool)  and (venv_passed|bool)
 
 - fail: msg="Test run fails in both venv and using packages"
-  when: (test_run | failed)  and (venv_testrun | failed)
+  when: not ((test_env_passed|bool)  or (venv_passed|bool))
 

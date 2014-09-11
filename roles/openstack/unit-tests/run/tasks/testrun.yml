@@ -1,30 +1,62 @@
 - name: print component testbed path
   debug: var=component_path
 
+- name: print the test config
+  debug: var=test_cfg
+
+
 - name: cleanup git repo prior to running tests
   command: git clean -qdffx
   args:
     chdir: "{{component_path}}"
 
-- name: create new logs dir
-  file: path={{ansible_env.HOME}}/testbed/logs/ state=directory
 
-- name: print the test run command
-  debug: msg="{{test_env.run.replace('\n', '')}}"
+- name: print the test setup  command
+  debug:
+    msg: "{{test_cfg.test_setup.replace('\n', '')}}"
+  when: test_cfg.test_setup | default(false)
 
-- name: Run test using only installed packages
+- name: Run test setup
   shell: >
-    test -s  ~/testbed/venv/bin/activate &&
-        source ~/testbed/venv/bin/activate;
+    {{env_init.replace('\n', '')}} ;
+    {{test_cfg.test_setup.replace('\n', '')}}
+  args:
+    chdir: "{{component_path}}"
+    executable: /bin/bash
+  register: test_setup_result
+  ignore_errors: yes
+  when: test_cfg.test_setup | default(false)
 
-    {{test_env.run.replace('\n', '')}}
+- name: Run test ...
+  shell: >
+    {{env_init.replace('\n', '')}} ;
+    {{test_cfg.run.replace('\n', '')}}
   args:
     chdir: "{{component_path}}"
     executable: /bin/bash
   register: test_run
   ignore_errors: yes
+  when: test_setup_result|success
+
 
 - name: copy test results to logs dir
   fetch: src="{{component_path}}/{{item}}"
          dest=../../logs/ flat=yes
-  with_items: test_env.archive
+  with_items: test_cfg.archive
+
+- name: print the test clean command
+  debug:
+    msg: "{{test_cfg.cleanup.replace('\n', '')}}"
+  when: test_cfg.cleanup | default(false)
+
+- name: Run test cleanup
+  shell: >
+    {{env_init.replace('\n', '')}};
+    {{test_cfg.cleanup.replace('\n', '')}}
+  args:
+    chdir: "{{component_path}}"
+    executable: /bin/bash
+  register: test_run_cleanup
+  ignore_errors: yes
+  when: test_cfg.cleanup | default(false)
+

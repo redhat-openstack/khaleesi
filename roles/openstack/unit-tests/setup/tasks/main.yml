@@ -21,7 +21,7 @@
 - name: set test config variables
   include_vars: test_config.yml
 
-
+## repo and rpm installation
 - name: create additional repos if specified
   sudo: yes
   template: src=repo.j2
@@ -54,7 +54,9 @@
 
 
 - name: create a virtualenv for overridding system-site-packages
-  pip: name={{item}} virtualenv=~/testbed/venv virtualenv_site_packages=yes
+  pip:
+    name={{item}} state=present
+    virtualenv=~/testbed/venv virtualenv_site_packages=yes
   with_items: test_env.setup.pip.overrides
   when:
     test_env.setup.pip | default(false) and
