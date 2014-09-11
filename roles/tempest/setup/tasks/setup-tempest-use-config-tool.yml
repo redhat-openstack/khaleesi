@@ -10,7 +10,7 @@
   when: tempest.git.local == false
 
 - name: sync the tempest repo as clone on the slave (gerrit)
-  synchronize: src=../tempest dest={{ tempest.dir }}
+  synchronize: src={{tempest.local_dir}} dest={{ tempest.dir }} recursive=yes
   tags: tempest_setup_gen_conf
   when: tempest.git.local == true
 
