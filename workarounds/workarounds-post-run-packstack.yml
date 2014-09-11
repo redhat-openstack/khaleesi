@@ -13,3 +13,9 @@
     - { role: workarounds/vif_plugging,
           tags: workaround,
           when: workaround_vif_plugging | default(false) }
+    - { role: workarounds/default-floating-pool,
+          when: workarounds.enabled and workaround.default_floating_pool is defined and workaround.default_floating_pool }
+    - { role: workarounds/nova-objectstore-install,
+          when: workarounds.enabled and workaround.nova_objectstore_install is defined and workaround.nova_objectstore_install }
+    - { role: workarounds/s3-objectstore-endpoint,
+          when: workarounds.enabled and workaround.s3_objectstore_endpoint is defined and workaround.s3_objectstore_endpoint }

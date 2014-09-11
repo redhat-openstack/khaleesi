@@ -1,0 +1,8 @@
+---
+- name: fix default_floating pool, bz1138740
+  shell: openstack-config --set /etc/nova/nova.conf DEFAULT default_floating_pool public
+  sudo: yes
+
+- name: restart nova
+  shell: openstack-service restart nova
+  sudo: yes
