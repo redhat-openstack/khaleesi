@@ -1,13 +1,18 @@
 - debug: msg="git clone {{ tempest.git.repo }} branch {{ tempest.git.revision }}
             to {{tempest.dir}}"
-  when: "'info' in config.verbosity"
   tags: tempest_setup_gen_conf
+  when: tempest.git.local == false
 
 - name: Git clone tempest repo
   git: repo={{ tempest.git.repo }} version={{tempest.git.revision}}
        dest={{ tempest.dir }}
   tags: tempest_setup_gen_conf
+  when: tempest.git.local == false
 
+- name: sync the tempest repo as clone on the slave (gerrit)
+  synchronize: src=../tempest dest={{ tempest.dir }}
+  tags: tempest_setup_gen_conf
+  when: tempest.git.local == true
 
 - name: install virtualenv
   script: install_venv.sh {{ tempest.dir }}
