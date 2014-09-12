@@ -18,14 +18,6 @@
   roles:
     -  network-setup
 
-- name: Prepare  network bridge
-  hosts: controller
-  sudo: yes
-  roles:
-    - { role: bridge-setup }
-  tags:
-    - prep
-
 - include: validate_nodes.yml
 
 - name: Debug list config variables
@@ -52,6 +44,14 @@
   roles:
       - product/rhos
   tags: prep
+
+- name: Prepare  network bridge
+  hosts: controller
+  sudo: yes
+  roles:
+    - { role: bridge-setup }
+  tags:
+    - prep
 
 # Generate answers
 - name: Setup packstack on Controller
