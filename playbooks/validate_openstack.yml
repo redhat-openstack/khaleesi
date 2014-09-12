@@ -8,10 +8,12 @@
 
 - name: Create keystonerc and install packages for tempest
   hosts: controller
+  sudo: yes
   roles:
     - { role: openstack/create-keystonerc }
 
 - name: launch test node, ping and ssh
   hosts: controller
+  sudo: yes
   roles:
     - { role: validate_openstack }
