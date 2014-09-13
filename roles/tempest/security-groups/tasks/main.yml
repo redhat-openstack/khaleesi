@@ -1,0 +1,3 @@
+---
+- name: Set security group rules
+  script: setup_security_group_rules.sh

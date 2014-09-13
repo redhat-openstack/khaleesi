@@ -129,9 +129,6 @@
         state=present
   when: installer.network.plugin.name == 'neutron'
 
-- name: Set security group rules
-  script: setup_security_group_rules.sh
-
 - name: Download cirros image
   get_url: url={{ cirros_image_url }} dest=~/{{ cirros_image_file }} mode=0440
 

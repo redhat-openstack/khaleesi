@@ -32,6 +32,7 @@
   roles:
     - { role: tempest/package-dependencies, sudo: yes }
     - { role: tempest/setup-openstack-elements }
+    - { role: tempest/security-groups, sudo: yes }
     - { role: tempest/setup }
 
 - name: Run tempest
