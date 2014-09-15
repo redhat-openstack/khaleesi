@@ -1,0 +1,8 @@
+---
+
+- name: Workarounds
+  hosts: instack-virt-host
+  roles:
+     - { role: workarounds/m2crypto,
+         when: workarounds.enabled and workaround.m2crypto is defined and workaround.m2crypto
+       }

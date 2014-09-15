@@ -5,12 +5,16 @@
   roles:
     - { role: tripleo/instack/setup-env/baremetal-setup-undercloud }
 
+- include: ../../workarounds/workarounds-pre-run-instack-undercloud-baremetal.yml
+
 - name: install undercloud on baremetal
   hosts: instack-undercloud
   roles:
     - { role: tripleo/instack/common-undercloud }
     - { role: tripleo/instack/common }
     - { role: tripleo/instack/instack-undercloud-baremetal}
+
+- include: ../../workarounds/workarounds-pre-run-instack-overcloud.yml
 
 - name: deploy and test overcloud
   hosts: instack-undercloud-stack

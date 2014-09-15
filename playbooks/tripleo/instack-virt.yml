@@ -7,6 +7,8 @@
   roles:
     - { role: tripleo/instack/setup-env/virt-setup-virthost }
 
+- include: ../../workarounds/workarounds-pre-run-instack-vm.yml
+
 - name: create instack vm for undercloud install
   hosts: instack-virt-host
   roles:
@@ -27,11 +29,15 @@
   sudo_user: root
   sudo: yes
 
+- include: ../../workarounds/workarounds-pre-run-instack-undercloud-virt.yml
+
 - name: install undercloud on vm
   hosts: instack-undercloud-stack
   roles:
     - { role: tripleo/instack/common }
     - { role: tripleo/instack/instack-undercloud-virt}
+
+- include: ../../workarounds/workarounds-pre-run-instack-overcloud.yml
 
 - name: deploy and test overcloud
   hosts: instack-undercloud-stack
