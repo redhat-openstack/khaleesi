@@ -32,14 +32,14 @@
 - include: ../workarounds/workarounds-prep.yml tags=workaround
 
 - name: Setup packstack on Controller (rdo)
-  hosts: controller:&rdo
+  hosts: openstack_nodes:&rdo
   sudo: yes
   roles:
       - product/rdo
   tags: prep
 
 - name: Setup packstack on Controller (rhos)
-  hosts: controller:&rhos
+  hosts: openstack_nodes:&rhos
   sudo: yes
   roles:
       - product/rhos
