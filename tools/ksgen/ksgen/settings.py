@@ -46,7 +46,7 @@ Options:
 
     def __init__(self, config_dir, args):
         self.config_dir = config_dir
-        self.args = args
+        self.args = _normalize_args(args)
         logger.debug("Generator: config_dir: %s, args: %s", config_dir, args)
         self._doc_string = Generator.__doc__.format(
             options=docstring.Generator(config_dir).generate())
@@ -73,6 +73,7 @@ Options:
             out.write(yaml.safe_dump(
                 all_settings, default_flow_style=False))
         return 0
+
 
     def _merge_rules_file_exports(self, loader):
         if not self._rules:
@@ -161,6 +162,23 @@ Options:
             args.extend(['--extra-vars=%s' % x for x in extra_vars])
 
         logger.debug('Args in rules file: %s', args)
+        logger.debug('Args in self: %s', self.args)
+        logger.debug('Args in rules: %s', args_in_rules)
+
+        # get the key part without first two -- from --key=value
+        def _key(x):
+            return x.split('=')[0][2:]
+
+        # filter out all args present in rules file
+        conflicting_keys = [_key(x) for x in self.args
+                            if _key(x) in args_in_rules]
+
+        if conflicting_keys:
+            logger.error(
+                ("Error command line args '%s' conflicts with those "
+                 "in rules file %s"),
+                ', '.join(conflicting_keys), ', '.join(args))
+            return False
 
         # prepend the args from the rules file and re-parse the args
         if args:
@@ -298,6 +316,27 @@ class Loader(object):
                     and len(sub_tree.keys()) > 1):
                 logger.debug('recursing into: sub-tree: %s', sub_tree)
                 self._create_file_list(sub_tree, file_list, path + os.sep)
+
+
+def _normalize_args(args):
+    """
+    Converts all --key val to --key=val
+    """
+    args_normalized = []
+    merge_with_prev = False
+    for arg in args:
+        if merge_with_prev:
+            # add the val part to last --key to get --key=val
+            args_normalized[-1] += '=%s' % arg
+            merge_with_prev = False
+            continue
+
+        first_two_chars = arg[:2]
+        if first_two_chars == '--' and '=' not in arg:
+            merge_with_prev = True
+        args_normalized.append(arg)
+
+    return args_normalized
 
 
 def load_configuration(file_path, rel_dir=None):
