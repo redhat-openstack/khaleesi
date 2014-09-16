@@ -3,9 +3,14 @@
   yum: name="{{ product.rpm[ ansible_distribution ] }}" state=present     #"
   when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
 
+- name: check for foreman.repo file
+  stat: path=/etc/yum.repos.d/foreman.repo
+  register: foreman
+
 - name: disable foreman repo
   command: |
-      sed -i -e "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/foreman.repo
+       sed -i -e "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/foreman.repo
+  when: foreman.stat.exists
 
 - name: disable gpgcheck for rdo for every non production repo
   lineinfile:
