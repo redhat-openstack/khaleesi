@@ -59,7 +59,7 @@
   shell: >
     sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l stack {{ job_var.instack_virt_host }} "scp /home/stack/filter_num.sh heat-admin@{{ controller_node_ip.stdout }}:/home/heat-admin"
 
-- name: asymmetrical routing - make filet_num.sh executable
+- name: asymmetrical routing - make filer_num.sh executable
   shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l stack {{ job_var.instack_virt_host }} "ssh -t heat-admin@{{ controller_node_ip.stdout }} 'chmod 0755 /home/heat-admin/filter_num.sh'"
 
 - name: asymmetrical routing - run filter_num.sh to open ping routes
@@ -90,6 +90,11 @@
 
 - name: ssh to controller node
   shell: ssh -o 'StrictHostKeyChecking=no' -x -l heat-admin {{ controller_node_ip.stdout }}
+
+- name: clear tempest machine of previous artifacts
+  shell: >
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l root {{ job_var.tempest_machine }} "cd /root; rm -rf keystonerc_* *.img tempest-dir";
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l root {{ job_var.tempest_machine }} 'sed -i  "/{{ job_var.instack_virt_host }}/d" /home/stack/.ssh/known_hosts'
 
 - name: create keys for tempest machine and copy those keys to controller node
   shell: >
