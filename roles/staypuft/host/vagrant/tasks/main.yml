@@ -8,6 +8,8 @@
     - libxslt-devel
     - libxml2-devel
     - libvirt-devel
+    - gcc
+    - rsync
 
 - name: Install vagrant
   yum: name=https://dl.bintray.com/mitchellh/vagrant/vagrant_1.6.3_x86_64.rpm state=present
