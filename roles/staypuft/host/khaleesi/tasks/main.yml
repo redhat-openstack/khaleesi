@@ -17,7 +17,7 @@
 #       - "{{ staypuft.khaleesi.settings.localpath }}"
 
 - name: Copy khaleesi and khaleesi-settings to the host
-  synchronize: src={{ item }} dest={{ ansible_env.HOME }} recursive=yes
+  synchronize: src={{ item }} dest={{ ansible_env.HOME }} recursive=yes rsync_opts=--no-motd,--exclude=.git
   with_items:
       - "{{ staypuft.khaleesi.main.localpath }}"
       - "{{ staypuft.khaleesi.settings.localpath }}"

@@ -1,0 +1,3 @@
+{%- for key, value in vagrant_environment.items() %}
+export {{ key }}={{ value }}
+{% endfor %}

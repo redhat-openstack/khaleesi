@@ -5,7 +5,7 @@ servers = settings['staypuft']['nodes']
 networks = settings['staypuft']['networks']
 
 Vagrant.configure("2") do |config|
-  config.vm.synced_folder ".","/vagrant", type: "rsync", rsync__exclude: ".git/"
+  config.vm.synced_folder ".","/vagrant", disabled: true
   config.vm.provider :libvirt do |libvirt|
     libvirt.driver = "kvm"
     # libvirt.host = "localhost"
@@ -46,8 +46,8 @@ Vagrant.configure("2") do |config|
             "staypuft" => ["foreman"]
           }
         end
-        serv.vm.network "forwarded_port", guest: 443, host: 443, host_ip: '0.0.0.0'
-        serv.vm.network "forwarded_port", guest: 80, host: 80, host_ip: '0.0.0.0'
+        serv.vm.network :forwarded_port, guest: 443, host: 443, host_ip: '0.0.0.0'
+        serv.vm.network :forwarded_port, guest: 80, host: 80, host_ip: '0.0.0.0'
       else
         serv.vm.boot_timeout = 1200
       end

@@ -1,9 +1,9 @@
 ---
-- include: group_by.yml tags=groupby
+- include: ../group_by.yml tags=groupby
 
-- include: prep.yml
+- include: ../prep.yml
 
-- name: Prep staypuft on a fresh box
+- name: Prep a host for staypuft vm
   hosts: staypuft_host
   sudo: yes
   roles:
@@ -22,12 +22,7 @@
   roles:
     - { role: staypuft/host/firewall/firewalld }
 
-- name: Sync git repos
-  hosts: staypuft_host
-  roles:
-    - { role: staypuft/host/khaleesi }
-
-- name: Continue config and run vagrant
+- name: Continue config and setup vagrant
   hosts: staypuft_host
   sudo: yes
   roles:
@@ -37,6 +32,3 @@
     - { role: staypuft/host/nfs_server }
     - { role: staypuft/host/vagrant }
     - { role: staypuft/host/ansible }
-    - { role: staypuft/vagrant_run }
-
-- include: staypuft/virt-populate.yml

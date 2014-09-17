@@ -1,0 +1,12 @@
+---
+- name: stop VMs
+  virt: name={{ item }}
+        command=destroy
+  with_sequence: count={{ staypuft_guest_count }} format={{ name_format }}
+  ignore_errors: yes
+
+- name: undefine VMs
+  virt: name={{ item }}
+        command=undefine
+  with_sequence: count={{ staypuft_guest_count }} format={{ name_format }}
+  ignore_errors: yes

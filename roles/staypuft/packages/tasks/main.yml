@@ -1,5 +1,5 @@
 ---
-- name: Install foreman dependencies
+- name: Install libvirt dependencies
   yum: name={{ item }} state=latest
   with_items:
     - tftp-server

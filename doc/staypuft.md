@@ -9,6 +9,9 @@ Prereqs
 Installation
 ------------
 
+Install ansible
+===============
+
     virtualenv ansible
     source ansible/bin/activate
     pip install ansible
@@ -19,27 +22,48 @@ Installation
     ANSIBLE_LIBRARY=/path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible
     ANSIBLE_LOOKUP_PLUGINS=/path/to/khaleesi/plugins/lookups
 
-To execute the staypuft prep with a baremetal node (RHEL 6.5):
 
-Inventory (staypuft_hosts):
+Install ksgen
+=============
+
+    pushd tools/ksgen/
+    python setup.py develop
+    popd
+
+
+Create inventory file
+--------------------
+
+    inventory.ini
 
     [staypuft]
-    foreman ansible_ssh_host=ipaddress ansible_ssh_user=root
+    staypuft_host ansible_ssh_host=<baremetal-ipaddress> ansible_ssh_user=root
 
-Command line:
+Run
+---
 
-    ansible-playbook -i staypuft_hosts playbooks/staypuft.yml \
-        --extra-vars @repo_settings.yml \
-        --extra-vars @settings.yml \
-        --extra-vars yum_update=yes \
-        --extra-vars rhos_release_version=5
+To execute the staypuft prep with a baremetal node (RHEL 6.5):
 
-After you have run this playbook, you can run the staypuft-installer on your baremetal machine.
-Once the Redhat OpenStack installer (foreman) is up and running, you can execute:
+Generate a valid khaleesi configuration
+=======================================
 
-    ansible-playbook -i staypuft_hosts playbooks/staypuft/virt-populate.yml \
-        --extra-vars @repo_settings.yml \
-        --extra-vars @settings.yml \
-        --extra-vars @staypuft_guest_count=4
+    pushd <khaleesi-settings-dir>
+    ksgen --config-dir=settings generate \
+        --rules-file=rules/staypuft-rhos-vagrant.yml \
+            --distro=rhel-6.5 \
+                ksgen_settings.yml
+    popd
 
+Launch a complete staypuft installation
+=======================================
+
+    pushd khaleesi
+    ./run.sh -vvvv -i inventory.ini --silent --use ksgen_settings.yml playbooks/staypuft/staypuft.yml
+
+
+This playbook will in turn call
+
+- baremetal setup to prepare hosting of staypuft and deploy vm
+- creation of staypuft vm through vagrant
+- creation of 5 empty deploy vms
 

@@ -1,7 +1,7 @@
 ---
-- include: group_by.yml tags=groupby
+- include: ../group_by.yml tags=groupby
 
-- include: prep.yml
+- include: ../prep.yml
 
 - name: Set hostname of staypuft node
   hosts: foreman
@@ -43,4 +43,4 @@
     - { role: staypuft/run_install }
 
 # apply post-install workarouds
-- include: ../workarounds/workarounds-staypuft-prep.yml tags=workaround
+- include: ../../workarounds/workarounds-staypuft-prep.yml tags=workaround

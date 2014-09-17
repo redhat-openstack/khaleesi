@@ -26,6 +26,7 @@
     ssh_public_key: "{{ staypuft.ssh_public_key }}"
     configure_firewall: false
   foreman:
+    admin_password: "redhat"
     server_ssl_cert: /var/lib/puppet/ssl/certs/{{ ansible_fqdn }}.pem
     passenger_interface: ""
     user: foreman
