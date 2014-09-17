@@ -16,10 +16,10 @@
   sudo: yes
   tags: prep
   roles:
-    - openstack/unit-tests/prep
+    - unit-test/prep
 
 - name: Run tests
   hosts: testbed
   roles:
-    - openstack/unit-tests/setup
-    - openstack/unit-tests/run
+    - unit-test/setup
+    - unit-test/run

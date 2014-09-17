@@ -1,6 +1,6 @@
 ---
 dependencies:
     - { role: common }
-    - { role: openstack/unit-tests/prep/repos }
+    - { role: unit-test/prep/repos }
     - { role: linux-common }
     - { role: common-handlers }

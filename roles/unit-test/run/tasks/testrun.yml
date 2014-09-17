@@ -5,12 +5,44 @@
   debug: var=test_cfg
 
 
+## repo and rpm installation
+- name: create additional repos if specified
+  sudo: yes
+  template: src=repo.j2
+            dest=/etc/yum.repos.d/{{item.filename}}
+  with_items: test_cfg.setup.repos
+  when: test_cfg.setup.repos | default(false)
+
+- name: install test dependencies rpm needed to run test
+  sudo: yes
+  yum: pkg={{item}} state=latest
+  with_items: test_cfg.setup.install
+  when: test_cfg.setup.install | default(false)
+
+- name: remove unwanted rpms specified in test dependencies
+  sudo: yes
+  yum: pkg={{item}} state=absent
+  with_items: test_cfg.setup.remove
+  when: test_cfg.setup.remove | default(false)
+
+- name: remove virtualenv used for overriding system packages if present
+  file: path={{ansible_env.HOME}}/testbed/venv state=absent
+
+- name: create a virtualenv for overridding system-site-packages
+  pip:
+    name={{item}} state=present
+    virtualenv=~/testbed/venv virtualenv_site_packages=yes
+  with_items: test_cfg.setup.pip.overrides
+  when:
+    test_cfg.setup.pip | default(false) and
+    test_cfg.setup.pip.overrides | default(false)
+
 - name: cleanup git repo prior to running tests
   command: git clean -qdffx
   args:
     chdir: "{{component_path}}"
 
-
+### actual testrun starts here
 - name: print the test setup  command
   debug:
     msg: "{{test_cfg.test_setup.replace('\n', '')}}"
