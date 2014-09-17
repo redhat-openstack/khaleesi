@@ -51,8 +51,10 @@
        name={{ tempest_random }}
        image_id={{ cirros.stdout_lines.0 }}
        key_name={{ tempest_random }}
-       wait_for=200
+       wait_for=300
        flavor_id=1
+  ignore_errors: yes
+
 
 # Assign a floating ip to the instance from an external network
 - name: assign a floating ip to the instance
@@ -66,21 +68,28 @@
       instance_name={{ tempest_random }}
       internal_network_name={{ private_net_name }}
   register: floating_ip
+  ignore_errors: yes
+  when: installer.network.plugin.name == "neutron"
 
 - name: print floating ip address
-  debug: var=floating_ip.public_ip
+  debug: var=floating_ip
+  when: installer.network.plugin.name == "neutron"
 
 - name: Pause to let the instance boot
   pause: seconds=30
+  when: installer.network.plugin.name == "neutron" and floating_ip.public_ip is defined
 
 - name: ping instance public ip from controller
   command: ping -c 5 "{{ floating_ip.public_ip }}"
   retries: 3
   until: ping_result.rc == 0
   register: ping_result
+  ignore_errors: yes
+  when: installer.network.plugin.name == "neutron" and floating_ip.public_ip is defined
 
 - name: print ping output
   debug: var=ping_result.stdout_lines
+  when: installer.network.plugin.name == "neutron" and floating_ip.public_ip is defined
 
 - name: ssh to instance
   shell: ssh
@@ -89,6 +98,9 @@
            -i /root/"{{ tempest_random }}"
            cirros@"{{ floating_ip.public_ip }}" uname -a
   register: ssh_result
+  ignore_errors: yes
+  when: installer.network.plugin.name == "neutron" and floating_ip.public_ip is defined
 
 - name: print result of ssh
   debug: var=ssh_result.stdout_lines
+  when: installer.network.plugin.name == "neutron" and floating_ip.public_ip is defined
