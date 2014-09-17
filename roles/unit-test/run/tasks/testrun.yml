@@ -11,7 +11,17 @@
   template: src=repo.j2
             dest=/etc/yum.repos.d/{{item.filename}}
   with_items: test_cfg.setup.repos
-  when: test_cfg.setup.repos | default(false)
+  when:
+    test_cfg.setup.repos | default(false)
+    and item.contents | default(false)
+
+- name: download additional repos if specified
+  sudo: yes
+  get_url: url="{{item.url}}" dest=/etc/yum.repos.d/{{item.filename}}
+  with_items: test_cfg.setup.repos
+  when:
+    test_cfg.setup.repos | default(false) and
+    item.url | default(false)
 
 - name: install test dependencies rpm needed to run test
   sudo: yes
