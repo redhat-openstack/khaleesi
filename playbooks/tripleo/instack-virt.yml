@@ -46,4 +46,4 @@
     - { role: tripleo/instack/deploy-overcloud }
     - { role: tripleo/instack/test-overcloud}
 
-
+- include: instack-virt-tempest.yml
