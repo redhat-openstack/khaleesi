@@ -1,5 +1,9 @@
 ---
 - name: install rdo gpg key
+  copy: src=RPM-GPG-KEY-RDO-Juno dest=/etc/pki/rpm-gpg/ owner=root group=root
+  when: product.version == "juno"
+
+- name: install rdo gpg key
   copy: src=RPM-GPG-KEY-RDO-Icehouse dest=/etc/pki/rpm-gpg/ owner=root group=root
   when: product.version == "icehouse"
 
