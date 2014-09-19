@@ -10,7 +10,10 @@
   hosts: controller:&sahara
   sudo: yes
   roles:
-    - { role: openstack/sahara/dashboard }
+    - { role: openstack/sahara/dashboard,
+        when: (product.name == "rhos" and product.version|string == "5.0")
+              or (product.name == "rdo" and product.version|string == "icehouse")
+      }
   tags:
     - sahara
 
