@@ -34,3 +34,12 @@
 
 - name: Show staypuft VM public ip
   debug: msg="{{ foreman_public_ip.stdout }}"
+
+- name: echo foreman ip to file
+  shell: echo "forman ip address, {{ foreman_public_ip.stdout }}" >  /tmp/STAYPUFT_README
+
+- name: echo username and password
+  shell: echo "user = admin, password =  redhat" >> /tmp/STAYPUFT_README
+
+- name: Get Staypuft environment information
+  fetch: src=/tmp/STAYPUFT_README dest=~/KHALEESI_STAYPUFT_README flat=yes
