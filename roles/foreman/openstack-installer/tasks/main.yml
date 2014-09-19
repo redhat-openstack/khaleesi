@@ -51,6 +51,13 @@
     state=present
   with_items: foreman.seed_values
 
+- name: Change admin password
+  lineinfile: >
+    dest={{ astapor_dest }}/bin/foreman_server.sh
+    insertafter='class\s.\s.foreman.:'
+    line="  admin_password => 'changeme',"
+    state=present
+
 - name: Remove the prompt in foreman_server.sh
   lineinfile: >
     dest={{ astapor_dest }}/bin/foreman_server.sh
