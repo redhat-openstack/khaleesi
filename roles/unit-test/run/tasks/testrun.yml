@@ -12,7 +12,7 @@
             dest=/etc/yum.repos.d/{{item.filename}}
   with_items: test_cfg.setup.repos
   when:
-    test_cfg.setup.repos | default(false)
+    test_cfg.setup | default(false) and test_cfg.setup.repos | default(false)
     and item.contents | default(false)
 
 - name: download additional repos if specified
@@ -20,20 +20,22 @@
   get_url: url="{{item.url}}" dest=/etc/yum.repos.d/{{item.filename}}
   with_items: test_cfg.setup.repos
   when:
-    test_cfg.setup.repos | default(false) and
-    item.url | default(false)
+    test_cfg.setup | default(false) and test_cfg.setup.repos | default(false)
+    and item.url | default(false)
 
 - name: install test dependencies rpm needed to run test
   sudo: yes
   yum: pkg={{item}} state=latest
   with_items: test_cfg.setup.install
-  when: test_cfg.setup.install | default(false)
+  when:
+    test_cfg.setup | default(false) and test_cfg.setup.install | default(false)
 
 - name: remove unwanted rpms specified in test dependencies
   sudo: yes
   yum: pkg={{item}} state=absent
   with_items: test_cfg.setup.remove
-  when: test_cfg.setup.remove | default(false)
+  when:
+    test_cfg.setup | default(false) and test_cfg.setup.remove | default(false)
 
 - name: remove virtualenv used for overriding system packages if present
   file: path={{ansible_env.HOME}}/testbed/venv state=absent
@@ -44,8 +46,8 @@
     virtualenv=~/testbed/venv virtualenv_site_packages=yes
   with_items: test_cfg.setup.pip.overrides
   when:
-    test_cfg.setup.pip | default(false) and
-    test_cfg.setup.pip.overrides | default(false)
+    test_cfg.setup | default(false) and test_cfg.setup.pip | default(false)
+    and test_cfg.setup.pip.overrides | default(false)
 
 - name: cleanup git repo prior to running tests
   command: git clean -qdffx
