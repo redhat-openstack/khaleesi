@@ -111,6 +111,9 @@ tempest.run_smoketest() {
 
     if [[ $py_version =~ "2.7" &&  -z $tempest_test_name ]]; then
         tempest.testr  exclude_files[@] exclude_tests[@]
+    elif [[ $tempest_test_name == "none" ]]; then
+        echo "Skipping tempest"
+        return 0
     elif [[ $py_version =~ "2.7" &&  -n $tempest_test_name ]]; then
         tempest.testr_single $tempest_test_name
     else
