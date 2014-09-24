@@ -5,12 +5,12 @@
 
 - name: check for foreman.repo file
   stat: path=/etc/yum.repos.d/foreman.repo
-  register: foreman
+  register: foreman_repo_file
 
 - name: disable foreman repo
   command: |
        sed -i -e "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/foreman.repo
-  when: foreman.stat.exists
+  when: foreman_repo_file.stat.exists
 
 - name: disable gpgcheck for rdo for every non production repo
   lineinfile:
