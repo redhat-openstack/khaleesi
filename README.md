@@ -1,3 +1,8 @@
+Associated Settings Repository
+-----------------------
+https://github.com/redhat-openstack/khaleesi-settings
+
+
 Code Review (IMPORTANT)
 -----------------------
 
@@ -46,3 +51,5 @@ You can use Khaleesi to setup these development/testing environments:
 * [TripleO Devtest](https://github.com/redhat-openstack/khaleesi/blob/master/doc/tripleo_devtest.md)
 
 * [TripleO Tuskar](https://github.com/redhat-openstack/khaleesi/blob/master/doc/tripleo_tuskar.md)
+
+
