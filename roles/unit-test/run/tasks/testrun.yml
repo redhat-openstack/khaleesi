@@ -39,6 +39,9 @@
 
 - name: remove virtualenv used for overriding system packages if present
   file: path={{ansible_env.HOME}}/testbed/venv state=absent
+  when:
+    test_cfg.setup | default(false) and test_cfg.setup.pip | default(false)
+    and test_cfg.setup.pip.overrides | default(false)
 
 - name: create a virtualenv for overridding system-site-packages
   pip:
