@@ -48,3 +48,11 @@
           tags: workaround,
           when: workaround_mysql_centos7 is defined and workaround_mysql_centos7
       }
+
+- name: Workarounds | Cinder cycle dep
+  hosts: foreman
+  sudo: yes
+  roles:
+      - { role: workarounds/quickstack-cinder-cycle,
+          tags: workaround,
+      }

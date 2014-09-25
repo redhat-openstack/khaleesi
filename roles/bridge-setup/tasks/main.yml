@@ -1,6 +1,10 @@
 ---
 - name: Install openvswitch
   yum: name=openvswitch state=present
+  retries: 3
+  delay: 30
+  register: ovs_install_result
+  until: ovs_install_result.rc == 0
 
 - name: Start openvswitch
   service: name=openvswitch state=started enabled=yes

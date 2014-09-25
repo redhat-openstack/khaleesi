@@ -2,6 +2,10 @@
 - name: yum install rdo-release for EL environment
   yum: name="{{ product.rpm[ ansible_distribution ] }}" state=present     #"
   when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
+  retries: 3
+  delay: 30
+  register: rdo_release_install_result
+  until: rdo_release_install_result.rc == 0
 
 - name: check for foreman.repo file
   stat: path=/etc/yum.repos.d/foreman.repo
