@@ -13,6 +13,7 @@
   file: path=/etc/yum.repos.d/epel.repo state=absent
   notify:
     - Yum clean all
+  when: ansible_distribution == "RedHat"
 
 - debug: msg="run packstack installer"
   tags: run-packstack
