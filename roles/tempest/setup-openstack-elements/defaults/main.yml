@@ -22,3 +22,4 @@ cirros_image_container_format: bare
 cirros_image_url: "http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-disk.img"
 cirros_image_file: cirros-0.3.1-x86_64-disk.img
 swift_operator_role: SwiftOperator
+swift_reseller_role: ResellerAdmin
