@@ -19,3 +19,4 @@ tempest_config_generate_command: >
         compute.allow_tenant_isolation true
         object-storage.operator_role SwiftOperator
         identity.admin_password redhat
+        identity.password secrete
