@@ -10,3 +10,7 @@
         command=undefine
   with_sequence: count={{ staypuft_guest_count }} format={{ name_format }}
   ignore_errors: yes
+
+- name: Delete VM images
+  qemu_img: dest=/var/lib/libvirt/images/{{ item }}.qcow2 state=absent
+  with_sequence: count={{ staypuft_guest_count }} format={{ name_format }}

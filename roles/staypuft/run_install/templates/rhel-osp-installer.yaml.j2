@@ -76,7 +76,7 @@
     :sm_username: "{{ distro.rhel.subscription.username }}"
     :repo_path: "{{ distro.rhel[distro.version].kickstart_url }}"
     :sm_password: "{{ distro.rhel.subscription.password }}"
-    :skip_subscription_seeding: true
+    :skip_subscription_seeding: false
     :sm_pool: ""
   :noop: false
   :name: Foreman
