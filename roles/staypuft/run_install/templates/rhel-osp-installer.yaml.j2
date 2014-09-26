@@ -77,7 +77,7 @@
     :repo_path: "{{ distro.rhel[distro.version].kickstart_url }}"
     :sm_password: "{{ distro.rhel.subscription.password }}"
     :skip_subscription_seeding: false
-    :sm_pool: ""
+    :sm_pool: "{{ distro.rhel.subscription.pool }}"
   :noop: false
   :name: Foreman
   :modules_dir: /usr/share/foreman-installer/modules
