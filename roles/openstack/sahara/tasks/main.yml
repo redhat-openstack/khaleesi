@@ -94,8 +94,18 @@
 
   tags: sahara
 
-- name: sahara | service | openstack-sahara-api is running
+- set_fact: sahara_service_name="openstack-sahara-api"
+  tags: sahara
+  when: (product.name == "rhos" and product.version|string == "5.0")
+         or (product.name == "rdo" and product.version|string == "icehouse")
+
+- set_fact: sahara_service_name="openstack-sahara-all"
+  tags: sahara
+  when: not (product.name == "rhos" and product.version|string == "5.0")
+         and not (product.name == "rdo" and product.version|string == "icehouse")
+
+- name: sahara | service | openstack-sahara service is running
   sudo: yes
-  service: name=openstack-sahara-api state=running enabled=yes
+  service: name={{ sahara_service_name }} state=running enabled=yes
   tags: sahara
 
