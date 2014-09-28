@@ -18,5 +18,5 @@ tempest_config_generate_command: >
         identity.uri http://{{ hostvars[controller_name].ansible_default_ipv4.address }}:5000/v2.0/
         compute.allow_tenant_isolation true
         object-storage.operator_role SwiftOperator
-        identity.admin_password redhat
-        identity.password secrete
+        identity.admin_password "{{ hostvars[controller_name].admin_password | default('redhat') }}"
+        identity.password "{{ hostvars[controller_name].demo_password | default('secrete') }}"
