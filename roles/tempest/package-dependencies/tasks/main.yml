@@ -29,6 +29,7 @@
 
 - name: Install rpm dependencies
   yum: name={{ item }} state=present
+  register: result
   with_items:
     - facter
     - gcc
@@ -51,10 +52,17 @@
   tags:
     - tempest_setup
 
+- name: Pretty print yum install dependencies
+  debug: var=result.stdout_lines
+
 - name: Install additional rpm dependencies
   yum: name={{ item }} state=present
+  register: result
   with_items:
     - python-saharaclient
   when: product.version not in ['grizzly', 'havana']
   tags:
     - tempest_setup
+
+- name: Print out yum install additional rpm dependencies
+  debug: var=result.stdout_lines

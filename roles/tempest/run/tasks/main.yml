@@ -10,7 +10,6 @@
   tags: tempest_run
   ignore_errors: True
 
-
 - name: Fetch results
   fetch: src={{ tempest.dir }}/nosetests.xml
          dest=nosetests.xml flat=yes
