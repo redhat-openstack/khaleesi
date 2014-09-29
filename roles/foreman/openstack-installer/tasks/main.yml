@@ -51,15 +51,6 @@
     state=present
   with_items: foreman.seed_values
 
-# admin_password OBSOLETED
-# TODO: understand how to set up password
-#- name: Change admin password
-#  lineinfile: >
-#    dest={{ astapor_dest }}/bin/foreman_server.sh
-#    insertafter='class\s.\s.foreman.:'
-#    line="  admin_password => 'changeme',"
-#    state=present
-
 - name: Remove the prompt in foreman_server.sh
   lineinfile: >
     dest={{ astapor_dest }}/bin/foreman_server.sh
@@ -91,3 +82,15 @@
   fetch: src=/tmp/foreman_client.sh dest=/tmp/foreman
   tags:
     - fetch_client_script
+
+- name: reset and fetch password
+  command: foreman-rake permissions:reset
+  register: foreman_password_reset
+
+- name: parse password from credentials
+  shell:  'sed -e "s/Reset to user: admin, password: \(.*\)/\1/" <<< "{{ foreman_password_reset.stdout }}"'
+  register: foreman_parse_password
+
+- name: set foreman admin password as fact
+  set_fact: foreman_admin_password={{foreman_parse_password.stdout }}
+

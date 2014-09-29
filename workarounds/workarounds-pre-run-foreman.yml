@@ -55,4 +55,5 @@
   roles:
       - { role: workarounds/quickstack-cinder-cycle,
           tags: workaround,
+          when: workarounds.enabled and workaround.quickstack_cinder | default (false)
       }

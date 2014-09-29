@@ -5,7 +5,7 @@
         body='{"default_value": "{{ item.1.value }}", "parameter_type": "{{ item.1.type }}"}'
         method=PUT
         user=admin
-        password=changeme
+        password={{ foreman_admin_password }}
         force_basic_auth=yes
         return_content=yes
         HEADER_Content-Type="application/json"

@@ -4,7 +4,7 @@
         "url=https://{{ foreman.fqdn }}/api/hosts?search=name=\"{{ fqdn }}\""
         method=GET
         user=admin
-        password=changeme
+        password={{ foreman_admin_password }}
         force_basic_auth=yes
         return_content=yes
         HEADER_Content-Type="application/json"
@@ -29,7 +29,7 @@
         "url=https://{{ foreman.fqdn }}/api/hostgroups?search=name=\"{{ node_hostgroup|replace(' ', '+') }}\""
         method=GET
         user=admin
-        password=changeme
+        password={{ foreman_admin_password }}
         force_basic_auth=yes
         return_content=yes
         HEADER_Content-Type="application/json"
@@ -41,7 +41,7 @@
         "url=https://{{ foreman.fqdn }}/api/hosts?search=name=\"{{ fqdn }}\""
         method=GET
         user=admin
-        password=changeme
+        password={{ foreman_admin_password }}
         force_basic_auth=yes
         return_content=yes
         HEADER_Content-Type="application/json"
@@ -61,7 +61,7 @@
         body='{"host": {"id": "{{ host_json.json[0].host.id }}", "hostgroup_id": "{{ hostgroup_json.json[0].hostgroup.id }}"}}'
         method=PUT
         user=admin
-        password=changeme
+        password={{ foreman_admin_password }}
         force_basic_auth=yes
         return_content=yes
         HEADER_Content-Type="application/json"
