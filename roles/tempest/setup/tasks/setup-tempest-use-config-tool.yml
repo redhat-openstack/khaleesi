@@ -7,6 +7,9 @@
        dest={{ tempest.dir }}
   when: tempest.git.local == false
 
+- name: rpm | create tempest.dir
+  file: path="{{ tempest.dir }}" state=directory
+
 - name: clean the tempest dir
   shell: rm -Rf {{ tempest.dir }}/*
   when: tempest.git.local == true
