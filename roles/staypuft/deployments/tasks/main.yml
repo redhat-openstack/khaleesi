@@ -1,0 +1,71 @@
+---
+
+- name: check that you can connect (GET) - returns a status 200
+  action: uri url="https://{{ staypuft.ip }}"
+  register: webpage
+
+- name: login to the webpage and save cookie
+  uri: url="https://{{ staypuft.ip }}/users/login"
+       method=POST body="login[login]=admin&login[password]=redhat"
+       follow_redirects=safe HEADER_Content-Type="application/x-www-form-urlencoded"
+       status_code=302 return_content=yes
+  register: login
+
+- name: use get command to return authenticity_token
+  uri: url="https://{{ staypuft.ip }}"
+       method=GET HEADER_Cookie="{{login.set_cookie}}"
+       status_code=200 follow_redirects=safe
+       return_content=yes
+  register: get_output
+
+- name: find the authenticity_token
+  shell: >
+     sed -n "s/&lt;meta content=&#34;\(.*\)&#34; name=&#34;csrf-token&#34; \/&gt;/\1/;t end;b;:end;p;q" <<<'{{ get_output.content|escape }}'
+  register: token
+
+- name: create a new deployment
+  uri: url="https://{{ staypuft.ip }}/deployments/new"
+       HEADER_Cookie="{{login.set_cookie}}"
+       method=GET
+  register: new_deployment
+
+- name: get deployment id number
+  shell: sed -n 's/https:\/\/{{ staypuft.ip }}\/deployments\/\(.*\)\/steps\/deployment_settings?/\1/p' <<<"{{ new_deployment.content_location }}"
+  register: deployment_id
+
+- name: add deployment settings
+  uri: url="https://{{ staypuft.ip }}/deployments/{{ deployment_id.stdout }}/steps/deployment_settings"
+       method=PUT HEADER_Cookie="{{login.set_cookie}}" HEADER_X-CSRF-Token="{{ token.stdout }}"
+       HEADER_Content-Type="application/json"
+       body='{"staypuft_deployment":{"name":"test{{ 10000 |random }}","description":"","layout_name":"Controller / Compute","networking":"neutron","amqp_provider":"rabbitmq","platform":"rhel7","passwords":{"mode":"single","single_password":"hello123","single_password_confirmation":"hello123"}}}'
+       follow_redirects=safe status_code=302
+
+- name: find hostgoud_id groups
+  uri: url="https://{{ staypuft.ip }}/deployments/{{ deployment_id.stdout }}#controller_neutron_free_hosts"
+       method=GET HEADER_Cookie="{{login.set_cookie}}" HEADER_X-CSRF-Token="{{ token.stdout }}"
+       return_content=yes follow_redirects=safe
+  register: controller_content
+
+- name: return hostgroup_id numbers
+  shell: >
+    sed -n 's/&lt;input id=&#34;hostgroup_id&#34; name=&#34;hostgroup_id&#34; type=&#34;hidden&#34; value=&#34;\(.*\)&#34; \/&gt;/\1/p' <<<"{{ controller_content.content|escape|truncate(96210) }}"
+  register: controller_hostgroup_id
+
+- name: associate host
+  uri: url="https://{{ staypuft.ip }}/deployments/{{ deployment_id.stdout }}/associate_host"
+       method=POST HEADER_Cookie="{{login.set_cookie}}" HEADER_X-CSRF-Token="{{ token.stdout }}"
+       HEADER_Content-Type="application/json"
+       body='{"hostgroup_id":"{{ controller_hostgroup_id.stdout.split()[0] }}","host_ids":[ "1" ]}'
+       follow_redirects=safe status_code=302
+
+- name: import deployment config file
+  uri: url="https://{{ staypuft.ip }}/deployments/{{ deployment_id.stdout }}/import_config"
+       method=POST HEADER_Cookie="{{login.set_cookie}}" HEADER_X-CSRF-Token="{{ token.stdout }}"
+       form="deployment_config_file=@/root/staypuft_curl/Neutron+flat.yml" follow_redirects=safe
+       status_code=302
+
+- name: deploy
+  uri: url="https://{{ staypuft.ip }}/deployments/{{ deployment_id.stdout }}/deploy"
+       method=POST HEADER_Cookie="{{login.set_cookie}}" HEADER_X-CSRF-Token="{{ token.stdout }}"
+       follow_redirects=safe status_code=302
+
