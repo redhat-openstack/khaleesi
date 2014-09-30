@@ -26,4 +26,9 @@
 - name: rpm | create tempest.dir
   file: path="{{ tempest.dir }}" state=directory
 
+- name: config_tempest | setup user directory to run tempest
+  command: "/usr/share/openstack-tempest-{{ tempest.rdo.version }}/tools/configure-tempest-directory
+           /usr/share/openstack-tempest-{{ tempest.rdo.version }}
+           chdir={{ tempest.dir }}"
+
 - include: generate-tempest-conf.yml

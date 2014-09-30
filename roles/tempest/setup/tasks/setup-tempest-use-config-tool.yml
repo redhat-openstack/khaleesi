@@ -1,21 +1,25 @@
 - debug: msg="git clone {{ tempest.git.repo }} branch {{ tempest.git.revision }}
             to {{tempest.dir}}"
-  tags: tempest_setup_gen_conf
   when: tempest.git.local == false
 
 - name: Git clone tempest repo
   git: repo={{ tempest.git.repo }} version={{tempest.git.revision}}
        dest={{ tempest.dir }}
-  tags: tempest_setup_gen_conf
   when: tempest.git.local == false
 
+- name: clean the tempest dir
+  shell: rm -Rf {{ tempest.dir }}/*
+  when: tempest.git.local == true
+
 - name: sync the tempest repo as clone on the slave (gerrit)
-  synchronize: src={{tempest.local_dir}} dest={{ tempest.dir }} recursive=yes
-  tags: tempest_setup_gen_conf
+  synchronize: src={{tempest.local_dir}} dest=/tmp recursive=yes
+  when: tempest.git.local == true
+
+- name: move the tempest repo to the proper tempest dir
+  shell: mv -f /tmp/tempest/* {{ tempest.dir }}
   when: tempest.git.local == true
 
 - name: install virtualenv
-  script: install_venv.sh {{ tempest.dir }}
-  tags: tempest_setup_gen_conf
+  command: "python {{ tempest.dir }}/tools/install_venv.py {{ tempest.dir }}"
 
 - include: generate-tempest-conf.yml

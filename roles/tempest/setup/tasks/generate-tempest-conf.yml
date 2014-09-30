@@ -5,11 +5,6 @@
     - tempest_setup_rpm
     - tempest_setup_gen_conf
 
-- name: config_tempest | setup user directory to run tempest
-  command: "/usr/share/openstack-tempest-{{ tempest.rdo.version }}/tools/configure-tempest-directory
-           /usr/share/openstack-tempest-{{ tempest.rdo.version }}
-           chdir={{ tempest.dir }}"
-
 - name: config_tempest |  download config_tempest.py from redhat-openstack if absent
   command: wget -N --quiet {{ tempest_redhat_repo.config_script }}
            chdir={{ tempest.dir }}/tools
