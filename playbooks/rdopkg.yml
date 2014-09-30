@@ -8,7 +8,7 @@
   hosts:
     - controller
     - compute
-  tags: provision
+  tags: prep
   roles:
     -  network-setup
 
