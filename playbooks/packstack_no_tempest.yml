@@ -1,0 +1,89 @@
+---
+# provison
+- include: dump_settings.yml
+- include: provision.yml
+- include: group_by.yml tags=provision
+
+# prep
+- include: packstack/setup-ssh-keys.yml tags=prep
+- include: prep.yml
+
+- name: Prepare network for Packstack install
+  sudo: yes
+  hosts:
+    - controller
+    - compute
+  tags: prep
+  roles:
+    -  network-setup
+
+- include: validate_nodes.yml
+
+- name: Debug list config variables
+  hosts: local
+  sudo: no
+  tags: provision
+  roles:
+    - { role: packstack/debug }
+
+
+# apply pre-packstack workarouds
+- include: ../workarounds/workarounds-prep.yml tags=workaround
+
+- name: Setup packstack on Controller (rdo)
+  hosts: openstack_nodes:&rdo
+  sudo: yes
+  roles:
+      - product/rdo
+  tags: prep
+
+- name: Setup packstack on Controller (rhos)
+  hosts: openstack_nodes:&rhos
+  sudo: yes
+  roles:
+      - product/rhos
+  tags: prep
+
+- name: Prepare  network bridge
+  hosts: controller
+  sudo: yes
+  roles:
+    - { role: bridge-setup }
+  tags:
+    - prep
+
+# Generate answers
+- name: Setup packstack on Controller
+  hosts: controller
+  sudo: yes
+  roles:
+      - packstack/generate-answers
+  tags: prep
+
+- include: ../workarounds/workarounds-pre-run-packstack.yml tags=workaround
+
+# packstack_run
+
+- name: Run packstack
+  hosts: controller
+  sudo: yes
+  roles:
+    - { role: packstack/runner }
+  tags: packstack_run
+
+- include: ../workarounds/workarounds-post-run-packstack.yml tags=workaround
+
+- name: Get Status after reboot
+  hosts: controller
+  sudo: yes
+  tags: packstack-run
+  roles:
+    - { role: openstack/openstack-status }
+
+- name: RHOS SELINUX error check
+  hosts: all:!localhost:&rhos
+  sudo: yes
+  roles:
+    - { role: selinux_check/rhos }
+  tags: provision
+
