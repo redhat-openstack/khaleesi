@@ -22,6 +22,9 @@
   shell: mv -f /tmp/tempest/* {{ tempest.dir }}
   when: tempest.git.local == true
 
+- name: add the .testr.conf file to the tempest dir
+  copy: src=.testr.conf  dest={{ tempest.dir }}
+
 - name: install virtualenv
   command: "python {{ tempest.dir }}/tools/install_venv.py {{ tempest.dir }}"
 
