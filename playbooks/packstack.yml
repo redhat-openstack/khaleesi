@@ -14,6 +14,7 @@
     - controller
     - compute
     - tempest
+    - networker
   tags: prep
   roles:
     -  network-setup
@@ -26,7 +27,6 @@
   tags: provision
   roles:
     - { role: packstack/debug }
-
 
 # apply pre-packstack workarouds
 - include: ../workarounds/workarounds-prep.yml tags=workaround

@@ -22,8 +22,10 @@
         sudo: yes
         sudo_user: root
 
-- name: Copy ssh-key to compute hosts
-  hosts: compute
+- name: Copy ssh-key to compute and network hosts
+  hosts:
+    - compute
+    - networker
   sudo: yes
   tasks:
     - name: copy ssh-key to compute

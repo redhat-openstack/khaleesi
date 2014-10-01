@@ -39,7 +39,7 @@
 #           when: workaround_packstack_provision | default(false) }
 
 - name: Workarounds | BZ 1117871 1138701  | mysql on centos 7
-  hosts: controller:&CentOS
+  hosts: controller:&CentOS:&networker
   sudo: yes
   roles:
       - { role: workarounds/mysql-centos7,

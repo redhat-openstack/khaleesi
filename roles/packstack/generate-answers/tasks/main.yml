@@ -30,6 +30,36 @@
   when: "'CONFIG_COMPUTE_HOSTS' in packstack.config
            and job.verbosity <= verbosity.warning"
 
+- name: validate that network hosts can be calculated
+  template: src=network_host.j2 dest=/tmp/network_host.txt
+  when: nodes.network is defined
+
+- name: remove tmp files from validation
+  file: path=/tmp/network_host.txt state=absent
+  when: nodes.network is defined
+
+- name: find compute hosts and store in a var
+  set_fact:
+    tmp_network_hosts: "{{ lookup('template', '../templates/network_host.j2') | replace('\n', '') }}"
+  when: nodes.network is defined
+
+- name: print network hosts
+  debug: var=tmp_network_hosts
+  when: job.verbosity <= verbosity.info and nodes.network is defined
+
+- name: set CONFIG_NETWORK_HOSTS to packstack answer-file
+  lineinfile:
+      dest={{ packstack.answer_file }}
+      regexp='CONFIG_NETWORK_HOSTS=.*'
+      line='CONFIG_NETWORK_HOSTS={{tmp_network_hosts}}'
+  when: nodes.network is defined
+
+- name: warn if CONFIG_NETWORK_HOSTS is overridden in packstack config"
+  debug: msg="'WARNING:' CONFIG_NETWORK_HOSTS overridden by packstack config"
+  when: "'CONFIG_NETWORK_HOSTS' in packstack.config
+           and job.verbosity <= verbosity.warning
+           and nodes.network is defined"
+
 - name: create packstack answer-file from the config
   lineinfile:
       dest={{ packstack.answer_file }}
