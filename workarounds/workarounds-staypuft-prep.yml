@@ -6,3 +6,14 @@
     - { role: workarounds/staypuft-rhel7-tftp,
         when: workaround_staypuft_rhel7_tftp is defined
           and workaround_staypuft_rhel7_tftp }
+
+- name: Workarounds | Staypuft node
+  hosts: staypuft
+  tags: workaround
+  roles:
+    - { role: workarounds/staypuft-kickstart-template,
+        when: workarounds.enabled and
+          workaround.staypuft_kickstart_template is defined  and
+          workaround.staypuft_kickstart_template
+      }
+
