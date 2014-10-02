@@ -21,7 +21,8 @@
   shell: |
     sed -i "/redhat_register/a \
     yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/rhos-release-latest.noarch.rpm\n\
-    rhos-release {{ product.version }}" /tmp/kickstart-rhel-default.ftmpl
+    rhos-release {{ product.version|int }}\n\
+    sed -i -e \"s/gpgcheck=1/gpgcheck=0/g\" /etc/yum.repos.d/*" /tmp/kickstart-rhel-default.ftmpl
 
 - name: upload modified template
   shell: hammer template update --name "Kickstart RHEL default" --file /tmp/kickstart-rhel-default.ftmpl
