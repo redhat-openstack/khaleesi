@@ -7,6 +7,9 @@
 
 - name: Execute rhos-release {{ product.version|int }}
   command: rhos-release {{ product.version|int }}
+  notify:
+    - Yum clean all
+    - yum -y update to latest packages
 
 - name: ensure yum-utils
   yum: name=yum-utils state=present
@@ -27,4 +30,9 @@
             option=enabled
             value=1
   when: product.repo_type == 'poodle'
+
+- name: Ensure common dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - libselinux-python
 

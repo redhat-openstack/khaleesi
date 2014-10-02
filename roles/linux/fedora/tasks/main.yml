@@ -23,4 +23,9 @@
   when: workarounds_disabled is not defined or
         workarounds_disabled|bool == false
 
+- name: Ensure common dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - libselinux-python
+
 

@@ -30,3 +30,8 @@
   when: workaround_rhel7_iptable_services|default(false)
         and ansible_distribution_version == "7.0"
 
+- name: Ensure common dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - libselinux-python
+

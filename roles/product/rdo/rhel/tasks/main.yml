@@ -37,6 +37,3 @@
 
 - name: Print repolist
   debug: var=result.stdout_lines
-
-- name: update
-  command: yum update -y
