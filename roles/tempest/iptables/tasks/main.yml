@@ -22,6 +22,9 @@
     and hostvars[nodes.tempest.name]['ansible_' + item].ipv4.address is defined
   with_items: hostvars[nodes.tempest.name].ansible_interfaces
 
+- name: ensure iptables-services is installed
+  yum: name=iptables-services
+
 - name: save iptables
   shell: service iptables save
   sudo: yes
