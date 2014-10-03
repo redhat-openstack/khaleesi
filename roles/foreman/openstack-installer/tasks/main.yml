@@ -88,7 +88,7 @@
   register: foreman_password_reset
 
 - name: parse password from credentials
-  shell:  'sed -e "s/Reset to user: admin, password: \(.*\)/\1/" <<< "{{ foreman_password_reset.stdout }}"'
+  shell:  'sed -E "s/Reset to user:[ ]?+admin, password:[ ]?+(.*)/\1/" <<< "{{ foreman_password_reset.stdout }}"'
   register: foreman_parse_password
 
 - name: set foreman admin password as fact
