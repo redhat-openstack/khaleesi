@@ -60,6 +60,13 @@
            and job.verbosity <= verbosity.warning
            and nodes.network is defined"
 
+- name: set CONFIG_NEUTRON_LBAAS_HOSTS to packstack answer-file
+  lineinfile:
+      dest={{ packstack.answer_file }}
+      insertafter=EOF
+      line='CONFIG_NEUTRON_LBAAS_HOSTS={{tmp_network_hosts}}'
+  when: nodes.network is defined
+
 - name: create packstack answer-file from the config
   lineinfile:
       dest={{ packstack.answer_file }}
