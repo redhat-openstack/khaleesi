@@ -137,3 +137,17 @@
        follow_redirects=safe
        status_code=302
 
+- name: copy check script fillin with assigned hosts
+  template: src=./check_deploy.sh.j2 dest=/tmp/check_deploy.sh
+
+- name: check that the hosts have been deployed
+  shell: curl -s -k -X GET -H X-CSRF-Token:"{{ token.stdout }}" -H Cookie:"{{login.set_cookie}}" https://{{ staypuft.deploy.ip }}/deployments/{{ deployment_id.stdout }} | grep -q -E -- ">Deployed<"
+  register: deploy_end
+  retries: 36
+  delay: 300
+  until: deploy_end.rc==0
+
+
+
+- fail: "deploy failed"
+  when: deploy_end.rc != 0
