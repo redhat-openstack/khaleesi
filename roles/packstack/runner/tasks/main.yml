@@ -33,7 +33,6 @@
 
 - name: Reboot after packstack install
   debug: msg=rebooting
-  when: product.version != 'juno'
   changed_when: True
   notify:
     - reboot
