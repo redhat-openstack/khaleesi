@@ -10,6 +10,7 @@
 - name: Workarounds | Staypuft node
   hosts: staypuft
   tags: workaround
+  sudo: yes
   roles:
     - { role: workarounds/staypuft-kickstart-template,
         when: workarounds.enabled and
