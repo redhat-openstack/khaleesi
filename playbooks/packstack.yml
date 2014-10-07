@@ -5,6 +5,7 @@
 - include: group_by.yml tags=provision
 
 # prep
+- include: ../workarounds/workarounds-pre-prep.yml tags=workaround
 - include: packstack/setup-ssh-keys.yml tags=prep
 - include: prep.yml
 

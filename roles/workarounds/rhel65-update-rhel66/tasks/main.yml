@@ -1,0 +1,3 @@
+---
+- name: update /etc/redhat-release to rhel-6.6
+  lineinfile: dest=/etc/redhat-release regexp=^Red line="Red Hat Enterprise Linux Server release 6.6 (Santiago)"
