@@ -34,6 +34,7 @@
 - name: Reboot after packstack install
   debug: msg=rebooting
   changed_when: True
+  when: (product.version != "juno" and ansible_distribution != "Fedora")
   notify:
     - reboot
     - Wait for host to stop
