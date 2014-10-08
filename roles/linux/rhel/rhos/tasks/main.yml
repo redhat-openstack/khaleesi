@@ -11,6 +11,13 @@
     - Yum clean all
     - yum -y update to latest packages
 
+- name: Change server location for repos in  rhos-release
+  replace:
+    dest=/etc/yum.repos.d/rhos-release-{{product.version|int}}-rhel-{{ ansible_distribution_version|string}}.repo
+    regexp={{ location.defaultrepo_string }}
+    replace={{ location.map[user_location] }}
+  when: user_location is defined
+
 - name: ensure yum-utils
   yum: name=yum-utils state=present
 
