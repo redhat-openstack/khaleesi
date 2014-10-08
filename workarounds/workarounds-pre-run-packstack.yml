@@ -55,4 +55,12 @@
           when: workarounds.enabled and workaround.messagebus_centos7 is defined and workaround.messagebus_centos7
       }
 
+- name: Workarounds | test f21 juno repo on f20
+  hosts: controller
+  sudo: yes
+  roles:
+      - { role: workarounds/install-juno-fedora-21,
+           when: workarounds.enabled and workaround.install_juno_fedora_21 is defined and workaround.install_juno_fedora_21
+        }
+
 
