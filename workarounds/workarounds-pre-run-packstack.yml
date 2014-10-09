@@ -63,4 +63,12 @@
            when: workarounds.enabled and workaround.install_juno_fedora_21 is defined and workaround.install_juno_fedora_21
         }
 
+- name: Workarounds | install missing requirements for DELOREAN based builds
+  hosts: controller
+  sudo: yes
+  roles:
+      - { role: workarounds/install-missing-deps-delorean,
+           when: workarounds.enabled and workaround.install_missing_deps is defined and workaround.install_missing_deps
+        }
+
 
