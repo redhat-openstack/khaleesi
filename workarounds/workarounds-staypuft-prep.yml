@@ -16,5 +16,10 @@
         when: workarounds.enabled and
           workaround.staypuft_kickstart_template is defined  and
           workaround.staypuft_kickstart_template
+       }
+    - { role: workarounds/staypuft-pxe-template,
+        when: workarounds.enabled and
+          workaround.staypuft_pxe_template is defined  and
+          workaround.staypuft_pxe_template
       }
 
