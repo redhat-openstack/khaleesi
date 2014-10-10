@@ -183,6 +183,8 @@ class EtherpadListModule(object):
             if e.code == 1 and 'already exist' in e.message:
                 return
             self.module.fail_json(msg=e.message, code=e.code)
+        except Exception as e:
+            self.module.fail_json(msg=e.message)
 
 
 def main():
