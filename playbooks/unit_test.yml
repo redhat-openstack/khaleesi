@@ -23,3 +23,5 @@
   roles:
     - unit-test/setup
     - unit-test/run
+    - { role: unit-test/publish-pip-overrides, when: '{{test_env_passed | bool}}' }
+
