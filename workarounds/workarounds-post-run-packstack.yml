@@ -19,3 +19,5 @@
           when: workarounds.enabled and workaround.nova_objectstore_install is defined and workaround.nova_objectstore_install }
     - { role: workarounds/s3-objectstore-endpoint,
           when: workarounds.enabled and workaround.s3_objectstore_endpoint is defined and workaround.s3_objectstore_endpoint }
+    - { role: workarounds/nova-scheduler-default-filters,
+          when: workarounds.enabled and workaround.nova_scheduler_default_filters is defined and workaround.nova_scheduler_default_filters }
