@@ -1,0 +1,24 @@
+---
+
+- name: validate
+  fail: msg="missing etherpad details, did you forget --etherpad"
+  when: etherpad is not defined or etherpad.url  is not defined
+
+- name: print pip overrides
+  debug: var=test_env.setup.pip.overrides
+  when:
+    test_env.setup | default(false) and test_env.setup.pip | default(false)
+    and test_env.setup.pip.overrides | default(false)
+
+- name: update etherpad
+  etherpad_list:
+    url: "{{ etherpad.url }}"
+    key: '{{ etherpad.api_key}}'
+    pad: 'missing-packages'
+    topic: '{{component.name}}'
+    contents: "{{ test_env.setup.pip.overrides }}"
+  ignore_errors: true
+  when:
+    test_env.setup | default(false) and test_env.setup.pip | default(false)
+    and test_env.setup.pip.overrides | default(false)
+
