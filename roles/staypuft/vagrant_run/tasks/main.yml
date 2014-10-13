@@ -18,6 +18,7 @@
               --config-dir={{ ansible_env.HOME }}/khaleesi-settings/settings generate
               --rules-file={{ ansible_env.HOME }}/khaleesi-settings/rules/staypuft-rhos-vagrant.yml
               --product-version-workaround=rhel-6.5
+              --product-version-repo={{ product.repo_type }}
               --workarounds=enabled
               --distro=rhel-6.5
               ksgen_settings.yml
