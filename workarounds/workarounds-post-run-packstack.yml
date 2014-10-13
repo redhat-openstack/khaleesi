@@ -21,3 +21,10 @@
           when: workarounds.enabled and workaround.s3_objectstore_endpoint is defined and workaround.s3_objectstore_endpoint }
     - { role: workarounds/nova-scheduler-default-filters,
           when: workarounds.enabled and workaround.nova_scheduler_default_filters is defined and workaround.nova_scheduler_default_filters }
+
+- name: Workarounds | specific to Compute nodes (roles)
+  hosts: compute
+  roles:
+    - { role: workarounds/set-key-encrypted-volumes,
+        tags: workarounds,
+        when: workarounds.enabled and workaround.set_key_encrypted_volumes is defined and workaround.set_key_encrypted_volumes }
