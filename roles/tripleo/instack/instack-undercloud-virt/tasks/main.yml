@@ -15,16 +15,58 @@
     chdir={{ instack_user_home.stdout }}
     sshpass -p {{ instack.user.stack.password }} ssh -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1 &
 
+- name: install wget
+  yum: name=wget state=present
+  sudo_user: root
+  sudo: yes
+
+- name: prepare for overcloud - download images
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    export IMG_SOURCE_URL="{{ product.instack_images[ ansible_distribution ] }}";
+    wget -nc -nd -nH -np -r -R index.html --no-parent $IMG_SOURCE_URL
+  async: 18000
+  poll: 300
+  when: ansible_distribution == 'Fedora' and installer.custom_instack_images is not defined
+  register: instack-prepare-for-overcloud-output
+
+- name: print instack-prepare-for-overcloud-output
+  debug: var=instack-prepare-for-overcloud-output.stdout
+  when: ansible_distribution == 'Fedora' and installer.custom_instack_images is not defined
+
+- name: prepare for overcloud with custom images
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    export IMG_SOURCE_URL="{{ installer.custom_instack_images }}";
+    wget -nc -nd -nH -np -r -R index.html --no-parent $IMG_SOURCE_URL
+  async: 18000
+  poll: 300
+  when: installer.custom_instack_images is defined
+  register: instack-prepare-for-overcloud-output
+
+- name: print instack-prepare-for-overcloud-output
+  debug: var=instack-prepare-for-overcloud-output.stdout
+  when: installer.custom_instack_images is defined
+
 - name: enable the rdo-release repository
-  yum: name="{{ product.rpm[ ansible_distribution ] }}" state=present #"
-  when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined
+  yum: name="{{  product.rpm[ ansible_distribution ] }}" state=present #"
+  when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined and product.repo_type != 'copr'
   sudo_user: root
   sudo: yes
   register: rdo_repo_output
 
 - name: print rdo_repo_output
   debug: var=rdo_repo_output.stdout
-  when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined
+  when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined and product.repo_type != 'copr'
+
+- name: enable tripleo copr repository
+  shell: "sudo curl -o /etc/yum.repos.d/slagle-openstack-m.repo {{ product.repo.copr[ ansible_distribution ][distro.version] }}"
+  when: product.repo_type == 'copr'
+  register: rdo_repo_output
+
+- name: print rdo_repo_output
+  debug: var=rdo_repo_output.stdout
+  when: product.repo_type == 'copr'
 
 - name: enable a custom repository
   yum: name="{{ installer.custom_repo }}"
@@ -83,11 +125,11 @@
 
 - name: run script to install undercloud
   register: instack_undercloud_result
-  command:  chdir={{ instack_user_home.stdout }} instack-install-undercloud-packages
+  command:  chdir={{ instack_user_home.stdout }} instack-install-undercloud
   when: instack_log_present.stat.exists == False
 
 - name: search output for complete status
-  shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'instack-install-undercloud-packages complete'"
+  shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'install-undercloud complete'"
   register: grep_output
 
 - name: report failure if install is not complete

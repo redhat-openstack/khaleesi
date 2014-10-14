@@ -1,0 +1,10 @@
+---
+
+- include: ../vm_kickstart.yml
+
+- name: set up environment
+  hosts: local
+  roles:
+    - { role: tripleo/instack/icehouse/setup-env/virt-setup-tempest }
+
+- include: ../tempest.yml

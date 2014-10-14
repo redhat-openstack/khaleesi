@@ -8,6 +8,9 @@
 - name: prep for copy ssh keys
   shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -p {{ job_var.vm_ssh_port }} -v &
 
+- name: set root password for vm
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -x -t -t -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -p {{ job_var.vm_ssh_port }} 'export UNDERCLOUD_ROOT_PASSWORD=stack; echo $UNDERCLOUD_ROOT_PASSWORD | sudo passwd root --stdin'
+
 - name: copy ssh keys
   shell: >
     chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}

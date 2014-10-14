@@ -1,6 +1,6 @@
 ---
 
-- name: install sshpass for virtual-power-key copy
+- name: install sshpass
   yum: name=sshpass state=present
   sudo_user: root
   sudo: yes
@@ -10,27 +10,10 @@
   sudo_user: root
   sudo: yes
 
-- name: check virtual-power-key exists
-  stat: path="{{ instack_user_home.stdout }}/virtual-power-key.pub"
-  register: virtual_power_key_present
-
-- name: create the virtual-power-key
-  shell: >
-    chdir={{ instack_user_home.stdout }}
-    ssh-keygen -t rsa -N '' -C virtual-power-key -f virtual-power-key
-  when: virtual_power_key_present.stat.exists == False
-
 - name: ssh to virt-host
   shell: >
     chdir={{ instack_user_home.stdout }}
-    sshpass -p {{ instack.environ.vm_pw }} ssh -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1 &
-  when: virtual_power_key_present.stat.exists == False
-
-- name: copy the virtual-power-key to the virt host
-  shell: >
-    chdir={{ instack_user_home.stdout }}
-    sshpass -p {{ instack.environ.vm_pw }} ssh-copy-id -i virtual-power-key.pub {{ instack.user.stack.name }}@192.168.122.1
-  when: virtual_power_key_present.stat.exists == False
+    sshpass -p {{ instack.user.stack.password }} ssh -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1 &
 
 - name: enable the rdo-release repository
   yum: name="{{ product.rpm[ ansible_distribution ] }}" state=present #"
@@ -86,18 +69,13 @@
 
 - name: print custom_rpm_output
   debug: var=custom_rpm_output.stdout
-  when: installer.updated_rpms_list is defined
+  when: instack.updated_rpms_list is defined
 
 - name: check answers file exists
-  shell: "[ -e /usr/share/doc/instack-undercloud/instack-virt.answers.sample ]"
+  shell: "[ -e {{ instack_user_home.stdout }}/instack.answers ]"
   register: answers_file_present
   changed_when: false
   failed_when: false
-
-- name: copy virt answers file
-  shell: >
-    chdir={{ instack_user_home.stdout }}
-    cp /usr/share/doc/instack-undercloud/instack-virt.answers.sample {{ instack_user_home.stdout }}/instack.answers
 
 - name: check if install undercloud has been run
   stat: path="{{ instack_user_home.stdout }}/.instack/install-undercloud.log"

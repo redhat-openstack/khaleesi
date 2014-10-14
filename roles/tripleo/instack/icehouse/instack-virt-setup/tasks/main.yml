@@ -6,7 +6,7 @@
   sudo: yes
 
 - name: enable the rdo-release repository
-  yum: name="{{ product.rpm[ ansible_distribution ] }}" state=present #"
+  yum: name="{{  product.rpm[ ansible_distribution ] }}" state=present #"
   when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined
   register: rdo_repo_output
 
@@ -33,7 +33,7 @@
   when: installer.instack_undercloud_rpm is not defined
 
 - name: install updated version of instack-undercloud if it exists
-  yum: name="{{ installer.instack_undercloud_rpm}}"
+  yum: name="{{ installer.instack_undercloud_rpm }}"
   when: installer.instack_undercloud_rpm is defined
   register: instack_undercloud_output
 
@@ -78,27 +78,10 @@
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
-- name: get ip address of instack vm
-  shell: "sleep 10; cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac instack) | awk '{print $3;}'"
-  register: instack_ip_address
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
-
-- name: print instack_ip_address
-  debug: var=instack_ip_address.stdout
-
-- name: get mac addresses for overcloud nodes
-  shell: "for i in $(seq 0 3); do echo -n $(tripleo get-vm-mac baremetal_$i) \" \"; done; echo"
-  register: overcloud_node_ips
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
-
-- name: print overcloud_node_ips
-  debug: var=overcloud_node_ips.stdout
-
 - name: get instack vm ip address
   shell: >
      chdir={{ instack_user_home.stdout }}
+     sleep 30;
      cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac instack) | awk '{print $3;}'
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
@@ -116,7 +99,7 @@
 - name: open ssh tunnel to instack vm on port {{ instack.environ.vm_ssh_port }}
   shell: "sudo iptables -I INPUT -p tcp --dport {{ instack.environ.vm_ssh_port }} -j ACCEPT; sshpass -p {{ instack.user.stack.password }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ instack.environ.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"
   register: tunnel_port_output
-  sudo_user: "{{ instack.user.stack.name }}"
+  sudo_user: "{{ instack.user.stack.name}}"
   sudo: yes
-  async: 43200
+  async: 36000
   poll: 0
