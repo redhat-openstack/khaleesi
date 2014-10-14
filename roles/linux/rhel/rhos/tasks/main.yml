@@ -1,4 +1,10 @@
 ---
+# Plese remove this workaround after modifying
+# base vagrant box to get rid of rhel.repo
+- name: get rid of any existing rhel.repo in broken vagrant box.
+  file: path=/etc/yum.repos.d/rhel.repo state=absent
+  when: installer.name == 'staypuft'
+
 - name: Create the RHOS Release Repository
   template: src=rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
 
