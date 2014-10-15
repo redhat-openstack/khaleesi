@@ -1,0 +1,17 @@
+---
+staypuft_session:
+    cookie: "{{login.set_cookie}}"
+    token: "{{token.stdout}}"
+typings_map:
+    Tenant: "openstack_tenant"
+    External: "openstack_floating_ips"
+interface_assignments_map:
+   "Controller (Neutron)":
+       eth2: "default"
+   "Neutron Networker":
+       eth2: "default"
+       eth3: "openstack_tenant"
+       eth4: "openstack_floating_ips"
+   Default:
+       eth2: "default"
+       eth3: "openstack_tenant"

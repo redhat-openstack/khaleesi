@@ -48,6 +48,28 @@
        follow_redirects=safe
        status_code=302
 
+# TODO: subnets on settings, as dict
+- name: network configuration - create subnets
+  shell: >
+    curl -k -X POST -H Cookie:"{{login.set_cookie}}" -H X-CSRF-Token:"{{ token.stdout }}" -H Content-Type:"application/x-www-form-urlencoded" --data 'staypuft_simple_subnet[name]={{ item.name }}&staypuft_simple_subnet[network_address]={{ item.address }}&staypuft_simple_subnet[dhcp_server]=external' https://{{staypuft.deploy.ip}}/staypuft/subnets?deployment_id={{ deployment_id.stdout}}
+  with_items:
+      - { name: "openstack_tenant",   address: "172.16.16.0/24" }
+
+- name: network configuration - create subnets no dhcp
+  shell: >
+      curl -k -X POST -H Cookie:"{{login.set_cookie}}" -H X-CSRF-Token:"{{ token.stdout }}" -H Content-Type:"application/x-www-form-urlencoded" --data 'staypuft_simple_subnet[name]={{ item.name }}&staypuft_simple_subnet[network_address]={{ item.address }}&staypuft_simple_subnet[dhcp_server]=none&staypuft_simple_subnet[gateway]={{item.gateway}}&staypuft_simple_subnet[ip_range_start]={{item.start}}&staypuft_simple_subnet[ip_range_end]={{item.end}}' https://{{staypuft.deploy.ip}}/staypuft/subnets?deployment_id={{ deployment_id.stdout}}
+  with_items:
+      - { name: "openstack_floating_ips", address: "192.168.122.0/24" , gateway: "129.168.122.1", start: "192.168.122.2", end: "192.168.122.254"}
+
+# some values for this are found in defaults
+- name: Network configuration - assign subnet type to subnet
+  staypuft_deploy:
+    ip={{ staypuft.deploy.ip }}
+    deployment_id={{ deployment_id.stdout }}
+    staypuft_session="{{ staypuft_session }}"
+    step="subnet-typings"
+    typings_map="{{typings_map}}"
+
 - name: add services configuration
   uri: url="https://{{ staypuft.deploy.ip }}/deployments/{{ deployment_id.stdout }}/steps/services_configuration"
        method=PUT
@@ -90,6 +112,15 @@
        follow_redirects=safe
        status_code=302
   with_sequence: start="{{ staypuft.deploy.start_node }}" end="{{ staypuft.deploy.end_node }}"
+
+# some values for this are found in defaults
+- name: Network configuration - associate subnet to host nic
+  staypuft_deploy:
+    ip={{ staypuft.deploy.ip }}
+    deployment_id={{ deployment_id.stdout }}
+    staypuft_session="{{ staypuft_session }}"
+    step="interface-assignments"
+    interface_assignments_map="{{ interface_assignments_map }}"
 
 - name: get deployment configuration file to import
   template: src={{ staypuft.deploy.deployment_config }}.j2 dest=/tmp/{{ staypuft.deploy.deployment_config }}
