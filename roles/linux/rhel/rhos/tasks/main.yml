@@ -56,6 +56,10 @@
   template: src=rhos-poodle.repo.j2 dest=/etc/yum.repos.d/rhos-poodle.repo
   when: product.repo_type == 'poodle'
 
+- name: Create the RHOS Foreman poodle repository (disabled)
+  template: src=foreman-poodle.repo.j2 dest=/etc/yum.repos.d/foreman-poodle.repo
+  when: (product.repo_type == 'poodle' and installer.name == 'staypuft')
+
 - name: Enable poodle repository if this is a poodle
   ini_file: dest=/etc/yum.repos.d/rhos-poodle.repo
             section=rhos-poodle
