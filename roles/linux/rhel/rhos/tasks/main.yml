@@ -29,14 +29,14 @@
     dest=/etc/yum.repos.d/rhos-release-{{product.version|int}}-rhel-{{ ansible_distribution_version|string}}.repo
     regexp=/latest/RH{{ ansible_distribution_major_version|string }}
     replace=/{{ product.repo.puddle_pin_version }}/RH{{ ansible_distribution_major_version|string }}
-  when: product.repo.puddle_pin_version|string != 'latest'
+  when: (product.repo.puddle_pin_version is defined and product.repo.puddle_pin_version != 'latest' and product.repo_type == 'puddle')
 
 - name: Change Foreman version for repos in rhos-release
   replace:
     dest=/etc/yum.repos.d/rhos-release-{{product.version|int}}-rhel-{{ ansible_distribution_version|string }}.repo
     regexp=/Foreman/latest/
     replace=/Foreman/{{ product.repo.foreman_pin_version }}/
-  when: product.repo.foreman_pin_version|string != 'latest'
+  when: (product.repo.foreman_pin_version is defined and product.repo.foreman_pin_version != 'latest')
 
 - name: ensure yum-utils
   yum: name=yum-utils state=present
@@ -54,6 +54,7 @@
 # are only in poodles
 - name: Create the RHOS poodle repository (disabled)
   template: src=rhos-poodle.repo.j2 dest=/etc/yum.repos.d/rhos-poodle.repo
+  when: product.repo_type == 'poodle'
 
 - name: Enable poodle repository if this is a poodle
   ini_file: dest=/etc/yum.repos.d/rhos-poodle.repo
@@ -74,14 +75,14 @@
     dest=/etc/yum.repos.d/rhos-poodle.repo
     regexp=/latest/RHOS
     replace=/{{ product.repo.poodle_pin_version }}/RHOS
-  when: product.repo.poodle_pin_version|string != 'latest'
+  when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version != 'latest' and product.repo_type == 'poodle')
 
 - name: Change Foreman poodle version for repos in rhos-release
   replace:
     dest=/etc/yum.repos.d/rhos-poodle.repo
     regexp=/latest/Foreman
     replace=/{{ product.repo.foreman_poodle_pin_version }}/Foreman
-  when: product.repo.poodle_pin_version|string != 'latest'
+  when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version != 'latest'  and product.repo_type == 'poodle')
 
 - name: Ensure common dependencies
   yum: name={{ item }} state=present

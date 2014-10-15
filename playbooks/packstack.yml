@@ -121,10 +121,3 @@
   roles:
     - { role: validate_openstack }
 
-- name: RHOS SELINUX error check
-  hosts: all:!localhost:!tempest:&rhos
-  sudo: yes
-  roles:
-    - { role: selinux_check/rhos }
-  tags: provision
-
