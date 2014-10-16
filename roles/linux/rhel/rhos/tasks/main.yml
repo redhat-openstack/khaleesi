@@ -68,7 +68,7 @@
   when: product.repo_type == 'poodle'
 
 - name: Enable Foreman poodle repository if this is a poodle
-  ini_file: dest=/etc/yum.repos.d/rhos-poodle.repo
+  ini_file: dest=/etc/yum.repos.d/foreman-poodle.repo
             section=foreman-poodle
             option=enabled
             value=1
@@ -83,7 +83,7 @@
 
 - name: Change Foreman poodle version for repos in rhos-release
   replace:
-    dest=/etc/yum.repos.d/rhos-poodle.repo
+    dest=/etc/yum.repos.d/foreman-poodle.repo
     regexp=/latest/Foreman
     replace=/{{ product.repo.foreman_poodle_pin_version }}/Foreman
   when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version != 'latest'  and product.repo_type == 'poodle')
