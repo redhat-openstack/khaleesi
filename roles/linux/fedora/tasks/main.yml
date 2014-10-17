@@ -1,6 +1,10 @@
 ---
 # Fedora
 
+- name: Fix Fedora 21 cloud image bz 1147998
+  command:  dd if=/usr/share/syslinux/mbr.bin of=/dev/vda
+  when: ansible_distribution_version == "21"
+
 - name: Ensure fedora-release
   yum: name=fedora-release state=present
 
