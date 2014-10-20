@@ -1,0 +1,35 @@
+---
+# provison
+- include: dump_settings.yml
+- include: provision.yml
+- include: group_by.yml tags=provision
+
+- include: prep.yml
+
+- name: Install OpenStack Puppet Modules
+  sudo: yes
+  hosts:
+    - controller
+  roles:
+    - opm/install
+
+- name: Install the database server
+  sudo: yes
+  hosts:
+    - controller
+  roles:
+    - opm/database
+
+- name: Install the message broker
+  sudo: yes
+  hosts:
+    - controller
+  roles:
+    - opm/rabbitmq
+
+- name: Install keystone
+  sudo: yes
+  hosts:
+    - controller
+  roles:
+    - opm/keystone
