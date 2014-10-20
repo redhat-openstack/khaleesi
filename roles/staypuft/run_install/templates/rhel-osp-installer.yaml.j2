@@ -74,9 +74,9 @@
     :repositories: rhel-7-server-openstack-5.0-rpms
     :skip_repo_path: false
     :sm_username: "{{ distro.rhel.subscription.username }}"
-    :repo_path: "{{ distro.rhel[distro.version].kickstart_url }}"
+    :repo_path: "{{ staypuft.deploy.repo_path}}"
     :sm_password: "{{ distro.rhel.subscription.password }}"
-    :skip_subscription_seeding: false
+    :skip_subscription_seeding: true
     :sm_pool: "{{ distro.rhel.subscription.pool }}"
   :noop: false
   :name: Foreman
