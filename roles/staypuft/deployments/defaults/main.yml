@@ -5,6 +5,13 @@ staypuft_session:
 typings_map:
     Tenant: "openstack_tenant"
     External: "openstack_floating_ips"
+# by default if a host count for a hostgroup is not specified
+# the host count will be 1
+associate_hosts_map: []
+    # we're making it empty, so every hostgroup in the deploy will
+    # have only 1 host associated to it
+    # if you want to specify a different host count
+    # just add something like "Hostgroup A" : 3
 interface_assignments_map:
    "Controller (Neutron)":
        eth2: "default"

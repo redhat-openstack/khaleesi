@@ -59,7 +59,7 @@
   shell: >
       curl -k -X POST -H Cookie:"{{login.set_cookie}}" -H X-CSRF-Token:"{{ token.stdout }}" -H Content-Type:"application/x-www-form-urlencoded" --data 'staypuft_simple_subnet[name]={{ item.name }}&staypuft_simple_subnet[network_address]={{ item.address }}&staypuft_simple_subnet[dhcp_server]=none&staypuft_simple_subnet[gateway]={{item.gateway}}&staypuft_simple_subnet[ip_range_start]={{item.start}}&staypuft_simple_subnet[ip_range_end]={{item.end}}' https://{{staypuft.deploy.ip}}/staypuft/subnets?deployment_id={{ deployment_id.stdout}}
   with_items:
-      - { name: "openstack_floating_ips", address: "192.168.122.0/24" , gateway: "129.168.122.1", start: "192.168.122.2", end: "192.168.122.254"}
+      - { name: "openstack_floating_ips", address: "192.168.123.0/24" , gateway: "192.168.123.1", start: "192.168.123.2", end: "192.168.123.254"}
 
 # some values for this are found in defaults
 - name: Network configuration - assign subnet type to subnet
@@ -94,24 +94,14 @@
     sed -n 's/&lt;input id=&#34;hostgroup_id&#34; name=&#34;hostgroup_id&#34; type=&#34;hidden&#34; value=&#34;\(.*\)&#34; \/&gt;/\1/p' <<<"{{ controller_content.content|escape|truncate(96210) }}"
   register: hostgroup_ids
 
-- name: return host_id numbers
-  uri: url="https://{{ staypuft.deploy.ip }}/api/v2/discovered_hosts"
-       method=GET HEADER_Cookie="{{login.set_cookie}}"
-       HEADER_Content-Type="application/json"
-       HEADER_Accepts="application/json"
-       return_content=yes
-  register: discovered_hosts
 
-- name: associate host
-  uri: url="https://{{ staypuft.deploy.ip }}/deployments/{{ deployment_id.stdout }}/associate_host"
-       method=POST
-       HEADER_Cookie="{{login.set_cookie}}"
-       HEADER_X-CSRF-Token="{{ token.stdout }}"
-       HEADER_Content-Type="application/json"
-       body='{"hostgroup_id":"{{ hostgroup_ids.stdout.split()[item|int] }}","host_ids":"{{ discovered_hosts.json.results[item|int].id}}"}'
-       follow_redirects=safe
-       status_code=302
-  with_sequence: start="{{ staypuft.deploy.start_node }}" end="{{ staypuft.deploy.end_node }}"
+- name: associate discovered_hosts to hostgroups
+  staypuft_deploy:
+    ip={{ staypuft.deploy.ip }}
+    deployment_id={{ deployment_id.stdout }}
+    staypuft_session="{{ staypuft_session }}"
+    step="associate-discovered-hosts"
+    associate_hosts_map="{{ associate_hosts_map }}"
 
 # some values for this are found in defaults
 - name: Network configuration - associate subnet to host nic
@@ -137,17 +127,12 @@
        follow_redirects=safe
        status_code=302
 
-- name: copy check script fillin with assigned hosts
-  template: src=./check_deploy.sh.j2 dest=/tmp/check_deploy.sh
-
 - name: check that the hosts have been deployed
   shell: curl -s -k -X GET -H X-CSRF-Token:"{{ token.stdout }}" -H Cookie:"{{login.set_cookie}}" https://{{ staypuft.deploy.ip }}/deployments/{{ deployment_id.stdout }} | grep -q -E -- ">Deployed<"
   register: deploy_end
   retries: 36
   delay: 300
   until: deploy_end.rc==0
-
-
 
 - fail: "deploy failed"
   when: deploy_end.rc != 0

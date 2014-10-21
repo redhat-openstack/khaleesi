@@ -71,8 +71,19 @@ examples:
 '''
 
 from bs4 import BeautifulSoup
-import urllib2
+import urllib2, urllib
 import ast
+
+class NoRedirectHandler(urllib2.HTTPRedirectHandler):
+    def http_error_302(self, req, fp, code, msg, headers):
+        infourl = urllib.addinfourl(fp, headers, req.get_full_url())
+        infourl.status = code
+        infourl.code = code
+        return infourl
+    http_error_300 = http_error_302
+    http_error_301 = http_error_302
+    http_error_303 = http_error_302
+    http_error_307 = http_error_302
 
 class Staypuft(object):
 
@@ -101,9 +112,18 @@ class Staypuft(object):
             self.subnet_map= {}
 
             self.get_subnets()
-            self.get_deploy_hostgroups()
             self.map_hostgrous_to_hosts_ids()
 
+        if self.step == "associate-discovered-hosts":
+            self.associate_hosts_map = ast.literal_eval(self.params['associate_hosts_map'])
+
+            self.deploy_hostgroups = {}
+            self.discovered_hosts_ids = []
+            self.associate_hosts_id_map = {}
+
+            self.get_deploy_hostgroups()
+            self.get_discovered_hosts()
+            self.create_associate_hosts_id_map()
 
     def _url_read(self, url):
         request = urllib2.Request(url)
@@ -130,6 +150,18 @@ class Staypuft(object):
             return True
         return False
 
+    def _url_post_json(self, url, data):
+        request = urllib2.Request(url)
+        request.add_header('Cookie', self.staypuft_session_cookie)
+        request.add_header('X-CSRF-Token', self.staypuft_session_token)
+        request.add_header('Accept', 'text/javascript, application/javascript, application/ecmascript, application/x-ecmascript')
+        request.add_header('Content-type','application/json')
+        request.add_data(data)
+        url_handle = urllib2.urlopen(request)
+        if url_handle.code == 200 or url_handle.code == 302:
+            return True
+        return False
+
     def get_subnets(self):
         response = self._url_read_json("https://%s/api/v2/subnets" % self.ip)
         for result in response['results']:
@@ -140,6 +172,13 @@ class Staypuft(object):
         subnet_sections = parsed_page.select("[class~=subnet-type-pull]")
         for subnet_section in subnet_sections:
             self.subnet_type_map[subnet_section.text.replace('\n','').replace('  ','')] = subnet_section['data-subnet-type-id']
+
+    def get_discovered_hosts(self):
+        ''' populate discovered_hosts list with host ids of discovered_hosts
+        '''
+        response = self._url_read_json("https://%s/api/v2/discovered_hosts" % (self.ip))
+        for result in response['results']:
+            self.discovered_hosts_ids.append(str(result['id']))
 
     def assign_type_to_subnet(self, subnet_type_id, subnet_id):
         data='subnet_type_id=%s&subnet_id=%s' % (subnet_type_id, subnet_id)
@@ -190,26 +229,65 @@ class Staypuft(object):
                         return False
         return True
 
+    def create_associate_hosts_id_map(self):
+        ''' creates a map hostgroup_id -> list of discovered hosts id to assign to it
+            by default, if host count is not defined for a partigular hostgroup present on a deploy
+            the host count is 1.
+        '''
+        remaining_discovered_hosts = self.discovered_hosts_ids
+        for hostgroup_name, hostgroup_id in self.deploy_hostgroups.iteritems():
+            if hostgroup_name in self.associate_hosts_map:
+                hosts_count = self.associate_hosts_map[hostgroup_name]
+            else:
+                hosts_count = 1
+            self.associate_hosts_id_map[hostgroup_id] = remaining_discovered_hosts[:hosts_count]
+            if hosts_count !=0 and not self.associate_hosts_id_map[hostgroup_id]:
+                raise IndexError("not enough discovered hosts to assign to hostgroup")
+            remaining_discovered_hosts = remaining_discovered_hosts[hosts_count:]
+
+    def associate_discovered_hosts(self):
+        for hostgroup_id, hosts_ids in self.associate_hosts_id_map.iteritems():
+            for host_id in hosts_ids:
+                data={ "hostgroup_id": hostgroup_id , "host_ids": host_id } #% (hostgroup_id, host_id)
+                post_data = json.dumps(data)
+                success = self._url_post_json("https://%s/deployments/%s/associate_host" % (self.ip, self.deployment_id), post_data )
+                if not success:
+                    return False
+        return True
+
 def main():
-    module = AnsibleModule(argument_spec=dict(
-        ip=dict(required=True),
-        deployment_id=dict(required=True),
-        step=dict(required=True),
-        staypuft_session=dict(required=True),
-        typings_map=dict(required=False),
-        interface_assignments_map=dict(required=False),
-    ))
+    module = AnsibleModule(
+        argument_spec=dict(
+            ip                          =   dict(required=True),
+            deployment_id               =   dict(required=True),
+            step                        =   dict(required=True),
+            staypuft_session            =   dict(required=True),
+            typings_map                 =   dict(required=False),
+            interface_assignments_map   =   dict(required=False),
+            associate_hosts_map         =   dict(required=False),
+        )
+    )
 
     step=module.params['step']
-    staypuft_deploy = Staypuft(module.params)
+
+    # We will not follow redirects
+    opener = urllib2.build_opener(NoRedirectHandler())
+    urllib2.install_opener(opener)
 
     if step == "subnet-typings":
+        staypuft_deploy = Staypuft(module.params)
         success = staypuft_deploy.assign_types_to_subnets()
         fail_msg = "unable to assign subnets"
 
     elif step == "interface-assignments":
+        staypuft_deploy = Staypuft(module.params)
         success = staypuft_deploy.assign_subnets_to_host_interfaces()
         fail_msg = "unable to assign subnets"
+
+    elif step == "associate-discovered-hosts":
+        staypuft_deploy = Staypuft(module.params)
+        success = staypuft_deploy.associate_discovered_hosts()
+        fail_msg = "unable to assign hosts"
 
     else:
         module.fail_json(msg="unrecognized step: %s" % step)
@@ -219,7 +297,5 @@ def main():
     else:
         module.fail_json(msg=fail_msg)
 
-# this is magic, see lib/ansible/module_common.py
-#<<INCLUDE_ANSIBLE_MODULE_COMMON>>
-if __name__ == '__main__':
-    main()
+from ansible.module_utils.basic import *
+main()
