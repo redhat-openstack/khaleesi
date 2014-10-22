@@ -24,7 +24,7 @@
   shell: >
     chdir={{ instack_user_home.stdout }}
     export IMG_SOURCE_URL="{{ product.instack_images[ ansible_distribution ] }}";
-    wget -nc -nd -nH -np -r -R index.html --no-parent $IMG_SOURCE_URL
+    wget --no-verbose --no-parent --recursive --level=1 --no-directories $IMG_SOURCE_URL
   async: 18000
   poll: 300
   when: ansible_distribution == 'Fedora' and installer.custom_instack_images is not defined
@@ -38,7 +38,7 @@
   shell: >
     chdir={{ instack_user_home.stdout }}
     export IMG_SOURCE_URL="{{ installer.custom_instack_images }}";
-    wget -nc -nd -nH -np -r -R index.html --no-parent $IMG_SOURCE_URL
+    wget --no-verbose --no-parent --recursive --level=1 --no-directories $IMG_SOURCE_URL
   async: 18000
   poll: 300
   when: installer.custom_instack_images is defined
