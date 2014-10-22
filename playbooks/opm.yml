@@ -33,3 +33,10 @@
     - controller
   roles:
     - opm/keystone
+
+- name: Install glance
+  sudo: yes
+  hosts:
+    - controller
+  roles:
+    - opm/glance
