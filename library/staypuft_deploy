@@ -112,6 +112,7 @@ class Staypuft(object):
             self.subnet_map= {}
 
             self.get_subnets()
+            self.get_deploy_hostgroups()
             self.map_hostgrous_to_hosts_ids()
 
         if self.step == "associate-discovered-hosts":
