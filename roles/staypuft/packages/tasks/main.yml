@@ -1,4 +1,10 @@
 ---
+- name: Create the EPEL Repository
+  template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
+  when: ansible_distribution == "RedHat"
+  notify:
+    - Yum clean all
+
 - name: Install libvirt dependencies
   yum: name={{ item }} state=latest
   with_items:
@@ -15,3 +21,5 @@
     - bpg-sans-fonts
     - virt-viewer
     - xauth
+    - python-beautifulsoup4
+    - rubygem-nokogiri
