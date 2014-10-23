@@ -50,23 +50,23 @@
 
 - name: enable the rdo-release repository
   yum: name="{{  product.rpm[ ansible_distribution ] }}" state=present #"
-  when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined and product.repo_type != 'copr'
+  when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined and (product.repo.copr is not defined or (product.repo.copr is defined and product.repo_type == 'stage'))
   sudo_user: root
   sudo: yes
   register: rdo_repo_output
 
 - name: print rdo_repo_output
   debug: var=rdo_repo_output.stdout
-  when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined and product.repo_type != 'copr'
+  when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined and (product.repo.copr is not defined or (product.repo.copr is defined and product.repo_type == 'stage'))
 
 - name: enable tripleo copr repository
   shell: "sudo curl -o /etc/yum.repos.d/slagle-openstack-m.repo {{ product.repo.copr[ ansible_distribution ][distro.version] }}"
-  when: product.repo_type == 'copr'
+  when: product.repo.copr is defined
   register: rdo_repo_output
 
 - name: print rdo_repo_output
   debug: var=rdo_repo_output.stdout
-  when: product.repo_type == 'copr'
+  when: product.repo.copr is defined
 
 - name: enable a custom repository
   yum: name="{{ installer.custom_repo }}"
