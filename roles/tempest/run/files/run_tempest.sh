@@ -18,7 +18,7 @@ tempest.testr() {
     fi
 
     local grep_skip_options="\\("$(sed -e 's|\ |\\\||g' <<< $skip_list)"\\)"
-    local include_list="smoke"
+    local include_list=""
 
     testr init
     testr run --parallel --subunit \
