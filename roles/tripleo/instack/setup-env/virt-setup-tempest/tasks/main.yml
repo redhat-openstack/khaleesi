@@ -30,7 +30,7 @@
     sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' -P {{ job_var.vm_ssh_port }} stack@{{ job_var.instack_virt_host }}:/home/stack/temp_list {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/ &
 
 - name: define controller ip
-  shell: sleep 6; cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/temp_list | grep Controller | awk -F= '{print $NF}' | grep -o '[0-9 \.]*' | sed 's/ //'
+  shell: sleep 12; cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi/temp_list | grep Controller | awk -F= '{print $NF}' | grep -o '[0-9 \.]*' | sed 's/ //'
   register: controller_node_ip
 
 - name: get instack_vm ip address
@@ -49,7 +49,7 @@
   shell: >
     sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.instack_virt_host }} "sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' -P {{ job_var.vm_ssh_port }} /home/stack/.ssh/id_rsa stack@{{ job_var.instack_virt_host }}:/home/stack";
     sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.instack_virt_host }} "sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' -P {{ job_var.vm_ssh_port }} /home/stack/.ssh/id_rsa.pub stack@{{ job_var.instack_virt_host }}:/home/stack";
-    sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.instack_virt_host }} -p {{ job_var.vm_ssh_port }} "ssh-copy-id -i /home/stack/id_rsa.pub heat-admin@{{ controller_node_ip.stdout }} "
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.instack_virt_host }} -p {{ job_var.vm_ssh_port }} "ssh-copy-id -i /home/stack/id_rsa.pub -o 'StrictHostKeyChecking=no' heat-admin@{{ controller_node_ip.stdout }} "
   when: tunnels_exist.stdout != "*{{ job_var.vm_tempest_port }}*"
 
 - name: set up ssh tunnels to ssh from the instack vm to the controller
