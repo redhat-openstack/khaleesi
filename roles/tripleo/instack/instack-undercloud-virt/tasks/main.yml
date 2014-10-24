@@ -59,6 +59,10 @@
   debug: var=rdo_repo_output.stdout
   when: ansible_distribution == 'Fedora' and installer.custom_repo is not defined and (product.repo.copr is not defined or (product.repo.copr is defined and product.repo_type == 'stage'))
 
+- name: change baseurl for rdo repo
+  shell: "sed -i 's#^baseurl.*#baseurl={{ product.repo.stage[ansible_distribution][distro.version] }}#' /etc/yum.repos.d/rdo-release.repo"
+  when: product.repo.copr is defined and product.repo_type == 'stage'
+
 - name: enable tripleo copr repository
   shell: "sudo curl -o /etc/yum.repos.d/slagle-openstack-m.repo {{ product.repo.copr[ ansible_distribution ][distro.version] }}"
   when: product.repo.copr is defined
