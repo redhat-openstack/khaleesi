@@ -128,7 +128,7 @@
        status_code=302
 
 - name: check that the hosts have been deployed
-  shell: curl -s -k -X GET -H X-CSRF-Token:"{{ token.stdout }}" -H Cookie:"{{login.set_cookie}}" https://{{ staypuft.deploy.ip }}/deployments/{{ deployment_id.stdout }} | grep -q -E -- ">Deployed<"
+  shell: curl -v -k -X GET -H X-CSRF-Token:"{{ token.stdout }}" -H Cookie:"{{login.set_cookie}}" https://{{ staypuft.deploy.ip }}/deployments/{{ deployment_id.stdout }} | grep -E -- ">Deployed<"
   register: deploy_end
   retries: 36
   delay: 300
