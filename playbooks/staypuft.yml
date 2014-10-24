@@ -1,0 +1,13 @@
+---
+- include: staypuft/baremetal-setup.yml
+- include: staypuft/foreman-vm-create.yml
+- include: staypuft/deploy-vms-create.yml
+
+# TODO a better way should be to check when api/v2/discovered_hosts return 5 hosts
+# But this requires a login (and the login task to be share among playbooks)
+- name: we have to wait for the deploy host to become discovered
+  hosts: local
+  tasks:
+    - pause: minutes=4
+
+- include: staypuft/deployments.yml

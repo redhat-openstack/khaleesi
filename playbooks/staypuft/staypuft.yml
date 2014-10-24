@@ -1,4 +1,0 @@
----
-- include: ./baremetal-setup.yml
-- include: ./foreman-vm-create.yml
-- include: ./deploy-vms-create.yml

@@ -1,11 +1,18 @@
 ---
+- name: use ksgen value for stapypuft IP if this is a standalone playbook call
+  set_fact: staypuft_deploy_ip={{ staypuft.deploy.ip }}
+  when: hostvars['staypuft_host'].staypuft_deploy_ip is not defined
+
+- name: use foreman-vm-create playbook generated fact if the playbook is called inside a full run
+  set_fact: staypuft_deploy_ip={{ hostvars['staypuft_host'].staypuft_deploy_ip }}
+  when: hostvars['staypuft_host'].staypuft_deploy_ip is defined
 
 - name: check that you can connect (GET) - returns a status 200
-  action: uri url="https://{{ staypuft.deploy.ip }}"
+  action: uri url="https://{{ staypuft_deploy_ip }}"
   register: webpage
 
 - name: login to the webpage and save cookie
-  uri: url="https://{{ staypuft.deploy.ip }}/users/login"
+  uri: url="https://{{ staypuft_deploy_ip }}/users/login"
        method=POST
        body="login[login]={{ staypuft.deploy.login.username }}&login[password]={{ staypuft.deploy.login.password }}"
        follow_redirects=safe
@@ -15,7 +22,7 @@
   register: login
 
 - name: use get command to return authenticity_token
-  uri: url="https://{{ staypuft.deploy.ip }}"
+  uri: url="https://{{ staypuft_deploy_ip }}"
        method=GET
        HEADER_Cookie="{{login.set_cookie}}"
        status_code=200
@@ -29,17 +36,17 @@
   register: token
 
 - name: create a new deployment
-  uri: url="https://{{ staypuft.deploy.ip }}/deployments/new"
+  uri: url="https://{{ staypuft_deploy_ip }}/deployments/new"
        HEADER_Cookie="{{login.set_cookie}}"
        method=GET
   register: new_deployment
 
 - name: get deployment id number
-  shell: sed -n 's/https:\/\/{{ staypuft.deploy.ip }}\/deployments\/\(.*\)\/steps\/deployment_settings?/\1/p' <<<"{{ new_deployment.content_location }}"
+  shell: sed -n 's/https:\/\/{{ staypuft_deploy_ip }}\/deployments\/\(.*\)\/steps\/deployment_settings?/\1/p' <<<"{{ new_deployment.content_location }}"
   register: deployment_id
 
 - name: add deployment settings
-  uri: url="https://{{ staypuft.deploy.ip }}/deployments/{{ deployment_id.stdout }}/steps/deployment_settings"
+  uri: url="https://{{ staypuft_deploy_ip }}/deployments/{{ deployment_id.stdout }}/steps/deployment_settings"
        method=PUT
        HEADER_Cookie="{{login.set_cookie}}"
        HEADER_X-CSRF-Token="{{ token.stdout }}"
@@ -51,27 +58,27 @@
 # TODO: subnets on settings, as dict
 - name: network configuration - create subnets
   shell: >
-    curl -k -X POST -H Cookie:"{{login.set_cookie}}" -H X-CSRF-Token:"{{ token.stdout }}" -H Content-Type:"application/x-www-form-urlencoded" --data 'staypuft_simple_subnet[name]={{ item.name }}&staypuft_simple_subnet[network_address]={{ item.address }}&staypuft_simple_subnet[dhcp_server]=external' https://{{staypuft.deploy.ip}}/staypuft/subnets?deployment_id={{ deployment_id.stdout}}
+    curl -k -X POST -H Cookie:"{{login.set_cookie}}" -H X-CSRF-Token:"{{ token.stdout }}" -H Content-Type:"application/x-www-form-urlencoded" --data 'staypuft_simple_subnet[name]={{ item.name }}&staypuft_simple_subnet[network_address]={{ item.address }}&staypuft_simple_subnet[dhcp_server]=external' https://{{staypuft_deploy_ip}}/staypuft/subnets?deployment_id={{ deployment_id.stdout}}
   with_items:
       - { name: "openstack_tenant",   address: "172.16.16.0/24" }
 
 - name: network configuration - create subnets no dhcp
   shell: >
-      curl -k -X POST -H Cookie:"{{login.set_cookie}}" -H X-CSRF-Token:"{{ token.stdout }}" -H Content-Type:"application/x-www-form-urlencoded" --data 'staypuft_simple_subnet[name]={{ item.name }}&staypuft_simple_subnet[network_address]={{ item.address }}&staypuft_simple_subnet[dhcp_server]=none&staypuft_simple_subnet[gateway]={{item.gateway}}&staypuft_simple_subnet[ip_range_start]={{item.start}}&staypuft_simple_subnet[ip_range_end]={{item.end}}' https://{{staypuft.deploy.ip}}/staypuft/subnets?deployment_id={{ deployment_id.stdout}}
+      curl -k -X POST -H Cookie:"{{login.set_cookie}}" -H X-CSRF-Token:"{{ token.stdout }}" -H Content-Type:"application/x-www-form-urlencoded" --data 'staypuft_simple_subnet[name]={{ item.name }}&staypuft_simple_subnet[network_address]={{ item.address }}&staypuft_simple_subnet[dhcp_server]=none&staypuft_simple_subnet[gateway]={{item.gateway}}&staypuft_simple_subnet[ip_range_start]={{item.start}}&staypuft_simple_subnet[ip_range_end]={{item.end}}' https://{{staypuft_deploy_ip}}/staypuft/subnets?deployment_id={{ deployment_id.stdout}}
   with_items:
       - { name: "openstack_floating_ips", address: "192.168.123.0/24" , gateway: "192.168.123.1", start: "192.168.123.2", end: "192.168.123.254"}
 
 # some values for this are found in defaults
 - name: Network configuration - assign subnet type to subnet
   staypuft_deploy:
-    ip={{ staypuft.deploy.ip }}
+    ip={{ staypuft_deploy_ip }}
     deployment_id={{ deployment_id.stdout }}
     staypuft_session="{{ staypuft_session }}"
     step="subnet-typings"
     typings_map="{{typings_map}}"
 
 - name: add services configuration
-  uri: url="https://{{ staypuft.deploy.ip }}/deployments/{{ deployment_id.stdout }}/steps/services_configuration"
+  uri: url="https://{{ staypuft_deploy_ip }}/deployments/{{ deployment_id.stdout }}/steps/services_configuration"
        method=PUT
        HEADER_Cookie="{{login.set_cookie}}"
        HEADER_X-CSRF-Token="{{ token.stdout }}"
@@ -81,7 +88,7 @@
        status_code=302
 
 - name: find hostgroup_id groups
-  uri: url="https://{{ staypuft.deploy.ip }}/deployments/{{ deployment_id.stdout }}#controller_neutron_free_hosts"
+  uri: url="https://{{ staypuft_deploy_ip }}/deployments/{{ deployment_id.stdout }}#controller_neutron_free_hosts"
        method=GET
        HEADER_Cookie="{{login.set_cookie}}"
        HEADER_X-CSRF-Token="{{ token.stdout }}"
@@ -97,7 +104,7 @@
 
 - name: associate discovered_hosts to hostgroups
   staypuft_deploy:
-    ip={{ staypuft.deploy.ip }}
+    ip={{ staypuft_deploy_ip }}
     deployment_id={{ deployment_id.stdout }}
     staypuft_session="{{ staypuft_session }}"
     step="associate-discovered-hosts"
@@ -106,7 +113,7 @@
 # some values for this are found in defaults
 - name: Network configuration - associate subnet to host nic
   staypuft_deploy:
-    ip={{ staypuft.deploy.ip }}
+    ip={{ staypuft_deploy_ip }}
     deployment_id={{ deployment_id.stdout }}
     staypuft_session="{{ staypuft_session }}"
     step="interface-assignments"
@@ -117,10 +124,10 @@
 
 - name: import deployment config file
   shell: >
-    curl -k -X POST -b "{{login.set_cookie}}" -H X-CSRF-Token:"{{ token.stdout }}" --form "deployment_config_file=@/tmp/{{ staypuft.deploy.deployment_config  }}" https://{{ staypuft.deploy.ip }}/deployments/{{ deployment_id.stdout }}/import_config -vvv
+    curl -k -X POST -b "{{login.set_cookie}}" -H X-CSRF-Token:"{{ token.stdout }}" --form "deployment_config_file=@/tmp/{{ staypuft.deploy.deployment_config  }}" https://{{ staypuft_deploy_ip }}/deployments/{{ deployment_id.stdout }}/import_config -vvv
 
 - name: deploy
-  uri: url="https://{{ staypuft.deploy.ip }}/deployments/{{ deployment_id.stdout }}/deploy"
+  uri: url="https://{{ staypuft_deploy_ip }}/deployments/{{ deployment_id.stdout }}/deploy"
        method=POST
        HEADER_Cookie="{{login.set_cookie}}"
        HEADER_X-CSRF-Token="{{ token.stdout }}"
@@ -128,7 +135,7 @@
        status_code=302
 
 - name: check that the hosts have been deployed
-  shell: curl -v -k -X GET -H X-CSRF-Token:"{{ token.stdout }}" -H Cookie:"{{login.set_cookie}}" https://{{ staypuft.deploy.ip }}/deployments/{{ deployment_id.stdout }} | grep -E -- ">Deployed<"
+  shell: curl -v -k -X GET -H X-CSRF-Token:"{{ token.stdout }}" -H Cookie:"{{login.set_cookie}}" https://{{ staypuft_deploy_ip }}/deployments/{{ deployment_id.stdout }} | grep -E -- ">Deployed<"
   register: deploy_end
   retries: 36
   delay: 300

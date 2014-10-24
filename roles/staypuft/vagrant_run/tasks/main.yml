@@ -36,14 +36,19 @@
   environment: vagrant_environment
 
 - name: Detect Foreman IP
-  shell: 'vagrant ssh -c "ip a show to 10.0.0.0/8 primary" | grep inet | sed -e "s/[[:blank:]]*inet \(.*\)\/[0-9]* brd .* scope global \(.*\)/Public IP address is \1 on interface \2/"'
+  shell: 'vagrant ssh -c "ip a show to 10.0.0.0/8 primary" | grep inet | sed -e "s/[[:blank:]]*inet \(.*\)\/[0-9]* brd .* scope global \(.*\)/\1/"'
   args:
       chdir: "{{ ansible_env.HOME }}/staypuft-install-groups/group1"
   register: foreman_public_ip
   environment: vagrant_environment
 
+- name: set it as a fact
+  set_fact: staypuft_deploy_ip="{{ foreman_public_ip.stdout }}"
+
 - name: Show staypuft VM public ip
   debug: msg="{{ foreman_public_ip.stdout }}"
+
+- debug: var=staypuft_deploy_ip
 
 - name: echo foreman ip to file
   shell: echo "forman ip address, {{ foreman_public_ip.stdout }}" >  /tmp/STAYPUFT_README

@@ -58,7 +58,7 @@ Launch a complete staypuft installation
 =======================================
 
     pushd khaleesi
-    ./run.sh -vvvv -i inventory.ini --silent --use ksgen_settings.yml playbooks/staypuft/staypuft.yml
+    ./run.sh -vvvv -i inventory.ini --silent --use ksgen_settings.yml playbooks/staypuft.yml
 
 
 This playbook will in turn call
@@ -66,4 +66,5 @@ This playbook will in turn call
 - baremetal setup to prepare hosting of staypuft and deploy vm
 - creation of staypuft vm through vagrant
 - creation of 5 empty deploy vms
+- deployement of a standard openstack installation (controller + compute + neutron + ceph node + spare box)
 
