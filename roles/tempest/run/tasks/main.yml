@@ -4,11 +4,13 @@
   tags: tempest_run
 
 - name: Run tempest
-  shell: "source {{ tempest.dir }}/.venv/bin/activate; cd {{ tempest.dir }}; testr init; tools/run-tests.sh {{ tempest.test_name }}"
+  script: run_tempest.sh {{ tempest.dir }} {{ tempest.test_name }}
+       --exclude-files {{ tempest.skip.files }}
+       --exclude-tests {{ tempest.skip.tests }}
   tags: tempest_run
   ignore_errors: True
 
 - name: Fetch results
-  fetch: src={{ tempest.dir }}/tempest.xml
+  fetch: src={{ tempest.dir }}/nosetests.xml
          dest=nosetests.xml flat=yes
   tags: tempest_run

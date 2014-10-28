@@ -26,6 +26,6 @@
   copy: src=.testr.conf  dest={{ tempest.dir }}
 
 - name: install virtualenv
-  command: "python {{ tempest.dir }}/tools/install_venv.py {{ tempest.dir }}/.venv "
+  command: "python {{ tempest.dir }}/tools/install_venv.py {{ tempest.dir }}"
 
 - include: generate-tempest-conf.yml
