@@ -113,6 +113,13 @@
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
+- name: edit instack.answers file
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    sed -i 's/LOCAL_INTERFACE=eth1/LOCAL_INTERFACE=em2/' instack.answers
+  sudo_user: "{{ instack.user.stack.name }}"
+  sudo: yes
+
 - name: check if install undercloud has been run
   stat: path="{{ instack_user_home.stdout }}/.instack/install-undercloud.log"
   register: instack_log_present
