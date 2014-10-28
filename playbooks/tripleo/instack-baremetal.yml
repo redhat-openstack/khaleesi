@@ -1,7 +1,7 @@
 ---
 
 # provision
-- include: beaker-provision.yml
+#- include: beaker-provision.yml
 
 - name: prepare for undercloud install
   hosts: local
@@ -26,4 +26,4 @@
     - { role: tripleo/instack/deploy-overcloud }
     - { role: tripleo/instack/test-overcloud}
 
-- include: instack-baremetal-tempest.yml
+#- include: instack-baremetal-tempest.yml

@@ -15,7 +15,7 @@
   roles:
     - { role: tripleo/instack/common-undercloud }
     - { role: tripleo/instack/common }
-    - { role: tripleo/instack/instack-undercloud-baremetal}
+    - { role: tripleo/instack/icehouse/instack-undercloud-baremetal}
 
 - include: ../../workarounds/workarounds-pre-run-instack-overcloud.yml
 
