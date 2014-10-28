@@ -100,7 +100,7 @@
   when: installer.updated_rpms_list is defined
 
 - name: check answers file exists
-  shell: "[ -e /usr/share/doc/instack-undercloud/instack-baremetal.answers.sample]"
+  shell: "[ -e /usr/share/instack-undercloud/instack.answers.sample]"
   register: answers_file_present
   changed_when: false
 
@@ -109,7 +109,7 @@
 - name: copy baremetal answers file
   shell: >
     chdir={{ instack_user_home.stdout }}
-    cp /usr/share/doc/instack-undercloud/instack-baremetal.answers.sample {{ instack_user_home.stdout }}/instack.answers
+    cp /usr/share/instack-undercloud/instack.answers.sample {{ instack_user_home.stdout }}/instack.answers
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
