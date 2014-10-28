@@ -34,9 +34,11 @@
 
 - name: change root password
   shell: >
-    ssh -o 'StrictHostKeyChecking=no' -x -t -t -l root {{ job_var.instack_virt_host }} -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }} 'export UNDERCLOUD_ROOT_PASSWORD=stack; echo $UNDERCLOUD_ROOT_PASSWORD | passwd root --stdin'
+    ssh -o 'StrictHostKeyChecking=no' -x -t -t -l root {{ job_var.instack_virt_host }} -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }} 'export UNDERCLOUD_ROOT_PASSWORD={{ job_var.vm_pass }}; echo $UNDERCLOUD_ROOT_PASSWORD | passwd root --stdin'
 
-- { include: ../../../common-undercloud/tasks/main.yml }
+- name: add stack user
+  shell: >
+    sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -t -t -l root {{ job_var.instack_virt_host }} 'useradd stack; export UNDERCLOUD_ROOT_PASSWORD={{ job_var.vm_pass }}; echo $UNDERCLOUD_ROOT_PASSWORD | passwd stack --stdin'
 
 - name: prep for copy ssh keys
   shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -v &
