@@ -119,7 +119,7 @@
 
 - name: run script to install undercloud
   register: instack_undercloud_result
-  command:  chdir={{ instack_user_home.stdout }} instack-install-undercloud-packages
+  command:  chdir={{ instack_user_home.stdout }} instack-install-undercloud
   when: instack_log_present.stat.exists == False
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
