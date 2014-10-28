@@ -32,6 +32,10 @@
     chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
     sleep 5
 
+- name: change root password
+  shell: >
+    ssh -o 'StrictHostKeyChecking=no' -x -t -t -l root {{ job_var.instack_virt_host }} -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }} 'export UNDERCLOUD_ROOT_PASSWORD=stack; echo $UNDERCLOUD_ROOT_PASSWORD | passwd root --stdin'
+
 - { include: ../../../common-undercloud/tasks/main.yml }
 
 - name: prep for copy ssh keys
