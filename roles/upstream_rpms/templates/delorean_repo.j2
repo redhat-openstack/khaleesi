@@ -1,0 +1,8 @@
+[openstack-upstream-{{ product.version }}]
+name=OpenStack Delorean Repository
+failovermethod=priority
+baseurl={{ product.repo.delorean[ansible_distribution][ansible_distribution] }}
+enabled=1
+metadata_expire=7d
+gpgcheck=0
+priority=01
