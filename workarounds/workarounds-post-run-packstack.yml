@@ -1,4 +1,11 @@
 ---
+- name: Gather facts from controller and compute
+  hosts: all:!localhost:!tempest
+  sudo: yes
+  tags:
+    - tempest_setup
+    - tempest_run
+
 - name: Workarounds | specific to RedHat distro RHEL 7.x
   hosts: RedHat-7:&controller
   roles:
@@ -21,6 +28,8 @@
           when: workarounds.enabled and workaround.s3_objectstore_endpoint is defined and workaround.s3_objectstore_endpoint }
     - { role: workarounds/nova-scheduler-default-filters,
           when: workarounds.enabled and workaround.nova_scheduler_default_filters is defined and workaround.nova_scheduler_default_filters }
+    - { role: workarounds/reseller-admin-role,
+          when: workarounds.enabled and workaround.reseller_admin_role is defined and workaround.reseller_admin_role }
 
 - name: Workarounds | specific to Compute nodes (roles)
   hosts: compute
