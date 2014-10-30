@@ -1,6 +1,8 @@
 ---
+#reboot for fedora requires --no-wall or reboot will fail
 - name: reboot
-  shell: logger -p local3.info -s "ANSIBLE REBOOT" && /sbin/shutdown -r {{ distro.config.reboot_delay }} {{ distro_reboot_options }}
+  sudo: yes
+  script: reboot.sh
 
 - name: Wait for host to stop
   sudo: no
