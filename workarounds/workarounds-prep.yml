@@ -34,13 +34,13 @@
 - name: Workarounds | Foreman node
   hosts: foreman
   roles:
-    - { role: workarounds/openstack-packstack-rpm,
-        when: workaround_openstack_packstack_rpm is defined
-              and workaround_openstack_packstack_rpm
-              and openstack_packstack_rpm is defined }
+    - { role: workarounds/openstack-puppet-rpm,
+        when: job.workaround_openstack_puppet_rpm is defined
+              and job.workaround_openstack_puppet_rpm
+              and job.openstack_puppet_rpm is defined }
     - { role: workarounds/puppet-version-lock,
-        when: workaround_puppet_version_lock is defined
-              and workaround_puppet_version_lock }
+        when: job.workaround_puppet_version_lock is defined
+              and job.workaround_puppet_version_lock }
 
 - name: Workarounds | specific to RedHat distro RHEL 7.x
   hosts: RedHat-7

@@ -1,4 +1,0 @@
----
-- name: Install specific openstack_packstack
-  yum: name={{ openstack_packstack_rpm }} state=present
-

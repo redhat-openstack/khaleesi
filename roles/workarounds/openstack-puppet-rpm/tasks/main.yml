@@ -1,0 +1,4 @@
+---
+- name: Install specific openstack_puppet_rpm
+  yum: name={{ job.openstack_puppet_rpm }} state=present
+
