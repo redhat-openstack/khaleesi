@@ -33,6 +33,7 @@
 
 - name: Workarounds | Foreman node
   hosts: foreman
+  sudo: yes
   roles:
     - { role: workarounds/openstack-puppet-rpm,
         when: job.workaround_openstack_puppet_rpm is defined
