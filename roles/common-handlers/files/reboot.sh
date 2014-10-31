@@ -19,12 +19,14 @@ function get_release() {
  if [[ "${version}" == *Beta* ]]; then
    version="$(cat /etc/redhat-release | awk '{print $(NF-2) }')"
  elif [[ ${version%.*} -gt 0 ]]; then
-   echo OK: found version 1>&2
+   version=${version%.*}
+ elif [[ ${version%.*.*} -gt 0 ]]; then #for CentOS-7+
+   version=${version%.*.*}
  else
    echo ERROR: unable to determine distribution, got $version 1>&2
    exit 1;
  fi
- echo ${version%.*}
+ echo $version
 }
 
 DISTRIBUTION=$(get_distribution)
