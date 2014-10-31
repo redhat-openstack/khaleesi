@@ -1,7 +1,7 @@
 ---
 - name: use ksgen value for stapypuft IP if this is a standalone playbook call
   set_fact: staypuft_deploy_ip={{ staypuft.deploy.ip }}
-  when: hostvars['staypuft_host'].staypuft_deploy_ip is not defined
+  when: hostvars['staypuft_host'] is not defined or hostvars['staypuft_host'].staypuft_deploy_ip is not defined
 
 - name: use foreman-vm-create playbook generated fact if the playbook is called inside a full run
   set_fact: staypuft_deploy_ip={{ hostvars['staypuft_host'].staypuft_deploy_ip }}
