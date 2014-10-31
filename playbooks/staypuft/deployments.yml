@@ -1,6 +1,6 @@
 ---
 
 - name: create deployment without GUI
-  hosts: local
+  hosts: localhost
   roles:
     - { role: staypuft/deployments }
