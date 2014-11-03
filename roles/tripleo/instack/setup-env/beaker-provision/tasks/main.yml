@@ -25,6 +25,10 @@
     chmod +x beakerCheckOut.sh
   when: beakerCheckOut_downloaded.stat.exists == True
 
+- name: return the Beaker machine if it is checked out
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -x -l root {{ provisioner.machine_name }} "return2beaker.sh"
+  ignore_errors: yes
+
 - name: provision Beaker machine
   shell: >
     chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
