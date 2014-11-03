@@ -30,7 +30,9 @@ function get_release() {
 }
 
 DISTRIBUTION=$(get_distribution)
-RELEASE=$(get_release)
+if [[ $DISTRIBUTION != "Fedora" ]]; then
+  RELEASE=$(get_release)
+fi
 echo DISTRIBUTION=$DISTRIBUTION
 echo RELEASE=$RELEASE
 
