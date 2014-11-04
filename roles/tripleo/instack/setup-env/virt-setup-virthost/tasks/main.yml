@@ -3,11 +3,11 @@
 - name: download key files
   shell: >
     chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
-    wget {{ job_var.key_file_remote }} -O {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }};
+    cp {{ provisioner.key_file }} {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }};
     chmod 600 {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{job_var.key_file }};
     cp {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{job_var.key_file }} {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{job_var.id_rsa }};
     chmod 600 {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{job_var.id_rsa }};
-    wget {{job_var.id_rsa_pub_remote }} -O {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }};
+    cp {{ provisioner.pub_file }} {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }};
     chmod 644 {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }}
 
 - name: get remote config file with custom options
