@@ -46,14 +46,6 @@
       - product/rhos
   tags: prep
 
-- name: Prepare  network bridge
-  hosts: controller
-  sudo: yes
-  roles:
-    - { role: bridge-setup }
-  tags:
-    - prep
-
 # Generate answers
 - name: Setup packstack on Controller
   hosts: controller
