@@ -37,6 +37,8 @@
           when: workarounds.enabled and workaround.nova_scheduler_default_filters is defined and workaround.nova_scheduler_default_filters }
     - { role: workarounds/reseller-admin-role,
           when: workarounds.enabled and workaround.reseller_admin_role is defined and workaround.reseller_admin_role }
+    - { role: workarounds/cinder-unicode-decode,
+          when: workarounds.enabled and workaround.cinder_unicode_decode is defined and workaround.cinder_unicode_decode }
 
 - name: Workarounds | specific to Compute nodes (roles)
   hosts: compute
