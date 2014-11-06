@@ -198,9 +198,10 @@ def test_random():
 def test_env():
     src_yaml = """
     user: !env [USER]
-    invalid: !env [DOES_NOT_EXIST, ~]
-    same_user: !env [ DOES_NOT_EXIST, !env [USER, baaaz] ]
-    default: !env [ DOES_NOT_EXIST, !env [FOOO, default] ]
+    invalid: !env [DOES_NOT_EXIST1, ~]
+    same_user: !env [ DOES_NOT_EXIST2, !env [USER, baaaz] ]
+    default: !env [ DOES_NOT_EXIST3, !env [FOOO, default] ]
+    home_short: !env [ HOMExxx, '/my/home/under/the/bridge/', 7 ]
 
     """
     src = Configuration.from_string(src_yaml)
@@ -210,6 +211,19 @@ def test_env():
     assert src.invalid is None
     assert src.same_user == src.user
     assert src.default == 'default'
+    assert src.home_short == '/my/hom'
+
+def test_limit_chars():
+    src_yaml = """
+    substr: !limit_chars [ 'abcdefghijklmnopqrstuvwxyz', 7 ]
+    zero: !limit_chars [ 'abcdefghijklmnopqrstuvwxyz', 0 ]
+
+    """
+    src = Configuration.from_string(src_yaml)
+    print_yaml("Src", src)
+
+    assert src.substr == 'abcdefg'
+    assert src.zero == ''
 
 
 def test_monkey_patch_merge():

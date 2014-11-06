@@ -93,9 +93,10 @@ def _env_constructor(loader, node):
     usage:
         !env <var-name>
         !env [<var-name>, [default]]
+        !env [<var-name>, [default], [length]]
     returns value for the environment var-name
-    default may be specified by passing a second parameter
-    in a list
+    default may be specified by passing a second parameter in a list
+    length is maximum length of output (croped to that length)
     """
     import os
     # scalar node or string has no defaults, raise KeyError
@@ -106,7 +107,13 @@ def _env_constructor(loader, node):
     seq = loader.construct_sequence(node)
     var = seq[0]
     if len(seq) >= 2:
-        return os.getenv(var, seq[1])  # second item is default val
+        ret = os.getenv(var, seq[1])  # second item is default val
+
+        # third item is max. length
+        if len(seq) == 3:
+            ret = _limit_chars(ret, seq[2])
+        return ret
+
     return os.environ[var]
 
 
