@@ -66,6 +66,27 @@ def _random_constructor(loader, node):
     return random_generator(int(num_chars))
 
 
+def _limit_chars(string, length):
+    length = int(length)
+    if length < 0:
+        raise AttributeError('length to crop shoud be int, not ' + str(length))
+
+    return string[:length]
+
+
+@Configuration.add_constructor('limit_chars')
+def _limit_chars_constructor(loader, node):
+    """
+    Usage:
+        !limit_chars [<string>, <length>]
+    Method returns first param cropped to <length> chars.
+    """
+    params = loader.construct_sequence(node)
+    if len(params) != 2:
+        raise AttributeError('limit_chars requires two params: string length')
+    return _limit_chars(params[0], params[1])
+
+
 @Configuration.add_constructor('env')
 def _env_constructor(loader, node):
     """
