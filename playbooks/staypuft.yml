@@ -11,3 +11,5 @@
     - pause: minutes=4
 
 - include: staypuft/deployments.yml
+
+- include: staypuft/ha_deployments.yml

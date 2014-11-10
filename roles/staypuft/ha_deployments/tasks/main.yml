@@ -134,7 +134,10 @@
        status_code=302
 
 - name: check that the hosts have been deployed
-  shell: curl -v -k -X GET -H X-CSRF-Token:"{{ token.stdout }}" -H Cookie:"{{login.set_cookie}}" https://{{ staypuft_deploy_ip }}/deployments/{{ deployment_id.stdout }} | grep -E -- ">Deployed<"
+  shell: |
+      curl -v -k -D /tmp/staypuft-checkend-headers -X POST https://{{ staypuft_deploy_ip}}/users/login -d "login[login]={{ staypuft.deploy.login.username }}&login[password]={{ staypuft.deploy.login.password }}"
+      COOKIE=$(grep Set-Cookie /tmp/staypuft-checkend-headers | awk -F": " '{print $2}')
+      curl -v -k -X GET -H Cookie:"$COOKIE" https://{{ staypuft_deploy_ip }}/deployments/{{ deployment_id.stdout }} | grep -E -- ">Deployed<"
   register: deploy_end
   retries: 36
   delay: 300

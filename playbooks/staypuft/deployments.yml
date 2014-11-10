@@ -4,4 +4,5 @@
 - name: create deployment without GUI
   hosts: localhost
   roles:
-    - { role: staypuft/deployments }
+    - { role: staypuft/deployments,
+          when: staypuft.deploy.deployment_settings.layout_name == "Controller / Compute" }
