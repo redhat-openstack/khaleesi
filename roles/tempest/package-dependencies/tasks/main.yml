@@ -1,12 +1,13 @@
 ---
-- name: remove any previously installed rdo-release
-  command: rm -f /etc/yum.repos.d/rdo-release.repo
-  ignore_errors: true
+- name: remove rdo-release
+  yum: name=rdo-release state=absent
   notify:
     - Yum clean all
 
 - name: Install rdo-release
   yum: name="{{ tempest.rdo.rpm }}" state=present
+  notify:
+    - Yum clean all
 
 - name: Turn off foreman repos
   ini_file: dest=/etc/yum.repos.d/foreman.repo

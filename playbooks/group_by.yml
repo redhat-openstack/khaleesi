@@ -9,10 +9,18 @@
   tasks:
     - group_by: key={{ ansible_distribution }}-{{ ansible_distribution_major_version|int }}
 
-- name: Group hosts by product rdo/rhos
-  hosts: all:!localhost:!tempest
+- name: Group hosts by product rdo,rhos
+  hosts: all:!localhost
   tasks:
     - group_by: key={{ product.name }}
+      when: product is defined
+  tags:
+    - prep
+
+- name: Group hosts by product version juno, icehouse, havana, 4.0, 5.0
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ product.version }}
       when: product is defined
   tags:
     - prep

@@ -32,3 +32,10 @@
            chdir={{ tempest.dir }}"
 
 - include: generate-tempest-conf.yml
+  when: (product.version != 'juno')
+
+- include: generate-tempest-conf.yml
+  when: (product.version == 'juno' and installer.network.plugin.name == 'nova')
+
+- include: generate-tempest-juno-neutron-conf.yml
+  when: (product.version == 'juno' and installer.network.plugin.name == 'neutron')
