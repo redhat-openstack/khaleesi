@@ -46,4 +46,4 @@
     - { role: tripleo/instack/icehouse/deploy-overcloud }
     - { role: tripleo/instack/test-overcloud}
 
-- include: instack-virt-tempest-icehouse.yml
+#- include: instack-virt-tempest-icehouse.yml
