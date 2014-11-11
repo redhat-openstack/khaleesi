@@ -35,3 +35,5 @@
   with_items:
     - libselinux-python
 
+- name: Install vim
+  yum: name=vim state=installed

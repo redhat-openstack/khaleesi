@@ -32,4 +32,8 @@
   with_items:
     - libselinux-python
 
-
+- name: Install vim on tempest node
+  yum: name={{ item }} state=latest
+  with_items:
+      - vim-minimal
+      - vim
