@@ -12,15 +12,16 @@ Installation
 Install ansible
 ===============
 
-    virtualenv ansible
+    virtualenv ansible --system-site-packages
     source ansible/bin/activate
     pip install ansible
+    pip install BeautifulsSoup4
 
 
-    ANSIBLE_HOST_KEY_CHECKING=False
-    ANSIBLE_ROLES_PATH=/path/to/khaleesi/roles
-    ANSIBLE_LIBRARY=/path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible
-    ANSIBLE_LOOKUP_PLUGINS=/path/to/khaleesi/plugins/lookups
+    export ANSIBLE_HOST_KEY_CHECKING=False
+    export ANSIBLE_ROLES_PATH=/path/to/khaleesi/roles
+    export ANSIBLE_LIBRARY=/path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible
+    export ANSIBLE_LOOKUP_PLUGINS=/path/to/khaleesi/plugins/lookups
 
 
 Install ksgen
@@ -58,7 +59,7 @@ Launch a complete staypuft installation
 =======================================
 
     pushd khaleesi
-    ./run.sh -vvvv -i inventory.ini --silent --use ksgen_settings.yml playbooks/staypuft.yml
+    ./run.sh -vvvv -i inventory.ini --silent --no-logs --use ksgen_settings.yml playbooks/staypuft.yml
 
 
 This playbook will in turn call
