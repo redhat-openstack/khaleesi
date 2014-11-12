@@ -26,13 +26,13 @@
   when: beakerCheckOut_downloaded.stat.exists == True
 
 - name: return the Beaker machine if it is checked out
-  shell: sshpass -p {{ job_var.vm_pass }} ssh -x -l root {{ provisioner.machine_name }} "return2beaker.sh"
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -x -l root {{ job_var.instack_virt_host }} "return2beaker.sh"
   ignore_errors: yes
 
 - name: provision Beaker machine
   shell: >
     chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
-    {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh --arch={{ provisioner.beaker_arch }} --family=Fedora20 --tag=RELEASED --hostrequire=hostlabcontroller={{ provisioner.host_lab_controller }} --username={{ provisioner.beaker_user_name }} --password={{ provisioner.beaker_password }} --task=/CoreOS/rhsm/Install/automatjon-keys --keyvalue=HVM=1  --ks_meta="ksdevice=link" --whiteboard={{ provisioner.whiteboard_message }} --job-group={{ provisioner.beaker_group }} --machine={{ provisioner.machine_name }} --timeout=720;
+    {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh --arch={{ provisioner.beaker_arch }} --family=Fedora20 --tag=RELEASED --hostrequire=hostlabcontroller={{ provisioner.host_lab_controller }} --username={{ provisioner.beaker_user_name }} --password={{ provisioner.beaker_password }} --task=/CoreOS/rhsm/Install/automatjon-keys --keyvalue=HVM=1  --ks_meta="ksdevice=link" --whiteboard={{ provisioner.whiteboard_message }} --job-group={{ provisioner.beaker_group }} --machine={{ job_var.instack_virt_host }} --timeout=720;
   register: beaker_job_status
   async: 7200
   poll: 180
@@ -41,7 +41,7 @@
 - name: provision Beaker machine
   shell: >
     chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
-    {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh --arch={{ provisioner.beaker_arch }} --family=Fedora20 --tag=RELEASED --hostrequire=hostlabcontroller={{ provisioner.host_lab_controller }} --username={{ provisioner.beaker_user_name }} --task=/CoreOS/rhsm/Install/automatjon-keys --keyvalue=HVM=1  --ks_meta="ksdevice=link" --whiteboard={{ provisioner.whiteboard_message }} --job-group={{ provisioner.beaker_group }} --machine={{ provisioner.machine_name }} --timeout=720;
+    {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh --arch={{ provisioner.beaker_arch }} --family=Fedora20 --tag=RELEASED --hostrequire=hostlabcontroller={{ provisioner.host_lab_controller }} --username={{ provisioner.beaker_user_name }} --task=/CoreOS/rhsm/Install/automatjon-keys --keyvalue=HVM=1  --ks_meta="ksdevice=link" --whiteboard={{ provisioner.whiteboard_message }} --job-group={{ provisioner.beaker_group }} --machine={{ job_var.instack_virt_host }} --timeout=720;
   register: beaker_job_status
   async: 7200
   poll: 180
