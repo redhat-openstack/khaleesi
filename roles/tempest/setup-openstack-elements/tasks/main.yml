@@ -144,22 +144,21 @@
   get_url: url={{ cirros_image_url }} dest=~/{{ cirros_image_file }} mode=0440
 
 #Not 100% sure what has changed in packstack juno that makes this call fail
-- name: Upload cirros image to OpenStack using downloaded file
-  glance_image: >
-        name={{ cirros_image_name }}
-        container_format={{ cirros_image_container_format }}
-        disk_format={{ cirros_image_disk_format }}
-        file={{ cirros_image_file }}
-        is_public=yes
-        login_username={{ demo_username }}
-        login_password={{ demo_password }}
-        login_tenant_name={{ demo_tenant_name }}
-        auth_url={{ keystone_endpoint }}
-        state=present
-  when: product.version != 'juno'
+# - name: Upload cirros image to OpenStack using downloaded file
+#   glance_image: >
+#         name={{ cirros_image_name }}
+#         container_format={{ cirros_image_container_format }}
+#         disk_format={{ cirros_image_disk_format }}
+#         file={{ cirros_image_file }}
+#         is_public=yes
+#         login_username={{ demo_username }}
+#         login_password={{ demo_password }}
+#         login_tenant_name={{ demo_tenant_name }}
+#         auth_url={{ keystone_endpoint }}
+#         state=present
+#   when: product.version != 'juno'
 
 - name: CMD Upload cirros image to OpenStack using downloaded file
   shell: source ~/keystonerc_demo; glance image-create --name=cirros-0.3.1-x86_64 --disk-format=qcow2 --container-format=bare < /home/{{nodes.tempest.remote_user}}/cirros-0.3.1-x86_64-disk.img
   sudo: yes
-  when: product.version == 'juno'
   ignore_errors: yes
