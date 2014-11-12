@@ -162,3 +162,4 @@
   shell: source ~/keystonerc_demo; glance image-create --name=cirros-0.3.1-x86_64 --disk-format=qcow2 --container-format=bare < /home/{{nodes.tempest.remote_user}}/cirros-0.3.1-x86_64-disk.img
   sudo: yes
   when: product.version == 'juno'
+  ignore_errors: yes
