@@ -1,13 +1,12 @@
 ---
+- name: remove any previously installed rdo-release
+  command: rm -f /etc/yum.repos.d/rdo-release.repo
+  ignore_errors: true
+  notify:
+    - Yum clean all
+
 - name: Install rdo-release
   yum: name="{{ tempest.rdo.rpm }}" state=present
-
-- name: Turn off gpgcheck for OpenStack repo
-  ini_file: dest=/etc/yum.repos.d/rdo-release.repo
-            section=openstack-{{ tempest.rdo.version }}
-            option=gpgcheck
-            value=0
-  when: product.version in ['grizzly', 'havana', 'icehouse']
 
 - name: Turn off foreman repos
   ini_file: dest=/etc/yum.repos.d/foreman.repo
