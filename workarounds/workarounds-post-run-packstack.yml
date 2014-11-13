@@ -6,6 +6,13 @@
     - tempest_setup
     - tempest_run
 
+- name: Workarounds | BZ 1162945 | specifc to tempest
+  hosts: tempest
+  roles:
+    - { role: workarounds/juno-prettytable-fix,
+        tags: workaround,
+        when: wourkarounds.enabled and workaround.juno_prettytable_fix is defined and workaround.juno_prettytable_fix }
+
 - name: Workarounds | specific to RedHat distro RHEL 7.x
   hosts: RedHat-7:&controller
   roles:
