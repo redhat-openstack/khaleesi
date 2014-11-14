@@ -104,6 +104,12 @@ class Staypuft(object):
             self.get_subnets()
             self.get_subnets_types()
 
+        if self.step == "gather-ips":
+
+            self.deploy_hostgroups = {}
+
+            self.get_deploy_hostgroups()
+
         if self.step == "interface-assignments":
             self.interface_assignments_map = ast.literal_eval(self.params['interface_assignments_map'])
 
@@ -256,6 +262,21 @@ class Staypuft(object):
                     return False
         return True
 
+    def gather_ips(self):
+        parsed_page = self._url_read_page("https://%s/deployments/%s" % (self.ip, self.deployment_id))
+        public_api = parsed_page.find(text="Public API:")
+        ip_div = public_api.next.next
+        ip_p =  ip_div.contents[1]
+        public_api_ip = ip_p.text
+
+        id = self.deploy_hostgroups["Generic RHEL 7"]
+        api_call = self._url_read_json("https://%s/api/v2/hosts?search=hostgroup_id=%s" % (self.ip, id))
+        tempest_ip = api_call["results"][0]["ip"]
+        facts = {}
+        facts["public_api_ip"] = public_api_ip
+        facts["tempest_ip"] = tempest_ip
+        return facts
+
 def main():
     module = AnsibleModule(
         argument_spec=dict(
@@ -275,10 +296,21 @@ def main():
     opener = urllib2.build_opener(NoRedirectHandler())
     urllib2.install_opener(opener)
 
+    facts = None
+
     if step == "subnet-typings":
         staypuft_deploy = Staypuft(module.params)
         success = staypuft_deploy.assign_types_to_subnets()
         fail_msg = "unable to assign subnets"
+
+    if step == "gather-ips":
+        staypuft_deploy = Staypuft(module.params)
+        facts = staypuft_deploy.gather_ips()
+        if facts:
+            success = True
+        else:
+            success = False
+        fail_msg = "unable to gather ips"
 
     elif step == "interface-assignments":
         staypuft_deploy = Staypuft(module.params)
@@ -294,7 +326,10 @@ def main():
         module.fail_json(msg="unrecognized step: %s" % step)
 
     if success:
-        module.exit_json(changed=True)
+        if facts:
+            module.exit_json(changed=True, ansible_facts=facts)
+        else:
+            module.exit_json(changed=True)
     else:
         module.fail_json(msg=fail_msg)
 

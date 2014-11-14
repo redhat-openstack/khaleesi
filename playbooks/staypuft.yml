@@ -13,3 +13,6 @@
 - include: staypuft/deployments.yml
 
 - include: staypuft/ha_deployments.yml
+
+- include: staypuft/tempest.yml
+
