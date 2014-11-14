@@ -1,0 +1,13 @@
+---
+
+- include: tripleo/instack-baremetal-icehouse.yml
+  when: product.version == 'icehouse' and instack.environ.name =='baremetal'
+
+- include: tripleo/instack-virt-icehouse.yml
+  when: product.version == 'icehouse' and instack.environ.name =='virt'
+
+- include: tripleo/instack-baremetal-juno.yml
+  when: product.version == 'juno' and instack.environ.name =='baremetal'
+
+- include: tripleo/instack-virt-juno.yml
+  when: product.version == 'juno' and instack.environ.name =='virt'
