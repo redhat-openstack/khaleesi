@@ -38,8 +38,6 @@
     - libxslt-devel
     - mariadb-devel
     - openssl-devel
-    - packstack-modules-puppet
-    - puppet
     - python-glanceclient
     - python-keystoneclient
     - python-neutronclient
