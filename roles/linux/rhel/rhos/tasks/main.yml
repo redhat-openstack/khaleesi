@@ -56,6 +56,10 @@
   template: src=rhos-poodle.repo.j2 dest=/etc/yum.repos.d/rhos-poodle.repo
   when: product.repo_type == 'poodle'
 
+- name: Create the RHOS Advanced repository (disabled)
+  template: src=rhos-advanced.repo.j2 dest=/etc/yum.repos.d/rhos-advanced.repo
+  when: product.repo_type == 'advanced'
+
 - name: Create the RHOS Foreman poodle repository (disabled)
   template: src=foreman-poodle.repo.j2 dest=/etc/yum.repos.d/foreman-poodle.repo
   when: (product.repo_type == 'poodle' and installer.name == 'staypuft')
@@ -66,6 +70,13 @@
             option=enabled
             value=1
   when: product.repo_type == 'poodle'
+
+- name: Enable RHOS Advanced repository if this is a RHOS Advanced test
+  ini_file: dest=/etc/yum.repos.d/rhos-advanced.repo
+            section=rhos-advanced
+            option=enabled
+            value=1
+  when: product.repo_type == 'advanced'
 
 - name: Enable Foreman poodle repository if this is a poodle
   ini_file: dest=/etc/yum.repos.d/foreman-poodle.repo
