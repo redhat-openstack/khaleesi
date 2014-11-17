@@ -57,4 +57,4 @@
   sudo_user: "{{ instack.user.stack.name}}"
   sudo: yes
   async: 36000
-  poll: 0
+  poll: "{{ 0 }}"
