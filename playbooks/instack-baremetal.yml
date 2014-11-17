@@ -1,0 +1,31 @@
+---
+
+# provision
+- include: tripleo/beaker-provision.yml
+
+- name: prepare for undercloud install
+  hosts: local
+  roles:
+    - { role: tripleo/instack/setup-env/baremetal-setup-undercloud }
+
+- include: ../workarounds/workarounds-pre-run-instack-undercloud-baremetal.yml
+
+- name: install undercloud on baremetal
+  hosts: instack-undercloud
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-baremetal, when: product.version == 'juno' }
+    - { role: tripleo/instack/icehouse/instack-undercloud-baremetal, when: product.version == 'icehouse' }
+
+- include: ../workarounds/workarounds-pre-run-instack-overcloud.yml
+
+- name: deploy and test overcloud
+  hosts: instack-undercloud-stack
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/deploy-overcloud, when: product.version == 'juno' }
+    - { role: tripleo/instack/icehouse/deploy-overcloud, when: product.version == 'icehouse' }
+    - { role: tripleo/instack/test-overcloud}
+
+#- include: tripleo/instack-baremetal-tempest.yml
