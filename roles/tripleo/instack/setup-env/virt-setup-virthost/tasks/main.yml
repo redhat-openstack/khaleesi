@@ -17,17 +17,27 @@
     cat {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.config_file_name }}
   when: jenkins.job_name == '*custom*'
 
+- name: check if {{ jenkins.rhos_ci_home }}/.ssh/known_hosts exists
+  stat: path="{{ jenkins.rhos_ci_home }}/.ssh/known_hosts"
+  register: ssh_known_hosts_exists
+
 - name: remove host name from known_hosts
   shell: >
     sed -i  "/]:{{ job_var.vm_ssh_port }}/d" {{ jenkins.rhos_ci_home }}/.ssh/known_hosts;
     sed -i  "/{{ job_var.instack_virt_host }}/d" {{ jenkins.rhos_ci_home }}/.ssh/known_hosts;
     cat {{ jenkins.rhos_ci_home }}/.ssh/known_hosts
+  when: ssh_known_hosts_exists.stat.exists == True
+
+- name: check if ~/.ssh/known_hosts exists
+  stat: path="~/.ssh/known_hosts"
+  register: tilda_known_hosts_exists
 
 - name: remove host name ~/.ssh/from known_hosts
   shell: >
     sed -i  "/]:{{ job_var.vm_ssh_port }}/d" ~/.ssh/known_hosts;
     sed -i  "/{{ job_var.instack_virt_host }}/d" ~/.ssh/known_hosts;
     cat ~/.ssh/known_hosts
+  when: tilda_known_hosts_exists.stat.exists == True
 
 - name: add instack-virt-host to inventory file
   add_host: name={{ job_var.instack_virt_host }} groups=instack-virt-host ansible_ssh_host={{ job_var.instack_virt_host }} ansible_ssh_user=root ansible_ssh_private_key_file={{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }}
