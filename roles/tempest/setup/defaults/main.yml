@@ -13,7 +13,7 @@ tempest_redhat_repo:
 tempest_config_image_url: http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-disk.img
 
 tempest_config_generate_command: >
-  python tools/config_tempest.py --out etc/tempest.conf
+  python {{ tempest.dir }}/tools/config_tempest.py --out {{ tempest.dir }}/etc/tempest.conf
         --debug  --create
         identity.uri http://{{ hostvars[controller_name].ansible_default_ipv4.address }}:5000/v2.0/
         compute.allow_tenant_isolation true
@@ -24,7 +24,7 @@ tempest_config_generate_command: >
         compute.image_ref_alt "{{ cirros_id.stdout }}"
 
 tempest_juno_neutron_config_generate_command: >
-  python tools/config_tempest.py --out etc/tempest.conf
+  python {{ tempest.dir }}/tools/config_tempest.py --out {{ tempest.dir }}/etc/tempest.conf
         --debug  --create
         --network-name "public_external"
         --network-type flat

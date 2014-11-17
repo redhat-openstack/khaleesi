@@ -15,7 +15,7 @@
   when: tempest.git.local == true
 
 - name: sync the tempest repo as clone on the slave (gerrit)
-  synchronize: src={{tempest.local_dir}} dest={{ tempest.dir }} recursive=yes
+  synchronize: src={{tempest.local_dir}}/ dest={{ tempest.dir }} recursive=yes
   when: tempest.git.local == true
 
 - name: add the .testr.conf file to the tempest dir
