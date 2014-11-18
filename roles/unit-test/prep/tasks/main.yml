@@ -1,4 +1,8 @@
 ---
+- name: install python-unittest2
+  yum: name=python-unittest2 state=latest
+  sudo: yes
+
 - name: upgrade all packages
   yum: pkg=* state=latest
   sudo: yes
