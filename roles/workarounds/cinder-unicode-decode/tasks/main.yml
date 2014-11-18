@@ -4,6 +4,7 @@
 
 - name: Apply patch
   command: patch -p1 /usr/lib/python2.7/site-packages/cinder/openstack/common/strutils.py /tmp/cinder.patch
+  sudo: yes
 
 - name: reload cinder to apply patch
   shell: openstack-service reload cinder
