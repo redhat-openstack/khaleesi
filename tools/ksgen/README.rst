@@ -317,19 +317,30 @@ env
 
 Use env tag to lookup value of an environment variable. An optional default
 value can be passed to the tag. if no default values are passed and the lookup
-fails, then a runtime KeyError is generated. ::
+fails, then a runtime KeyError is generated. Second optional argument will
+reduce length of value by given value ::
 
   user_home: !env HOME
   user_shell !env [SHELL, zsh]  # default shell is zsh
   job_name_parts:
      - !env [JOB_NAME, 'dev-job']
      - !env [BUILD_NUMBER, None ]
+     - !env [USER, None, 5]
 
   job_name: "{{ job_name_parts | reject(none) | join('-') }}"
 
 The snippet above effectively uses env_ tag and default option to set the
-`job_name` variable to `$JOB_NAME-$BUILD_NUMBER` if they are defined else to
-'dev-job'.
+`job_name` variable to `$JOB_NAME-$BUILD_NUMBER-${USER:0:5}` if they are
+defined else to 'dev-job'.
+
+
+limit_chars
+-----------
+
+This function will trim value of variable or string to given length.
+
+  debug:
+    message: !limit_chars [ 'some really looong text' 10 ]
 
 Debugging errors in settings
 ============================
