@@ -1,0 +1,11 @@
+---
+
+- name: copy undercloud logs
+  hosts: local
+  roles:
+    - { role: tripleo/instack/cleanup/save-undercloud-logs }
+
+- name: copy tempest results and logs
+  hosts: local
+  roles:
+    - { role: tripleo/instack/cleanup/save-tempest-logs }
