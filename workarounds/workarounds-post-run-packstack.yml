@@ -46,3 +46,11 @@
     - { role: workarounds/set-key-encrypted-volumes,
         tags: workarounds,
         when: workarounds.enabled and workaround.set_key_encrypted_volumes is defined and workaround.set_key_encrypted_volumes }
+
+- name: Workarounds | specific to Network node
+  hosts: networker
+  sudo: yes
+  roles:
+    - { role: workarounds/packstack-bridge-fix,
+        tags: workarounds,
+        when: workarounds.enabled and workaround.packstack_bridge_fix is defined and workaround.packstack_bridge_fix }
