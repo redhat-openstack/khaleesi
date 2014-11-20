@@ -5,6 +5,37 @@
 - debug: var=hostvars[inventory_hostname]
   when: job.verbosity <= verbosity.debug
 
+- name: validate that controller host can be calculated
+  template: src=controller_host.j2 dest=/tmp/controller_host.txt
+  when: nodes.controller is defined
+
+- name: remove tmp files from validation
+  file: path=/tmp/controller_host.txt state=absent
+  when: nodes.controller is defined
+
+- name: find controller host and store in a var
+  set_fact:
+    tmp_controller_host: "{{ lookup('template', '../templates/controller_host.j2') | replace('\n', '') }}"
+  when: nodes.controller is defined
+
+- name: print controller host
+  debug: var=tmp_controller_host
+  when: job.verbosity <= verbosity.info and nodes.controller is defined
+
+- name: set CONFIG_CONTROLLER_HOST to packstack answer-file
+  replace:
+      dest={{ packstack.answer_file }}
+      regexp='^(CONFIG_.*?_HOST)=.*$'
+      replace='\1={{tmp_controller_host}}'
+      backup=yes
+  when: nodes.controller is defined
+
+- name: warn if CONFIG_CONTROLLER_HOST is overridden in packstack config"
+  debug: msg="'WARNING:' CONFIG_CONTROLLER_HOST overridden by packstack config"
+  when: "'CONFIG_CONTROLLER_HOST' in packstack.config
+           and job.verbosity <= verbosity.warning
+           and nodes.controller is defined"
+
 - name: validate that compute hosts can be calculated
   template: src=compute_host.j2 dest=/tmp/compute_hosts.txt
 
