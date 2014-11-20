@@ -46,6 +46,8 @@
           when: workarounds.enabled and workaround.reseller_admin_role is defined and workaround.reseller_admin_role }
     - { role: workarounds/cinder-unicode-decode,
           when: workarounds.enabled and workaround.cinder_unicode_decode is defined and workaround.cinder_unicode_decode }
+    - { role: workarounds/cinder-scheduler-default-filters,
+          when: workarounds.enabled and workaround.cinder_scheduler_default_filters is defined and workaround.cinder_scheduler_default_filters|bool }
 
 - name: Workarounds | specific to Compute nodes (roles)
   hosts: compute
