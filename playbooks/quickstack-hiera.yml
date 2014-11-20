@@ -1,0 +1,29 @@
+---
+- include: provision.yml
+- include: validate_nodes.yml
+- include: group_by.yml tags=groupby
+
+- include: prep.yml
+
+- name: Prepare for install - RDO common
+  hosts: foreman_installer:&rdo
+  sudo: yes
+  roles:
+    - { role: product/rdo/common }
+  tags:
+    - prep
+
+- name: Prepare for install - RDO - RHEL and CentOS
+  hosts: foreman_installer:RedHat:CentOS:!Fedora:&rdo
+  sudo: yes
+  roles:
+    - { role: product/rdo/rhel }
+  tags:
+    - prep
+
+- name: Prepare for install - RDO - Fedora
+  hosts: foreman_installer:&Fedora:&rdo
+  roles:
+    - { role: product/rdo/fedora }
+  tags:
+    - prep
