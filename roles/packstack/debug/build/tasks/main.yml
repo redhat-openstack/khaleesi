@@ -1,0 +1,11 @@
+---
+- name: Get build information (puddle/poddle, version)
+  product_snapshot_data:
+  register: product_snapshot_data_execution
+  ignore_errors: yes
+  when: product.repo_type in ('poodle', 'puddle')
+
+- name: Print build information (puddle/poddle)
+  debug: 'msg="Build mark: {{ product_snapshot_type }}={{ product_snapshot_version }}"'
+  ignore_errors: yes
+  when: product.repo_type in ('poodle', 'puddle') and not product_snapshot_data_execution|failed

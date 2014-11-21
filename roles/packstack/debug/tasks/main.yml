@@ -5,13 +5,3 @@
 - name: List nodes
   debug: var=nodes
 
-- name: Get timestamp
-  command: curl {{ poodle_timestamp }}
-  register: poodle_date
-  ignore_errors: yes
-  when: product.repo_type == "poodle" and product.name == "rdo"
-
-- name: Get Poodle Build
-  debug: 'msg="Build mark: puddle={{ poodle_date.stdout }}"'
-  ignore_errors: yes
-  when: product.repo_type == "poodle" and product.name == "rdo"

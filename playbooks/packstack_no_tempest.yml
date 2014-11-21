@@ -28,6 +28,13 @@
   roles:
     - { role: packstack/debug }
 
+- name: Debug build details
+  hosts: controller
+  sudo: no
+  tags: provision
+  roles:
+    - { role: packstack/debug/build }
+
 # apply pre-packstack workarouds
 - include: ../workarounds/workarounds-prep.yml tags=workaround
 
