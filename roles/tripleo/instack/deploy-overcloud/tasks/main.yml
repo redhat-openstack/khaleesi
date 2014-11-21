@@ -13,9 +13,9 @@
 - name: modify deploy-overcloudrc
   shell: >
     chdir={{ instack_user_home.stdout }}
-    sed -i 's/COMPUTESCALE:-1/COMPUTESCALE:-{{ nodes.compute.scale }}/' deploy-overcloudrc;
-    sed -i 's/BLOCKSTORAGESCALE:-0/BLOCKSTORAGESCALE:-{{ nodes.blockstorage.scale }}/' deploy-overcloudrc;
-    sed -i 's/SWIFTSTORAGESCALE:-0/SWIFTSTORAGESCALE:-{{ nodes.swiftstorage.scale }}/' deploy-overcloudrc;
+    sed -i 's/COMPUTESCALE=1/COMPUTESCALE={{ nodes.compute.scale }}/' deploy-overcloudrc;
+    sed -i 's/BLOCKSTORAGESCALE=0/BLOCKSTORAGESCALE={{ nodes.blockstorage.scale }}/' deploy-overcloudrc;
+    sed -i 's/SWIFTSTORAGESCALE=0/SWIFTSTORAGESCALE={{ nodes.swiftstorage.scale }}/' deploy-overcloudrc;
   when: id_rsa_virt_power_present.stdout != ""
 
 - name: copy template file with baremetal environment variables
