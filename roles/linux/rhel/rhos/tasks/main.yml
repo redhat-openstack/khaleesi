@@ -41,42 +41,27 @@
 - name: ensure yum-utils
   yum: name=yum-utils state=present
 
-#only disable the openstack repos, not the supporting repos
-- name: Disable default puddle rhelosp repo when using poodle
-  shell: /usr/bin/yum-config-manager --disable 'rhelosp-{{ product.version}}*'
-  when: product.repo_type == 'poodle'
-
 - name: Disable default foreman puddle rhelosp repo when using poodle
   shell: /usr/bin/yum-config-manager --disable 'rhelosp-*-OS-Foreman'
   when: product.repo_type == 'poodle'
 
-# this is always needed (albeit disabled) for some test packages which
-# are only in poodles
-- name: Create the RHOS poodle repository (disabled)
-  template: src=rhos-poodle.repo.j2 dest=/etc/yum.repos.d/rhos-poodle.repo
+# new advanced repos
+- name: Create the RHOS Advanced repository
+  shell: "rhos-release  -x {{ product.version|int }};  rhos-release {{ product.version|int }}a"
+  when: product.repo_type == 'advanced'
+
+# poodle repos
+- name: Create the RHOS poodle repository
+  shell: "rhos-release  -x {{ product.version|int }};  rhos-release  -d {{ product.version|int }}"
   when: product.repo_type == 'poodle'
 
-- name: Create the RHOS Advanced repository (disabled)
-  template: src=rhos-advanced.repo.j2 dest=/etc/yum.repos.d/rhos-advanced.repo
-  when: product.repo_type == 'advanced'
+- name: Create the RHOS Advanced  poodle repository
+  shell: "rhos-release  -x {{ product.version|int }};  rhos-release  -d {{ product.version|int }}a"
+  when: product.repo_type == 'poodle_advanced'
 
 - name: Create the RHOS Foreman poodle repository (disabled)
   template: src=foreman-poodle.repo.j2 dest=/etc/yum.repos.d/foreman-poodle.repo
   when: (product.repo_type == 'poodle' and installer.name == 'staypuft')
-
-- name: Enable poodle repository if this is a poodle
-  ini_file: dest=/etc/yum.repos.d/rhos-poodle.repo
-            section=rhos-poodle
-            option=enabled
-            value=1
-  when: product.repo_type == 'poodle'
-
-- name: Enable RHOS Advanced repository if this is a RHOS Advanced test
-  ini_file: dest=/etc/yum.repos.d/rhos-advanced.repo
-            section=rhos-advanced
-            option=enabled
-            value=1
-  when: product.repo_type == 'advanced'
 
 - name: Enable Foreman poodle repository if this is a poodle
   ini_file: dest=/etc/yum.repos.d/foreman-poodle.repo
