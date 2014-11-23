@@ -26,7 +26,7 @@
   when: beakerCheckOut_downloaded.stat.exists == True
 
 - name: return the Beaker machine if it is checked out
-  shell: sshpass -p {{ job_var.vm_pass }} -o 'StrictHostKeyChecking=no' ssh -x -l root {{ job_var.instack_virt_host }} "return2beaker.sh"
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l root {{ job_var.instack_virt_host }} "return2beaker.sh"
   ignore_errors: yes
 
 - name: provision Beaker machine
