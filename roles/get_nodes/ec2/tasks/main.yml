@@ -1,9 +1,9 @@
 - name: Provision nodes
   ec2:
        key_name: libra
-       instance_type: c1.medium
+       instance_type: m3.medium
        region: us-east-1
-       image: ami-1643ff7e
+       image: ami-a8d369c0
        wait: yes
        group: default
        count: 1
@@ -12,3 +12,6 @@
 
 - name: debug
   debug: var=new_nodes
+
+#ami-a8d369c0 rhel70
+#ami-1643ff7e works rhel65
