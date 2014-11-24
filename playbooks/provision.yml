@@ -30,6 +30,15 @@
   tags:
     - provision
 
+- name: Get nodes - Amazon
+  hosts: local:&amazon
+  sudo: no
+  gather_facts: False
+  roles:
+    - { role: get_nodes/ec2 }
+  tags:
+    - provision
+
 - name: Assign floating IP and add hosts - Nova
   hosts: local:&openstack:&nova
   sudo: no

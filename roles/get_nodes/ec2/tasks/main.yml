@@ -1,0 +1,14 @@
+- name: Provision nodes
+  ec2:
+       key_name: libra
+       instance_type: c1.medium
+       region: us-east-1
+       image: ami-1643ff7e
+       wait: yes
+       group: default
+       count: 1
+  register: new_nodes
+  with_dict: nodes
+
+- name: debug
+  debug: var=new_nodes
