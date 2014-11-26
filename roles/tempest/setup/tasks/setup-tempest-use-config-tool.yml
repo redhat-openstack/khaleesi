@@ -24,4 +24,8 @@
 - name: install virtualenv
   command: "python {{ tempest.dir }}/tools/install_venv.py {{ tempest.dir }}"
 
-- include: generate-tempest-conf.yml
+- include: generate-tempest-havana-conf.yml
+  when: ("{{ product.version }}" == "havana") or ("{{ product.version }}" == "4.0")
+
+- include: generate-tempest-non-havana-conf.yml
+  when: ("{{ product.version }}" != "havana") and ("{{ product.version }}" != "4.0")

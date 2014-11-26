@@ -23,12 +23,12 @@ tempest_config_generate_command: >
         compute.image_ref "{{ cirros_id.stdout }}"
         compute.image_ref_alt "{{ cirros_id.stdout }}"
 
-tempest_juno_neutron_config_generate_command: >
+tempest_non_havana_config_generate_command: >
   python {{ tempest.dir }}/tools/config_tempest.py --out {{ tempest.dir }}/etc/tempest.conf
         --debug  --create
-        --network-name "public_external"
-        --network-type flat
-        --network-physical-label myphysnet
+        --network-name "public"
+        --network-type "flat"
+        --network-physical-label "myphysnet"
         --subnet-cidr "{{ tempest.public_subnet_cidr}}"
         --subnet-gateway  "{{ tempest.public_subnet_gateway }}"
         identity.uri http://{{ hostvars[controller_name].ansible_default_ipv4.address }}:5000/v2.0/

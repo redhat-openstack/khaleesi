@@ -1,5 +1,12 @@
--  name: generate-tempest-juno-neutron-conf
-   debug: msg="generate-tempest-juno-neutron-conf"
+-  name: generate-tempest-havana-conf
+   debug: msg="generate-tempest-havana-conf"
+
+- name: config_tempest |  ensure wget is present
+  yum: name=wget state=present
+  sudo: yes
+  tags:
+    - tempest_setup_rpm
+    - tempest_setup_gen_conf
 
 - name: get cirros image id
   sudo: yes
@@ -10,13 +17,13 @@
   debug: var=cirros_id.stdout
 
 - name: config_tempest |  generating tempest.conf by running
-  debug: msg="'Running:' {{ tempest_juno_neutron_config_generate_command }}"
+  debug: msg="'Running:' {{ tempest_config_generate_command }}"
   tags:
     - tempest_setup_rpm
     - tempest_setup_gen_conf
 
 - name: config_tempest |  generate tempest.conf
-  command: "{{ tempest_juno_neutron_config_generate_command }}
+  command: "{{ tempest_config_generate_command }}
            chdir={{ tempest.dir }}"
   register: result
   tags:

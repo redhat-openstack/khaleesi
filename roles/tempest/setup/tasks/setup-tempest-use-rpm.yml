@@ -31,11 +31,8 @@
            /usr/share/openstack-tempest-{{ tempest.rdo.version }}
            chdir={{ tempest.dir }}"
 
-- include: generate-tempest-conf.yml
-  when: (product.version != 'juno')
+- include: generate-tempest-havana-conf.yml
+  when: ("{{ product.version }}" == "havana") or ("{{ product.version }}" == "4.0")
 
-- include: generate-tempest-conf.yml
-  when: (product.version == 'juno' and installer.network.plugin.name == 'nova')
-
-- include: generate-tempest-juno-neutron-conf.yml
-  when: (product.version == 'juno' and installer.network.plugin.name == 'neutron')
+- include: generate-tempest-non-havana-conf.yml
+  when: ("{{ product.version }}" != "havana") and ("{{ product.version }}" != "4.0")
