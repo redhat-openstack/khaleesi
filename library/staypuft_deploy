@@ -303,7 +303,7 @@ def main():
         success = staypuft_deploy.assign_types_to_subnets()
         fail_msg = "unable to assign subnets"
 
-    if step == "gather-ips":
+    elif step == "gather-ips":
         staypuft_deploy = Staypuft(module.params)
         facts = staypuft_deploy.gather_ips()
         if facts:
