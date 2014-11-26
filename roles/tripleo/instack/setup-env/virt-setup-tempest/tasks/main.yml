@@ -121,4 +121,5 @@
 - name: ssh to controller node
   shell: ssh -o 'StrictHostKeyChecking=no' -x -l heat-admin {{ job_var.instack_virt_host }} -p {{ job_var.vm_tempest_port }}
 
-
+- name: add rol needed for tempest
+  shell: ssh -o 'StrictHostKeyChecking=no' -x -l heat-admin {{ job_var.instack_virt_host }} -p {{ job_var.vm_tempest_port }} "sudo cp /root/stackrc .; source stackrc; keystone role-create --name heat_stack_owner"
