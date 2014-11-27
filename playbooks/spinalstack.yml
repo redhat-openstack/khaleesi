@@ -1,0 +1,45 @@
+---
+# provison
+#- include: dump_settings.yml
+- include: provision.yml
+- include: group_by.yml tags=provision
+
+# - include: prep.yml
+
+# - name: Setup installer SSH ssh_key
+#   sudo: yes
+#   hosts: installer
+#   roles:
+#     - spinalstack/ssh_keys_master
+
+# - name: Prepare network
+#   sudo: yes
+#   hosts:
+#     - installer
+#     - openstack_nodes
+#     - tempest
+#   roles:
+#     - network-setup
+#     - spinalstack/ssh_keys_distribute
+
+# - name: Setup packstack on Controller (rdo)
+#   hosts: openstack_nodes:&rdo
+#   sudo: yes
+#   roles:
+#       - product/rdo
+#   tags: prep
+
+# - name: Setup packstack on Controller (rhos)
+#   hosts: openstack_nodes:&rhos
+#   sudo: yes
+#   roles:
+#       - product/rhos
+#   tags: prep
+
+- name: Install-Server
+  hosts: installer
+  sudo: yes
+  roles:
+    - spinalstack/install-server
+
+

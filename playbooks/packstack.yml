@@ -44,6 +44,7 @@
   sudo: yes
   roles:
       - product/rdo
+      - product/packstack
   tags: prep
 
 - name: Setup packstack on Controller (rhos)
@@ -51,6 +52,7 @@
   sudo: yes
   roles:
       - product/rhos
+      - product/packstack
   tags: prep
 
 # Generate answers

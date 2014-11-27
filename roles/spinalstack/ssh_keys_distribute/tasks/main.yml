@@ -1,0 +1,6 @@
+---
+- name: Add authorized_keys
+  authorized_key: user=root
+                  key="{{ item }}"
+  with_file:
+    - ssh/id_rsa.pub

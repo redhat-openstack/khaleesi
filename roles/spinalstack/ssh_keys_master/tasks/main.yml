@@ -1,0 +1,9 @@
+---
+- name: Install private keys
+  copy: src=ssh/id_rsa
+        dest=/root/.ssh/id_rsa
+        mode=600
+
+- name: Install public keys
+  copy: src=ssh/id_rsa.pub
+        dest=/root/.ssh/id_rsa.pub
