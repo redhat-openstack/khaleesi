@@ -108,3 +108,8 @@
     - { role: selinux_check }
   tags: provision
 
+- name: clean up
+  hosts: all:!localhost:!tempest
+  sudo: yes
+  roles:
+    - { role: linux/rhsm }

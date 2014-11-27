@@ -1,0 +1,9 @@
+---
+- name: return rhsm subscriptions
+  command: subscription-manager remove --all
+  when: (product.repo_type == 'rhsm' and ansible_distribution == 'RedHat')
+
+- name: unsubscribe from rhsm
+  command: subscription-manager unregister
+  ignore_errors: yes
+  when: (product.repo_type == 'rhsm' and ansible_distribution == 'RedHat')
