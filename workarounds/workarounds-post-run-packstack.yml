@@ -11,14 +11,14 @@
   sudo: yes
   roles:
     - { role: openstack/install-openstack-utils,
-        when: workarounds.enabled }
+        when: workarounds.enabled|bool }
 
 - name: Workarounds | BZ 1162945 | specifc to tempest
   hosts: tempest
   roles:
     - { role: workarounds/juno-prettytable-fix,
         tags: workaround,
-        when: workarounds.enabled and workaround.juno_prettytable_fix is defined and workaround.juno_prettytable_fix }
+        when: workarounds.enabled|bool and workaround.juno_prettytable_fix is defined and workaround.juno_prettytable_fix|bool }
 
 - name: Workarounds | specific to RedHat distro RHEL 7.x
   hosts: RedHat-7:&controller
@@ -35,17 +35,17 @@
           tags: workaround,
           when: workaround_vif_plugging | default(false) }
     - { role: workarounds/default-floating-pool,
-          when: workarounds.enabled and workaround.default_floating_pool is defined and workaround.default_floating_pool }
+          when: workarounds.enabled|bool and workaround.default_floating_pool is defined and workaround.default_floating_pool|bool }
     - { role: workarounds/nova-objectstore-install,
-          when: workarounds.enabled and workaround.nova_objectstore_install is defined and workaround.nova_objectstore_install }
+          when: workarounds.enabled|bool and workaround.nova_objectstore_install is defined and workaround.nova_objectstore_install|bool }
     - { role: workarounds/s3-objectstore-endpoint,
-          when: workarounds.enabled and workaround.s3_objectstore_endpoint is defined and workaround.s3_objectstore_endpoint }
+          when: workarounds.enabled|bool and workaround.s3_objectstore_endpoint is defined and workaround.s3_objectstore_endpoint|bool }
     - { role: workarounds/nova-scheduler-default-filters,
-          when: workarounds.enabled and workaround.nova_scheduler_default_filters is defined and workaround.nova_scheduler_default_filters }
+          when: workarounds.enabled|bool and workaround.nova_scheduler_default_filters is defined and workaround.nova_scheduler_default_filters|bool }
     - { role: workarounds/reseller-admin-role,
-          when: workarounds.enabled and workaround.reseller_admin_role is defined and workaround.reseller_admin_role }
+          when: workarounds.enabled|bool and workaround.reseller_admin_role is defined and workaround.reseller_admin_role|bool }
     - { role: workarounds/cinder-unicode-decode,
-          when: workarounds.enabled and workaround.cinder_unicode_decode is defined and workaround.cinder_unicode_decode }
+          when: workarounds.enabled|bool and workaround.cinder_unicode_decode is defined and workaround.cinder_unicode_decode|bool }
     - { role: workarounds/cinder-scheduler-default-filters,
           when: workarounds.enabled and workaround.cinder_scheduler_default_filters is defined and workaround.cinder_scheduler_default_filters|bool }
     - { role: workarounds/cinder-restart-svc,
@@ -56,7 +56,7 @@
   roles:
     - { role: workarounds/set-key-encrypted-volumes,
         tags: workarounds,
-        when: workarounds.enabled and workaround.set_key_encrypted_volumes is defined and workaround.set_key_encrypted_volumes }
+        when: workarounds.enabled|bool and workaround.set_key_encrypted_volumes is defined and workaround.set_key_encrypted_volumes|bool }
 
 - name: Workarounds | specific to Network nodes (roles)
   hosts: networker
@@ -64,4 +64,5 @@
   roles:
     - { role: workarounds/packstack-bridge-fix,
         tags: workarounds,
-        when: workarounds.enabled and provisioner.type == "openstack" and  installer.network.plugin.name == "neutron" }
+        when: workarounds.enabled|bool and provisioner.type == "openstack" and  installer.network.plugin.name == "neutron"
+    }

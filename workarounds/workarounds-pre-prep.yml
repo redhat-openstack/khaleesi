@@ -4,7 +4,7 @@
   sudo: yes
   roles:
       - { role: workarounds/rhel65-update-rhel66,
-          when: workarounds.enabled and workaround.rhel65_update is defined and workaround.rhel65_update
+          when: workarounds.enabled|bool and workaround.rhel65_update is defined and workaround.rhel65_update|bool
       }
 
 

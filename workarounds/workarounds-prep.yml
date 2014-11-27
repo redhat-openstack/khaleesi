@@ -53,7 +53,7 @@
   roles:
     - { role: workarounds/mongodb-install,
          sudo: yes,
-         when: workarounds.enabled and workaround.mongodb is defined and workaround.mongodb
+         when: workarounds.enabled|bool and workaround.mongodb is defined and workaround.mongodb
        }
 
 

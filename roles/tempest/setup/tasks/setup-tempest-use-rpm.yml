@@ -1,14 +1,14 @@
 - name: rpm | repo used
   debug: msg="using tempest repo {{ tempest_rpm_repo }}" #"
   tags: tempest_setup_rpm
-  when: tempest.use_custom_repo
+  when: tempest.use_custom_repo|bool
 
 - name: rpm | create the tempest Repository
   template: src=tempest.repo.j2 dest=/etc/yum.repos.d/tempest.repo
   sudo: yes
   tags:
     - tempest_setup_rpm
-  when: tempest.use_custom_repo
+  when: tempest.use_custom_repo|bool
   notify:
     - Yum clean all
     - Yum repolist

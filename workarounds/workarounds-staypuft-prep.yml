@@ -13,13 +13,13 @@
   sudo: yes
   roles:
     - { role: workarounds/staypuft-kickstart-template,
-        when: workarounds.enabled and
+        when: workarounds.enabled|bool and
           workaround.staypuft_kickstart_template is defined  and
-          workaround.staypuft_kickstart_template
+          workaround.staypuft_kickstart_template|bool
        }
     - { role: workarounds/staypuft-pxe-template,
-        when: workarounds.enabled and
+        when: workarounds.enabled|bool and
           workaround.staypuft_pxe_template is defined  and
-          workaround.staypuft_pxe_template
+          workaround.staypuft_pxe_template|bool
       }
 

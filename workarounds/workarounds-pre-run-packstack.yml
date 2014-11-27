@@ -43,16 +43,16 @@
   sudo: yes
   roles:
       - { role: workarounds/mysql-centos7,
-          when: workarounds.enabled and workaround.mysql_centos7 is defined and workaround.mysql_centos7
+          when: workarounds.enabled|bool and workaround.mysql_centos7 is defined and workaround.mysql_centos7|bool
       }
       - { role: workarounds/iptables-install,
-          when: workarounds.enabled and workaround.iptables_install is defined and workaround.iptables_install
+          when: workarounds.enabled|bool and workaround.iptables_install is defined and workaround.iptables_install|bool
       }
       - { role: workarounds/centos7-release,
-          when: workarounds.enabled and workaround.centos7_release is defined and workaround.centos7_release
+          when: workarounds.enabled|bool and workaround.centos7_release is defined and workaround.centos7_release|bool
       }
       - { role: workarounds/messagebus-centos7,
-          when: workarounds.enabled and workaround.messagebus_centos7 is defined and workaround.messagebus_centos7
+          when: workarounds.enabled|bool and workaround.messagebus_centos7 is defined and workaround.messagebus_centos7|bool
       }
 
 - name: Workarounds | test f21 juno repo on f20
@@ -60,7 +60,7 @@
   sudo: yes
   roles:
       - { role: workarounds/install-juno-fedora-21,
-           when: workarounds.enabled and workaround.install_juno_fedora_21 is defined and workaround.install_juno_fedora_21
+           when: workarounds.enabled|bool and workaround.install_juno_fedora_21 is defined and workaround.install_juno_fedora_21|bool
         }
 
 - name: Workarounds | install missing requirements for DELOREAN based builds
@@ -68,7 +68,7 @@
   sudo: yes
   roles:
       - { role: workarounds/install-missing-deps-delorean,
-           when: workarounds.enabled and workaround.install_missing_deps is defined and workaround.install_missing_deps
+           when: workarounds.enabled|bool and workaround.install_missing_deps is defined and workaround.install_missing_deps|bool
         }
 
 
