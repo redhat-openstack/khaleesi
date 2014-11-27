@@ -47,7 +47,7 @@
         tags: workarounds,
         when: workarounds.enabled and workaround.set_key_encrypted_volumes is defined and workaround.set_key_encrypted_volumes }
 
-- name: Workarounds | specific to Network node
+- name: Workarounds | specific to Network nodes (roles)
   hosts: networker
   sudo: yes
   roles:
