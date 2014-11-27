@@ -4,6 +4,7 @@
   yum: name={{ item }} state=absent
   with_items:
     - cloud-init
+    - NetworkManager
 
 - name: collect performance data, uname
   command: uname -a
