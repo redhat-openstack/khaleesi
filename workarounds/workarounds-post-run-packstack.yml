@@ -53,4 +53,4 @@
   roles:
     - { role: workarounds/packstack-bridge-fix,
         tags: workarounds,
-        when: workarounds.enabled and workaround.packstack_bridge_fix is defined and workaround.packstack_bridge_fix }
+        when: workarounds.enabled and provisioner.type == "openstack"}
