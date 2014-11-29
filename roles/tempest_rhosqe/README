@@ -1,7 +1,0 @@
-This is a temporary and simplified tempest setup and run that uses internal Red
-Hat tools. Please disregard it, it will be removed soon.
-
-If you want to use it anyway, you will need to be on the Red Hat network and
-remove the tags "tempest_setup,tempest_run" from your ansible configuration.
-Replace them with the tag "tempest_rhosqe". Requires that tempest is running
-from the controller node.
