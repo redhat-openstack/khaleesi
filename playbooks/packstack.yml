@@ -39,18 +39,25 @@
 # apply pre-packstack workarouds
 - include: ../workarounds/workarounds-prep.yml tags=workaround
 
-- name: Setup packstack on Controller (rdo)
+- name: Setup packstack dependencies on nodes (rdo)
   hosts: openstack_nodes:&rdo
   sudo: yes
   roles:
       - product/rdo
   tags: prep
 
-- name: Setup packstack on Controller (rhos)
+- name: Setup packstack dependencies on nodes (rhos)
   hosts: openstack_nodes:&rhos
   sudo: yes
   roles:
       - product/rhos
+  tags: prep
+
+- name: Setup packstack on Controller
+  hosts: controller
+  sudo: yes
+  roles:
+      - product/packstack
   tags: prep
 
 # Generate answers
