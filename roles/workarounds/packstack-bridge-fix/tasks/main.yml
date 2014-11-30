@@ -6,3 +6,6 @@
   when: installer.network.plugin.name == 'neutron'
   notify:
     - restart network
+
+- name: Restart the neutron service
+  shell: "openstack-service restart neutron"
