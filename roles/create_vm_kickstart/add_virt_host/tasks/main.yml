@@ -3,7 +3,7 @@
 - name: download key files
   shell: >
     chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
-    wget {{ job_var.key_file_remote }} -O {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }};
+    cp {{ provisioner.key_file }} {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }};
     chmod 600 {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{job_var.key_file }}
 
 - name: add virt-host to inventory file
