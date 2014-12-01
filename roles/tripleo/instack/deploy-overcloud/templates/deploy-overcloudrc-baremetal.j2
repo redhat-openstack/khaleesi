@@ -1,11 +1,12 @@
 #!/bin/bash
 export NODES_JSON=instackenv.json
-export NeutronPublicInterface=eth0
+export NeutronPublicInterface=em2
 export OVERCLOUD_LIBVIRT_TYPE=kvm
 export NETWORK_CIDR=10.0.0.0/8
 export FLOATING_IP_START=192.0.2.45
 export FLOATING_IP_END=192.0.2.64
 export FLOATING_IP_CIDR=192.0.2.0/24
+export BM_NETWORK_GATEWAY=192.0.2.1
 export NEUTRON_NETWORK_TYPE=gre
 export NEUTRON_TUNNEL_TYPES=gre
 export COMPUTESCALE=1
