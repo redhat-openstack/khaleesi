@@ -10,7 +10,7 @@
   hosts: all:!localhost:!tempest
   sudo: yes
   roles:
-    - { role: openstack/install-openstack-utils
+    - { role: openstack/install-openstack-utils,
         when: workarounds.enabled }
 
 - name: Workarounds | BZ 1162945 | specifc to tempest
