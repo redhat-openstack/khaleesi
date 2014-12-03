@@ -31,6 +31,7 @@ tempest_non_havana_config_generate_command: >
         --network-physical-label "myphysnet"
         --subnet-cidr "{{ tempest.public_subnet_cidr}}"
         --subnet-gateway  "{{ tempest.public_subnet_gateway }}"
+        --subnet-allocation-pool "{{ tempest.public_allocation_start }}" "{{ tempest.public_allocation_end }}"
         identity.uri http://{{ hostvars[controller_name].ansible_default_ipv4.address }}:5000/v2.0/
         compute.allow_tenant_isolation true
         object-storage.operator_role SwiftOperator
