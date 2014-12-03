@@ -1,8 +1,0 @@
----
-
-- name: Workarounds
-  hosts: instack-undercloud
-  roles:
-     - { role: workarounds/m2crypto,
-         when: workarounds.enabled workaround.m2crypto is defined and workaround.m2crypto
-       }

@@ -1,3 +1,4 @@
+---
 - name: WORKAROUND | 1128301 | Ensure m2crypto is installed
   yum: name=m2crypto state=latest
   sudo: yes

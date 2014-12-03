@@ -18,6 +18,7 @@ Install ansible
     pip install BeautifulsSoup4
 
 
+    export ANSIBLE_CONFIG=ansible.cfg.example
     export ANSIBLE_HOST_KEY_CHECKING=False
     export ANSIBLE_ROLES_PATH=/path/to/khaleesi/roles
     export ANSIBLE_LIBRARY=/path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible

@@ -17,31 +17,13 @@ Installation
 Now, copy group_vars/all.sample to group_vars/all. Set the variables for your environment. These can also be set on the command-line. See 
 http://www.ansibleworks.com/docs/playbooks_variables.html#passing-variables-on-the-command-line
 
-Create a $HOME/.ansible.cfg with the following:
-
-    [defaults]
-    host_key_checking = False
-    roles_path = /path/to/khaleesi/roles
-    library = /path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible
-    lookup_plugins = /path/to/khaleesi/plugins/lookups
-
-NOTE: If you set library in .ansible.cfg, and you try to update ansible, it will fail. You will need comment out the line with a '#', run 'pip uninstall ansible; pip install ansible' to fix.
-
-The roles_path allows us to keep the root of khaleesi "clean", and put playbooks in a subdirectory without needing to use relative paths for the roles.
-
-These can also be specified with environment variables, to make this easier to create scripts or run from jenkins.
-
-    ANSIBLE_HOST_KEY_CHECKING=False
-    ANSIBLE_ROLES_PATH=/path/to/khaleesi/roles
-    ANSIBLE_LIBRARY=/path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible
-    ANSIBLE_LOOKUP_PLUGINS=/path/to/khaleesi/plugins/lookups
-
-To execute the foreman install with nodes from an existing OpenStack:
-
-    ansible-playbook -i local_hosts foreman.yml
 
 Getting nodes from an OpenStack
 -------------------------------
+To execute the foreman install with nodes from an existing OpenStack:
+
+    ANSIBLE_CONFIG=ansible.cfg.example \
+        ansible-playbook -i local_hosts foreman.yml
 
 In order to use the get_nodes roles, you will need to define a 'nodes' var in group_vars/all. See the sample file for guidance.
 
@@ -75,7 +57,9 @@ Fill out the other groups similarly. The extra variables should be set on all th
 
 Then run:
 
-    ansible-playbook -i my_hosts playbooks/foreman/foreman.yml
+
+    ANSIBLE_CONFIG=ansible.cfg.example \
+        ansible-playbook -i my_hosts playbooks/foreman/foreman.yml
 
 Debugging
 ---------

@@ -12,18 +12,6 @@ Installation
     source ansible/bin/activate
     pip install ansible
 
-Ansible configuration
--------------
-Create a $HOME/.ansible.cfg with the following:
-
-    [defaults]
-    host_key_checking = False
-    roles_path = /path/to/khaleesi/roles
-    library = /path/to/khaleesi/library:$VIRTUAL_ENV/share/ansible
-    lookup_plugins = /path/to/khaleesi/plugins/lookups
-
-NOTE: If you set library in .ansible.cfg, and you try to update ansible, it will fail. You will need comment out the line with a '#', run 'pip uninstall ansible; pip install ansible' to fix.
-
 Nodes:
   Create a nodes.yml file that defines the environment
     Example:
@@ -47,6 +35,7 @@ Overrides and additional config:
 Execution:
 Set the following variables:
 
+export ANSIBLE_CONFIG=ansible.cfg.example
 export IMAGE_ID=55555
 export NET_1=55555
 export NET_2=55555
