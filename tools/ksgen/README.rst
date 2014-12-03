@@ -346,7 +346,7 @@ Debugging errors in settings
 ============================
 
 ksgen is heavily logged and by default the log-level is set to **warning**.
-Changing the debug level using the ``--debug-level`` option to **info** or
+Changing the debug level using the ``--log-level`` option to **info** or
 **debug** reveals more information about the inner workings of the tool and how
 values are loaded from files and merged.
 
