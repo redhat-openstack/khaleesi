@@ -6,7 +6,9 @@
 - name: get instackenv.json
   shell: >
     chdir={{ instack_user_home.stdout }}
-    wget {{ installer.environ.json_file }}
+    wget {{ installer.environ.json_file }};
+    sleep 3;
+    chown stack:stack instackenv.json
 
 - name: prepare for overcloud - download images
   shell: >
