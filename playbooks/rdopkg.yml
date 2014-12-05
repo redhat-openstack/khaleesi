@@ -1,13 +1,21 @@
 ---
-# provison
+# provision
 - include: dump_settings.yml
 - include: provision.yml
 - include: group_by.yml tags=provision
 
+# prep
+- include: ../workarounds/workarounds-pre-prep.yml tags=workaround
+- include: packstack/setup-ssh-keys.yml tags=prep
+- include: prep.yml
+
 - name: Prepare network for Packstack install
+  sudo: yes
   hosts:
-    - controller
-    - compute
+    - controller:!skip_prep
+    - compute:!skip_prep
+    - tempest:!skip_prep
+    - networker:!skip_prep
   tags: prep
   roles:
     -  network-setup
@@ -21,72 +29,93 @@
   roles:
     - { role: packstack/debug }
 
-# prep
-
-- include: packstack/setup-ssh-keys.yml tags=prep
-- include: prep.yml
+- name: Debug build details
+  hosts: controller
+  sudo: no
+  tags: provision
+  roles:
+    - { role: packstack/debug/build }
 
 # apply pre-packstack workarouds
 - include: ../workarounds/workarounds-prep.yml tags=workaround
 
-- name: Setup packstack on Controller
-  hosts: controller:&rdo
+- name: Setup packstack dependencies on nodes (rdo)
+  hosts: openstack_nodes:&rdo:!skip_prep
+  sudo: yes
   roles:
       - product/rdo
   tags: prep
 
-- name: Setup packstack on Controller
-  hosts: controller:&rhos
+- name: Setup packstack dependencies on nodes (rhos)
+  hosts: openstack_nodes:&rhos:!skip_prep
+  sudo: yes
   roles:
       - product/rhos
   tags: prep
 
-# Generate answers
 - name: Setup packstack on Controller
   hosts: controller
+  sudo: yes
+  roles:
+      - product/packstack
+  tags: prep
+
+# Generate answers
+- name: Setup packstack on Controller
+  hosts: controller:!skip_prep
+  sudo: yes
   roles:
       - packstack/generate-answers
   tags: prep
 
 - name: Update RPMs (rdopkg)
-  hosts: controller
+  hosts: controller:!skip_rdoupdate_preinstall
+  sudo: yes
   roles:
-    - { role: rdopkg/prep, tags: ["rdoupdate-preinstall"] }
-    - { role: rdopkg/preinstall, tags: ["rdoupdate-preinstall"] }
+    - { role: rdopkg/prep, tags: ["rdoupdate_preinstall"] }
+    - { role: rdopkg/preinstall, tags: ["rdoupdate_preinstall"] }
 
 - include: ../workarounds/workarounds-pre-run-packstack.yml tags=workaround
 
 # packstack_run
 
 - name: Run packstack
-  hosts: controller
+  hosts: controller:!skip_packstack_run
+  sudo: yes
   roles:
     - { role: packstack/runner }
   tags: packstack_run
 
 - include: ../workarounds/workarounds-post-run-packstack.yml tags=workaround
 
-- name: Update RPMs
-  hosts: controller
+- name: Update RPMs on controller
+  hosts: controller:!skip_rdoupdate
+  sudo: yes
   roles:
     - { role: rdopkg/prep, tags: ["rdoupdate"] }
     - { role: rdopkg/postinstall, tags: ["rdoupdate"] }
 
 - name: Get Status after reboot
   hosts: controller
-  tags: packstack-run
+  sudo: yes
+  tags: packstack_run
   roles:
     - { role: openstack/openstack-status }
 
+# sahara
+- include: sahara.yml
+
 # tempest
 - name: List ip address of tempest node
-  hosts: tempest
+  hosts: tempest:!skip_tempest_setup
+  sudo: yes
   roles:
     - { role: tempest/iptables/node_data }
   tags: tempest_setup
 
 - name: Ensure iptables is open for tempest
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tempest:!skip_tempest_setup
+  sudo: yes
   roles:
     - { role: tempest/iptables }
   tags: tempest_setup
@@ -95,6 +124,13 @@
 
 - name: SELINUX error check
   hosts: all:!localhost:!tempest
+  sudo: yes
   roles:
     - { role: selinux_check }
   tags: provision
+
+- name: clean up
+  hosts: all:!localhost:!tempest
+  sudo: yes
+  roles:
+    - { role: linux/rhsm }

@@ -84,7 +84,7 @@
 - name: Get Status after reboot
   hosts: controller
   sudo: yes
-  tags: packstack-run
+  tags: packstack_run
   roles:
     - { role: openstack/openstack-status }
 

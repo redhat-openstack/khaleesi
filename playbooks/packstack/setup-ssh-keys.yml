@@ -4,7 +4,7 @@
   hosts: all:!localhost:!tempest
 
 - name: Create ssh key if one does not exist
-  hosts: controller
+  hosts: controller:!skip_prep
   sudo: yes
   tasks:
       - name: create key
@@ -14,7 +14,7 @@
         sudo_user: root
 
 - name: Setup packstack on Controller
-  hosts: controller
+  hosts: controller:!skip_prep
   sudo: yes
   tasks:
       - name: fetch ssh-key generated from controller
@@ -24,8 +24,8 @@
 
 - name: Copy ssh-key to compute and network hosts
   hosts:
-    - compute
-    - networker
+    - compute:!skip_prep
+    - networker:!skip_prep
   sudo: yes
   tasks:
     - name: copy ssh-key to compute

@@ -24,3 +24,39 @@
       when: product is defined
   tags:
     - prep
+
+- name: Group hosts by rdopkg skip_packstack tag
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ rdopkg.skip_packstack_run }}
+      when: rdopkg.skip_packstack_run is defined
+
+- name: Group hosts by rdopkg skip_prep tag
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ rdopkg.skip_prep }}
+      when: rdopkg.skip_prep is defined
+
+- name: Group hosts by rdopkg skip_rdoupdate tag
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ rdopkg.skip_rdoupdate }}
+      when: rdopkg.skip_rdoupdate is defined
+
+- name: Group hosts by rdopkg skip_rdoupdate_preinstall tag
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ rdopkg.skip_rdoupdate_preinstall }}
+      when: rdopkg.skip_rdoupdate_preinstall is defined
+
+- name: Group hosts by rdopkg skip_rdoupdate_tempest tag
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ rdopkg.skip_rdoupdate_tempest }}
+      when: rdopkg.skip_rdoupdate_tempest is defined
+
+- name: Group hosts by rdopkg skip_tempest_setup tag
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ rdopkg.skip_tempest_setup }}
+      when: rdopkg.skip_tempest_setup is defined

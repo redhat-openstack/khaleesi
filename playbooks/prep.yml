@@ -1,6 +1,14 @@
 ---
+- name: prep rdo on tempest
+  hosts: tempest:&RedHat:!skip_prep
+  sudo: yes
+  roles:
+    - { role: linux/rhel/rdo }
+  tags:
+    - prep
+
 - name: Prepare system for packstack
-  hosts: all:!localhost
+  hosts: all:!localhost:!skip_prep
   sudo: yes
   roles:
     - { role: common }
@@ -8,7 +16,7 @@
     - prep
 
 - name: RHEL RHOS prep
-  hosts: all:!localhost:&RedHat:&rhos
+  hosts: all:!localhost:&RedHat:&rhos:!skip_prep
   sudo: yes
   roles:
     - { role: linux/rhel/rhos }
@@ -16,7 +24,7 @@
     - prep
 
 - name: RHEL RDO prep
-  hosts: all:!localhost:&RedHat:&rdo
+  hosts: all:!localhost:&RedHat:&rdo:!skip_prep
   sudo: yes
   roles:
     - { role: linux/rhel/rdo }
@@ -24,7 +32,7 @@
     - prep
 
 - name: CentOS RDO prep
-  hosts: all:!localhost:&CentOS:&rdo
+  hosts: all:!localhost:&CentOS:&rdo:!skip_prep
   sudo: yes
   roles:
     - { role: linux/centos }
@@ -32,7 +40,7 @@
     - prep
 
 - name: Fedora RDO prep
-  hosts: all:!localhost:&Fedora:&rdo
+  hosts: all:!localhost:&Fedora:&rdo:!skip_prep
   sudo: yes
   roles:
     - { role: linux/fedora }
@@ -40,7 +48,7 @@
     - prep
 
 - name: Linux common prep
-  hosts: all:!localhost
+  hosts: all:!localhost:!skip_prep
   sudo: yes
   roles:
     - { role: linux-common }
