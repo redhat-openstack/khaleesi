@@ -12,6 +12,8 @@
   with_dict: nodes
   register: floating_ips
 
+- debug: var=floating_ips
+
 - name: Deallocate floating ips (neutron)
   quantum_floating_ip_allocate:
        auth_url: "{{ provisioner.url }}"
@@ -20,4 +22,4 @@
        login_password: "{{ provisioner.password }}"
        login_tenant_name: "{{ provisioner.tenant_name }}"
        ip_address: "{{ item.result.floatingip.floating_ip_address }}"
-  with_dict: floating_ips.results
+  with_items: floating_ips.results
