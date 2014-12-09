@@ -6,7 +6,7 @@
 
   - name: Install packages from rdopkg repo
     shell:  yum -y install * chdir={{ update_rpms_dir }}
-    when: rpms_found is defined and rpms_found.stdout | int > 0
+    when: rpms_found.stdout | int > 0
     register: rdo_result
 
   - name: print result of RPM install

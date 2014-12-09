@@ -4,9 +4,12 @@
     shell: find . -regex '.*rpm' | wc -l  chdir={{ update_rpms_dir }}
     register: rpms_found
 
+  - name: print result of RPM install
+    debug: var=rpms_found.stdout_lines
+
   - name: Install packages from rdopkg repo
     shell:  yum -y install * chdir={{ update_rpms_dir }}
-    when: when rpms_found is defined and rpms_found.stdout | int > 0
+    when: rpms_found.stdout | int > 0
     register: rdo_result
 
   - name: print result of RPM install
