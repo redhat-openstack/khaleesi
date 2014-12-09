@@ -15,9 +15,6 @@
   notify:
     - Check instance uptime
     - Print instance uptime
-    - Grep for reboot
-    - Print grep for reboot
-    - Fail if not actually stopped
 
 - name: print host stopped register
   debug: var=host_stopped
@@ -37,19 +34,6 @@
 
 - name: Print instance uptime
   debug: var=uptime.stdout_lines
-
-- name: Grep for reboot
-  command: grep 'ANSIBLE REBOOT' -A 5 -B 2 /var/log/messages
-  register: reboot_grep
-
-- name: Print grep for reboot
-  debug: var=reboot_grep.stdout_lines
-
-- name: Fail if not actually stopped
-  sudo: no
-  fail: msg="Host not actually shut down"
-  when:
-    - "'Timeout' in host_stopped.msg and host_stopped.msg is defined"
 
 # this workaround has to be applied here, if ansible gets to reload facts with this file in place
 # it will get a completely invalid ansible_distribution_version and the only way to classify the node

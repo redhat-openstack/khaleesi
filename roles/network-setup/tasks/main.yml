@@ -7,6 +7,15 @@
   debug: var=hostvars[inventory_hostname]
   when: job.verbosity <= verbosity.debug
 
+- name: Setup networking (interfaces)
+  template:
+        src: ifcfg-interface
+        dest: /etc/sysconfig/network-scripts/ifcfg-{{ item.interface }}
+        owner: root
+        group: root
+        mode: 644
+  with_items: net_interfaces
+
 - name: Setup networking (general)
   lineinfile:
       dest: /etc/sysconfig/network
@@ -27,13 +36,3 @@
     - Wait for host to come back
     - Reload facts
 
-- name: Setup networking (interfaces)
-  template:
-        src: ifcfg-interface
-        dest: /etc/sysconfig/network-scripts/ifcfg-{{ item.interface }}
-        owner: root
-        group: root
-        mode: 644
-  with_items: net_interfaces
-  notify:
-    - restart network
