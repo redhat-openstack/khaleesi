@@ -1,0 +1,14 @@
+---
+
+- name: set up for installing the virt host
+  hosts: local
+  roles:
+    - { role: tripleo/instack/setup-env/virt-setup-virthost }
+
+- name: build images
+  hosts: instack-virt-host
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/build-images }
+

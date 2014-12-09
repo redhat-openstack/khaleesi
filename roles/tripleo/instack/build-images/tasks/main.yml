@@ -1,0 +1,69 @@
+---
+
+- name: download RHEL 7 KVM guest image
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    wget {{ installer.rhel7.remote_guest_image }} -O {{ instack_user_home.stdout }}/{{ installer.rhel7.guest_image_name }}
+  sudo_user: stack
+  sudo: yes
+
+- name: get lynx command
+  yum: name="lynx"
+
+- name: check that the image is hosted on a local server
+  shell: 'lynx -dump {{ installer.rhel7.remote_file_server }} | grep {{ installer.rhel7.guest_image_name }}'
+  register: rhel_guest_image_output
+
+- name: get subscription-manager command
+  yum: name="subscription-manager"
+
+- name: Create the RHOS Release Repository
+  template: src=../../../../linux/rhel/rhos/templates/rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
+
+- name: install rhos-release
+  yum: name=rhos-release state=latest
+
+# poodle repos
+- name: Create the RHOS poodle repository
+  shell: "rhos-release -x {{ product.version|int }}; rhos-release -d {{ product.version|int }}"
+  when: product.repo_type == 'poodle'
+
+- name: erase rhos-release
+  shell: "yum erase -y rhos-release"
+  when: product.repo_type == 'poodle'
+
+- name: enable tripleo copr repository
+  shell: "sudo curl -o /etc/yum.repos.d/slagle-openstack-m.repo {{ product.repo.copr[ ansible_distribution ][distro.version] }}"
+  when: product.repo.copr is defined
+  register: rdo_repo_output
+
+- name: install instack-undercloud
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    export RHOS=1;
+    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
+    export REG_HALT_UNREGISTER=1
+    export DIB_CLOUD_IMAGES="{{ installer.rhel7.remote_file_server }}";
+    export BASE_IMAGE_FILE="{{ installer.rhel7.guest_image_name }}";
+    export REG_METHOD=disable;
+    yum install -y instack-undercloud
+  when: installer.instack_undercloud_rpm is not defined
+  register: instack_undercloud_output
+
+- name: install updated version of instack-undercloud if it exists
+  yum: name="{{ installer.instack_undercloud_rpm }}"
+  when: installer.instack_undercloud_rpm is defined
+  register: instack_undercloud_output
+
+- name: define variables and build instack images
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    export RHOS=1;
+    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
+    export REG_HALT_UNREGISTER=1
+    export DIB_CLOUD_IMAGES="{{ installer.rhel7.remote_file_server }}";
+    export BASE_IMAGE_FILE="{{ installer.rhel7.guest_image_name }}";
+    export REG_METHOD=disable;
+    instack-build-images
+  sudo_user: stack
+  sudo: yes
