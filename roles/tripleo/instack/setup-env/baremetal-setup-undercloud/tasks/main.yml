@@ -46,20 +46,30 @@
   shell: >
     ssh -o 'StrictHostKeyChecking=no' -x -t -t -l root {{ job_var.instack_virt_host }} -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }} 'export UNDERCLOUD_ROOT_PASSWORD={{ job_var.vm_pass }}; echo $UNDERCLOUD_ROOT_PASSWORD | passwd root --stdin'
 
+- name: remove host name from known_hosts
+  shell: >
+    sed -i  "/{{ job_var.instack_virt_host }}/d" {{ jenkins.rhos_ci_home }}/.ssh/known_hosts;
+  when: ssh_known_hosts_exists.stat.exists == True
+
+- name: remove host name ~/.ssh/from known_hosts
+  shell: >
+    sed -i  "/{{ job_var.instack_virt_host }}/d" ~/.ssh/known_hosts;
+  when: tilda_known_hosts_exists.stat.exists == True
+
 - name: add stack user
   shell: >
-    sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -t -t -l root {{ job_var.instack_virt_host }} 'useradd stack; export UNDERCLOUD_ROOT_PASSWORD={{ job_var.vm_pass }}; echo $UNDERCLOUD_ROOT_PASSWORD | passwd stack --stdin'
+    sleep5; sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -t -t -l root {{ job_var.instack_virt_host }} 'useradd stack; export UNDERCLOUD_ROOT_PASSWORD={{ job_var.vm_pass }}; echo $UNDERCLOUD_ROOT_PASSWORD | passwd stack --stdin'
 
 - name: prep for copy ssh keys
   shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -v &
 
 - name: prep for copy ssh keys - root
-  shell: sleep 5; sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' root@{{ job_var.instack_virt_host }} -v &
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' root@{{ job_var.instack_virt_host }} -v &
 
 - name: copy ssh keys
   shell: >
     chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
-    sleep 15;
+    sleep 5;
     sshpass -p {{ job_var.vm_pass }} ssh-copy-id -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }} stack@{{ job_var.instack_virt_host }};
     sshpass -p {{ job_var.vm_pass }} ssh-copy-id -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }} root@{{ job_var.instack_virt_host }}
 
