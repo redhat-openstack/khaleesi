@@ -1,9 +1,9 @@
 - name: Provision nodes
   ec2:
-       key_name: libra
-       instance_type: m3.medium
-       region: us-east-1
-       image: ami-a8d369c0
+       key_name: "{{ provisioner.key_name }}"
+       instance_type: "{{ item.value.flavor_id }}"
+       region: "{{ item.value.region }}"
+       image: "{{ item.value.image_id }}"
        wait: yes
        group: default
        count: 1
