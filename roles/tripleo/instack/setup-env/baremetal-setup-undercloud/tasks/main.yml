@@ -54,13 +54,13 @@
   shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -v &
 
 - name: prep for copy ssh keys - root
-  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' root@{{ job_var.instack_virt_host }} -v &
+  shell: sleep 5; sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' root@{{ job_var.instack_virt_host }} -v &
 
 - name: copy ssh keys
   shell: >
     chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
-    sleep 5;
-    sshpass -p {{ job_var.vm_pass }} ssh-copy-id -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }}  stack@{{ job_var.instack_virt_host }};
+    sleep 15;
+    sshpass -p {{ job_var.vm_pass }} ssh-copy-id -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }} stack@{{ job_var.instack_virt_host }};
     sshpass -p {{ job_var.vm_pass }} ssh-copy-id -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }} root@{{ job_var.instack_virt_host }}
 
 - name: disable tty requirement for remote access
