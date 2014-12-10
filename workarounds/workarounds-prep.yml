@@ -10,10 +10,7 @@
           tags: workaround,
           when: workaround_deltarpm is defined and workaround_deltarpm
        }
-     - { role: workarounds/mongodb-install,
-         tags: workaround,
-         when: workaround_mongodb is defined and workaround_mongodb
-       }
+
 
 - name: Workarounds | specific to fedora distro
   hosts: Fedora-19:&controller
@@ -54,16 +51,9 @@
 - name: Workarounds | specific to RedHat or CentOS distro (roles)
   hosts: RedHat:CentOS:&controller
   roles:
-    - {  role: workarounds/python-kombu-install,
-          tags: workaround,
-          when: workaround_kombu is defined and workaround_kombu
-      }
-    - {  role: workarounds/pymongo-install,
-          tags: workaround,
-          when: workaround_pymongo is defined and workaround_pymongo
-      }
-    - {  role: workarounds/python-anyjson-install,
-          tags: workaround,
-          when: workaround_anyjson is defined and workaround_anyjson
-      }
+    - { role: workarounds/mongodb-install,
+         sudo: yes,
+         when: workarounds.enabled and workaround.mongodb is defined and workaround.mongodb
+       }
+
 
