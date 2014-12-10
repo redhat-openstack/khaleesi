@@ -8,9 +8,19 @@
 - name: collect list of installed rpms
   shell: rpm -qa > {{ rpm_list }}
 
+- name: prepare directory with extra logs
+  file: dest=/var/log/extra state=directory
+  ignore_errors: true
+
+- name: collect logs from all failed systemd services
+  shell: |
+    systemctl -t service --failed --no-legend | awk '{print $1}' \
+        | xargs -r -n1 journalctl -u > /var/log/extra/services 2>&1
+  ignore_errors: true
+
 - name: collect logs
   shell: tar cjPf /tmp/archive.tar.bz2 {{ rpm_list }} {{ job.archive|join(' ') }}
   ignore_errors: true
 
 - name: fetch log archive
-  fetch: src=/tmp/archive.tar.bz2 flat=yes dest=../../collect_logs/{{ inventory_hostname }}.tar.bz2
+  fetch: src=/tmp/archive.tar.bz2 flat=yes dest=../collected_files/{{ inventory_hostname }}.tar.bz2

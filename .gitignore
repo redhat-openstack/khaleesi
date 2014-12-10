@@ -15,7 +15,7 @@ inventory*
 archive.*
 local_settings.sh
 *.pem
-collect_logs.txt
+collected_files/
 teardown.txt
 *.egg-info/
 #kytoon

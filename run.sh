@@ -69,7 +69,9 @@ parse_args() {
 
 
 collect_logs() {
-    ansible_playbook playbooks/collect_logs.yml $ARGS_FOR_ANSIBLE > collect_logs.txt 2>&1
+    mkdir -p collected_files
+    ansible_playbook playbooks/collect_logs.yml $ARGS_FOR_ANSIBLE \
+       > collected_files/collect_logs.txt 2>&1
 }
 
 take_snapshot() {
