@@ -76,7 +76,7 @@
     - provision
 
 - name: Set facts for hosts
-  hosts: openstack_nodes:!manually-provisioned
+  hosts: openstack:!manually-provisioned:!amazon
   gather_facts: False
   roles:
     - { role: set_facts }

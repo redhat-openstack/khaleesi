@@ -1,7 +1,9 @@
 ---
 - name: Pause to let the systems boot
   pause: seconds="{{ distro.config.initial_boot_timeout }}"
-  when: new_nodes|changed
+#to-do determine this earlier and set to true/false
+#when: (new_nodes|changed and provisioner.network.type != 'amazon')
+
 
 #note: bug w/ delay var: https://github.com/ansible/ansible/issues/5031
 # - name: Ping public IP's of nodes

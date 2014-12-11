@@ -26,5 +26,8 @@
 - name: debug added_hosts
   debug: var=added_hosts
 
+- name: create ec2_hosts ansbile inventory
+  template: src=ec2_hosts.j2 dest=/home/whayutin/git/RDO-CI/khaleesi/ec2_hosts
+
 #ami-a8d369c0 rhel70
 #ami-1643ff7e works rhel6
