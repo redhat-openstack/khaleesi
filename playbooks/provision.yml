@@ -36,8 +36,9 @@
   gather_facts: False
   roles:
     - { role: get_nodes/ec2 }
-  tags:
-    - provision
+    # - { role: get_nodes/add_ec2_hosts,
+    #           nodes_created: "{{ ec2.results.0.instances }}",
+    #           network_expected: amazon }
 
 - name: Assign floating IP and add hosts - Nova
   hosts: local:&openstack:&nova

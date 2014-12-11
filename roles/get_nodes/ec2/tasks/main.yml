@@ -4,14 +4,27 @@
        instance_type: "{{ item.value.flavor_id }}"
        region: "{{ item.value.region }}"
        image: "{{ item.value.image_id }}"
-       wait: yes
+       wait: true
        group: default
-       count: 1
-  register: new_nodes
+       instance_tags:
+         Name: "{{ node.prefix|join('-') }}"
+  register: ec2
   with_dict: nodes
 
-- name: debug
-  debug: var=new_nodes
+- name: debug return from ec2
+  debug: var=ec2
+
+- name: Add all instance public IPs to host group
+  add_host:
+      hostname={{ item.public_ip }}
+      groups={{ ec2.results.0.item.value.groups| join(',') }}
+      ansible_ssh_host={{ item.public_ip }}
+      ansible_fqdn={{ item.public_dns_name }}
+  register: added_hosts
+  with_items: ec2.results.0.instances
+
+- name: debug added_hosts
+  debug: var=added_hosts
 
 #ami-a8d369c0 rhel70
-#ami-1643ff7e works rhel65
+#ami-1643ff7e works rhel6
