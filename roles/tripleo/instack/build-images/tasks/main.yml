@@ -14,29 +14,6 @@
   shell: 'lynx -dump {{ installer.rhel7.remote_file_server }} | grep {{ installer.rhel7.guest_image_name }}'
   register: rhel_guest_image_output
 
-- name: get subscription-manager command
-  yum: name="subscription-manager"
-
-- name: Create the RHOS Release Repository
-  template: src=../../../../linux/rhel/rhos/templates/rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
-
-- name: install rhos-release
-  yum: name=rhos-release state=latest
-
-# poodle repos
-- name: Create the RHOS poodle repository
-  shell: "rhos-release -x {{ product.version|int }}; rhos-release -d {{ product.version|int }}"
-  when: product.repo_type == 'poodle'
-
-- name: erase rhos-release
-  shell: "yum erase -y rhos-release"
-  when: product.repo_type == 'poodle'
-
-- name: enable tripleo copr repository
-  shell: "sudo curl -o /etc/yum.repos.d/slagle-openstack-m.repo {{ product.repo.copr[ ansible_distribution ][distro.version] }}"
-  when: product.repo.copr is defined
-  register: rdo_repo_output
-
 - name: install instack-undercloud
   shell: >
     chdir={{ instack_user_home.stdout }}
@@ -67,3 +44,4 @@
     instack-build-images
   sudo_user: stack
   sudo: yes
+

@@ -2,6 +2,15 @@
 
 - name: install sshpass
   yum: name=sshpass state=present
+  when: ansible_distribution == 'Fedora'
+  sudo_user: root
+  sudo: yes
+
+- name: install sshpass for tunnel
+  shell: >
+    rpm -i {{ installer.rhel7.sshpass_rpm }}
+  when: ansible_distribution == 'RedHat'
+  ignore_errors: yes
   sudo_user: root
   sudo: yes
 
@@ -17,6 +26,7 @@
 
 - name: install wget
   yum: name=wget state=present
+  when: ansible_distribution == 'Fedora'
   sudo_user: root
   sudo: yes
 
@@ -48,7 +58,33 @@
   debug: var=instack-prepare-for-overcloud-output.stdout
   when: installer.custom_instack_images is defined
 
+- name: prepare for overcloud with built images
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    sshpass -p stack scp -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1:/home/stack/\{*.initramfs,*.kernel,*.qcow2,*.initrd,*.vmlinuz\} .
+  when: ansible_distribution == 'RedHat'
+
 - include: ../../common-rpms/tasks/main.yml
+
+# RHEL
+- name: install instack-undercloud
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    export RHOS=1;
+    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
+    export REG_HALT_UNREGISTER=1
+    export DIB_CLOUD_IMAGES="{{ installer.rhel7.remote_file_server }}";
+    export BASE_IMAGE_FILE="{{ installer.rhel7.guest_image_name }}";
+    export REG_METHOD=disable;
+    sudo yum install -y instack-undercloud
+  when: ansible_distribution == 'RedHat' and installer.instack_undercloud_rpm is not defined
+  register: instack_undercloud_output
+
+- name: install wget
+  yum: name=wget state=present
+  when: ansible_distribution == 'RedHat'
+  sudo_user: root
+  sudo: yes
 
 - name: check answers file exists
   shell: "[ -e {{ instack_user_home.stdout }}/instack.answers ]"
@@ -60,14 +96,30 @@
   stat: path="{{ instack_user_home.stdout }}/.instack/install-undercloud.log"
   register: instack_log_present
 
+# Fedora
 - name: run script to install undercloud
   register: instack_undercloud_result
   command:  chdir={{ instack_user_home.stdout }} instack-install-undercloud
-  when: instack_log_present.stat.exists == False
+  when: ansible_distribution == 'Fedora' and instack_log_present.stat.exists == False
+
+# RHEL
+- name: install instack-undercloud
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    export RHOS=1;
+    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
+    export REG_HALT_UNREGISTER=1
+    export DIB_CLOUD_IMAGES="{{ installer.rhel7.remote_file_server }}";
+    export BASE_IMAGE_FILE="{{ installer.rhel7.guest_image_name }}";
+    export REG_METHOD=disable;
+    instack-install-undercloud
+  when: ansible_distribution == 'RedHat' and instack_log_present.stat.exists == False
+  register: instack_undercloud_rhel_result
 
 - name: search output for complete status
   shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'install-undercloud complete'"
   register: grep_output
+  when: ansible_distribution == 'RedHat' and instack_log_present.stat.exists == False
 
 - name: report failure if install is not complete
   fail: msg="report error"

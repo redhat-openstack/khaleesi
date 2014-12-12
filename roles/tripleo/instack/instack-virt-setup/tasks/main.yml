@@ -7,6 +7,9 @@
 
 - { include: ../../common-rpms/tasks/main.yml }
 
+- include: ../../build-images/tasks/main.yml
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos'
+
 - name: run script to install required dependencies
   shell: >
     chdir={{ instack_user_home.stdout }}
@@ -25,6 +28,24 @@
     export LIBVIRT_DEFAULT_URI="qemu:///system";
     export UNDERCLOUD_ROOT_PASSWORD={{ instack.environ.vm_pw }};
     instack-virt-setup
+  when: product.name != 'rhos'
+  sudo_user: "{{ instack.user.stack.name }}"
+  sudo: yes
+
+- name: run script to setup virtual environment
+  register: instack_virt_result
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    export RHOS=1;
+    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
+    export REG_HALT_UNREGISTER=1
+    export DIB_CLOUD_IMAGES="{{ installer.rhel7.remote_file_server }}";
+    export BASE_IMAGE_FILE="{{ installer.rhel7.guest_image_name }}";
+    export REG_METHOD=disable;
+    export LIBVIRT_DEFAULT_URI="qemu:///system";
+    export UNDERCLOUD_ROOT_PASSWORD={{ instack.environ.vm_pw }};
+    instack-virt-setup
+  when: product.name == 'rhos'
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
@@ -50,6 +71,12 @@
 
 - name: install sshpass for tunnel
   yum: name=sshpass state=present
+  when: ansible_distribution == 'Fedora'
+
+- name: install sshpass for tunnel
+  shell: >
+    yum install -y {{ installer.rhel7.sshpass_rpm }}
+  when: ansible_distribution == 'RedHat'
 
 - name: open ssh tunnel to instack vm on port {{ instack.environ.vm_ssh_port }}
   shell: "sudo iptables -I INPUT -p tcp --dport {{ instack.environ.vm_ssh_port }} -j ACCEPT; sshpass -p {{ instack.user.stack.password }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ instack.environ.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"

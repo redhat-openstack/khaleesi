@@ -10,5 +10,6 @@
   roles:
     - { role: tripleo/instack/common-undercloud }
     - { role: tripleo/instack/common }
+    - { role: tripleo/instack/common-rpms }
     - { role: tripleo/instack/build-images }
 

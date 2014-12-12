@@ -1,5 +1,10 @@
 ---
 
+- name: get fedora image for instack-test-overcloud
+  shell: >
+    curl -o {{ instack_user_home.stdout }}/fedora-user.qcow2 {{ installer.rhel7.fedora_user_image_location }}
+  when: ansible_distribution == 'RedHat'
+
 - name: run script to test the overcloud
   shell: >
     chdir={{ instack_user_home.stdout }}
