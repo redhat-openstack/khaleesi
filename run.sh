@@ -1,4 +1,6 @@
 #! /usr/bin/env bash
+# vim: ts=4:sw=4:et
+
 set -e -u
 
 declare -r SCRIPT_DIR=$(cd $(dirname "$0") && pwd)
