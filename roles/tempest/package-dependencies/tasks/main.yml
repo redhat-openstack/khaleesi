@@ -44,6 +44,8 @@
     - python-neutronclient
     - python-novaclient
     - python-ceilometerclient
+    - python-swiftclient
+    - python-heatclient
     - python-pip
     - python-virtualenv
     - python-testrepository

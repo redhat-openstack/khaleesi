@@ -19,14 +19,14 @@
         when: apply_patch
 
 
-- name: Create keystonerc and install packages for tempest
+- name: Create keystonerc
   hosts: tempest
   sudo: yes
   tags: tempest_setup
   roles:
     - { role: openstack/create-keystonerc }
 
-- name: Setup tempest
+- name: Setup tempest and install packages for tempest
   hosts: tempest
   tags: tempest_setup
   roles:
