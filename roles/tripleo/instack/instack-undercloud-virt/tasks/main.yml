@@ -119,7 +119,6 @@
 - name: search output for complete status
   shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'install-undercloud complete'"
   register: grep_output
-  when: ansible_distribution == 'RedHat' and instack_log_present.stat.exists == False
 
 - name: report failure if install is not complete
   fail: msg="report error"
