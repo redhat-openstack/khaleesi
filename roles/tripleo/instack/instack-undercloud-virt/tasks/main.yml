@@ -71,6 +71,7 @@
   shell: >
     chdir={{ instack_user_home.stdout }}
     export RHOS=1;
+    export NODE_DIST="rhel7";
     export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
     export REG_HALT_UNREGISTER=1
     export DIB_CLOUD_IMAGES="{{ installer.rhel7.remote_file_server }}";
@@ -107,6 +108,7 @@
   shell: >
     chdir={{ instack_user_home.stdout }}
     export RHOS=1;
+    export NODE_DIST="rhel7";
     export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
     export REG_HALT_UNREGISTER=1
     export DIB_CLOUD_IMAGES="{{ installer.rhel7.remote_file_server }}";
