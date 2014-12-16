@@ -47,9 +47,16 @@
   sudo_user: root
   sudo: yes
 
+# puddle repos
+- name: Create the RHOS poodle repository
+  shell: "rhos-release -x {{ product.version|int }}; rhos-release 6 -p {{ product.repo.puddle_pin_version }}"
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos' and product.repo_type == 'puddle' and product.repo.puddle_pin_version is defined
+  sudo_user: root
+  sudo: yes
+
 - name: erase rhos-release
   shell: "yum erase -y rhos-release"
-  when: ansible_distribution == 'RedHat' and product.name == 'rhos' and product.repo_type == 'poodle'
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos' and (product.repo_type == 'poodle' or product.repo_type == 'puddle')
   sudo_user: root
   sudo: yes
 
