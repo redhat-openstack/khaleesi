@@ -95,6 +95,24 @@
   debug: var=instack_undercloud_output.stdout
   when: ansible_distribution == 'Fedora' and installer.instack_undercloud_rpm is not defined
 
+- name: install instack-undercloud
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    export RHOS=1;
+    export NODE_DIST="rhel7";
+    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
+    export REG_HALT_UNREGISTER=1
+    export REG_METHOD=disable;
+    sudo yum install -y instack-undercloud
+  when: ansible_distribution == 'RedHat' and installer.instack_undercloud_rpm is not defined and product.instack_images[ansible_distribution][ansible_distribution_version] is defined
+  register: instack_undercloud_output_rh
+  sudo_user: root
+  sudo: yes
+
+- name: print instack_undercloud_output
+  debug: var=instack_undercloud_output_rh.stdout
+  when: ansible_distribution == 'RedHat' and installer.instack_undercloud_rpm is not defined and product.instack_images[ansible_distribution][ansible_distribution_version] is defined
+
 - name: install updated version of instack-undercloud if it exists
   yum: name="{{ installer.instack_undercloud_rpm }}"
   when: installer.instack_undercloud_rpm is defined

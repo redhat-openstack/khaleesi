@@ -13,18 +13,18 @@
 - name: prepare for overcloud - download images
   shell: >
     chdir={{ instack_user_home.stdout }}
-    export IMG_SOURCE_URL="{{ product.instack_images[ ansible_distribution ] }}";
+    export IMG_SOURCE_URL="{{ product.instack_images[ ansible_distribution ][ansible_distribution_version] }}";
     wget --no-verbose --no-parent --recursive --level=1 --no-directories $IMG_SOURCE_URL
   async: 18000
   poll: 300
-  when: ansible_distribution == 'Fedora' and installer.custom_instack_images is not defined
+  when: product.instack_images[ansible_distribution][ansible_distribution_version] is defined and installer.custom_instack_images is not defined
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
   register: instack-prepare-for-overcloud-output
 
 - name: print instack-prepare-for-overcloud-output
   debug: var=instack-prepare-for-overcloud-output.stdout
-  when: ansible_distribution == 'Fedora' and installer.custom_instack_images is not defined
+  when: product.instack_images[ansible_distribution][ansible_distribution_version] is defined and installer.custom_instack_images is not defined
 
 - name: prepare for overcloud with custom images
   shell: >
@@ -45,7 +45,7 @@
 - { include: ../../common-rpms/tasks/main.yml }
 
 - include: ../../build-images/tasks/main.yml
-  when: ansible_distribution == 'RedHat' and product.name == 'rhos'
+  when: product.instack_images[ansible_distribution][ansible_distribution_version] is not defined and installer.custom_instack_images is not defined
 
 - name: check answers file exists
   shell: "[ -e /usr/share/instack-undercloud/instack.answers.sample]"
@@ -88,8 +88,6 @@
     export NODE_DIST="rhel7";
     export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
     export REG_HALT_UNREGISTER=1
-    export DIB_CLOUD_IMAGES="{{ installer.rhel7.remote_file_server }}";
-    export BASE_IMAGE_FILE="{{ installer.rhel7.guest_image_name }}";
     export REG_METHOD=disable;
     instack-install-undercloud
     when: ansible_distribution == 'RedHat' and instack_log_present.stat.exists == False
