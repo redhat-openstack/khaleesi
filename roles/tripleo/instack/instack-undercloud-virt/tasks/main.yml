@@ -24,9 +24,40 @@
     chdir={{ instack_user_home.stdout }}
     sshpass -p {{ instack.user.stack.password }} ssh -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1 &
 
+- name: enable repos to before installing wget - RHOS Release Repository
+  template: src=../../../../linux/rhel/rhos/templates/rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos'
+  sudo_user: root
+  sudo: yes
+
+- name: install rhos-release to enable repos
+  yum: name=rhos-release state=latest
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos'
+  sudo_user: root
+  sudo: yes
+
+# poodle repos
+- name: Create the RHOS poodle repository
+  shell: "rhos-release -x {{ product.version|int }}; rhos-release -d {{ product.version|int }}"
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos' and product.repo_type == 'poodle'
+  sudo_user: root
+  sudo: yes
+
+# puddle repos
+- name: Create the RHOS poodle repository
+  shell: "rhos-release -x {{ product.version|int }}; rhos-release 6 -p {{ product.repo.puddle_pin_version }}"
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos' and product.repo_type == 'puddle' and product.repo.puddle_pin_version is defined
+  sudo_user: root
+  sudo: yes
+
+- name: erase rhos-release
+  shell: "yum erase -y rhos-release"
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos' and (product.repo_type == 'poodle' or product.repo_type == 'puddle')
+  sudo_user: root
+  sudo: yes
+
 - name: install wget
   yum: name=wget state=present
-  when: ansible_distribution == 'Fedora'
   sudo_user: root
   sudo: yes
 
@@ -78,12 +109,6 @@
     sudo yum install -y instack-undercloud
   when: ansible_distribution == 'RedHat' and installer.instack_undercloud_rpm is not defined
   register: instack_undercloud_output
-
-- name: install wget
-  yum: name=wget state=present
-  when: ansible_distribution == 'RedHat'
-  sudo_user: root
-  sudo: yes
 
 - name: check answers file exists
   shell: "[ -e {{ instack_user_home.stdout }}/instack.answers ]"
