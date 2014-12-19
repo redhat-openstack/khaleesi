@@ -93,7 +93,7 @@
   shell: >
     chdir={{ instack_user_home.stdout }}
     sshpass -p stack scp -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1:/home/stack/\{*.initramfs,*.kernel,*.qcow2,*.initrd,*.vmlinuz\} .
-  when: product.instack_images[ansible_distribution][ansible_distribution_version] is not defined and installer.custom_instack_images is not defined
+  when: product.instack_images is not defined and installer.custom_instack_images is not defined
 
 - include: ../../common-rpms/tasks/main.yml
 

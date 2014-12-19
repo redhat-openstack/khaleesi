@@ -8,7 +8,7 @@
 - { include: ../../common-rpms/tasks/main.yml }
 
 - include: ../../build-images/tasks/main.yml
-  when: product.instack_images[ansible_distribution][ansible_distribution_version] is not defined and installer.custom_instack_images is not defined
+  when: (product.instack_images is not defined) and (installer.custom_instack_images is not defined)
 
 - name: run script to install required dependencies
   shell: >
