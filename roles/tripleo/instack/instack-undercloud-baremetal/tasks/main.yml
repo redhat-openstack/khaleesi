@@ -45,7 +45,7 @@
 - { include: ../../common-rpms/tasks/main.yml }
 
 - include: ../../build-images/tasks/main.yml
-  when: product.instack_images[ansible_distribution][ansible_distribution_version] is not defined and installer.custom_instack_images is not defined
+  when: product.instack_images is not defined and installer.custom_instack_images is not defined
 
 - name: check answers file exists
   shell: "[ -e /usr/share/instack-undercloud/instack.answers.sample]"
@@ -92,6 +92,8 @@
     instack-install-undercloud
     when: ansible_distribution == 'RedHat' and instack_log_present.stat.exists == False
     register: instack_undercloud_rhel_result
+  sudo_user: "{{ instack.user.stack.name }}"
+  sudo: yes
 
 - name: search output for complete status
   shell: "cat {{ instack_user_home.stdout }}/.instack/install-undercloud.log | grep 'install-undercloud complete'"
