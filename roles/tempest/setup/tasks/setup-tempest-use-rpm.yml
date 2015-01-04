@@ -31,8 +31,4 @@
            /usr/share/openstack-tempest-{{ tempest.rdo.version }}
            chdir={{ tempest.dir }}"
 
-- include: generate-tempest-havana-conf.yml
-  when: ("{{ product.version }}" == "havana") or ("{{ product.version }}" == "4.0")
-
-- include: generate-tempest-non-havana-conf.yml
-  when: ("{{ product.version }}" != "havana") and ("{{ product.version }}" != "4.0")
+- include: generate-tempest-conf.yml

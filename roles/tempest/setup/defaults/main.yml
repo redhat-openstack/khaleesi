@@ -22,28 +22,7 @@ tempest_config_generate_command: >
         identity.password "{{ hostvars[controller_name].demo_password | default('secrete') }}"
         compute.image_ref "{{ cirros_id.stdout }}"
         compute.image_ref_alt "{{ cirros_id.stdout }}"
-        compute.build_timeout 240
-        network.build_timeout 240
-        volume.build_timeout 240
-        scenario.img_dir ..
-
-tempest_non_havana_config_generate_command: >
-  python {{ tempest.dir }}/tools/config_tempest.py --out {{ tempest.dir }}/etc/tempest.conf
-        --debug  --create
-        --network-name "public"
-        --network-type "flat"
-        --network-physical-label "myphysnet"
-        --subnet-cidr "{{ tempest.public_subnet_cidr}}"
-        --subnet-gateway  "{{ tempest.public_subnet_gateway }}"
-        --subnet-allocation-pool "{{ tempest.public_allocation_start }}" "{{ tempest.public_allocation_end }}"
-        identity.uri http://{{ hostvars[controller_name].ansible_default_ipv4.address }}:5000/v2.0/
-        compute.allow_tenant_isolation true
-        object-storage.operator_role SwiftOperator
-        identity.admin_password "{{ hostvars[controller_name].admin_password | default('redhat') }}"
-        identity.password "{{ hostvars[controller_name].demo_password | default('secrete') }}"
-        compute.image_ref "{{ cirros_id.stdout }}"
-        compute.image_ref_alt "{{ cirros_id.stdout }}"
-        compute.build_timeout 240
-        network.build_timeout 240
-        volume.build_timeout 240
+        compute.build_timeout 500
+        network.build_timeout 500
+        volume.build_timeout 500
         scenario.img_dir ..
