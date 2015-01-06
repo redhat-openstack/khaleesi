@@ -9,7 +9,7 @@
 
 - name: run fedora-prep script
   command: ./fedora-prep {{ instack.user.stack.name }}
-  register: fredora_prep_output
+  register: fedora_prep_output
 
 - name: print fedora_prep_output
   debug: var=fedora_prep_output.stdout
