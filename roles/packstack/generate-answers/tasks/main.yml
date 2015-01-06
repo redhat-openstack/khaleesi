@@ -53,8 +53,9 @@
 - name: set CONFIG_COMPUTE_HOSTS to packstack answer-file
   lineinfile:
       dest={{ packstack.answer_file }}
-      regexp='CONFIG_COMPUTE_HOSTS=.*'
-      line='CONFIG_COMPUTE_HOSTS={{tmp_compute_hosts}}'
+      regexp='CONFIG_((NOVA_)?)COMPUTE_HOSTS=.*'
+      line='CONFIG_\1COMPUTE_HOSTS={{tmp_compute_hosts}}'
+      backrefs=yes
 
 - name: warn if CONFIG_COMPUTE_HOSTS is overridden in packstack config"
   debug: msg="'WARNING:' CONFIG_COMPUTE_HOSTS overridden by packstack config"
