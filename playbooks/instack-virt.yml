@@ -49,4 +49,4 @@
     - { role: tripleo/instack/icehouse/deploy-overcloud, when: product.version == 'icehouse' }
     - { role: tripleo/instack/test-overcloud}
 
-#- include: tripleo/instack-virt-tempest.yml
+- include: tripleo/instack-virt-tempest.yml

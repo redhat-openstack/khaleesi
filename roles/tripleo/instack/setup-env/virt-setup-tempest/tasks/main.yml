@@ -89,8 +89,8 @@
   shell: >
     sshpass -p {{ job_var.vm_pass }} ssh-copy-id -i /home/rhos-ci/.ssh/id_rsa.pub root@{{ job_var.instack_virt_host }} -p {{ job_var.tempest_machine_port }} -o 'StrictHostKeyChecking=no';
     sshpass -p {{ job_var.vm_pass }} ssh-copy-id -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.id_rsa_pub }} root@{{ job_var.instack_virt_host }} -p {{ job_var.tempest_machine_port }} -o 'StrictHostKeyChecking=no';
-    sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' -P {{ job_var.vm_ssh_port }} /home/rhos-ci/.ssh/id_rsa.pub stack@{{ job_var.instack_virt_host }}:/home/stack/.ssh/id_rsa_jenkins.pub;
-    sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' -P {{ job_var.vm_ssh_port }} /home/rhos-ci/.ssh/id_rsa stack@{{ job_var.instack_virt_host }}:/home/stack/.ssh/id_rsa_jenkins;
+    sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' -P {{ job_var.vm_ssh_port }} {{ jenkins.rhos_ci_home }}/.ssh/id_rsa.pub stack@{{ job_var.instack_virt_host }}:/home/stack/.ssh/id_rsa_jenkins.pub;
+    sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' -P {{ job_var.vm_ssh_port }} {{ jenkins.rhos_ci_home }}/.ssh/id_rsa stack@{{ job_var.instack_virt_host }}:/home/stack/.ssh/id_rsa_jenkins;
     sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.instack_virt_host }} -p {{ job_var.vm_ssh_port }} "ssh-copy-id -i '/home/stack/.ssh/id_rsa_jenkins.pub'  -o 'StrictHostKeyChecking=no' heat-admin@{{ controller_node_ip.stdout }}"
 
 - name: create keys for tempest machine and copy those keys to controller node
@@ -121,5 +121,8 @@
 - name: ssh to controller node
   shell: ssh -o 'StrictHostKeyChecking=no' -x -l heat-admin {{ job_var.instack_virt_host }} -p {{ job_var.vm_tempest_port }}
 
-- name: add rol needed for tempest
+- name: add role needed for tempest
   shell: ssh -o 'StrictHostKeyChecking=no' -x -l heat-admin {{ job_var.instack_virt_host }} -p {{ job_var.vm_tempest_port }} "sudo cp /root/stackrc .; source stackrc; keystone role-create --name heat_stack_owner"
+
+- name: add /home/root dir
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -x -l root {{ job_var.instack_virt_host }} -p {{ job_var.tempest_machine_port }} "mkdir /home/root"
