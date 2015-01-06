@@ -75,9 +75,15 @@
   when: ansible_distribution == 'Fedora'
 
 - name: install sshpass for tunnel
-  shell: >
-    yum install -y {{ installer.rhel7.sshpass_rpm }}
+  yum: name="{{ installer.rhel7.sshpass_rpm }}" state=present
   when: ansible_distribution == 'RedHat'
+
+- name: kill any previously created ssh tunnels
+  command: killall -9 sshpass
+  ignore_errors: yes
+
+- name: command used to create ssh tunnel
+  debug: msg="sudo iptables -I INPUT -p tcp --dport {{ instack.environ.vm_ssh_port }} -j ACCEPT; sshpass -p {{ instack.user.stack.password }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ instack.environ.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"
 
 - name: open ssh tunnel to instack vm on port {{ instack.environ.vm_ssh_port }}
   shell: "sudo iptables -I INPUT -p tcp --dport {{ instack.environ.vm_ssh_port }} -j ACCEPT; sshpass -p {{ instack.user.stack.password }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ instack.environ.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"
