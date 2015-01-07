@@ -11,7 +11,7 @@
 
 - name: if tempest ran, tar files
   shell: >
-    sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l root {{ job_var.tempest_machine }} "cd /root; tar -cvjf tempest_logs.tar.bz2 '{{ tempest.dir }}/etc/tempest.conf' '{{ tempest.dir }}/etc/tempest.conf.sample' '{{ tempest.dir }}/*.log' '{{ tempest.dir }}/*.xml'"
+    sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l root {{ job_var.tempest_machine }} "cd /root; tar -cvjf tempest_logs.tar.bz2 '{{ tempest.dir }}/etc/tempest.conf' '{{ tempest.dir }}/etc/tempest.conf.sample' '{{ tempest.dir }}/tempest.log' '{{ tempest.dir }}/nosetests.xml'"
   when: nosetests_xml_exists.stat.exists == True and instack.environ.name == 'baremetal'
 
 - name: wait for tar to complete
@@ -30,7 +30,7 @@
 
 - name: if tempest ran, tar files
   shell: >
-    sshpass -p {{ job_var.vm_pass }} ssh -x -l root {{ job_var.instack_virt_host }} -p {{ job_var.tempest_machine_port }} "cd /root; tar -cvjf tempest_logs.tar.bz2 '{{ tempest.dir }}/etc/tempest.conf' '{{ tempest.dir }}/etc/tempest.conf.sample' '{{ tempest.dir }}/*.log' '{{ tempest.dir }}/*.xml'"
+    sshpass -p {{ job_var.vm_pass }} ssh -x -l root {{ job_var.instack_virt_host }} -p {{ job_var.tempest_machine_port }} "cd /root; tar -cvjf tempest_logs.tar.bz2 '{{ tempest.dir }}/etc/tempest.conf' '{{ tempest.dir }}/etc/tempest.conf.sample' '{{ tempest.dir }}/tempest.log' '{{ tempest.dir }}/nosetests.xml'"
   when: nosetests_xml_exists.stat.exists == True and instack.environ.name == 'virt'
 
 - name: wait for tar to complete
