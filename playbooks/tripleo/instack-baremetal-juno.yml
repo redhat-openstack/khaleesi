@@ -27,3 +27,5 @@
     - { role: tripleo/instack/test-overcloud}
 
 #- include: instack-baremetal-tempest.yml
+
+#- include: ../instack-cleanup.yml
