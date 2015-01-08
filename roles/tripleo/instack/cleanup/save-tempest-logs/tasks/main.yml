@@ -39,7 +39,7 @@
 
 - name: if tempest ran, copy files
   shell: >
-    sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' -P {{ job_var.vm_ssh_port }} root@{{ job_var.tempest_machine }}:/root/tempest_logs.tar.bz2 {{ jenkins.workspace }}/{{ jenkins.job_name }}/tempest_logs.tar.bz2 &
+    sshpass -p {{ job_var.vm_pass }} scp -o 'StrictHostKeyChecking=no' -P {{ job_var.tempest_machine_port }} root@{{ job_var.instack_virt_host }}:/root/tempest_logs.tar.bz2 {{ jenkins.workspace }}/{{ jenkins.job_name }}/tempest_logs.tar.bz2 &
   when: nosetests_xml_exists.stat.exists == True and instack.environ.name == 'virt'
 
 - name: save dummy file if tempest didn't run
