@@ -28,4 +28,4 @@
 
 #- include: instack-baremetal-tempest.yml
 
-#- include: ../instack-cleanup.yml
+- include: ../instack-cleanup.yml

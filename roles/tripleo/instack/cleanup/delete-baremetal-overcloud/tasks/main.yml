@@ -1,0 +1,13 @@
+---
+
+- name: delete baremetal overcloud nodes
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.instack_virt_host }} "cd /home/stack; source stackrc; heat stack-delete overcloud"
+  ignore_errors: yes
+  when: instack.environ.name == 'baremetal'
+
+- name: poll for the overcloud to be deleted
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -x -l stack {{ job_var.instack_virt_host }} "cd /home/stack; source stackrc; heat stack-list"
+  register: heat_stack_list_output
+  until: heat_stack_list_output.stdout.find("IN_PROGRESS") == -1
+  when: instack.environ.name == 'baremetal'
+

@@ -10,7 +10,7 @@
   roles:
     - { role: tripleo/instack/cleanup/save-tempest-logs }
 
-#- name: delete baremetal overcloud
-#  hosts: local
-#  roles:
-#    - { role: tripleo/instack/cleanup/delete-baremetal-overcloud }
+- name: delete baremetal overcloud
+  hosts: local
+  roles:
+    - { role: tripleo/instack/cleanup/delete-baremetal-overcloud }
