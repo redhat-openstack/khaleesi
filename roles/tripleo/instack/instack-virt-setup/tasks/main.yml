@@ -95,5 +95,5 @@
 
 - name: add stack user
   shell: >
-    ssh -x -t -t -o \"StrictHostKeyChecking no\" -i /home/stack/.ssh/id_rsa_virt_power root@{{ instack_vm_ip_result.stdout }} 'useradd stack; export UNDERCLOUD_STACK_PASSWORD=stack; echo $UNDERCLOUD_STACK_PASSWORD | sudo passwd stack --stdin'
+    ssh -x -t -t -o 'StrictHostKeyChecking=no' -i /home/stack/.ssh/id_rsa_virt_power root@{{ instack_vm_ip_result.stdout }} 'useradd stack; export UNDERCLOUD_STACK_PASSWORD=stack; echo $UNDERCLOUD_STACK_PASSWORD | sudo passwd stack --stdin'
 
