@@ -26,7 +26,7 @@ function get_release() {
    echo ERROR: unable to determine distribution, got $version 1>&2
    exit 1;
  fi
- echo $version
+ echo $version | cut -f 1 -d .
 }
 
 DISTRIBUTION=$(get_distribution)
