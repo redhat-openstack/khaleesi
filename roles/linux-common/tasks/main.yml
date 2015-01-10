@@ -1,4 +1,17 @@
 ---
+# If there is NetworkManager process running, but uninstalled, it will cause
+# problems upon service network restart, searching for not-existing
+# /usr/libexec/nm-dhcp-helper
+- name: install psmisc
+  yum: name=psmisc state=present
+
+- name: kill all the network managers
+  command: killall NetworkManager
+  ignore_errors: yes    # When no NM running, killall exits with 1
+
+- name: restart the network
+  service: name=network state=restarted
+
 # cloud-init can interfere w/ openstack installs
 - name: remove cloud-init
   yum: name={{ item }} state=absent
