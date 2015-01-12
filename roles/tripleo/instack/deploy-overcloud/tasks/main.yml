@@ -33,9 +33,25 @@
     source {{ instack_user_home.stdout }}/tripleo-undercloud-passwords;
     instack-deploy-overcloud
   register: instack-deploy-overcloud-output
+  when: installer.deployment is not defined or installer.deployment == 'heat'
 
 - name: print instack-deploy-overcloud-output
   debug: var=instack-deploy-overcloud-output.stdout
+  when: installer.deployment is not defined or installer.deployment == 'heat'
+
+- name: run script to deploy overcloud using tuskar-cli
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    source {{ instack_user_home.stdout }}/stackrc;
+    source {{ instack_user_home.stdout }}/deploy-overcloudrc;
+    source {{ instack_user_home.stdout }}/tripleo-undercloud-passwords;
+    instack-deploy-overcloud --tuskar
+  register: instack-deploy-overcloud-tuskar-cli-output
+  when: installer.deployment is defined and installer.deployment == 'tuskar_cli'
+
+- name: print instack-deploy-overcloud-tuskar-cli-output
+  debug: var=instack-deploy-overcloud-tuskar-cli-output.stdout
+  when: installer.deployment is defined and installer.deployment == 'tuskar_cli'
 
 - name: check 'heat stack-list'
   shell: "source {{ instack_user_home.stdout }}/stackrc; heat stack-list | grep 'COMPLETE'"
