@@ -1,4 +1,15 @@
 ---
+- name: check for heat_stack_owner role
+  sudo: yes
+  ignore_errors: yes
+  shell: source /root/keystonerc_admin; keystone role-get heat_stack_owner
+  register: result
+
+- name: create heat_stack_owner if missing
+  sudo: yes
+  shell: source /root/keystonerc_admin; keystone role-create --name heat_stack_owner
+  when: result.rc == 1
+
 - name: verify if setup method {{tempest.setup_method }} is valid
   fail: msg="setup method provided '{{ tempest.setup_method }}'
             is invalid. Valid ones  '{{ tempest_valid_setup_methods|join(', ') }}' "
@@ -46,3 +57,4 @@
   when: tempest.use_virtual_env | default(true)
   tags:
     - tempest_setup
+
