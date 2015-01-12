@@ -3,7 +3,8 @@ import ConfigParser
 
 import bugzilla
 
-from ansible import utils, errors
+from ansible import utils
+
 
 class LookupModule(object):
 
@@ -13,7 +14,8 @@ class LookupModule(object):
     def bugzilla_load_config_file(self):
         p = ConfigParser.SafeConfigParser()
         path1 = os.getcwd() + "/bugzilla.ini"
-        path2 = os.path.expanduser(os.environ.get('ANSIBLE_CONFIG', "~/bugzilla.ini"))
+        path2 = os.path.expanduser(
+            os.environ.get('ANSIBLE_CONFIG', "~/bugzilla.ini"))
         path3 = "/etc/ansible/bugzilla.ini"
 
         if os.path.exists(path1):
@@ -26,13 +28,13 @@ class LookupModule(object):
             return None
         return p
 
-
     def run(self, terms, inject=None, **kwargs):
         self.config = self.bugzilla_load_config_file()
         url = self.config.get('bugzilla', 'url')
         username = self.config.get('bugzilla', 'username')
         password = self.config.get('bugzilla', 'password')
-        open_statuses = self.config.get('bugzilla', 'open_statuses').upper().split(',')
+        open_statuses = self.config.get('bugzilla', 'open_statuses'
+                                        ).upper().split(',')
 
         bz = bugzilla.Bugzilla(url=url)
         bz.login(username, password)

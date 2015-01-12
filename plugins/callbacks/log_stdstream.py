@@ -2,19 +2,20 @@ import os
 import time
 import json
 
-TIME_FORMAT="%b %d %Y %H:%M:%S"
-MARK_FORMAT="%(now)s ======== MARK ========\n"
-MSG_FORMAT="%(now)s - %(category)s - %(data)s\n\n"
-STDOUT_FORMAT="%(now)s - stdout:\n %(stdout)s\n\n"
-STDERR_FORMAT="%(now)s - stderr:\n %(stderr)s\n\n"
-RESULTS_START="%(now)s - results\n"
-RESULTS_FORMAT="%(result)s\n"
-RESULTS_END="\n"
+TIME_FORMAT = "%b %d %Y %H:%M:%S"
+MARK_FORMAT = "%(now)s ======== MARK ========\n"
+MSG_FORMAT = "%(now)s - %(category)s - %(data)s\n\n"
+STDOUT_FORMAT = "%(now)s - stdout:\n %(stdout)s\n\n"
+STDERR_FORMAT = "%(now)s - stderr:\n %(stderr)s\n\n"
+RESULTS_START = "%(now)s - results\n"
+RESULTS_FORMAT = "%(result)s\n"
+RESULTS_END = "\n"
 
-LOG_PATH=os.getenv('KHALEESI_LOG_PATH', '/tmp/stdstream_logs')
+LOG_PATH = os.getenv('KHALEESI_LOG_PATH', '/tmp/stdstream_logs')
 
 if not os.path.exists(LOG_PATH):
     os.makedirs(LOG_PATH)
+
 
 def log(host, category, data):
     stderr = stdout = results = None
@@ -27,10 +28,13 @@ def log(host, category, data):
             stdout = data.pop('stdout', None)
             stderr = data.pop('stderr', None)
             results = data.pop('results', None)
-            data = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+            data = json.dumps(data, sort_keys=True, indent=4,
+                              separators=(',', ': '))
             if invocation is not None:
-                data = "\n" + json.dumps(invocation, sort_keys=True, indent=4,
-                    separators=(',', ': ')) + "\n===>\n%s\n" % data
+                data = "\n%s\n===>\n%s\n" % (
+                    json.dumps(invocation, sort_keys=True, indent=4,
+                               separators=(',', ': ')),
+                    data)
 
     path = os.path.join(LOG_PATH, host)
     now = time.strftime(TIME_FORMAT, time.localtime())
@@ -46,6 +50,7 @@ def log(host, category, data):
         [fd.write(RESULTS_FORMAT % dict(result=result)) for result in results]
         fd.write(RESULTS_END)
     fd.close()
+
 
 class CallbackModule(object):
     """
@@ -97,7 +102,9 @@ class CallbackModule(object):
     def playbook_on_task_start(self, name, is_conditional):
         pass
 
-    def playbook_on_vars_prompt(self, varname, private=True, prompt=None, encrypt=None, confirm=False, salt_size=None, salt=None, default=None):
+    def playbook_on_vars_prompt(self, varname, private=True, prompt=None,
+                                encrypt=None, confirm=False, salt_size=None,
+                                salt=None, default=None):
         pass
 
     def playbook_on_setup(self):
@@ -114,4 +121,3 @@ class CallbackModule(object):
 
     def playbook_on_stats(self, stats):
         pass
-
