@@ -1,7 +1,11 @@
 ---
+#determine provisioner and whether or not to skip
+- include: ../group_by_provision.yml
 
 # provision
 - include: beaker-provision.yml
+
+- include: ../group_by.yml
 
 - name: prepare for undercloud install
   hosts: local

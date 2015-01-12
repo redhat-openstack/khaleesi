@@ -1,6 +1,11 @@
 ---
+#determine provisioner and whether or not to skip
+- include: group_by_provision.yml
+
 # provision
 - include: tripleo/beaker-provision.yml
+
+- include: group_by.yml
 
 - name: set up for installing the virt host
   hosts: local
@@ -10,12 +15,18 @@
 #- include: ../workarounds/workarounds-pre-run-instack-vm.yml
 
 - name: create instack vm for undercloud install
-  hosts: instack-virt-host
+  hosts: instack-virt-host:&juno
   roles:
     - { role: tripleo/instack/common-undercloud }
     - { role: tripleo/instack/common }
-    - { role: tripleo/instack/instack-virt-setup, when: product.version == 'juno' }
-    - { role: tripleo/instack/icehouse/instack-virt-setup, when: product.version == 'icehouse' }
+    - { role: tripleo/instack/instack-virt-setup }
+
+- name: create instack vm for undercloud install
+  hosts: instack-virt-host:&icehouse
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/instack-virt-setup }
 
 - name: set up for installing the undercloud on instack vm
   hosts: local
@@ -33,20 +44,32 @@
 #- include: ../workarounds/workarounds-pre-run-instack-undercloud-virt.yml
 
 - name: install undercloud on vm
-  hosts: instack-undercloud-stack
+  hosts: instack-undercloud-stack:&juno
   roles:
     - { role: tripleo/instack/common }
-    - { role: tripleo/instack/instack-undercloud-virt, when: product.version == 'juno' }
-    - { role: tripleo/instack/icehouse/instack-undercloud-virt, when: product.version == 'icehouse' }
+    - { role: tripleo/instack/instack-undercloud-virt }
+
+- name: install undercloud on vm
+  hosts: instack-undercloud-stack:&icehouse
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/instack-undercloud-virt }
 
 #- include: ../workarounds/workarounds-pre-run-instack-overcloud.yml
 
 - name: deploy and test overcloud
-  hosts: instack-undercloud-stack
+  hosts: instack-undercloud-stack:&juno
   roles:
     - { role: tripleo/instack/common }
-    - { role: tripleo/instack/deploy-overcloud, when: product.version == 'juno' }
-    - { role: tripleo/instack/icehouse/deploy-overcloud, when: product.version == 'icehouse' }
+    - { role: tripleo/instack/deploy-overcloud }
     - { role: tripleo/instack/test-overcloud}
+
+- name: deploy and test overcloud
+  hosts: instack-undercloud-stack:&icehouse
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/deploy-overcloud }
+    - { role: tripleo/instack/test-overcloud}
+
 
 - include: tripleo/instack-virt-tempest.yml

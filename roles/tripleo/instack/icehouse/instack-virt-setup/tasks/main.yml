@@ -73,8 +73,8 @@
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
-- name: start instack vm
-  shell: "export LIBVIRT_DEFAULT_URI=\"qemu:///system\" ; sleep 5; virsh list --all; virsh start instack"
+- name: ensure the instack vm is running
+  virt: name=instack state=running
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
@@ -95,6 +95,10 @@
 
 - name: install sshpass for tunnel
   yum: name=sshpass state=present
+
+- name: kill any previously created ssh tunnels
+  command: killall -9 sshpass
+  ignore_errors: yes
 
 - name: open ssh tunnel to instack vm on port {{ instack.environ.vm_ssh_port }}
   shell: "sudo iptables -I INPUT -p tcp --dport {{ instack.environ.vm_ssh_port }} -j ACCEPT; sshpass -p {{ instack.user.stack.password }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ instack.environ.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"

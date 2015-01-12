@@ -1,0 +1,12 @@
+---
+- name: Group hosts by provisioner
+  hosts: local
+  sudo: no
+  tasks:
+    - group_by: key={{ provisioner.type }}
+
+- name: provisioner skip the provisioning step
+  hosts: local
+  sudo: no
+  tasks:
+    - group_by: key={{ provisioner.skip }}

@@ -1,4 +1,7 @@
 ---
+#determine provisioner and whether or not to skip
+- include: group_by_provision.yml
+
 # provison
 - include: dump_settings.yml
 - include: provision.yml
