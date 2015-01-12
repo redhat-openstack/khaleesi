@@ -25,6 +25,7 @@ tempest_config_generate_command: >
         compute.build_timeout 240
         network.build_timeout 240
         volume.build_timeout 240
+        scenario.img_dir ..
 
 tempest_non_havana_config_generate_command: >
   python {{ tempest.dir }}/tools/config_tempest.py --out {{ tempest.dir }}/etc/tempest.conf
@@ -45,3 +46,4 @@ tempest_non_havana_config_generate_command: >
         compute.build_timeout 240
         network.build_timeout 240
         volume.build_timeout 240
+        scenario.img_dir ..

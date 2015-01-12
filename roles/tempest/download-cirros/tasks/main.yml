@@ -1,6 +1,6 @@
 ---
 - name: Download cirros image
-  get_url: url={{ cirros_image_url }} dest=/home/{{nodes.tempest.remote_user}}/{{ cirros_image_file }} mode=0440
+  get_url: url={{ cirros_image_url }} dest=/home/{{nodes.tempest.remote_user}}/{{ cirros_image_file }} mode=0444
 
 - name: CMD Upload cirros image to OpenStack using downloaded file
   shell: >
