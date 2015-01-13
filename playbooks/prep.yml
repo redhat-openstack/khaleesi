@@ -16,10 +16,19 @@
     - prep
 
 - name: RHEL RHOS prep
-  hosts: all:!localhost:&RedHat:&rhos:!skip_prep
+  hosts: all:!localhost:!foreman:&RedHat:&rhos:!skip_prep
   sudo: yes
   roles:
     - { role: linux/rhel/rhos }
+  tags:
+    - prep
+
+- name: RHEL RHOS prep foreman host
+  hosts: foreman:&RedHat:&rhos:!skip_prep
+  sudo: yes
+  roles:
+    - { role: linux/rhel/rhos, installer_host_repo: "-installer", when: "{{ product.version | version_compare('6.0', '==')}}"}
+    - { role: linux/rhel/rhos,  when: "{{ product.version | version_compare('6.0', '!=')}}"}
   tags:
     - prep
 

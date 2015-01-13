@@ -6,7 +6,7 @@
   yum: name=git state=latest
 
 - name: Get astapor repo
-  git: repo={{ astapor_repo }}
-       dest={{ astapor_dest }}
-       version={{ astapor_branch }}
+  git: repo={{ job.astapor_repo }}
+       dest={{ job.astapor_dest }}
+       version={{ job.astapor_branch }}
 

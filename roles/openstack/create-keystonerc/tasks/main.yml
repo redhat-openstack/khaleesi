@@ -1,12 +1,22 @@
 ---
 - name: Create keystonerc_admin
   template: src=keystonerc_admin.j2 dest=~/keystonerc_admin
-  when: installer.name != "instack"
+  when: installer.name != "instack" and job.ha_configuration | default(false) == false
 
 - name: Create keystonerc_demo
   template: src=keystonerc_demo.j2 dest=~/keystonerc_demo
-  when: installer.name != "instack"
+  when: installer.name != "instack" and job.ha_configuration | default(false) == false
+
+- name: Create keystonerc_admin for HA configurations
+  template: src=keystonerc_admin_HA.j2 dest=~/keystonerc_admin
+  when: installer.name != "instack" and job.ha_configuration | default(false)
+
+- name: Create keystonerc_demo for HA configurations
+  template: src=keystonerc_demo_HA.j2 dest=~/keystonerc_demo
+  when: installer.name != "instack" and job.ha_configuration | default(false)
+
 
 - name: Copy stackrc for tripleO
   copy: src=../stackrc dest=~/keystonerc_admin mode=0755
   when: installer.name == "instack"
+

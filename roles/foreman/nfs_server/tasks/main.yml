@@ -1,0 +1,33 @@
+---
+# NFS server for glance/cinder
+- name: Install nfs-utils
+  yum: name=nfs-utils state=latest
+
+- name: Create share directories
+  file: path="/mnt/{{ item }}" state=directory mode=777 owner=root group=root
+  with_items:
+    - cinder
+    - glance
+
+- name: Manage exports
+  lineinfile: dest=/etc/exports
+        regexp=^\/mnt/{{ item }}
+        line='/mnt/{{ item }} {{ ansible_eth1.ipv4.network }}/16(rw,sync,no_root_squash)'
+        state=present
+  with_items:
+    - cinder
+    - glance
+
+- name: Turn on rpcbind
+  service: name=rpcbind state=started enabled=yes
+
+# THIS DOES NOT WORK, TRIED 30 TIMES, WORKS PERFECTLY ON HOST, GIVES ALWAYS SAME RESPONSE "No such file or directory"
+#- name: Turn on nfs
+#  service: name=nfs pattern=nfsd state=started enabled=yes
+
+- name: Turn on nfs
+  command: systemctl restart nfs
+
+- name: reexport fs
+  command: exportfs -r
+

@@ -15,6 +15,27 @@
 - name: print openstack admin password
   debug: var=tempest_admin_password.stdout
 
+- name: set generate command for HA topology
+  set_fact:
+    tempest_config_generate_command: >
+      python {{ tempest.dir }}/tools/config_tempest.py --out {{ tempest.dir }}/etc/tempest.conf
+            --debug  --create
+            identity.uri http://{{ hostvars['localhost'].virtual_ips.keystone_public }}:5000/v2.0/
+            compute.allow_tenant_isolation true
+            object-storage.operator_role SwiftOperator
+            identity.admin_password "{{ hostvars['localhost'].deployment_admin_password | default('redhat') }}"
+            identity.password "{{ hostvars['localhost'].deployment_demo_password | default('secrete') }}"
+            compute.image_ref "{{ cirros_id.stdout }}"
+            compute.image_ref_alt "{{ cirros_id.stdout }}"
+            compute.build_timeout 500
+            compute.image_ssh_user cirros
+            compute.ssh_user cirros
+            network.build_timeout 500
+            volume.build_timeout 500
+            scenario.ssh_user cirros
+            scenario.img_dir ..
+  when: job.ha_configuration | default(false)
+
 - name: config_tempest |  generating tempest.conf by running
   debug: msg="'Running:' {{ tempest_config_generate_command }}"
   tags:

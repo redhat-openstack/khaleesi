@@ -12,28 +12,35 @@
   yum: name=rhos-release state=latest
 
 - name: Execute rhos-release {{ product.version|int }}
-  command: rhos-release {{ product.version|int }}
+  command: "rhos-release {{ product.version|int }}"
   notify:
     - Yum clean all
     - yum -y update to latest packages
 
+- name: Execute rhos-release {{ product.version|int }}{{ installer_host_repo | default('')}}
+  command: "rhos-release {{ product.version|int }}{{ installer_host_repo | default('')}}"
+  notify:
+    - Yum clean all
+    - yum -y update to latest packages
+  when: installer.name == "foreman" and installer_host_repo | default('') != ''
+
 - name: Change server location for repos in  rhos-release
   replace:
-    dest=/etc/yum.repos.d/rhos-release-{{product.version|int}}-rhel-{{ ansible_distribution_version|string}}.repo
+    dest=/etc/yum.repos.d/rhos-release-{{product.version|int}}{{ installer_host_repo | default('')}}-rhel-{{ ansible_distribution_version|string}}.repo
     regexp={{ location.defaultrepo_string }}
     replace={{ location.map[user_location] }}
   when: user_location is defined
 
 - name: Change puddle version for repos in rhos-release
   replace:
-    dest=/etc/yum.repos.d/rhos-release-{{product.version|int}}-rhel-{{ ansible_distribution_version|string}}.repo
+    dest=/etc/yum.repos.d/rhos-release-{{product.version|int}}{{ installer_host_repo | default('')}}-rhel-{{ ansible_distribution_version|string}}.repo
     regexp=/latest/RH{{ ansible_distribution_major_version|string }}
     replace=/{{ product.repo.puddle_pin_version }}/RH{{ ansible_distribution_major_version|string }}
   when: (product.repo.puddle_pin_version is defined and product.repo.puddle_pin_version != 'latest' and product.repo_type == 'puddle')
 
 - name: Change Foreman version for repos in rhos-release
   replace:
-    dest=/etc/yum.repos.d/rhos-release-{{product.version|int}}-rhel-{{ ansible_distribution_version|string }}.repo
+    dest=/etc/yum.repos.d/rhos-release-{{product.version|int}}{{ installer_host_repo | default('')}}-rhel-{{ ansible_distribution_version|string }}.repo
     regexp=/Foreman/latest/
     replace=/Foreman/{{ product.repo.foreman_pin_version }}/
   when: (product.repo.foreman_pin_version is defined and product.repo.foreman_pin_version != 'latest')
@@ -52,7 +59,7 @@
 
 # poodle repos
 - name: Create the RHOS poodle repository
-  shell: "rhos-release  -x {{ product.version|int }};  rhos-release  -d {{ product.version|int }}"
+  shell: "rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.version|int }}{{ installer_host_repo | default('')}}"
   when: product.repo_type == 'poodle'
 
 - name: Create the RHOS Advanced  poodle repository
@@ -71,16 +78,16 @@
   when: product.repo_type == 'poodle' and installer is defined and installer.name == 'staypuft'
 
 - name: Change poodle version for repos in rhos-release
-  shell: "rhos-release  -x {{ product.version|int }};  rhos-release  {{ product.version|int }} -d -p {{ product.repo.poodle_pin_version }}"
+  shell: "rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};  rhos-release  {{ product.version|int }}{{ installer_host_repo | default('')}} -d -p {{ product.repo.poodle_pin_version }}"
   when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version != 'latest|GA' and product.repo_type == 'poodle')
 
 - name: Change poodle version for repos in rhos-release for GA -> Latest Poodle
-  shell: "rhos-release  -x {{ product.version|int }};  rhos-release  {{ product.version|int }} -p {{ product.repo.poodle_pin_version }}"
+  shell: "rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};  rhos-release  {{ product.version|int }}{{ installer_host_repo | default('')}} -p {{ product.repo.poodle_pin_version }}"
   when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version == 'GA' and product.repo_type == 'poodle')
 
 - name: Enable RHSM
   shell: >
-    rhos-release  -x {{ product.version|int }};
+    rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};
     rm -Rf /etc/yum.repos.d/rhos-release.repo;
     subscription-manager register --username {{ distro.rhel.subscription.username }} --password {{ distro.rhel.subscription.password }};
     subscription-manager subscribe --pool {{ distro.rhel.subscription.pool }};

@@ -1,4 +1,9 @@
 ---
+- name: set controller variables for HA configurations
+  set_fact:
+      controller_name: "{{ nodes.controller01.name }}"
+  when: job.ha_configuration | default (false)
+
 - name: Get the host from foreman
   uri: >
         "url=https://{{ foreman.fqdn }}/api/hosts?search=name=\"{{ fqdn }}\""

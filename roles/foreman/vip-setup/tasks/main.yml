@@ -1,0 +1,14 @@
+---
+- name: setting virtual ips
+  neutron_setup_virtual_ips:
+       username: "{{ provisioner.username }}"
+       password: "{{ provisioner.password }}"
+       tenant: "{{ provisioner.tenant_name }}"
+       auth_url: "{{ provisioner.url }}"
+       foreman_private_address: "{{ hostvars[nodes.foreman.name].ansible_eth1.ipv4.address }}"
+       foreman_public_address: "{{ hostvars[nodes.foreman.name].ansible_eth0.ipv4.address }}"
+  when: job.ha_configuration | default(false)
+
+- debug: var=virtual_ips
+  when: job.ha_configuration | default(false)
+

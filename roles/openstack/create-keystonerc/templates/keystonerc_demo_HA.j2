@@ -1,0 +1,6 @@
+export OS_USERNAME=demo
+export OS_TENANT_NAME=demo
+export OS_PASSWORD={{ hostvars["localhost"].deployment_demo_password | default('redhat') }}
+export OS_AUTH_URL=http://{{ hostvars["localhost"].virtual_ips.keystone_private }}:35357/v2.0/
+export PS1='[\u@\h \W(keystonerc_demo)]\$ '
+

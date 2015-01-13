@@ -1,4 +1,9 @@
 ---
+- name: set controller variables for HA configurations
+  set_fact:
+      controller_name: "{{ nodes.controller01.name }}"
+  when: job.ha_configuration | default (false)
+
 - name: Ensure foreman and puppet repos are enabled
   ini_file: dest=/etc/yum.repos.d/{{ item.repo }}.repo
             section={{ item.section }}
@@ -20,12 +25,13 @@
   delay: 30
   register: ofi_result
   until: ofi_result.rc == 0
+  when: job.use_astapor is defined and not job.use_astapor|bool
 
 - include: openstack-puppet-modules-src.yml
   when: use_opm_src is defined and use_opm_src
 
 - include: astapor.yml
-  when: use_astapor is defined and use_astapor|bool
+  when: job.use_astapor is defined and job.use_astapor|bool
 
 - name: Make /etc/hosts proper
   lineinfile: "dest=/etc/hosts regexp='.*{{hostvars[item].fqdn }}$' line='{{ hostvars[item].ansible_eth1.ipv4.address }} {{ hostvars[item].fqdn }}' state=present"
@@ -35,16 +41,17 @@
   service: name=iptables enabled=no state=stopped
   tags:
     - iptables
+  when: ansible_distribution == 'RedHat' and ansible_distribution_version | version_compare('7.0', '<')
 
 - name: Make passwords the same for foreman environment
   replace: >
-    dest={{ astapor_dest }}/bin/seeds.rb
+    dest={{ job.astapor_dest }}/bin/seeds.rb
     regexp='SecureRandom\.hex'
     replace='"redhat"'
 
 - name: Fix seed values
   lineinfile: >
-    dest={{ astapor_dest }}/bin/seeds.rb
+    dest={{ job.astapor_dest }}/bin/seeds.rb
     regexp="^(.*\"{{ item.name }}\"[ ]*=> )([\"']){{ item.oldvalue }}([\"']),"
     line="\1\g<2>{{ item.newvalue }}\g<3>,"
     backrefs=yes
@@ -53,19 +60,19 @@
 
 - name: Remove the prompt in foreman_server.sh
   lineinfile: >
-    dest={{ astapor_dest }}/bin/foreman_server.sh
+    dest={{ job.astapor_dest }}/bin/foreman_server.sh
     regexp='^read .*'
     state=absent
 
 - name: Remove 'include passenger' line from foreman_server.sh
   lineinfile: >
-    dest={{ astapor_dest }}/bin/foreman_server.sh
+    dest={{ job.astapor_dest }}/bin/foreman_server.sh
     regexp='^include passenger'
     state=absent
 
 - name: Run the installer
   shell: >
-    chdir={{ astapor_dest }}/bin
+    chdir={{ job.astapor_dest }}/bin
     creates=/tmp/foreman_client.sh
     bash -x ./foreman_server.sh
   register: installer_run

@@ -51,6 +51,11 @@
 # apply pre-foreman workarouds
 - include: ../workarounds/workarounds-prep.yml tags=workaround
 
+- name: setup virtual ips
+  hosts: local
+  roles:
+    - { role: foreman/vip-setup }
+
 - name: Install Foreman
   hosts: foreman
   gather_facts: True
@@ -60,6 +65,14 @@
     - { role: foreman/hostgroup-params }
   tags:
     - install
+
+- name: set up foreman nfs shares
+  hosts: foreman:&RedHat-7
+  sudo: yes
+  roles:
+   - { role: foreman/nfs_server }
+  tags:
+   - install
 
 - include: ../workarounds/workarounds-pre-run-foreman.yml tags=workaround
 
@@ -98,13 +111,23 @@
   tags:
     - keystonerc
 
-- name: Openstack status
+#- name: Openstack status
+#  hosts: controller
+#  sudo: yes
+#  roles:
+#    - { role: openstack/openstack-status }
+#  tags:
+#    - openstack-status
+
+- name: Create external network
   hosts: controller
-  sudo: yes
   roles:
-    - { role: openstack/openstack-status }
-  tags:
-    - openstack-status
+    - { role: openstack/create-external-network }
+
+- name: Create external network - HA configuration
+  hosts: controller01
+  roles:
+    - { role: openstack/create-external-network }
 
 - include: tempest.yml
 

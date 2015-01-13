@@ -4,5 +4,5 @@
 DEVICE="{{ item.interface }}"
 IPADDR="{{ hostvars[inventory_hostname][network_var] }}"
 HWADDR="{{ hostvars[inventory_hostname][ansible_var].macaddress }}"
-NETMASK="255.255.255.0"
+NETMASK="{{ provisioner.network.subnets_netmask | default('255.255.255.0') }}"
 TYPE=Ethernet
