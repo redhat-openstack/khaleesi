@@ -21,7 +21,7 @@
 - name: modify the network type in deploy-overcloudrc
   shell: >
     chdir={{ instack_user_home.stdout }}
-    sed -i 's/NEUTRON_NETWORK_TYPE=.*/NEUTRON_NETWORK_TYPE={{ installer.network.variant.short_name }}/' deploy-overcloudrc
+    sed -i 's/NEUTRON_NETWORK_TYPE=.*/NEUTRON_NETWORK_TYPE={{ installer.network.variant.short_name }}/' deploy-overcloudrc;
     sed -i 's/NEUTRON_TUNNEL_TYPES=.*/NEUTRON_TUNNEL_TYPES={{ installer.network.variant.short_name }}/' deploy-overcloudrc
   when: installer.network.variant.short_name is defined
 
