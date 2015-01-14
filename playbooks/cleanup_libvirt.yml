@@ -1,0 +1,13 @@
+---
+- name: Group hosts by provisioner
+  hosts: local
+  sudo: no
+  tasks:
+    - group_by: key={{ provisioner.type }}
+  tags:
+    - provision
+
+- name: Clean up libvirt environment
+  hosts: instack-virt-host
+  roles:
+    - { role: cleanup_nodes/libvirt_host }

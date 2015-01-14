@@ -1,0 +1,46 @@
+---
+- name: get list of running libvirt guests
+  virt: command=list_vms
+  register: vms
+
+- name: display list of vms
+  debug: var=vms.list_vms
+
+- name: undefine vms
+  virt: command=undefine name={{ item }}
+  with_items: vms.list_vms
+  ignore_errors: true
+
+- name: destroy any remaining vms
+  virt : command=destroy name={{ item }}
+  with_items: vms.list_vms
+  ignore_errors: true
+
+- name: remove images from /var/lib/libvirt/images
+  shell: rm -Rf /var/lib/libvirt/images/*.qcow2
+
+- name: destroy brbm network
+  command: virsh net-destroy brbm
+  ignore_errors: true
+
+- name: restart libvirtd
+  service: name=libvirtd state=restarted
+
+- name: kill all processes owned by stack
+  command: killall -u stack
+  ignore_errors: true
+
+- name: destroy the stack user
+  command: userdel -rf stack
+  ignore_errors: true
+# - name: destroy stack user
+#   user: name=stack state=absent remove=yes
+
+- name: rm stack home dir
+  command: rm -Rf {{ item }}
+  ignore_errors: true
+  with_items:
+    - /home/stack
+    - /var/spool/mail/stack
+
+
