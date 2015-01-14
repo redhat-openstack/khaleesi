@@ -83,10 +83,10 @@
   ignore_errors: yes
 
 - name: command used to create ssh tunnel
-  debug: msg="sudo iptables -I INPUT -p tcp --dport {{ instack.environ.vm_ssh_port }} -j ACCEPT; sshpass -p {{ instack.user.stack.password }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ instack.environ.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"
+  debug: msg="sudo iptables -I INPUT -p tcp --dport {{ instack.environ.vm_ssh_port }} -j ACCEPT; sshpass -p {{ instack.user.stack.password_text }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ instack.environ.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"
 
 - name: open ssh tunnel to instack vm on port {{ instack.environ.vm_ssh_port }}
-  shell: "sudo iptables -I INPUT -p tcp --dport {{ instack.environ.vm_ssh_port }} -j ACCEPT; sshpass -p {{ instack.user.stack.password }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ instack.environ.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"
+  shell: "sudo iptables -I INPUT -p tcp --dport {{ instack.environ.vm_ssh_port }} -j ACCEPT; sshpass -p {{ instack.user.stack.password_text }} ssh -o \"StrictHostKeyChecking no\" -g -N -L {{ instack.environ.vm_ssh_port }}:{{ instack_vm_ip_result.stdout }}:22 `hostname` &"
   register: tunnel_port_output
   sudo_user: "{{ instack.user.stack.name}}"
   sudo: yes
@@ -95,10 +95,10 @@
 
 - name: check if stack user with known password exists
   shell: >
-    sshpass -p {{ instack.user.stack.password }} ssh -o 'StrictHostKeyChecking=no' stack@{{ instack_vm_ip_result.stdout }} -v &
+    sshpass -p {{ instack.user.stack.password_text }} ssh -x -t -t -o 'StrictHostKeyChecking=no' stack@{{ instack_vm_ip_result.stdout }} 'exit' || echo "SSH login failed."
   register: stack_login_output
 
 - name: add stack user
   shell: >
     ssh -x -t -t -o 'StrictHostKeyChecking=no' -i /home/stack/.ssh/id_rsa_virt_power root@{{ instack_vm_ip_result.stdout }} 'useradd stack; export UNDERCLOUD_STACK_PASSWORD=stack; echo $UNDERCLOUD_STACK_PASSWORD | sudo passwd stack --stdin'
-  when: stack_login_output.stdout.find("Permission denied") != -1
+  when: stack_login_output.stdout.find("failed") != -1

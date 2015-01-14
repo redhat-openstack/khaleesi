@@ -22,7 +22,7 @@
 - name: ssh to virt-host
   shell: >
     chdir={{ instack_user_home.stdout }}
-    sshpass -p {{ instack.user.stack.password }} ssh -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1 &
+    sshpass -p {{ instack.user.stack.password_text }} ssh -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1 &
 
 - name: enable repos to before installing wget - RHOS Release Repository
   template: src=../../../../linux/rhel/rhos/templates/rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
@@ -92,7 +92,7 @@
 - name: prepare for overcloud with built images
   shell: >
     chdir={{ instack_user_home.stdout }}
-    sshpass -p stack scp -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1:/home/stack/\{*.initramfs,*.kernel,*.qcow2,*.initrd,*.vmlinuz\} .
+    sshpass -p {{ instack.user.stack.password_text }} scp -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1:/home/stack/\{*.initramfs,*.kernel,*.qcow2,*.initrd,*.vmlinuz\} .
   when: product.instack_images is not defined and installer.custom_instack_images is not defined
 
 - include: ../../common-rpms/tasks/main.yml
