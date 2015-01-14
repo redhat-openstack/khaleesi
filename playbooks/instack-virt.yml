@@ -5,12 +5,12 @@
 # provision
 - include: tripleo/beaker-provision.yml
 
-- include: group_by.yml
-
 - name: set up for installing the virt host
   hosts: local
   roles:
     - { role: tripleo/instack/setup-env/virt-setup-virthost }
+
+- include: group_by.yml
 
 #- include: ../workarounds/workarounds-pre-run-instack-vm.yml
 
@@ -32,6 +32,8 @@
   hosts: local
   roles:
     - { role: tripleo/instack/setup-env/virt-setup-undercloud }
+
+- include: group_by.yml
 
 - name: prepare vm for undercloud inst
   hosts: instack-undercloud
@@ -73,3 +75,4 @@
 
 
 - include: tripleo/instack-virt-tempest.yml
+

@@ -7,4 +7,6 @@
   roles:
     - { role: tripleo/instack/setup-env/virt-setup-tempest }
 
+- include: ../group_by.yml
+
 - include: ../tempest.yml
