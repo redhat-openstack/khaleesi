@@ -38,7 +38,7 @@
   roles:
     - { role: tempest/package-dependencies, sudo: yes }
     - { role: tempest/setup-openstack-elements, when: product.version == "havana" or product.version == "4.0"}
-    - { role: tempest/download-cirros, sudo: yes }
+    - { role: tempest/download-cirros }
     - { role: tempest/setup }
     - { role: tempest/security-groups, sudo: yes }
 
