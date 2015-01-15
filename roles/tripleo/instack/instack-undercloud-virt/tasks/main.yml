@@ -8,7 +8,7 @@
 
 - name: install sshpass for tunnel
   shell: >
-    rpm -i {{ installer.rhel7.sshpass_rpm }}
+    rpm -i {{ product.rhel7.sshpass_rpm }}
   when: ansible_distribution == 'RedHat'
   ignore_errors: yes
   sudo_user: root

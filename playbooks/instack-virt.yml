@@ -5,6 +5,8 @@
 # provision
 - include: tripleo/beaker-provision.yml
 
+- include: group_by.yml
+
 - name: set up for installing the virt host
   hosts: local
   roles:
@@ -22,7 +24,21 @@
     - { role: tripleo/instack/instack-virt-setup }
 
 - name: create instack vm for undercloud install
+  hosts: instack-virt-host:&60
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-virt-setup }
+
+- name: create instack vm for undercloud install
   hosts: instack-virt-host:&icehouse
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/instack-virt-setup }
+
+- name: create instack vm for undercloud install
+  hosts: instack-virt-host:&50
   roles:
     - { role: tripleo/instack/common-undercloud }
     - { role: tripleo/instack/common }
@@ -52,7 +68,19 @@
     - { role: tripleo/instack/instack-undercloud-virt }
 
 - name: install undercloud on vm
+  hosts: instack-undercloud-stack:&60
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-virt }
+
+- name: install undercloud on vm
   hosts: instack-undercloud-stack:&icehouse
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/instack-undercloud-virt }
+
+- name: install undercloud on vm
+  hosts: instack-undercloud-stack:&50
   roles:
     - { role: tripleo/instack/common }
     - { role: tripleo/instack/icehouse/instack-undercloud-virt }
@@ -67,12 +95,25 @@
     - { role: tripleo/instack/test-overcloud}
 
 - name: deploy and test overcloud
+  hosts: instack-undercloud-stack:&60
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/deploy-overcloud }
+    - { role: tripleo/instack/test-overcloud}
+
+- name: deploy and test overcloud
   hosts: instack-undercloud-stack:&icehouse
   roles:
     - { role: tripleo/instack/common }
     - { role: tripleo/instack/icehouse/deploy-overcloud }
     - { role: tripleo/instack/test-overcloud}
 
+- name: deploy and test overcloud
+  hosts: instack-undercloud-stack:&50
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/deploy-overcloud }
+    - { role: tripleo/instack/test-overcloud}
 
 - include: tripleo/instack-virt-tempest.yml
 

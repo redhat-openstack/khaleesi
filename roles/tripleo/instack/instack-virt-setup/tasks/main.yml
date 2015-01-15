@@ -39,8 +39,8 @@
     export RHOS=1;
     export NODE_DIST="rhel7";
     export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
-    export DIB_CLOUD_IMAGES="{{ installer.rhel7.remote_file_server }}";
-    export BASE_IMAGE_FILE="{{ installer.rhel7.guest_image_name }}";
+    export DIB_CLOUD_IMAGES="{{ product.rhel7.remote_file_server }}";
+    export BASE_IMAGE_FILE="{{ product.rhel7.guest_image_name }}";
     export REG_HALT_UNREGISTER=1
     export REG_METHOD=disable;
     export LIBVIRT_DEFAULT_URI="qemu:///system";
@@ -75,7 +75,7 @@
   when: ansible_distribution == 'Fedora'
 
 - name: install sshpass for tunnel
-  yum: name="{{ installer.rhel7.sshpass_rpm }}" state=present
+  yum: name="{{ product.rhel7.sshpass_rpm }}" state=present
   when: ansible_distribution == 'RedHat'
 
 - name: kill any previously created ssh tunnels

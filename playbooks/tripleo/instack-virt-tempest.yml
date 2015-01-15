@@ -3,9 +3,14 @@
 - include: ../vm_kickstart.yml
 
 - name: set up environment
-  hosts: local
+  hosts: local:&juno
   roles:
     - { role: tripleo/instack/setup-env/virt-setup-tempest }
+
+- name: set up environment
+  hosts: local:&icehouse
+  roles:
+    - { role: tripleo/instack/icehouse/setup-env/virt-setup-tempest }
 
 - include: ../group_by.yml
 
