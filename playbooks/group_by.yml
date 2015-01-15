@@ -17,7 +17,15 @@
   tags:
     - prep
 
-- name: Group hosts by product version juno, icehouse, havana, 40, 50, 60
+- name: Group hosts by product version for juno, icehouse, havana
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ product.version }}
+      when: product.version is defined
+  tags:
+    - prep
+
+- name: Group hosts by product short_version for RHOS 40, 50, 60
   hosts: all:!localhost
   tasks:
     - group_by: key={{ product.short_version }}
