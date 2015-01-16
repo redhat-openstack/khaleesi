@@ -7,13 +7,6 @@
 
 - include: ../group_by.yml
 
-- name: set up for installing the virt host
-  hosts: local
-  roles:
-    - { role: tripleo/instack/setup-env/virt-setup-virthost }
-
-- include: ../group_by.yml
-
 #- include: ../../workarounds/workarounds-pre-run-instack-vm.yml
 
 - name: create instack vm for undercloud install
@@ -45,7 +38,7 @@
     - { role: tripleo/instack/icehouse/instack-virt-setup }
 
 - name: set up for installing the undercloud on instack vm
-  hosts: local
+  hosts: instack-virt-host
   roles:
     - { role: tripleo/instack/setup-env/virt-setup-undercloud }
 

@@ -1,10 +1,4 @@
 ---
-
-- name: set up for installing the virt host
-  hosts: local
-  roles:
-    - { role: tripleo/instack/setup-env/virt-setup-virthost }
-
 - name: build images
   hosts: instack-virt-host
   roles:

@@ -36,11 +36,17 @@
 # - name: destroy stack user
 #   user: name=stack state=absent remove=yes
 
-- name: rm stack home dir
+- name: remove stack home dir
   command: rm -Rf {{ item }}
   ignore_errors: true
   with_items:
     - /home/stack
     - /var/spool/mail/stack
 
+- name: remove files automation files from /root
+  file: name={{item}} state=absent
+  with_items:
+    - /root/KEYS
+    - /root/fedora-prep
+    - /root/.ssh/known_hosts
 
