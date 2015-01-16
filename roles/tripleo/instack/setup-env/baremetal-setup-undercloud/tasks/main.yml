@@ -56,7 +56,7 @@
 
 - name: add stack user
   shell: >
-    sleep5; sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -t -t -l root {{ job_var.instack_virt_host }} 'useradd stack; export UNDERCLOUD_ROOT_PASSWORD={{ job_var.vm_pass }}; echo $UNDERCLOUD_ROOT_PASSWORD | passwd stack --stdin'
+    sleep 5; sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -t -t -l root {{ job_var.instack_virt_host }} 'useradd stack; export UNDERCLOUD_ROOT_PASSWORD={{ job_var.vm_pass }}; echo $UNDERCLOUD_ROOT_PASSWORD | passwd stack --stdin'
 
 - name: prep for copy ssh keys
   shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -v &
@@ -85,3 +85,8 @@
 
 - name: ssh to host as stack user
   shell: ssh -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -i {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }}
+
+- name: power off boxes where overcloud nodes will be deployed
+  shell: "ipmitool -I lanplus -H {{item}} -U {{installer.environ.pm_users.split(' ').0}} -P {{installer.environ.pm_passwords.split(' ').0}} power off"
+  with_items: installer.environ.pm_ips.split(' ')
+
