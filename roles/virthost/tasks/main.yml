@@ -1,0 +1,14 @@
+---
+- name: install libvirt host rpm dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - libvirt
+    - libvirt-python
+    - libvirt-client
+    - virt-install
+
+- name: update the libvirt permissions
+  lineinfile: dest=/etc/libvirt/libvirtd.conf line='auth_unix_rw = "none"'
+
+- name: start the libvirtd service
+  service: name=libvirtd state=started

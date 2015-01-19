@@ -7,7 +7,7 @@
   tags:
     - prep
 
-- name: Prepare system for packstack
+- name: Prepare system
   hosts: all:!localhost:!skip_prep
   sudo: yes
   roles:

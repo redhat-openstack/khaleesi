@@ -1,1 +1,4 @@
 ---
+- name: remove beaker yum repositories
+  shell: rm -f /etc/yum.repos.d/beaker*.repo
+  when: provisioner.type == "beaker"

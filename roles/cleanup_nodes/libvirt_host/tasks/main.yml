@@ -1,4 +1,10 @@
 ---
+- name: remove sudoers requiretty
+  lineinfile: dest=/etc/sudoers state=absent regexp="Defaults    requiretty"
+
+#add /etc/libvirt/libvirtd.conf
+#auth_unix_rw = "none"
+
 - name: get list of running libvirt guests
   virt: command=list_vms
   register: vms
