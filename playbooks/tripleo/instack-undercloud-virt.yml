@@ -1,0 +1,87 @@
+---
+#determine provisioner and whether or not to skip
+- include: ../group_by_provision.yml
+
+# provision
+- include: beaker-provision.yml
+
+- include: ../group_by.yml
+
+- name: set up for installing the virt host
+  hosts: local
+  roles:
+    - { role: tripleo/instack/setup-env/virt-setup-virthost }
+
+- include: ../group_by.yml
+
+#- include: ../../workarounds/workarounds-pre-run-instack-vm.yml
+
+- name: create instack vm for undercloud install
+  hosts: instack-virt-host:&juno
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-virt-setup }
+
+- name: create instack vm for undercloud install
+  hosts: instack-virt-host:&60
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-virt-setup }
+
+- name: create instack vm for undercloud install
+  hosts: instack-virt-host:&icehouse
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/instack-virt-setup }
+
+- name: create instack vm for undercloud install
+  hosts: instack-virt-host:&50
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/instack-virt-setup }
+
+- name: set up for installing the undercloud on instack vm
+  hosts: local
+  roles:
+    - { role: tripleo/instack/setup-env/virt-setup-undercloud }
+
+- include: ../group_by.yml
+
+- name: prepare vm for undercloud inst
+  hosts: instack-undercloud
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+  sudo_user: root
+  sudo: yes
+
+#- include: ../../workarounds/workarounds-pre-run-instack-undercloud-virt.yml
+
+- name: install undercloud on vm
+  hosts: instack-undercloud-stack:&juno
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-virt }
+
+- name: install undercloud on vm
+  hosts: instack-undercloud-stack:&60
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-virt }
+
+- name: install undercloud on vm
+  hosts: instack-undercloud-stack:&icehouse
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/instack-undercloud-virt }
+
+- name: install undercloud on vm
+  hosts: instack-undercloud-stack:&50
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/instack-undercloud-virt }
+

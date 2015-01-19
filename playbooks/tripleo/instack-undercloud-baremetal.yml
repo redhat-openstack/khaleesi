@@ -1,0 +1,29 @@
+---
+#determine provisioner and whether or not to skip
+- include: ../group_by_provision.yml
+
+# provision
+- include: beaker-provision.yml
+
+- include: ../group_by.yml
+
+- name: prepare for undercloud install
+  hosts: local
+  roles:
+    - { role: tripleo/instack/setup-env/baremetal-setup-undercloud }
+
+#- include: ../../workarounds/workarounds-pre-run-instack-undercloud-baremetal.yml
+
+- name: install juno undercloud on baremetal
+  hosts: instack-undercloud:&juno
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-baremetal }
+
+- name: install icehouse undercloud on baremetal
+  hosts: instack-undercloud:&icehouse
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/instack-undercloud-baremetal }

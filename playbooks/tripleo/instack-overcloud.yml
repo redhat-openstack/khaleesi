@@ -1,0 +1,30 @@
+---
+#- include: ../../workarounds/workarounds-pre-run-instack-overcloud.yml
+
+- name: deploy and test overcloud
+  hosts: instack-undercloud-stack:&juno
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/deploy-overcloud }
+    - { role: tripleo/instack/test-overcloud}
+
+- name: deploy and test overcloud
+  hosts: instack-undercloud-stack:&60
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/deploy-overcloud }
+    - { role: tripleo/instack/test-overcloud}
+
+- name: deploy and test overcloud
+  hosts: instack-undercloud-stack:&icehouse
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/deploy-overcloud }
+    - { role: tripleo/instack/test-overcloud}
+
+- name: deploy and test overcloud
+  hosts: instack-undercloud-stack:&50
+  roles:
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/deploy-overcloud }
+    - { role: tripleo/instack/test-overcloud}
