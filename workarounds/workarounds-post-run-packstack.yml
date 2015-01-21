@@ -64,5 +64,10 @@
   roles:
     - { role: workarounds/packstack-bridge-fix,
         tags: workarounds,
-        when: workarounds.enabled|bool and provisioner.type == "openstack" and  installer.network.plugin.name == "neutron"
+        when: workarounds.enabled|bool and
+                  provisioner.type == "openstack" and
+                  installer.network.plugin.name == "neutron" and
+                  workaround.packstack_bridge_fix is defined and
+                  workaround.paackstack_bridge_fix|bool
+
     }
