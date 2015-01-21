@@ -4,7 +4,10 @@
   shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -p {{ job_var.vm_ssh_port }} -v &
 
 - name: set root password for vm
-  shell: sshpass -p {{ job_var.vm_pass }} ssh -x -t -t -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -p {{ job_var.vm_ssh_port }} 'export UNDERCLOUD_ROOT_PASSWORD=stack; echo $UNDERCLOUD_ROOT_PASSWORD | sudo passwd root --stdin'
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -x -t -t -o 'StrictHostKeyChecking=no' stack@{{ job_var.instack_virt_host }} -p {{ job_var.vm_ssh_port }} 'export UNDERCLOUD_ROOT_PASSWORD={{ job_var.vm_pass }}; echo $UNDERCLOUD_ROOT_PASSWORD | sudo passwd root --stdin'
+
+- name: create ~/.ssh dir for root
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -x -t -t -o 'StrictHostKeyChecking=no' root@{{ job_var.instack_virt_host }} -p {{ job_var.vm_ssh_port }} 'mkdir -p ~/.ssh; chmod 700 ~/.ssh'
 
 - name: copy ssh keys
   shell: >
