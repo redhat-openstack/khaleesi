@@ -5,11 +5,12 @@
   tasks:
     - group_by: key={{ provisioner.type }}
     - group_by: key={{ provisioner.network.type }}
+    - group_by: key={{ provisioner.skip }}
   tags:
     - provision
 
 - name: Get nodes - OpenStack
-  hosts: local:&openstack
+  hosts: local:&openstack:!skip_provision
   sudo: no
   gather_facts: False
   roles:
@@ -18,7 +19,7 @@
     - provision
 
 - name: Get nodes - Rackspace
-  hosts: local:&rackspace
+  hosts: local:&rackspace:!skip_provision
   sudo: no
   gather_facts: False
   roles:
@@ -31,7 +32,7 @@
     - provision
 
 - name: Assign floating IP and add hosts - Nova
-  hosts: local:&openstack:&nova
+  hosts: local:&openstack:&nova:!skip_provision
   sudo: no
   gather_facts: False
   roles:
@@ -44,7 +45,7 @@
     - provision
 
 - name: Assign floating IP and add hosts - Neutron
-  hosts: local:&openstack:&neutron
+  hosts: local:&openstack:&neutron:!skip_provision
   sudo: no
   gather_facts: False
   roles:
@@ -57,7 +58,7 @@
     - provision
 
 - name: Post provision tasks
-  hosts: local:!manual
+  hosts: local:!manual:!skip_provision
   sudo: no
   gather_facts: False
   roles:
@@ -66,7 +67,7 @@
     - provision
 
 - name: Set facts for hosts
-  hosts: openstack_nodes:!manually-provisioned
+  hosts: openstack_nodes:!manually-provisioned:!skip_provision
   gather_facts: False
   roles:
     - { role: set_facts }
