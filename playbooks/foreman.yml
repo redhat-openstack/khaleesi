@@ -48,14 +48,6 @@
     - prep
     - tempest_setup
 
-- name: Prepare foreman network - Networker nodes
-  hosts: networker
-  sudo: yes
-  roles:
-    - { role: bridge-setup }
-  tags:
-    - prep
-
 # apply pre-foreman workarouds
 - include: ../workarounds/workarounds-prep.yml tags=workaround
 
