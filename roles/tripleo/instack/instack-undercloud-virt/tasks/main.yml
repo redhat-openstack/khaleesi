@@ -25,7 +25,7 @@
     sshpass -p {{ instack.user.stack.password_text }} ssh -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1 &
 
 - name: enable repos to before installing wget - RHOS Release Repository
-  template: src=../../../../linux/rhel/rhos/templates/rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
+  template: src=rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
   when: ansible_distribution == 'RedHat' and product.name == 'rhos'
   sudo_user: root
   sudo: yes
@@ -43,8 +43,14 @@
   sudo_user: root
   sudo: yes
 
-# puddle repos
-- name: Create the RHOS poodle repository
+- name: Execute rhos-release {{ product.version|int }}
+  command: rhos-release {{ product.version|int }}
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos' and product.repo_type == 'puddle' and product.repo.puddle_pin_version is not defined
+  sudo_user: root
+  sudo: yes
+
+# puddle pinned repos
+- name: Execute rhos-release for pinned puddle {{ product.repo.puddle_pin_version }}
   shell: "rhos-release -x {{ product.version|int }}; rhos-release 6 -p {{ product.repo.puddle_pin_version }}"
   when: ansible_distribution == 'RedHat' and product.name == 'rhos' and product.repo_type == 'puddle' and product.repo.puddle_pin_version is defined
   sudo_user: root

@@ -29,7 +29,7 @@
   sudo: yes
 
 - name: Create the RHOS Release Repository
-  template: src=../../../../linux/rhel/rhos/templates/rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
+  template: src=rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
   when: ansible_distribution == 'RedHat' and product.name == 'rhos'
   sudo_user: root
   sudo: yes

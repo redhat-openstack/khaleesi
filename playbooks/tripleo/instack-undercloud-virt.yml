@@ -8,11 +8,6 @@
 - include: ../group_by.yml
 - include: ../prep.yml
 
-- name: setup virthost libvirt
-  hosts: instack-virt-host
-  roles:
-    - { role: virthost }
-
 #- include: ../../workarounds/workarounds-pre-run-instack-vm.yml
 
 - name: create instack vm for undercloud install
