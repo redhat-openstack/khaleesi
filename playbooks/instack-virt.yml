@@ -3,5 +3,5 @@
 
 - include: tripleo/instack-overcloud.yml
 
-- include: tripleo/instack-virt-tempest.yml
+#- include: tripleo/instack-virt-tempest.yml
 
