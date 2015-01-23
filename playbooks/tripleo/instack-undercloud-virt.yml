@@ -18,6 +18,7 @@
     - { role: tripleo/instack/common-rpms }
     - { role: tripleo/instack/build-images, when: product.build_new_images is defined and product.build_new_images == true }
     - { role: tripleo/instack/instack-virt-setup }
+    - { role: tripleo/instack/instack-virt-tunnel-and-user }
 
 - name: create instack vm for undercloud install
   hosts: instack-virt-host:&60
@@ -27,6 +28,7 @@
     - { role: tripleo/instack/common-rpms }
     - { role: tripleo/instack/build-images, when: product.build_new_images is defined and product.build_new_images == true }
     - { role: tripleo/instack/instack-virt-setup }
+    - { role: tripleo/instack/instack-virt-tunnel-and-user }
 
 - name: create instack vm for undercloud install
   hosts: instack-virt-host:&icehouse

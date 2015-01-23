@@ -1,0 +1,44 @@
+---
+
+- name: fact instack_user_home
+  shell: echo -n $HOME
+  register: instack_user_home
+  changed_when: false
+
+- name: copy stackrc
+  shell: >
+    cp /root/stackrc {{ instack_user_home.stdout }}/stackrc;
+    chown {{ instack.user.stack.name }}:{{ instack.user.stack.name }} {{ instack_user_home.stdout }}/stackrc
+  sudo_user: root
+  sudo: yes
+
+- name: prepare for overcloud
+  shell: >
+    source {{ instack_user_home.stdout }}/stackrc;
+    {{ instack_user_home.stdout }}/instack-undercloud/scripts/instack-prepare-for-overcloud
+
+- name: register bm nodes with ironic
+  shell: >
+    source {{ instack_user_home.stdout }}/stackrc;
+    {{ instack_user_home.stdout }}/instack-undercloud/scripts/instack-ironic-deployment --nodes-json instackenv.json --register-nodes;
+
+- name: wait until hosts show up in nova hypervisor-stats
+  shell: >
+    source {{ instack_user_home.stdout }}/stackrc;
+    while [ `nova hypervisor-stats|grep count| sed 's/| count *| \([0-9]*\) *|/\1/'` -lt 4 ]; do
+        sleep 5;
+    done;
+    sleep 180
+
+- name: discover nodes and setup flavors
+  shell: >
+    source {{ instack_user_home.stdout }}/stackrc;
+    {{ instack_user_home.stdout }}/instack-undercloud/scripts/instack-ironic-deployment --nodes-json instackenv.json --discover-nodes;
+    {{ instack_user_home.stdout }}/instack-undercloud/scripts/instack-ironic-deployment --nodes-json instackenv.json --show-profile;
+    {{ instack_user_home.stdout }}/instack-undercloud/scripts/instack-ironic-deployment --setup-flavors
+
+- name: start the nodes
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    source {{ instack_user_home.stdout }}/stackrc;
+    COMPUTE_COUNT=3 CONTROL_COUNT=0 {{ instack_user_home.stdout }}/instack-undercloud/scripts/instack-ironic-deployment --deploy-nodes

@@ -1,0 +1,20 @@
+---
+
+- name: fact instack_user_home
+  shell: echo -n $HOME
+  register: instack_user_home
+  changed_when: false
+
+- name: build ramdisks
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    source instack-undercloud/rhel7rc;
+    instack-undercloud/scripts/instack-build-images deploy-ramdisk;
+    instack-undercloud/scripts/instack-build-images discovery-ramdisk
+
+- name: build openstack-full
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    source instack-undercloud/rhel7rc;
+    unset DIB_YUM_REPO_CONF;
+    instack-undercloud/scripts/instack-build-images openstack-full

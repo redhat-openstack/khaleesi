@@ -1,0 +1,62 @@
+---
+
+- name: setup virthost libvirt
+  hosts: instack-virt-host
+  roles:
+    - { role: virthost }
+
+- name: add stack user for the machine
+  hosts: instack-virt-host
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+
+- name: run the custom instack host setup
+  hosts: instack-virt-host
+  roles:
+   - { role: tripleo/spinalironic/setup-host }
+   - { role: tripleo/instack/instack-virt-tunnel-and-user }
+
+- name: add the undercloud VM to ansible
+  hosts: instack-virt-host
+  roles:
+   - { role: tripleo/instack/setup-env/virt-setup-undercloud }
+
+- name: install the undercloud
+  hosts: instack-undercloud
+  roles:
+   - { role: tripleo/spinalironic/install-undercloud }
+  sudo_user: "{{ instack.user.stack.name }}"
+  sudo: yes
+
+- name: build the openstack-full image on the undercloud VM
+  hosts: instack-undercloud
+  roles:
+   - { role: tripleo/spinalironic/build-openstack-full }
+  sudo_user: "{{ instack.user.stack.name }}"
+  sudo: yes
+
+- name: deploy the nodes
+  hosts: instack-undercloud
+  roles:
+   - { role: tripleo/spinalironic/deploy-nodes }
+  sudo_user: "{{ instack.user.stack.name }}"
+  sudo: yes
+
+- name: run provision.sh from spinal stack
+  hosts: instack-undercloud
+  roles:
+   - { role: tripleo/spinalironic/provision }
+
+- name: trigger the puppet job, create jenkins tunnel
+  hosts: instack-virt-host
+  roles:
+   - { role: tripleo/spinalironic/trigger-jenkins }
+  sudo_user: "{{ instack.user.stack.name }}"
+  sudo: yes
+
+- name: Gather Logs
+  hosts: all:!localhost
+  sudo: yes
+  roles:
+    - { role: collect_logs }

@@ -1,0 +1,15 @@
+---
+
+- name: provision the jenkins jobs
+  shell: >
+    chdir=/opt/stack/config-tools/
+    source /root/stackrc;
+    mkdir -p /var/www/install;
+    bash -x ./provision.sh master https://github.com/agroup/spinalstack-env.git/etest.yml version=master;
+    for x in 0 1 2 ; do sed -i -e "s/SERVER$x/$(nova show openstack$x | grep ctlplane | grep -Eo "192[^ ]+")/g" env/etest.yml ; done;
+    bash -x ./provision.sh -l master https://github.com/agroup/spinalstack-env.git/etest.yml version=master
+
+- name: make root identify as the stack user
+  shell: >
+    cp ~stack/.ssh/id_rsa ~stack/.ssh/id_rsa.pub /root/.ssh;
+    sh -c "cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys"

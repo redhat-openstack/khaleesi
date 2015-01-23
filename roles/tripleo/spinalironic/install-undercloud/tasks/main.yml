@@ -1,0 +1,24 @@
+---
+
+- name: fact instack_user_home
+  shell: echo -n $HOME
+  register: instack_user_home
+  changed_when: false
+
+- name: cleanup a possible previous run
+  shell: >
+    sudo rm -rf /opt/;
+
+- name: get instack-set-host-rhel7 script
+  get_url: url=https://raw.githubusercontent.com/agroup/instack-undercloud/master/scripts/instack-setup-host-rhel7 dest={{ instack_user_home.stdout }}
+
+- name: run instack-setup-host-rhel7 script
+  shell: bash -x instack-setup-host-rhel7
+
+- name: install the undercloud
+  shell: >
+    instack-undercloud/scripts/instack-install-undercloud;
+    echo $?
+
+- name: get the rhel-guest-image
+  get_url: url={{ product.rhel7.remote_guest_image }} dest={{ instack_user_home.stdout }}
