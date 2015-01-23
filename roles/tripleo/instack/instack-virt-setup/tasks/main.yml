@@ -70,13 +70,24 @@
 - name: copy keys from root user
   shell: "cat /root/.ssh/authorized_keys >> {{ instack_user_home.stdout }}/.ssh/authorized_keys"
 
-- name: install sshpass for tunnel
-  yum: name=sshpass state=present
-  when: ansible_distribution == 'Fedora'
+- name: enable EPEL repo for sshpass
+  template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
+  when: ansible_distribution == 'RedHat'
 
 - name: install sshpass for tunnel
-  yum: name="{{ product.rhel7.sshpass_rpm }}" state=present
-  when: ansible_distribution == 'RedHat'
+  yum: name=sshpass state=present
+
+- name: Remove the EPEL Repository
+  yum: name=epel-release state=removed
+  when: ansible_distribution == "RedHat"
+  notify:
+    - Yum clean all
+
+- name: Ensure the EPEL Repository files are removed
+  file: path=/etc/yum.repos.d/epel.repo state=absent
+  notify:
+    - Yum clean all
+  when: ansible_distribution == "RedHat"
 
 - name: kill any previously created ssh tunnels
   command: killall -9 sshpass
