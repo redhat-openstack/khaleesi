@@ -5,3 +5,9 @@
 
 #- include: tripleo/instack-virt-tempest.yml
 
+- name: Gather Logs
+  hosts: all:!localhost
+  sudo: yes
+  roles:
+    - { role: collect_logs }
+
