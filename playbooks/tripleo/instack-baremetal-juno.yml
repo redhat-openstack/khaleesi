@@ -28,8 +28,6 @@
   roles:
     - { role: tripleo/instack/common }
     - { role: tripleo/instack/deploy-overcloud }
-    - { role: tripleo/instack/test-overcloud}
+    - { role: tripleo/instack/test-overcloud }
 
 #- include: instack-baremetal-tempest.yml
-
-- include: ../instack-cleanup.yml

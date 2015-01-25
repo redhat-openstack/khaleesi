@@ -6,6 +6,7 @@
 - include: beaker-provision.yml
 
 - include: ../group_by.yml
+- include: ../prep.yml
 
 - name: prepare for undercloud install
   hosts: local
@@ -19,6 +20,19 @@
   roles:
     - { role: tripleo/instack/common-undercloud }
     - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-prep-baremetal }
+    - { role: tripleo/instack/common-rpms}
+    - { role: tripleo/instack/build-images, when: product.build_new_images is defined and product.build_new_images == true}
+    - { role: tripleo/instack/instack-undercloud-baremetal }
+
+- name: install juno undercloud on baremetal
+  hosts: instack-undercloud:&60
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-prep-baremetal }
+    - { role: tripleo/instack/common-rpms}
+    - { role: tripleo/instack/build-images, when: product.build_new_images is defined and product.build_new_images == true}
     - { role: tripleo/instack/instack-undercloud-baremetal }
 
 - name: install icehouse undercloud on baremetal
@@ -27,3 +41,13 @@
     - { role: tripleo/instack/common-undercloud }
     - { role: tripleo/instack/common }
     - { role: tripleo/instack/icehouse/instack-undercloud-baremetal }
+
+- name: install icehouse undercloud on baremetal
+  hosts: instack-undercloud:&50
+  roles:
+    - { role: tripleo/instack/common-undercloud }
+    - { role: tripleo/instack/common }
+    - { role: tripleo/instack/icehouse/instack-undercloud-baremetal }
+
+- include: ../group_by.yml
+

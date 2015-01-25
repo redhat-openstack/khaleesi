@@ -1,52 +1,5 @@
 ---
 
-- name: install wget
-  yum: name=wget state=present
-
-- name: get instackenv.json
-  shell: >
-    chdir={{ instack_user_home.stdout }}
-    wget {{ installer.environ.json_file }};
-    sleep 3;
-    chown stack:stack instackenv.json
-
-- name: prepare for overcloud - download images
-  shell: >
-    chdir={{ instack_user_home.stdout }}
-    export IMG_SOURCE_URL="{{ product.instack_images[ ansible_distribution ][ansible_distribution_version] }}";
-    wget --no-verbose --no-parent --recursive --level=1 --no-directories $IMG_SOURCE_URL
-  async: 18000
-  poll: 300
-  when: product.instack_images[ansible_distribution][ansible_distribution_version] is defined and installer.custom_instack_images is not defined
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
-  register: instack-prepare-for-overcloud-output
-
-- name: print instack-prepare-for-overcloud-output
-  debug: var=instack-prepare-for-overcloud-output.stdout
-  when: product.instack_images[ansible_distribution][ansible_distribution_version] is defined and installer.custom_instack_images is not defined
-
-- name: prepare for overcloud with custom images
-  shell: >
-    chdir={{ instack_user_home.stdout }}
-    export IMG_SOURCE_URL="{{ installer.custom_instack_images }}";
-    wget --no-verbose --no-parent --recursive --level=1 --no-directories $IMG_SOURCE_URL
-  async: 18000
-  poll: 300
-  when: installer.custom_instack_images is defined
-  register: instack-prepare-for-overcloud-output
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
-
-- name: print instack-prepare-for-overcloud-output
-  debug: var=instack-prepare-for-overcloud-output.stdout
-  when: installer.custom_instack_images is defined
-
-- { include: ../../common-rpms/tasks/main.yml }
-
-- include: ../../build-images/tasks/main.yml
-  when: product.instack_images is not defined and installer.custom_instack_images is not defined
-
 - name: check answers file exists
   shell: "[ -e /usr/share/instack-undercloud/instack.answers.sample]"
   register: answers_file_present
@@ -111,4 +64,7 @@
 
 - name: copy tripleo-undercloud-passwords file
   shell: "cp /root/tripleo-undercloud-passwords {{ instack_user_home.stdout }}"
+
+- name: add host with stack user
+  add_host: name={{ job_var.instack_virt_host }}-stack groups=instack-undercloud-stack ansible_ssh_host={{ job_var.instack_virt_host }} ansible_ssh_user=stack
 
