@@ -1,0 +1,2 @@
+---
+- include: tripleo/instack-custom-heat-template.yml

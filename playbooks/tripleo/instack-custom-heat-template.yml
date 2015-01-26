@@ -1,0 +1,14 @@
+---
+- include: instack-undercloud-virt.yml
+
+- name: Deploy custom heat template using undercloud
+  hosts: instack-undercloud
+  roles:
+    - { role: tripleo/instack/custom-heat-setup }
+    - { role: tripleo/instack/custom-heat-deploy }
+
+- name: Gather Logs
+  hosts: all:!localhost
+  sudo: yes
+  roles:
+    - { role: collect_logs }
