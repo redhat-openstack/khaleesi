@@ -1,8 +1,5 @@
 ---
 
-- name: Install virt-manager
-  yum: name=virt-manager state=present
-
 - name: Install virt-install
   yum: name=virt-install state=present
 
@@ -27,7 +24,6 @@
            --vcpus {{ nodes[provisioner.strategy.libvirt.node].vcpus }}
            --cpu host
            --hvm
-           --os-variant {{ nodes[provisioner.strategy.libvirt.node].os_variant }}
            --vnc
            --noreboot
            --wait=-1

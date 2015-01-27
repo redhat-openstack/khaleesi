@@ -5,11 +5,6 @@
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
-- { include: ../../common-rpms/tasks/main.yml }
-
-- include: ../../build-images/tasks/main.yml
-  when: (product.instack_images is not defined) and (installer.custom_instack_images is not defined)
-
 - name: run script to install required dependencies
   shell: >
     chdir={{ instack_user_home.stdout }}

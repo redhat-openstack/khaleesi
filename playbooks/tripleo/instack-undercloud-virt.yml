@@ -15,6 +15,8 @@
   roles:
     - { role: tripleo/instack/common-undercloud }
     - { role: tripleo/instack/common }
+    - { role: tripleo/instack/common-rpms }
+    - { role: tripleo/instack/build-images, when: product.build_new_images is defined and product.build_new_images == true }
     - { role: tripleo/instack/instack-virt-setup }
 
 - name: create instack vm for undercloud install
@@ -22,6 +24,8 @@
   roles:
     - { role: tripleo/instack/common-undercloud }
     - { role: tripleo/instack/common }
+    - { role: tripleo/instack/common-rpms }
+    - { role: tripleo/instack/build-images, when: product.build_new_images is defined and product.build_new_images == true }
     - { role: tripleo/instack/instack-virt-setup }
 
 - name: create instack vm for undercloud install
@@ -59,12 +63,16 @@
   hosts: instack-undercloud-stack:&juno
   roles:
     - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-prep-virt }
+    - { role: tripleo/instack/common-rpms }
     - { role: tripleo/instack/instack-undercloud-virt }
 
 - name: install undercloud on vm
   hosts: instack-undercloud-stack:&60
   roles:
     - { role: tripleo/instack/common }
+    - { role: tripleo/instack/instack-undercloud-prep-virt }
+    - { role: tripleo/instack/common-rpms }
     - { role: tripleo/instack/instack-undercloud-virt }
 
 - name: install undercloud on vm

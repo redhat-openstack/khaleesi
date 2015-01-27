@@ -1,0 +1,116 @@
+---
+
+- name: enable EPEL repo for sshpass
+  template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
+  when: ansible_distribution == 'RedHat'
+  sudo_user: root
+  sudo: yes
+
+- name: install sshpass
+  yum: name=sshpass state=present
+  sudo_user: root
+  sudo: yes
+
+- name: Remove the EPEL Repository.
+  yum: name=epel-release state=removed
+  when: ansible_distribution == "RedHat"
+  notify:
+    - Yum clean all
+  sudo_user: root
+  sudo: yes
+
+- name: Ensure the EPEL Repository files are removed
+  file: path=/etc/yum.repos.d/epel.repo state=absent
+  notify:
+    - Yum clean all
+  when: ansible_distribution == "RedHat"
+  sudo_user: root
+  sudo: yes
+
+- name: disable require tty for remote access
+  shell: "sed -i 's/Defaults    requiretty/#Defaults    requiretty/g' /etc/sudoers"
+  sudo_user: root
+  sudo: yes
+
+- name: ssh to virt-host
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    sshpass -p {{ instack.user.stack.password_text }} ssh -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1 &
+
+- name: enable repos to before installing wget - RHOS Release Repository
+  template: src=rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos'
+  sudo_user: root
+  sudo: yes
+
+- name: install rhos-release to enable repos
+  yum: name=rhos-release state=latest
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos'
+  sudo_user: root
+  sudo: yes
+
+# poodle repos
+- name: Create the RHOS poodle repository
+  shell: "rhos-release -x {{ product.version|int }}; rhos-release -d {{ product.version|int }}"
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos' and product.repo_type == 'poodle'
+  sudo_user: root
+  sudo: yes
+
+- name: Execute rhos-release {{ product.version|int }}
+  command: rhos-release {{ product.version|int }}
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos' and product.repo_type == 'puddle' and product.repo.puddle_pin_version is not defined
+  sudo_user: root
+  sudo: yes
+
+# puddle pinned repos
+- name: Execute rhos-release for pinned puddle {{ product.repo.puddle_pin_version }}
+  shell: "rhos-release -x {{ product.version|int }}; rhos-release 6 -p {{ product.repo.puddle_pin_version }}"
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos' and product.repo_type == 'puddle' and product.repo.puddle_pin_version is defined
+  sudo_user: root
+  sudo: yes
+
+- name: erase rhos-release
+  shell: "yum erase -y rhos-release"
+  when: ansible_distribution == 'RedHat' and product.name == 'rhos' and (product.repo_type == 'poodle' or product.repo_type == 'puddle')
+  sudo_user: root
+  sudo: yes
+
+- name: install wget
+  yum: name=wget state=present
+  sudo_user: root
+  sudo: yes
+
+- name: prepare for overcloud - download images
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    export IMG_SOURCE_URL="{{ product.instack_images[ ansible_distribution ][ansible_distribution_version] }}";
+    wget --no-verbose --no-parent --recursive --level=1 --no-directories $IMG_SOURCE_URL
+  async: 18000
+  poll: 300
+  when: product.instack_images[ansible_distribution][ansible_distribution_version] is defined and installer.custom_instack_images is not defined
+  register: instack-prepare-for-overcloud
+
+- name: print instack-prepare-for-overcloud-output
+  debug: var=instack-prepare-for-overcloud-output.stdout
+  when: product.instack_images[ansible_distribution][ansible_distribution_version] is defined and installer.custom_instack_images is not defined
+
+- name: prepare for overcloud with custom images
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    export IMG_SOURCE_URL="{{ installer.custom_instack_images }}";
+    wget --no-verbose --no-parent --recursive --level=1 --no-directories $IMG_SOURCE_URL
+  async: 18000
+  poll: 300
+  when: installer.custom_instack_images is defined
+  register: instack-prepare-for-overcloud-output
+
+- name: print instack-prepare-for-overcloud-output
+  debug: var=instack-prepare-for-overcloud-output.stdout
+  when: installer.custom_instack_images is defined
+
+- name: prepare for overcloud with built images
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    sshpass -p {{ instack.user.stack.password_text }} scp -o 'StrictHostKeyChecking=no' {{ instack.user.stack.name }}@192.168.122.1:/home/stack/\{*.initramfs,*.kernel,*.qcow2,*.initrd,*.vmlinuz\} .
+  when: product.instack_images is not defined and installer.custom_instack_images is not defined
+
