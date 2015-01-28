@@ -1,6 +1,8 @@
 # from https://gist.github.com/cliffano/9868180
 # makes Ansible command output readable if added as a callback plugin
 
+from __future__ import unicode_literals
+
 FIELDS = ['cmd', 'command', 'start', 'end', 'delta', 'msg', 'stdout', 'stderr']
 
 

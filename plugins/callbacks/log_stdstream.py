@@ -1,6 +1,10 @@
+from __future__ import unicode_literals
+
 import os
 import time
 import json
+import codecs
+import locale
 
 TIME_FORMAT = "%b %d %Y %H:%M:%S"
 MARK_FORMAT = "%(now)s ======== MARK ========\n"
@@ -37,19 +41,18 @@ def log(host, category, data):
                     data)
 
     path = os.path.join(LOG_PATH, host)
-    now = time.strftime(TIME_FORMAT, time.localtime())
-    fd = open(path, "a")
-    fd.write(MARK_FORMAT % dict(now=now))
-    fd.write(MSG_FORMAT % dict(now=now, category=category, data=data))
-    if stdout:
-        fd.write(STDOUT_FORMAT % dict(now=now, stdout=stdout))
-    if stderr:
-        fd.write(STDERR_FORMAT % dict(now=now, stderr=stderr))
-    if results:
-        fd.write(RESULTS_START % dict(now=now))
-        [fd.write(RESULTS_FORMAT % dict(result=result)) for result in results]
-        fd.write(RESULTS_END)
-    fd.close()
+    now = time.strftime(TIME_FORMAT.encode('utf-8'), time.localtime()).decode('utf-8')
+    with codecs.open(path, "a", encoding=locale.getpreferredencoding()) as fd:
+        fd.write(MARK_FORMAT % dict(now=now))
+        fd.write(MSG_FORMAT % dict(now=now, category=category, data=data))
+        if stdout:
+            fd.write(STDOUT_FORMAT % dict(now=now, stdout=stdout))
+        if stderr:
+            fd.write(STDERR_FORMAT % dict(now=now, stderr=stderr))
+        if results:
+            fd.write(RESULTS_START % dict(now=now))
+            [fd.write(RESULTS_FORMAT % dict(result=result)) for result in results]
+            fd.write(RESULTS_END)
 
 
 class CallbackModule(object):
