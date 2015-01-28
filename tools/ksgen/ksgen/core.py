@@ -51,11 +51,16 @@ def main(args=None):
     cmd = args['<command>']
     from os.path import abspath
     config_dir = abspath(args['--config-dir'])
-    if cmd == 'help':
-        return usage(config_dir)
 
-    if cmd == 'generate':
-        return settings.Generator(config_dir, args['<args>']).run()
+    try:
+        if cmd == 'help':
+            return usage(config_dir)
+
+        if cmd == 'generate':
+            return settings.Generator(config_dir, args['<args>']).run()
+    except settings.ArgsConflictError as exc:
+        logging.error(str(exc))
+        return 1
 
     return 0
 

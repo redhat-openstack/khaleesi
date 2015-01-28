@@ -31,6 +31,10 @@ class OptionError(Exception):
         return "Invalid values passed, files : %s not found" % self._paths
 
 
+class ArgsConflictError(Exception):
+    pass
+
+
 class Generator(object):
     """
 Usage:
@@ -114,7 +118,7 @@ Options:
 
         if not self._apply_rules():
             logger.error("Error while validating rules: check args %s",
-                         self.args)
+                         '  \n'.join(self.args))
             return False
 
         logger.debug("New Args: %s", self.args)
@@ -174,11 +178,10 @@ Options:
                             if _key(x) in args_in_rules]
 
         if conflicting_keys:
-            logger.error(
-                ("Error command line args '%s' conflicts with those "
-                 "in rules file %s"),
-                ', '.join(conflicting_keys), ', '.join(args))
-            return False
+            raise ArgsConflictError(
+                "Command line args: '{0}' are in conflict with args defined "
+                "in the rules file.".format(
+                    ', '.join(conflicting_keys)))
 
         # prepend the args from the rules file and re-parse the args
         if args:
