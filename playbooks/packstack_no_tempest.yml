@@ -91,17 +91,17 @@
   roles:
     - { role: openstack/openstack-status }
 
-- name: SELINUX error check
+- name: Produce build marks
   hosts: all:!localhost
   sudo: yes
   roles:
-    - { role: selinux_check }
+    - { role: build_mark }
   tags: provision
 
 - name: RHOS SELINUX error check
   hosts: all:!localhost:&rhos
   sudo: yes
   roles:
-    - { role: selinux_check/rhos }
+    - { role: selinux_check }
   tags: provision
 

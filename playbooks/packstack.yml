@@ -114,11 +114,11 @@
 
 - include: tempest.yml
 
-- name: SELINUX error check
+- name: Produce build marks
   hosts: all:!localhost:!tempest
   sudo: yes
   roles:
-    - { role: selinux_check }
+    - { role: build_mark }
   tags: provision
 
 - name: clean up

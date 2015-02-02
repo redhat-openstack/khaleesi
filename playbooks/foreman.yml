@@ -108,9 +108,9 @@
 
 - include: tempest.yml
 
-- name: SELINUX error check
+- name: Produce build marks
   hosts: all:!localhost:!tempest
   roles:
-    - { role: selinux_check }
+    - { role: build_mark }
   tags:
     - provision

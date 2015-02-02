@@ -1,0 +1,21 @@
+---
+  - name: Search for possible problems
+    sudo: yes
+    shell: '{{ item.value }}'
+    register: result
+    ignore_errors: yes
+    with_dict:
+        selinux: "! grep -i denied /var/log/audit/audit.log | wc -l"
+        segfault: "! grep -v ansible-command /var/log/messages | grep segfault | wc -l"
+        oom-killer: "! grep -v ansible-command /var/log/messages | grep oom-killer | wc -l"
+
+  - name: Show the problems found.
+    debug: var=result
+    ignore_errors: yes
+
+  - name: Produce the build mark.
+    debug: 'msg="Build mark: {{ item.item.key }}={{ item.stdout }}"'
+    with_items: result.results
+    ignore_errors: yes
+    when: item.stdout|int > 0
+
