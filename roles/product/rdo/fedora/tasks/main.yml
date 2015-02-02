@@ -15,7 +15,13 @@
   template: src=rdo.repo.j2 dest=/etc/yum.repos.d/rdo-release.repo
   notify:
     - Yum clean all
-  when: product.repo_type != 'distribution'
+  when: product.repo_type in ('production', 'stage')
+
+- name: Create the upstream delorean repositories for Fedora RDO
+  template: src=delorean.repo.j2 dest=/etc/yum.repos.d/rdo-release.repo
+  notify:
+    - Yum clean all
+  when: product.repo_type == 'delorean'
 
 - name: disable gpgcheck for rdo if not distribution-repo
   lineinfile:
