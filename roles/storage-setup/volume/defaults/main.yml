@@ -1,0 +1,5 @@
+---
+cinder_conf_temp: '/etc/cinder/cinder.conf.temp'
+cinder_conf: '/etc/cinder/cinder.conf'
+cinder_emc_conf: '/etc/cinder/emc_iscsi.xml'
+

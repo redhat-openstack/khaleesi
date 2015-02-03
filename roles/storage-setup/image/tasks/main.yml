@@ -1,0 +1,61 @@
+---
+- name: glance | service | is installed
+  sudo: yes
+  yum: name=openstack-glance state=installed
+  tags: image
+
+
+- name: glance | service | is configured
+  sudo: yes
+  template: src=glance.conf.j2 dest="{{ glance_conf_temp }}"
+  when: nodes.controller.storage_image.config.glance is defined
+  tags: image
+
+- name: glance | crudini | merge config files
+  sudo: yes
+  shell: crudini --merge {{ glance_conf }} < {{ glance_conf_temp }}
+  when: nodes.controller.storage_image.config.glance is defined
+  tags: image
+
+- name: nova | service | is configured
+  sudo: yes
+  template: src=nova.conf.j2 dest="{{ nova_conf_temp }}"
+  when: nodes.controller.storage_image.config.nova is defined
+  tags: image
+
+- name: nova | crudini | merge config files
+  sudo: yes
+  shell: crudini --merge {{ nova_conf }} < {{ nova_conf_temp }}
+  when: nodes.controller.storage_image.config.nova is defined
+  tags: image
+
+- name: cinder | service | is configured
+  sudo: yes
+  template: src=cinder.conf.j2 dest={{ cinder_conf_temp }}
+  when: nodes.controller.storage_image.config.cinder is defined
+  tags: image
+
+- name: cinder | crudini | merge config files
+  sudo: yes
+  shell: crudini --merge {{ cinder_conf }} < {{ cinder_conf_temp }}
+  when: nodes.controller.storage_image.config.cinder is defined
+  tags: image
+
+- name: glance | service | restart
+  sudo: yes
+  shell: openstack-service restart glance
+  when: nodes.controller.storage_image.config.glance is defined
+  tags: image
+
+- name: nova | service | restart
+  sudo: yes
+  shell: openstack-service restart nova
+  when: nodes.controller.storage_image.config.nova is defined
+  tags: image
+
+- name: cinder | service | restart
+  sudo: yes
+  shell: openstack-service restart cinder
+  when: nodes.controller.storage_image.config.cinder is defined
+  tags: image
+

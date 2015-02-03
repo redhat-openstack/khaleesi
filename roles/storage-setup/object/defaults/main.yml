@@ -1,0 +1,3 @@
+---
+swift_conf_temp: "/etc/swift/swift.conf.temp"
+swift_conf: "/etc/swift/swift.conf"

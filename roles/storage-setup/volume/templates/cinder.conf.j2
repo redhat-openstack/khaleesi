@@ -1,0 +1,8 @@
+# jinja cinder configuration template
+
+{% for (key, value) in nodes.controller.storage_volume.config.cinder[product.version|string].iteritems() %}
+[{{ key }}]
+{% for (subkey, subvalue) in value.iteritems() %}
+{{ subkey }}={{ subvalue }}
+{% endfor %}  
+{% endfor %}

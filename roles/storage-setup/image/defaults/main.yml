@@ -1,0 +1,7 @@
+---
+cinder_conf_temp: '/etc/cinder/cinder.conf.temp'
+cinder_conf: '/etc/cinder/cinder.conf'
+nova_conf_temp: '/etc/nova/nova.conf.temp'
+nova_conf: '/etc/nova/nova.conf'
+glance_conf_temp: "/etc/glance/glance.conf.temp"
+glance_conf: "/etc/glance/glance.conf"

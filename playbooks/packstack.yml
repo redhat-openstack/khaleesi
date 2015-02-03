@@ -94,6 +94,9 @@
 # sahara
 - include: sahara.yml
 
+# storage
+- include: storage.yml
+
 # tempest
 - name: List ip address of tempest node
   hosts: tempest

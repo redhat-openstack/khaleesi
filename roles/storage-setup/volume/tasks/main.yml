@@ -1,0 +1,37 @@
+---
+- name: cinder | service | is installed
+  sudo: yes
+  yum: name=openstack-cinder state=installed
+  tags: volume
+
+- name: cinder | service | is configured
+  sudo: yes
+  template: src=cinder.conf.j2 dest={{ cinder_conf_temp }}
+  tags: volume
+
+- name: cinder | crudini | merge config files
+  sudo: yes
+  shell: crudini --merge {{ cinder_conf }} < {{ cinder_conf_temp }}
+  tags: volume
+
+- name: cinder | service | setup shares
+  sudo: yes
+  template: src=share.j2 dest="{{ nodes.controller.storage_volume.variant.shares_file }}"
+  when: nodes.controller.storage_volume.variant.share is defined
+  tags: volume
+
+- name: cinder | service | EMC configured
+  sudo: yes
+  template: src=emc_iscsi.xml.j2 dest={{ cinder_emc_conf }}
+  when: nodes.controller.storage_volume.config.cinder.emc is defined
+  tags: volume
+
+- name: cinder | service | restart
+  sudo: yes
+  shell: openstack-service restart cinder
+  tags: volume
+
+- debug: var=cinder_conf
+  sudo: yes
+  when: job.verbosity <= verbosity.debug
+  tags: volume
