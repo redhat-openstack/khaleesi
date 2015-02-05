@@ -4,13 +4,15 @@ Usage:
     py.test test_tree.py [options]
 """
 
-from configure import Configuration, ConfigurationError
 from copy import deepcopy
-from test_utils import print_yaml, verify_key_val, TEST_DIR
 import logging
 import pytest
 
+from configure import Configuration, ConfigurationError
+from test_utils import print_yaml, verify_key_val, TEST_DIR, main
+
 logger = logging.getLogger(__name__)
+
 
 def test_simple_merge():
     src_dict = {
@@ -195,6 +197,7 @@ def test_random():
             assert src.random not in random_so_far
         random_so_far.add(src.random)
 
+
 def test_env():
     src_yaml = """
     user: !env [USER]
@@ -212,6 +215,7 @@ def test_env():
     assert src.same_user == src.user
     assert src.default == 'default'
     assert src.home_short == '/my/hom'
+
 
 def test_limit_chars():
     src_yaml = """
@@ -410,42 +414,5 @@ def test_merge_error():
     logger.info("Merge raised configuration error")
 
 
-def _enable_logging(level=None):
-    level = level or "debug"
-
-    from ksgen import log_color
-    log_color.enable()
-
-    numeric_val = getattr(logging, level.upper(), None)
-    if not isinstance(numeric_val, int):
-        raise ValueError("Invalid log level: %s" % level)
-    fmt = "%(filename)15s:%(lineno)3s| %(funcName)20s() : %(message)s"
-    logging.basicConfig(level=numeric_val, format=fmt)
-
-
-def usage():
-    doc_string = """
-    %(usage)s
-
-Methods:
-    %(methods)s
-    """ % {
-        "usage": __doc__,
-        "methods": '\n    '.join([
-            m for m in globals().keys() if m.startswith('test_')
-        ])
-    }
-    print doc_string
-
 if __name__ == '__main__':
-    import sys
-    _enable_logging()
-    try:
-        fn = sys.argv[1]
-    except IndexError:
-        fn = 'usage'
-
-    if fn not in locals():
-        fn = 'usage'
-    ret = locals()[fn]()
-    sys.exit(ret)
+    main(locals())

@@ -4,10 +4,11 @@ Usage:
     py.test test_tree.py [options]
 """
 
+import logging
+
 from ksgen.tree import OrderedTree, is_dict
 from ksgen import yaml_utils
-import logging
-import sys
+from test_utils import _enable_logging, main
 
 
 yaml_utils.register()
@@ -339,38 +340,5 @@ def test_init_dict():
     # logging.debug(yaml.safe_dump(dict(s)))
 
 
-def _enable_logging(level=None):
-    level = level or "debug"
-
-    from ksgen import log_color
-    log_color.enable()
-
-    numeric_val = getattr(logging, level.upper(), None)
-    if not isinstance(numeric_val, int):
-        raise ValueError("Invalid log level: %s" % level)
-    fmt = "%(filename)15s:%(lineno)3s| %(funcName)20s() : %(message)s"
-    logging.basicConfig(level=numeric_val, format=fmt)
-
-
-def usage():
-    help = """
-%(usage)s
-Methods:
-    %(methods)s
-""" % {
-        "usage": __doc__,
-        "methods": '\n    '.join([
-            m for m in globals().keys() if m.startswith('test_')
-        ])
-    }
-    print(help)
-
 if __name__ == '__main__':
-    _enable_logging()
-    try:
-        fn = sys.argv[1]
-    except IndexError:
-        fn = 'usage'
-
-    ret = locals()[fn]()
-    sys.exit(ret)
+    main(locals())
