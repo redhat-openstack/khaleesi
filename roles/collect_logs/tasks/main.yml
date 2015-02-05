@@ -8,6 +8,10 @@
 - name: collect list of installed rpms
   shell: rpm -qa > {{ rpm_list }}
 
+- name: collect list of running kernel modules
+  shell: lsmod > {{ module_list }}
+  ignore_errors: true
+
 - name: prepare directory with extra logs
   file: dest=/var/log/extra state=directory
   ignore_errors: true
