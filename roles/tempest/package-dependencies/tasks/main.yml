@@ -28,6 +28,7 @@
     - libxslt-devel
     - mariadb-devel
     - openssl-devel
+    - python-cinderclient
     - python-glanceclient
     - python-keystoneclient
     - python-neutronclient
