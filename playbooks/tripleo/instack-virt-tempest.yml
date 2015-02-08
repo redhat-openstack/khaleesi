@@ -1,28 +1,27 @@
 ---
-
-- include: ../vm_kickstart.yml
-
-- include: ../group_by.yml
+#- include: ../vm_import_image.yml
 
 - name: set up environment
-  hosts: instack-virt-host:&juno
+  hosts: instack-virt-host
+  sudo: yes
   roles:
-    - { role: tripleo/instack/setup-env/virt-setup-tempest }
+    - { role: tripleo/instack/setup-env/virt-setup-tempest/define-env }
 
-- name: set up environment
-  hosts: instack-virt-host:&60
+- name: get ssh key  from undercloud
+  hosts: undercloud
   roles:
-    - { role: tripleo/instack/setup-env/virt-setup-tempest }
+    - { role: tripleo/instack/setup-env/virt-setup-tempest/undercloud-sshkey }
 
-- name: set up environment
-  hosts: instack-virt-host:&icehouse
+- name: verify ssh connection from instack-virt-host
+  hosts: all:!localhost
   roles:
-    - { role: tripleo/instack/icehouse/setup-env/virt-setup-tempest }
+    - { role: tripleo/instack/setup-env/virt-setup-tempest/verify-ssh }
 
-- name: set up environment
-  hosts: instack-virt-host:&50
+- name: get config from controller
+  hosts: controller
+  sudo: yes
   roles:
-    - { role: tripleo/instack/icehouse/setup-env/virt-setup-tempest }
+    - { role: tripleo/instack/setup-env/virt-setup-tempest/overcloud-keystonerc }
 
 - include: ../group_by.yml
 

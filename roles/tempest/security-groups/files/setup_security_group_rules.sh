@@ -1,5 +1,5 @@
 #!/bin/bash
-source /root/keystonerc_admin
+source ~/keystonerc_admin
 
 # Get the admin tenant id
 admin_tenant_id=$(keystone tenant-get admin | grep id | awk '{print $4}')

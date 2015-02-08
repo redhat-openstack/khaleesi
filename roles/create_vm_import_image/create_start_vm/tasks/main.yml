@@ -1,0 +1,42 @@
+---
+- name: install libvirt host rpm dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - virt-install
+    - genisoimage
+    - qemu-img-rhev
+
+- name: download cloud image
+  get_url: url={{cloud_image_url}} dest=/root/{{cloud_image_base_file}}
+
+- name: resize cloud image
+  command: qemu-img resize /root/{{cloud_image_base_name}}.qcow2 {{cloud_image_resize}}
+
+- name: get meta-data template
+  template: src=meta-data.j2 dest=/root/meta-data
+
+- name: get user-data template
+  template: src=user-data.j2 dest=/root/user-data
+
+- name: generate cloud-init iso
+  command: genisoimage -output /root/{{cloud_init_iso_name}} -volid cidata -joliet -rock /root/meta-data /root/user-data
+
+- name: copy images to /var/lib/libvirt/images
+  command: cp {{item}} /var/lib/libvirt/images/
+  with_items:
+    - /root/{{cloud_image_base_file}}
+    - /root/{{cloud_init_iso_name}}
+
+- name: import and launch image
+  shell: >
+    virt-install --import  --name {{cloud_image_base_name}} \
+    --ram {{instance_ram}} --vcpus {{instance_vcpu}} \
+    --disk {{hypervisor_image_path}}{{cloud_image_base_file}} \
+    --disk {{hypervisor_image_path}}{{cloud_init_iso_name}},device=cdrom \
+    --network bridge=virbr0 --noautoconsole
+
+# - name: print result of instance start
+#   debug: var=result
+
+- name: Pause {{boot_timeout}} seconds for instance to boot
+  pause: seconds={{boot_timeout}}

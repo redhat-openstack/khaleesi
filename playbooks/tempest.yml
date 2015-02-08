@@ -21,7 +21,6 @@
 
 - name: Create keystonerc
   hosts: tempest:!skip_tempest_setup
-  sudo: yes
   tags: tempest_setup
   roles:
     - { role: openstack/create-keystonerc }
@@ -40,7 +39,7 @@
     - { role: tempest/setup-openstack-elements, when: product.version == "havana" or product.version == "4.0"}
     - { role: tempest/download-cirros }
     - { role: tempest/setup }
-    - { role: tempest/security-groups, sudo: yes }
+    - { role: tempest/security-groups }
 
 
 - name: Run tempest

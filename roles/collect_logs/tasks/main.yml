@@ -2,7 +2,7 @@
 - name: ensure required rpms installed for logging
   yum: name={{ item }} state=present
   with_items:
-    - bzip2
+    - gzip
     - tar
 
 - name: collect list of installed rpms
@@ -23,8 +23,14 @@
   ignore_errors: true
 
 - name: collect logs
-  shell: tar cjPf /tmp/archive.tar.bz2 {{ rpm_list }} {{ job.archive|join(' ') }}
+  shell: tar czPf /tmp/archive.tar.gzip {{ rpm_list }} {{ job.archive|join(' ') }}
   ignore_errors: true
 
-- name: fetch log archive
+- name: copy gzip to bz2 for job compatibility
+  shell: cp /tmp/archive.tar.gzip /tmp/archive.tar.bz2
+
+- name: fetch log archive (gzip)
+  fetch: src=/tmp/archive.tar.gzip flat=yes dest=../collected_files/{{ inventory_hostname }}.tar.gzip
+
+- name: fetch log archive (bz2)
   fetch: src=/tmp/archive.tar.bz2 flat=yes dest=../collected_files/{{ inventory_hostname }}.tar.bz2

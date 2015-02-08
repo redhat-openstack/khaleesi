@@ -11,7 +11,6 @@
       --file /home/{{nodes.tempest.remote_user}}/{{ cirros_image_file }}
       --is-public True > /dev/null;
       glance image-list | grep cirros | awk '{print $4}' | head -n 1
-  sudo: yes
   register: cirros_name
   until: cirros_name.stdout == "{{ cirros_image_name }}"
   retries: 5

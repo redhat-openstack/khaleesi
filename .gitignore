@@ -22,3 +22,5 @@ teardown.txt
 tmp/
 # Vagrant
 .vagrant/
+ssh.config.ansible
+stackrc

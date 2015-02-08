@@ -9,6 +9,12 @@
   notify:
     - Yum clean all
 
+- name: Create the EPEL Repository
+  template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
+  when: ansible_distribution == 'RedHat'
+  notify:
+    - Yum clean all
+
 - name: List available yum repositories
   command: yum -d 7 repolist
   register: result
@@ -41,6 +47,12 @@
     - python-testrepository
   tags:
     - tempest_setup
+
+- name: Install rpm dependencies for epel
+  yum: name={{ item }} state=present
+  when: ansible_distribution == "RedHat"
+  with_items:
+    - subunit-filters
 
 - name: Pretty print yum install dependencies
   debug: var=result.stdout_lines

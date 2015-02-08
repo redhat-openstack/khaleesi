@@ -3,7 +3,7 @@
 
 - include: tripleo/instack-overcloud.yml
 
-#- include: tripleo/instack-virt-tempest.yml
+- include: tripleo/instack-virt-tempest.yml
 
 - name: Gather Logs
   hosts: all:!localhost

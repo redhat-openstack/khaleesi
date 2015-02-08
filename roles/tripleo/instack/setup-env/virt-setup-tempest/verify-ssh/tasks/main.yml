@@ -1,0 +1,6 @@
+---
+- name: test ssh
+  command: hostname
+
+- name: check distro
+  command: cat /etc/redhat-release

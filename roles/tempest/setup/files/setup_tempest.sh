@@ -9,13 +9,13 @@ main() {
     mv -f $tempest_dir $tempest_dir.orig 2>/dev/null || true
 
     # $::identity_uri
-    source /root/keystonerc_admin
+    source ~/keystonerc_admin
     local keystone_service_id=$(keystone service-list |
                 grep keystone | awk '{print $2}')
     export FACTER_IDENTITY_URI=$(keystone endpoint-list |
                 grep $keystone_service_id | awk '{print $6}')
 
-    source /root/keystonerc_demo
+    source ~/keystonerc_demo
     # $::image_ref,
     export FACTER_IMAGE_REF=$(glance index | grep cirros | awk '{print $1}' | head -n1 )
     # $::image_ref_alt,

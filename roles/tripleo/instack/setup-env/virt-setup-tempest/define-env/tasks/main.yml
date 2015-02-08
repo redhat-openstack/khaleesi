@@ -1,0 +1,42 @@
+---
+- name: define overcloud demo password
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -p {{ job_var.vm_ssh_port }} stack@{{ job_var.instack_virt_host }} "cat ~/tripleo-overcloud-passwords | grep 'OVERCLOUD_DEMO_PASSWORD' | awk -F= '{print $NF}' | sed -n -e 's/^.*OVERCLOUD_DEMO_PASSWORD\=//p'"
+  register: overcloud_demo_passwd
+
+- name: define overcloud admin password
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -p {{ job_var.vm_ssh_port }} stack@{{ job_var.instack_virt_host }} "cat ~/tripleo-overcloud-passwords | grep 'OVERCLOUD_ADMIN_PASSWORD' | awk -F= '{print $NF}' | sed -n -e 's/^.*OVERCLOUD_ADMIN_PASSWORD\=//p'"
+  register: overcloud_admin_passwd
+
+- name: define controller ip
+  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -p {{ job_var.vm_ssh_port }} stack@{{ job_var.instack_virt_host }} "source stackrc; nova list | grep Controller | awk -F= '{print $NF}' | grep -o '192\.[0-9]*\.[0-9]*\.[0-9]*' | sed 's/ //'"
+  register: controller_ip
+
+- name: get instack_vm ip address
+  shell: 'cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac instack) | cut -d " " -f3'
+  register: instack_ip
+
+- name: get tempest machine ip address
+  shell: 'cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac tempest) | cut -d " " -f3'
+  register: tempest_ip
+
+- name: setup ssh config for instack
+  template: src=ssh_config.j2 dest=~/ssh.config.ansible mode=0755
+
+- name: copy ssh_config back to the slave
+  fetch: src=~/ssh.config.ansible dest=../../ssh.config.ansible flat=yes
+
+- name: wait until ssh is available on tempest box
+  wait_for: host={{ tempest_ip.stdout }}
+            state=started
+            port=22
+            delay=15
+            timeout=300
+
+- name: add tempest host
+  add_host: name=tempest groups=tempest ansible_ssh_host=undercloud
+
+- name: add undercloud host
+  add_host: name=undercloud groups=undercloud ansible_ssh_host=undercloud
+
+- name: add controller host
+  add_host: name=controller groups=controller ansible_ssh_host=controller

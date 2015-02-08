@@ -1,11 +1,40 @@
 ---
-- name: install libvirt host rpm dependencies
+- name: install libvirt host rpm dependencies (Fedora)
   yum: name={{ item }} state=present
+  when: ansible_distribution == 'Fedora'
   with_items:
-    - libvirt
-    - libvirt-python
-    - libvirt-client
+    - '@virtualization'
     - virt-install
+    - genisoimage
+    - qemu-img-rhev
+
+- name: install libvirt host rpm dependencies (RedHat)
+  yum: name={{ item }} state=present
+  when: ansible_distribution == 'RedHat'
+  with_items:
+    - libvirt-daemon-driver-nwfilter
+    - libvirt-client
+    - libvirt-daemon-config-network
+    - libvirt-daemon-driver-nodedev
+    - libvirt-daemon-kvm
+    - libvirt-python
+    - libvirt-daemon-config-nwfilter
+    - libvirt-daemon-driver-lxc
+    - libvirt-glib
+    - libvirt-daemon
+    - libvirt-daemon-driver-storage
+    - libvirt
+    - libvirt-daemon-driver-network
+    - libvirt-devel
+    - libvirt-gobject
+    - libvirt-daemon-driver-secret
+    - libvirt-daemon-driver-qemu
+    - libvirt-daemon-driver-interface
+    - libvirt-docs
+    - libguestfs-tools.noarch
+    - virt-install
+    - genisoimage
+    - qemu-img-rhev
 
 - name: update the libvirt permissions
   lineinfile: dest=/etc/libvirt/libvirtd.conf line='auth_unix_rw = "none"'

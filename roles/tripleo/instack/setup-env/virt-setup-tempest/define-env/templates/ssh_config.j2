@@ -1,0 +1,20 @@
+Host tempest
+    ProxyCommand ssh -i ~/.ssh/id_rsa root@{{ job_var.instack_virt_host }} -W {{ instack_ip.stdout }}:22
+    IdentityFile ~/.ssh/id_rsa
+    User fedora
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+
+Host undercloud
+    ProxyCommand ssh -i ~/.ssh/id_rsa root@{{ job_var.instack_virt_host }} -W {{ instack_ip.stdout }}:22
+    IdentityFile ~/.ssh/id_rsa
+    User stack
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+
+Host controller
+    ProxyCommand ssh -i ~/.ssh/id_rsa -F ssh.config.ansible undercloud -W {{ controller_ip.stdout }}:22
+    IdentityFile id_rsa_undercloud
+    User heat-admin
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null

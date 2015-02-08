@@ -1,6 +1,12 @@
 ---
 - name: Create keystonerc_admin
-  template: src=keystonerc_admin.j2 dest=/root/keystonerc_admin
+  template: src=keystonerc_admin.j2 dest=~/keystonerc_admin
+  when: installer.name != "instack"
 
 - name: Create keystonerc_demo
-  template: src=keystonerc_demo.j2 dest=/root/keystonerc_demo
+  template: src=keystonerc_demo.j2 dest=~/keystonerc_demo
+  when: installer.name != "instack"
+
+- name: Copy stackrc for tripleO
+  copy: src=../stackrc dest=~/keystonerc_admin mode=0755
+  when: installer.name == "instack"
