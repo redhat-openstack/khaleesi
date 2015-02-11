@@ -26,10 +26,10 @@
   when: beakerCheckOut_downloaded.stat.exists == True
 
 - name: return the Beaker machine if it is checked out
-  shell: sshpass -p {{ job_var.vm_pass }} ssh -o 'StrictHostKeyChecking=no' -x -l root {{ job_var.instack_virt_host }} "return2beaker.sh"
+  shell: ssh -o 'StrictHostKeyChecking=no' root@{{ job_var.instack_virt_host }} "return2beaker.sh"
   ignore_errors: yes
 
-- name: provision Beaker machine
+- name: provision Beaker machine with password
   shell: >
     chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
     {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh --arch={{ provisioner.beaker_arch }} --family={{ provisioner.beaker_family }} --tag={{ provisioner.tag }} --hostrequire=hostlabcontroller={{ provisioner.host_lab_controller }} --username={{ provisioner.beaker_user_name }} --password=$BEAKER_PASSWORD --task=/CoreOS/rhsm/Install/automatjon-keys --keyvalue=HVM=1  --ks_meta="ksdevice=link" --whiteboard={{ provisioner.whiteboard_message }} --job-group={{ provisioner.beaker_group }} --machine={{ job_var.instack_virt_host }} --timeout=720 >/dev/null 2>&1
@@ -39,7 +39,7 @@
   no_log: true
   when: provisioner.beaker_password is defined
 
-- name: provision Beaker machine
+- name: provision Beaker machine with kerberos auth
   shell: >
     chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
     {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh --arch={{ provisioner.beaker_arch }} --family={{ provisioner.beaker_family }} --tag={{ provisioner.tag }} --hostrequire=hostlabcontroller={{ provisioner.host_lab_controller }} --task=/CoreOS/rhsm/Install/automatjon-keys --keyvalue=HVM=1 --ks_meta=ksdevice=link --whiteboard={{ provisioner.whiteboard_message }} --job-group={{ provisioner.beaker_group }} --machine={{ job_var.instack_virt_host }} --timeout=720;
