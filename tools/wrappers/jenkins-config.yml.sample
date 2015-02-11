@@ -1,0 +1,121 @@
+# This file is used by the jenkins job
+# read: 'How it works' section at the bottom
+
+
+### config template ###
+# test_env:       # top-level namespace used by khaleesi
+#   env_name:     # test config
+#     Distro-Version:   # test configuration for the distro-version
+#     | setup:          # how the testbed VM needs to be setup
+#     | ' repos:        # add the following repos
+#     | '   - filename: repo-name.repo
+#     | '     contents: |
+#     | '       [section]
+#     | '       contents
+#     | '       of
+#     | '       Repo
+#
+#     | ' install:      # install the following rpm and
+#     | '   - rpm-abc   # ensure latest is installed
+#     | '   - rpm-foo
+#     | '   - rpm-bar
+#
+#     | ' remove:       # delete the following rpms
+#     | '   - rpm-foo
+#     | '   - rpm-bar
+#     | '   - rpm-baz
+#     | ' pip:         # use virtualenv --system-site-packages to
+#     | '   overrides: # override system packages
+#     | '   - pip-pkg-foo
+#     | '   - pip-pkg-foo
+#
+#     | run: >      # how tests should be run
+#     |  run_command; another_command;
+#     |  ./run_tests.sh -N -P    # all but last statement should terminated by ;
+#
+#     | archive:  # what files to archive
+#     |   - nosetest.xml
+#
+#  NOTE: there must be a env_name: called virt: which will be used to run tests
+#  in virtualenv when running tests in env_name fails
+
+product:
+    name: rhos
+    repo_type: poodle
+    version: 6.0
+    config:
+        enable_epel: n
+    rpmrepo:
+        RedHat: http://replace_me/repos/rhos-release/
+
+nova_rpm_deps: [
+  gcc, git, libffi-devel, libvirt-devel, libxml2-devel, libxslt-devel,
+  mariadb-devel, python-devel, openssl-devel, postgresql-devel, MySQL-python,
+  python-alembic, python-migrate, python-sqlalchemy, python-amqp,
+  python-amqplib, python-anyjson, python-boto, python-jinja2,
+  python-kombu, python-lxml, python-routes, python-webob, python-greenlet,
+  python-paste, python-paste-deploy, python-netaddr, python-suds,
+  python-paramiko, python-pyasn1-modules, python-pyasn1, python-babel,
+  python-flask-babel, python-iso8601, python-jsonschema, python-cinderclient,
+  python-neutronclient, python-glanceclient, python-keystoneclient,
+  python-posix_ipc, python-six, python-stevedore, python-websockify,
+  python-pycadf, python-coverage, python-nose, python-mock, python-mox,
+  python-mox, python-psycopg2, python-psycopg2-debug,
+  python-sphinx-theme-openlmi, python-sphinx,
+  python-rfc3986, python-nova
+]
+
+nova_virt_config:
+  setup:
+    install: "{{nova_rpm_deps}}"
+  run: >
+      sudo rm -Rf .tox || true;
+      sudo easy_install pip;
+      sudo pip install -U 'tox>=1.8.1';
+      export NOSE_WITH_XUNIT=1;
+      export NOSE_WITH_HTML_OUTPUT=1;
+      export NOSE_HTML_OUT_FILE=../logs/nose_results.html;
+      grep -q py27site tox.ini || echo -e '\n[testenv:py27site]\nsitepackages = True' >> tox.ini;
+      export NSS_HASH_ALG_SUPPORT=+MD5;
+      export OPENSSL_ENABLE_MD5_VERIFY=1;
+      sudo yum remove -y python-nova;
+      sudo yum remove -y python-migrate;
+      sudo yum install -y python-migrate python-oslo-db;
+      truncate --size 0 requirements.txt;
+      rpm -qa > all-rpms.txt;
+      tox -v -epy27site 2>&1 | tee ../logs/venv-testrun.log;
+      echo "${pipestatus[1]}"
+  archive:
+      - ../logs/venv-testrun.log
+      - tox.ini
+      - requirements.txt
+      - all-rpms.txt
+
+### actual test_config: starts here: used by khaleesi ###
+### NOTE: test_config.virt must be defined ###
+test_config:
+  virt:
+    Fedora-20:  "{{nova_virt_config}}"
+    RedHat-7.0: "{{nova_virt_config}}"
+
+# How this works!
+# ==============
+# This file is used by khaleesi[1] playbook unit_test.yml[2].
+#  - The jenkins job checks out khaleesi, settings and this repo and
+#    runs unit_test.yml playbook.
+#  - The playbook reads this config file and
+#      - adds repos in test_dependencies.rpm.repos
+#      - installs all packages in  test_dependencies.rpm.install
+#      - removes all packages in test_dependencies.rpm.remove
+#  - it then runs the test by executing the command specfied in
+#    test_env.run NOTE all commands should terminate with a ';'
+#  - if tests fail, the same is run in venv with pip packages.
+#
+# PIP overrides
+# -------------
+# When there is no corresponding rpm for a pip package, you can override that
+# particular package using the pip.override section. When you do so, make sure
+# the packaging team is notified about the new requirement.
+#
+# [1] https://github.com/redhat-openstack/khaleesi
+# [2] https://github.com/redhat-openstack/khaleesi/blob/master/playbooks/unit_test.yml

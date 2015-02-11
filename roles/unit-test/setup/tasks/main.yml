@@ -1,11 +1,11 @@
 ---
-- name: install default set of package needed to run tests
-  sudo: yes
-  yum: pkg={{item}} state=latest
-  with_items:
-      - which
-      - python-junitxml
-      - python-virtualenv
+# - name: install default set of package needed to run tests
+#   sudo: yes
+#   yum: pkg={{item}} state=latest
+#   with_items:
+#       - which
+#       - python-junitxml
+#       - python-virtualenv
 
 - name: print variables used in role
   debug: var=component.dir

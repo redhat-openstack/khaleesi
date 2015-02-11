@@ -1,6 +1,6 @@
 ---
 - include: provision.yml
-- include: group_by.yml tags=provision
+- include: group_by.yml
 
 - name: Prepare local host
   hosts: local
@@ -11,17 +11,16 @@
     - debug: msg="creating logs dir - {{playbook_dir}}/../../logs"
     - file: path="{{playbook_dir}}/../../logs" state=directory
 
-- name: Prepare tested
+- name: setup tests
   hosts: testbed
-  sudo: yes
-  tags: prep
   roles:
-    - unit-test/prep
+    - unit-test/setup
+
+- include: group_by.yml
+
+- include: prep.yml
 
 - name: Run tests
   hosts: testbed
   roles:
-    - unit-test/setup
     - unit-test/run
-    - { role: unit-test/publish-pip-overrides, when: '{{test_env_passed | bool}}' }
-

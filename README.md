@@ -2,11 +2,13 @@ Getting Started with Khaleesi
 -----------------------
 https://github.com/redhat-openstack/khaleesi-settings/blob/master/doc/khaleesi.rst
 
-
 Associated Settings Repository
 -----------------------
 https://github.com/redhat-openstack/khaleesi-settings
 
+Help, I can't run this thing
+-----------------------
+Look under the khaleesi/tools/wrappers directory
 
 Code Review (IMPORTANT)
 -----------------------
@@ -35,7 +37,7 @@ Again, replace username with your gerrithub username.
 Required Ansible version
 ------------------------
 
-Ansible 1.5 is now required.
+Ansible 1.7.2 is now required.
 
 
 Std{out,err} callback plugin
