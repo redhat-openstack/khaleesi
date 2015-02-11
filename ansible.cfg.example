@@ -12,4 +12,5 @@ library = library:$VIRTUAL_ENV/lib/python2.7/site-packages/ansible/modules
 
 lookup_plugins = lookups
 callback_plugins = ./plugins/callbacks
+filter_plugins = ./plugins/filters
 

@@ -1,0 +1,15 @@
+- name: show hostvars
+  debug: var=hostvars
+
+- name: Show groups
+  debug: var=groups
+
+- name: Produce the selinux build marks.
+  debug: >
+      msg='Build mark: {{ item }}={{ hostvars|sum_lengths(
+          groups["all"]|difference(groups["local"] + groups["tester"]),
+          item) }}'
+  with_items:
+      - selinux_problems_found
+      - segfault_problems_found
+      - oom_killer_problems_found

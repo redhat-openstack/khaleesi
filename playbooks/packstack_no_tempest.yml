@@ -91,11 +91,17 @@
   roles:
     - { role: openstack/openstack-status }
 
-- name: Get error build marks
+- name: Search for possible problems happened.
   hosts: all:!localhost:!tester
   sudo: yes
   roles:
-    - { role: build_mark/errors }
+    - { role: build_mark/search_problems }
+  tags: provision
+
+- name: Produce build marks summaries
+  hosts: localhost
+  roles:
+    - { role: build_mark/summary }
   tags: provision
 
 - name: RHOS SELINUX error check
