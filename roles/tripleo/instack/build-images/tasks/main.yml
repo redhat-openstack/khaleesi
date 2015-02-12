@@ -1,19 +1,4 @@
 ---
-
-- name: download RHEL 7 KVM guest image
-  shell: >
-    chdir={{ instack_user_home.stdout }}
-    wget {{ product.rhel7.remote_guest_image }} -O {{ instack_user_home.stdout }}/{{ product.rhel7.guest_image_name }}
-  sudo_user: stack
-  sudo: yes
-
-- name: get lynx command
-  yum: name="lynx"
-
-- name: check that the image is hosted on a local server
-  shell: 'lynx -dump {{ product.rhel7.remote_file_server }} | grep {{ product.rhel7.guest_image_name }}'
-  register: rhel_guest_image_output
-
 - name: install instack-undercloud
   shell: >
     chdir={{ instack_user_home.stdout }}
@@ -21,8 +6,8 @@
     export NODE_DIST="rhel7";
     export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
     export REG_HALT_UNREGISTER=1
-    export DIB_CLOUD_IMAGES="{{ product.rhel7.remote_file_server }}";
-    export BASE_IMAGE_FILE="{{ product.rhel7.guest_image_name }}";
+    export DIB_CLOUD_IMAGES="{{ [product.images.distro.name][product.images.version].remote_file_server }}";
+    export BASE_IMAGE_FILE="{{ [product.images.distro.name][product.images.version].guest_image_name }}";
     export REG_METHOD=disable;
     yum install -y instack-undercloud
   when: installer.instack_undercloud_rpm is not defined
@@ -40,8 +25,8 @@
     export NODE_DIST="rhel7";
     export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
     export REG_HALT_UNREGISTER=1
-    export DIB_CLOUD_IMAGES="{{ product.rhel7.remote_file_server }}";
-    export BASE_IMAGE_FILE="{{ product.rhel7.guest_image_name }}";
+    export DIB_CLOUD_IMAGES="{{ [product.images.distro.name][product.images.version].remote_file_server }}";
+    export BASE_IMAGE_FILE="{{ [product.images.distro.name][product.images.version].guest_image_name }}";
     export REG_METHOD=disable;
     instack-build-images
   sudo_user: stack
