@@ -21,4 +21,4 @@
     echo $?
 
 - name: get the rhel-guest-image
-  get_url: url={{ [product.images.distro.name][product.images.version].remote_file_server }}{{ [product.images.distro.name][product.images.version].guest_image_name }} dest={{ instack_user_home.stdout }}
+  get_url: url={{ product.images['rhel'][ansible_distribution_version].remote_file_server }}{{ product.images['rhel'][ansible_distribution_version].guest_image_name }} dest={{ instack_user_home.stdout }}
