@@ -72,17 +72,10 @@
 
 - name: Change poodle version for repos in rhos-release
   replace:
-    dest=/etc/yum.repos.d/rhos-poodle.repo
-    regexp=/latest/RHOS
-    replace=/{{ product.repo.poodle_pin_version }}/RHOS
+    dest=/etc/yum.repos.d/rhos-release-{{ product.version|int }}-rhel-{{ distro.version }}.repo
+    regexp=/latest/RHOS-{{ product.version|int }}
+    replace=/{{ product.repo.poodle_pin_version }}/RHOS-{{ product.version|int }}
   when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version != 'latest' and product.repo_type == 'poodle')
-
-- name: Change Foreman poodle version for repos in rhos-release
-  replace:
-    dest=/etc/yum.repos.d/foreman-poodle.repo
-    regexp=/latest/Foreman
-    replace=/{{ product.repo.foreman_poodle_pin_version }}/Foreman
-  when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version != 'latest'  and product.repo_type == 'poodle')
 
 - name: Enable RHSM
   shell: >
