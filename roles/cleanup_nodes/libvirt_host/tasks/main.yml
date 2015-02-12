@@ -85,3 +85,4 @@
     - libvirt-client
     - openvswitch
     - NetworkManager
+    - qemu-*
