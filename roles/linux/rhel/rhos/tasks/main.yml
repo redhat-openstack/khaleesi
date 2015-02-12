@@ -95,6 +95,26 @@
     yum-config-manager --setopt=”rhel-7-server-openstack-5.0-rpms.priority=1” --enable rhel-7-server-openstack-5.0-rpms;
   when: (product.repo_type == 'rhsm' and ansible_distribution_version == '7.0')
 
+# copr repos
+- name: enable tripleo copr repository
+  shell: "sudo curl -o /etc/yum.repos.d/slagle-openstack-m.repo {{ product.repo.copr[ ansible_distribution ][distro.version] }}"
+  when: product.repo.copr is defined
+  register: rdo_repo_output
+
+- name: print rdo_repo_output
+  debug: var=rdo_repo_output.stdout
+  when: product.repo.copr is defined
+
+# custom repos
+- name: enable a custom repository
+  yum: name="{{ installer.custom_repo }}"
+  when: installer.custom_repo is defined
+  register: rdo_repo_output
+
+- name: print rdo_repo_output
+  debug: var=rdo_repo_output.stdout
+  when: installer.custom_repo is defined
+
 - name: Ensure common dependencies
   yum: name={{ item }} state=present
   with_items:

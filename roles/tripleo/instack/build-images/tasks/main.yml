@@ -4,10 +4,10 @@
     chdir={{ instack_user_home.stdout }}
     export RHOS=1;
     export NODE_DIST="rhel7";
-    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
+    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-{{ansible_distribution_version}}.repo";
     export REG_HALT_UNREGISTER=1
-    export DIB_CLOUD_IMAGES="{{ [product.images.distro.name][product.images.version].remote_file_server }}";
-    export BASE_IMAGE_FILE="{{ [product.images.distro.name][product.images.version].guest_image_name }}";
+    export DIB_CLOUD_IMAGES="{{ product.images['rhel'][ansible_distribution_version].remote_file_server }}";
+    export BASE_IMAGE_FILE="{{ product.images['rhel'][ansible_distribution_version].guest_image_name }}";
     export REG_METHOD=disable;
     yum install -y instack-undercloud
   when: installer.instack_undercloud_rpm is not defined
@@ -23,10 +23,10 @@
     chdir={{ instack_user_home.stdout }}
     export RHOS=1;
     export NODE_DIST="rhel7";
-    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-7.0.repo";
+    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-{{ansible_distribution_version}}.repo";
     export REG_HALT_UNREGISTER=1
-    export DIB_CLOUD_IMAGES="{{ [product.images.distro.name][product.images.version].remote_file_server }}";
-    export BASE_IMAGE_FILE="{{ [product.images.distro.name][product.images.version].guest_image_name }}";
+    export DIB_CLOUD_IMAGES="{{ product.images['rhel'][ansible_distribution_version].remote_file_server }}";
+    export BASE_IMAGE_FILE="{{ product.images['rhel'][ansible_distribution_version].guest_image_name }}";
     export REG_METHOD=disable;
     instack-build-images
   sudo_user: stack
