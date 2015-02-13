@@ -1,0 +1,32 @@
+---
+- name: Create external network - neutron
+  quantum_network:
+      state: present
+      auth_url: "http://{{ hostvars[nodes.controller.name].ansible_default_ipv4.address }}:35357/v2.0/"
+      login_username: admin
+      login_password: "{{ hostvars[nodes.controller.name].admin_password | default('redhat') }}"
+      login_tenant_name: admin
+      name: external
+      provider_network_type: flat
+      provider_physical_network: myphysnet
+      router_external: yes
+      shared: no
+      admin_state_up: yes
+  when: "'{{ installer.network.plugin.name }}' == 'neutron'"
+
+- name: Create subnet for external network - neutron
+  quantum_subnet:
+      state: present
+      auth_url: "http://{{ hostvars[nodes.controller.name].ansible_default_ipv4.address }}:35357/v2.0/"
+      login_username: admin
+      login_password: "{{ hostvars[nodes.controller.name].admin_password | default('redhat') }}"
+      login_tenant_name: admin
+      tenant_name: admin
+      network_name: external
+      name: external-subnet
+      enable_dhcp: False
+      gateway_ip: "{{ tempest.public_subnet_gateway }}"
+      cidr: "{{ tempest.public_subnet_cidr}}"
+      allocation_pool_start: "{{ tempest.public_allocation_start }}"
+      allocation_pool_end: "{{ tempest.public_allocation_end }}"
+  when: "'{{ installer.network.plugin.name }}' == 'neutron'"

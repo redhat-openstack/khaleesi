@@ -84,6 +84,11 @@
 
 - include: ../workarounds/workarounds-post-run-packstack.yml tags=workaround
 
+- name: Create external network
+  hosts: controller
+  roles:
+    - { role: openstack/create-external-network }
+
 - name: Get Status after reboot
   hosts: controller
   sudo: yes
