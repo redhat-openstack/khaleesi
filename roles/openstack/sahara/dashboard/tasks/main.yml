@@ -5,8 +5,8 @@
 
 - name: sahara | dashboard | is configured (settings, HORIZON_CONFIG)
   lineinfile: dest=/usr/share/openstack-dashboard/openstack_dashboard/settings.py
-              backrefs=yes regexp="^[ ]+('dashboards'.*)\),"
-              line="\1 'sahara'),"
+              backrefs=yes regexp="(^[ ]+'dashboards'.*)\),"
+              line="\1 \'sahara\'),"
   tags: sahara
 
 - name: sahara | dashboard | is configured (settings, INSTALLED_APPS)
