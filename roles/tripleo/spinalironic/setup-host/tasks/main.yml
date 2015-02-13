@@ -13,7 +13,7 @@
   sudo: yes
 
 - name: get instack-set-host-rhel7 script
-  get_url: url=https://raw.githubusercontent.com/agroup/instack-undercloud/master/scripts/instack-setup-host-rhel7 dest={{ instack_user_home.stdout }}
+  get_url: url=https://raw.githubusercontent.com/rdo-management/instack-undercloud/master/scripts/instack-setup-host-rhel7 dest={{ instack_user_home.stdout }}
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
