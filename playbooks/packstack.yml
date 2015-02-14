@@ -32,12 +32,12 @@
   roles:
     - { role: packstack/debug }
 
-- name: Debug build details
+- name: Get build details
   hosts: controller
   sudo: no
   tags: provision
   roles:
-    - { role: packstack/debug/build }
+    - { role: build_mark/build }
 
 # apply pre-packstack workarouds
 - include: ../workarounds/workarounds-prep.yml tags=workaround
@@ -119,11 +119,11 @@
 
 - include: tempest.yml
 
-- name: Produce build marks
+- name: Get error build marks
   hosts: all:!localhost:!tempest
   sudo: yes
   roles:
-    - { role: build_mark }
+    - { role: build_mark/errors }
   tags: provision
 
 - name: clean up

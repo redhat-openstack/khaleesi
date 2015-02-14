@@ -8,6 +8,12 @@
 - include: ../group_by.yml
 - include: ../prep.yml
 
+- name: Get build details
+  hosts: instack-virt-host
+  sudo: no
+  roles:
+    - { role: build_mark/build }
+
 - name: create instack vm for undercloud install
   hosts: instack-virt-host:&juno
   roles:

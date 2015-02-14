@@ -108,9 +108,15 @@
 
 - include: tempest.yml
 
-- name: Produce build marks
-  hosts: all:!localhost:!tempest
+- name: Get build details
+  hosts: controller
+  sudo: no
   roles:
-    - { role: build_mark }
-  tags:
-    - provision
+    - { role: build_mark/build }
+
+- name: Get error build marks
+  hosts: all:!localhost:!tempest
+  sudo: yes
+  roles:
+    - { role: build_mark/errors }
+  tags: provision
