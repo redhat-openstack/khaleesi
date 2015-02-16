@@ -6,7 +6,7 @@
       login_username: admin
       login_password: "{{ hostvars[nodes.controller.name].admin_password | default('redhat') }}"
       login_tenant_name: admin
-      name: external
+      name: "{{ provisioner.network.name }}"
       provider_network_type: flat
       provider_physical_network: myphysnet
       router_external: yes
@@ -22,7 +22,7 @@
       login_password: "{{ hostvars[nodes.controller.name].admin_password | default('redhat') }}"
       login_tenant_name: admin
       tenant_name: admin
-      network_name: external
+      network_name: "{{ provisioner.network.name }}"
       name: external-subnet
       enable_dhcp: False
       gateway_ip: "{{ tempest.public_subnet_gateway }}"
