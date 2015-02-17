@@ -5,6 +5,9 @@
 #add /etc/libvirt/libvirtd.conf
 #auth_unix_rw = "none"
 
+- name: ensure libvirt-python is installed
+  yum: name=libvirt-python state=present
+
 - name: get list of running libvirt guests
   virt: command=list_vms
   register: vms
@@ -77,6 +80,9 @@
   shell: kill -9 $(ps aux | grep NetworkManager | awk '{print $2}')
   ignore_errors: yes    # When no NM running, killall exits with 1
 
+- name: ensure the network service is enabled
+  service: name=network enabled=yes
+
 - name: remove any instack rpms from the host
   yum: name={{item}} state=absent
   with_items:
@@ -89,3 +95,9 @@
     - openvswitch
     - NetworkManager
     - qemu-*
+    - openstack-*
+  notify:
+    - reboot
+    - Wait for host to stop
+    - Wait for host to come back
+    - Wait after ssh service is back
