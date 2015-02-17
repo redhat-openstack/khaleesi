@@ -28,6 +28,7 @@
 - name: return the Beaker machine if it is checked out
   shell: ssh -o 'StrictHostKeyChecking=no' root@{{ job_var.instack_virt_host }} "return2beaker.sh"
   ignore_errors: yes
+  async: 60
 
 - name: provision Beaker machine with password
   shell: >
