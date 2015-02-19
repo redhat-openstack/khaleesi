@@ -1,9 +1,9 @@
 ---
+# provison
+- include: dump_settings.yml
 #determine provisioner and whether or not to skip
 - include: group_by_provision.yml
 
-# provision
-- include: dump_settings.yml
 - include: provision.yml
 - include: group_by.yml tags=provision
 
@@ -91,6 +91,11 @@
 
 - include: ../workarounds/workarounds-post-run-packstack.yml tags=workaround
 
+- name: Create external network
+  hosts: controller
+  roles:
+    - { role: openstack/create-external-network }
+
 - name: Update RPMs on controller
   hosts: controller:!skip_rdoupdate
   sudo: yes
@@ -107,6 +112,9 @@
 
 # sahara
 - include: sahara.yml
+
+# storage
+- include: storage.yml
 
 # tempest
 - name: List ip address of tempest node
