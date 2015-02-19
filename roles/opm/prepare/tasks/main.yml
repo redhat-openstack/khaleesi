@@ -1,0 +1,32 @@
+---
+- name: install dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - puppet
+    - rubygems
+    - git
+    - rake
+
+- name: install gem dependencies
+  gem: name={{ item }} state=present
+  with_items:
+    - serverspec
+    - rake
+    - inifile
+
+- name: clone opm git repo
+  git: repo=https://github.com/redhat-openstack/openstack-puppet-modules.git
+       dest={{ job.opm_path }}
+
+- name: clone opm tests
+  git: repo=https://github.com/paramite/opmci.git
+       dest={{ job.opm_tests_path }}
+
+- name: copy hiera configuration to puppet
+  file: path=/etc/puppet/hiera.yaml
+        state=link
+        src=/etc/hiera.yaml
+
+- name: genereate hiera defaults
+  command: cp {{ job.opm_tests_path }}/hiera/defaults.yaml /var/lib/hiera/
+

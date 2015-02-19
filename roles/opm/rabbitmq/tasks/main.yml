@@ -1,9 +1,0 @@
----
-- name: Generate rabbitmq.pp
-  template: src=rabbitmq.pp.j2 dest=/root/opm-install/rabbitmq.pp
-
-- name: puppet apply rabbitmq.pp
-  command: /root/opm-install/apply.sh /root/opm-install/rabbitmq.pp
-
-- name: Check rabbitmq-server service status
-  command: systemctl status rabbitmq-server.service

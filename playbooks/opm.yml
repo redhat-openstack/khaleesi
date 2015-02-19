@@ -6,37 +6,17 @@
 
 - include: prep.yml
 
-- name: Install OpenStack Puppet Modules
-  sudo: yes
-  hosts:
-    - controller
-  roles:
-    - opm/install
+- include: validate_nodes.yml
 
-- name: Install the database server
+- name: Prepare host
   sudo: yes
-  hosts:
-    - controller
+  hosts: opmtesthost
   roles:
-    - opm/database
+    - opm/prepare
 
-- name: Install the message broker
-  sudo: yes
-  hosts:
-    - controller
-  roles:
-    - opm/rabbitmq
 
-- name: Install keystone
+- name: test modules
   sudo: yes
-  hosts:
-    - controller
+  hosts: opmtesthost
   roles:
-    - opm/keystone
-
-- name: Install glance
-  sudo: yes
-  hosts:
-    - controller
-  roles:
-    - opm/glance
+    - opm/tests

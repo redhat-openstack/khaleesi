@@ -1,0 +1,25 @@
+---
+
+- name: install modules
+  shell: |
+    puppet apply --debug --modulepath {{ job.opm_path }} {{job.opm_tests_path}}/{{ item }}/tests/basic.pp
+  with_items:
+    - mysql
+    - rabbitmq
+    - keystone
+    - cinder
+
+- name: test modules
+  shell: |
+    cd {{ job.opm_tests_path }}/{{ item }}
+    echo ""
+    echo "===== RAKE SPEC on {{ item }} ===="
+    rake spec --trace
+    rc=$?
+    echo "==== END TESTS"
+    exit $rc
+  with_items:
+    - mysql
+    - rabbitmq
+    - keystone
+    - cinder
