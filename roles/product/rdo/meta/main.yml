@@ -1,7 +1,7 @@
 ---
 dependencies:
     - { role: common }
-    - { role: packstack/common }
+    - { role: packstack/common, when: installer.name == "packstack"}
     - { role: product/rdo/common }
     - { role: product/rdo/rhel, when: ansible_distribution == 'RedHat' }
     - { role: product/rdo/rhel, when: ansible_distribution == 'CentOS' }
