@@ -23,6 +23,9 @@ tempest_config_generate_command: >
         compute.image_ref "{{ cirros_id.stdout }}"
         compute.image_ref_alt "{{ cirros_id.stdout }}"
         compute.build_timeout 500
+        compute.image_ssh_user cirros
+        compute.ssh_user cirros
         network.build_timeout 500
         volume.build_timeout 500
+        scenario.ssh_user cirros
         scenario.img_dir ..
