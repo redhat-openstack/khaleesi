@@ -1,4 +1,4 @@
-# from https://gist.github.com/cliffano/9868180
+# based on https://gist.github.com/cliffano/9868180
 # makes Ansible command output readable if added as a callback plugin
 
 from __future__ import unicode_literals
@@ -7,10 +7,14 @@ FIELDS = ['cmd', 'command', 'start', 'end', 'delta', 'msg', 'stdout', 'stderr']
 
 
 def human_log(res):
-
-    if type(res) == type(dict()):
+    if isinstance(res, dict):
         for field in FIELDS:
             if field in res.keys():
+                # this is needed because the stdout is not unicode compatible
+                # during the ansible run, results in "?" chars in place of the
+                # unicode characters
+                if isinstance(res[field], unicode):
+                    res[field] = res[field].encode('ascii','replace')
                 print '\n{0}:\n{1}'.format(field, res[field])
 
 
