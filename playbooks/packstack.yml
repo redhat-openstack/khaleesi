@@ -96,6 +96,13 @@
   roles:
     - { role: openstack/openstack-status }
 
+- name: Upgrade from GA to latest poodle
+  hosts: all:!localhost:&RedHat:&rhos
+  sudo: yes
+  tags: packstack_run
+  roles:
+    - { role: upgrade }
+
 # sahara
 - include: sahara.yml
 

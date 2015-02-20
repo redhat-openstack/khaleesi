@@ -1,0 +1,7 @@
+---
+- name: reset rhos-release if upgrading packages
+  shell: "rhos-release  -x {{ product.version|int }};  rhos-release  -d {{ product.version|int }}"
+  when: product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version == 'GA'
+  notify:
+    - Yum clean all
+    - yum -y update to latest packages

@@ -71,11 +71,12 @@
   when: product.repo_type == 'poodle' and installer is defined and installer.name == 'staypuft'
 
 - name: Change poodle version for repos in rhos-release
-  replace:
-    dest=/etc/yum.repos.d/rhos-release-{{ product.version|int }}-rhel-{{ distro.version }}.repo
-    regexp=/latest/RHOS-{{ product.version|int }}
-    replace=/{{ product.repo.poodle_pin_version }}/RHOS-{{ product.version|int }}
-  when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version != 'latest' and product.repo_type == 'poodle')
+  shell: "rhos-release  -x {{ product.version|int }};  rhos-release  {{ product.version|int }} -d -p {{ product.repo.poodle_pin_version }}"
+  when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version != 'latest|GA' and product.repo_type == 'poodle')
+
+- name: Change poodle version for repos in rhos-release for GA -> Latest Poodle
+  shell: "rhos-release  -x {{ product.version|int }};  rhos-release  {{ product.version|int }} -p {{ product.repo.poodle_pin_version }}"
+  when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version == 'GA' and product.repo_type == 'poodle')
 
 - name: Enable RHSM
   shell: >
