@@ -2,45 +2,23 @@
 
 - name: add export of LIVBIRT_DEFAULT_URI to bashrc file
   shell: "echo 'export LIBVIRT_DEFAULT_URI=\"qemu:///system\"' >> ~/.bashrc"
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
-
 
 - name: cleanup a possible previous run
   shell: >
     rm -f ~/instack*qcow2
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
-
-- name: get instack-set-host-rhel7 script
-  get_url: url=https://raw.githubusercontent.com/rdo-management/instack-undercloud/master/scripts/instack-setup-host-rhel7 dest={{ instack_user_home.stdout }}
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
-
-- name: run instack-setup-host-rhel7 script
-  shell: bash -x instack-setup-host-rhel7
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
 
 - name: run script to install required dependencies
   shell: >
     source /usr/libexec/openstack-tripleo/devtest_variables.sh;
     tripleo install-dependencies;
     tripleo set-usergroup-membership;
-    echo $?
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
 
 - name: get the rhel-guest-image
   get_url: url={{ product.images['rhel'][ansible_distribution_version].remote_file_server }}{{ product.images['rhel'][ansible_distribution_version].guest_image_name }} dest={{ instack_user_home.stdout }}
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
 
 - name: run instack-virt-setup
   shell: >
     chdir={{ instack_user_home.stdout }}
     source instack-undercloud/rhel7rc;
     instack-undercloud/scripts/instack-virt-setup;
-    echo $?
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
+

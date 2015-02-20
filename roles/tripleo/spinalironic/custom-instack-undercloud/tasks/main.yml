@@ -1,0 +1,32 @@
+---
+
+- name: Enable the copr repo for our custom builds
+  get_url: url=https://copr.fedoraproject.org/coprs/divius/instack-ironic-nova/repo/epel-7/divius-instack-ironic-nova-epel-7.repo dest=/etc/yum.repos.d
+  sudo: yes
+
+- name: install instack-undercloud package to get the deps
+  yum: name=instack-undercloud state=latest
+
+- name: the package itself is no longer needed, removing
+  yum: name=instack-undercloud state=absent
+
+- name: ensure git is installed
+  yum: name=git state=present
+
+
+- name: remove any previous custom instack-undercloud repo
+  file: path=~/instack-undercloud state=absent
+  sudo_user: "{{ instack.user.stack.name }}"
+  sudo: yes
+
+- name: clone the repo if it doesn't exist already
+  command: git clone http://github.com/rdo-management/instack-undercloud ~/instack-undercloud
+  sudo_user: "{{ instack.user.stack.name }}"
+  sudo: yes
+
+- name: copy the repo from jenkins with the gerrit changeset when gating
+  synchronize: src=instack-undercloud dest="~/" recursive=yes delete=yes
+  when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
+  sudo_user: "{{ instack.user.stack.name }}"
+  sudo: yes
+

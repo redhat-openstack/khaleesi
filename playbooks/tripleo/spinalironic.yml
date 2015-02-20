@@ -19,10 +19,11 @@
     - { role: tripleo/instack/common-undercloud }
     - { role: tripleo/instack/common }
 
-- name: run the custom instack host setup
+- name: setup the virt-host
   hosts: instack-virt-host
   roles:
-   - { role: tripleo/spinalironic/setup-host }
+   - { role: tripleo/spinalironic/custom-instack-undercloud, sudo_user: "{{ instack.user.stack.name }}", sudo: yes }
+   - { role: tripleo/spinalironic/setup-host, sudo_user: "{{ instack.user.stack.name }}", sudo: yes }
    - { role: tripleo/instack/instack-virt-tunnel-and-user }
 
 - name: add the undercloud VM to ansible
@@ -33,6 +34,7 @@
 - name: install the undercloud
   hosts: instack-undercloud
   roles:
+   - { role: tripleo/spinalironic/custom-instack-undercloud }
    - { role: tripleo/spinalironic/install-undercloud }
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
