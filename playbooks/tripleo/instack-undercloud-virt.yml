@@ -8,6 +8,18 @@
 - include: ../group_by.yml
 - include: ../prep.yml
 
+- name: Setup rdo dependencies on nodes (rdo)
+  hosts: instack-virt-host:&rdo
+  sudo: yes
+  roles:
+      - product/rdo
+
+- name: Setup rhos dependencies on nodes (rhos)
+  hosts: instack-virt-host:&rhos
+  sudo: yes
+  roles:
+      - product/rhos
+
 - name: Get build details
   hosts: instack-virt-host
   sudo: no
