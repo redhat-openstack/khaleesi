@@ -2,7 +2,6 @@
 
 - name: Enable the copr repo for our custom builds
   get_url: url=https://copr.fedoraproject.org/coprs/divius/instack-ironic-nova/repo/epel-7/divius-instack-ironic-nova-epel-7.repo dest=/etc/yum.repos.d
-  sudo: yes
 
 - name: install instack-undercloud package to get the deps
   yum: name=instack-undercloud state=latest
@@ -12,7 +11,6 @@
 
 - name: ensure git is installed
   yum: name=git state=present
-
 
 - name: remove any previous custom instack-undercloud repo
   file: path=~/instack-undercloud state=absent

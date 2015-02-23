@@ -22,7 +22,7 @@
 - name: setup the virt-host
   hosts: instack-virt-host
   roles:
-   - { role: tripleo/spinalironic/custom-instack-undercloud, sudo_user: "{{ instack.user.stack.name }}", sudo: yes }
+   - { role: tripleo/spinalironic/custom-instack-undercloud }
    - { role: tripleo/spinalironic/setup-host, sudo_user: "{{ instack.user.stack.name }}", sudo: yes }
    - { role: tripleo/instack/instack-virt-tunnel-and-user }
 

@@ -7,11 +7,13 @@
   shell: >
     rm -f ~/instack*qcow2
 
+# we need to ignore the last command's 1 output because it's a bad hack
 - name: run script to install required dependencies
   shell: >
     source /usr/libexec/openstack-tripleo/devtest_variables.sh;
     tripleo install-dependencies;
     tripleo set-usergroup-membership;
+    if [ $? -gt 1 ]; then /bin/false; fi
 
 - name: get the rhel-guest-image
   get_url: url={{ product.images['rhel'][ansible_distribution_version].remote_file_server }}{{ product.images['rhel'][ansible_distribution_version].guest_image_name }} dest={{ instack_user_home.stdout }}
