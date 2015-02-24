@@ -12,6 +12,10 @@ function ensure_khaleesi() {
     export CONFIG_BASE="${TOP}/khaleesi-settings"
 }
 
+function ensure_rpm_prereqs() {
+    sudo yum install rsync;
+}
+
 function ensure_component() {
     if [ ! -d $TEST_COMPONENT ]; then
     git clone $TEST_COMPONENT_URL $TEST_COMPONENT
@@ -118,6 +122,7 @@ fi
 
 TOP=$(pwd)
 source component_settings.sh
+ensure_rpm_prereqs
 ensure_component
 ensure_khaleesi
 ensure_component
