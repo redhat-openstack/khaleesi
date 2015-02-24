@@ -1,10 +1,5 @@
 ---
 
-- name: fact instack_user_home
-  shell: echo -n $HOME
-  register: instack_user_home
-  changed_when: false
-
 - name: copy stackrc
   shell: >
     cp /root/stackrc {{ instack_user_home.stdout }}/stackrc;

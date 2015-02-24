@@ -1,14 +1,11 @@
 ---
 
-- name: fact instack_user_home
-  shell: echo -n $HOME
-  register: instack_user_home
-  changed_when: false
-
 - name: build ramdisks
   shell: >
     chdir={{ instack_user_home.stdout }}
     source instack-undercloud/rhel7rc;
+    export DIB_LOCAL_IMAGE={{ product.images['rhel'][ansible_distribution_version].guest_image_name }};
+    export DIB_YUM_REPO_CONF=/etc/yum.repos.d/rhos-release-6-rhel-{{ ansible_distribution_version }}.repo;
     instack-undercloud/scripts/instack-build-images deploy-ramdisk;
     instack-undercloud/scripts/instack-build-images discovery-ramdisk
 
@@ -16,5 +13,6 @@
   shell: >
     chdir={{ instack_user_home.stdout }}
     source instack-undercloud/rhel7rc;
+    export DIB_LOCAL_IMAGE={{ product.images['rhel'][ansible_distribution_version].guest_image_name }};
     unset DIB_YUM_REPO_CONF;
     instack-undercloud/scripts/instack-build-images openstack-full

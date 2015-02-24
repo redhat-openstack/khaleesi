@@ -8,11 +8,6 @@
 - include: ../group_by.yml
 - include: ../prep.yml
 
-- name: setup virthost libvirt
-  hosts: instack-virt-host
-  roles:
-    - { role: virthost }
-
 - name: add stack user for the machine
   hosts: instack-virt-host
   roles:
@@ -22,7 +17,6 @@
 - name: setup the virt-host
   hosts: instack-virt-host
   roles:
-   - { role: tripleo/spinalironic/custom-instack-undercloud }
    - { role: tripleo/spinalironic/setup-host, sudo_user: "{{ instack.user.stack.name }}", sudo: yes }
    - { role: tripleo/instack/instack-virt-tunnel-and-user }
 
@@ -34,7 +28,7 @@
 - name: install the undercloud
   hosts: instack-undercloud
   roles:
-   - { role: tripleo/spinalironic/custom-instack-undercloud }
+   - { role: tripleo/instack/common }
    - { role: tripleo/spinalironic/install-undercloud }
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
