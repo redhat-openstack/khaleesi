@@ -36,7 +36,7 @@ tempest.testr_single() {
     local tempest_test_name=${1:-""}
 
     testr init
-    testr run --subunit $tempest_test_name |
+    testr run --concurrency=4 --subunit $tempest_test_name |
         tee >( subunit2junitxml --output-to=nosetests.xml ) |
         subunit-2to1 | tee run.log |
         tools/colorizer.py
