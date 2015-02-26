@@ -107,7 +107,7 @@
   add_host: name={{ job_var.vm_ssh_port }} groups=instack-undercloud ansible_ssh_host={{ job_var.instack_virt_host }} ansible_ssh_port={{ job_var.vm_ssh_port }} ansible_ssh_user=stack ansible_ssh_private_key_file={{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }}
 
 - name: add tempest host
-  add_host: name=tempest groups=tempest ansible_ssh_host={{ job_var.instack_virt_host }} ansible_ssh_port={{ job_var.tempest_machine_port }} ansible_ssh_user=root ansible_ssh_private_key_file={{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }} ansible_default_ipv4.address={{ tempest_machine_ip.stdout }}
+  add_host: name=tester groups=tester ansible_ssh_host={{ job_var.instack_virt_host }} ansible_ssh_port={{ job_var.tempest_machine_port }} ansible_ssh_user=root ansible_ssh_private_key_file={{jenkins.workspace }}/{{ jenkins.job_name }}/{{ job_var.key_file }} ansible_default_ipv4.address={{ tempest_machine_ip.stdout }}
 
 - name: add controller host
   add_host: name=controller groups=controller ansible_ssh_host={{ job_var.instack_virt_host }} ansible_ssh_port={{ job_var.vm_tempest_port }} ansible_ssh_user=heat-admin private_ip={{ controller_node_ip.stdout }} ansible_default_ipv4.address={{ controller_node_ip.stdout }} admin_password={{ overcloud_admin_passwd.stdout }} demo_password={{ overcloud_demo_passwd.stdout }}

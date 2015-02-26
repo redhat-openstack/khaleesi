@@ -5,7 +5,7 @@
 - include: provision.yml
 
 - name: Gather facts from controller and compute
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
 
 - include: group_by.yml tags=provision
 

@@ -40,7 +40,7 @@
     - prep
 
 - name: Prepare foreman network
-  hosts: foreman_installer:tempest
+  hosts: foreman_installer:tester
   sudo: yes
   roles:
     - { role: network-setup }
@@ -115,7 +115,7 @@
     - { role: build_mark/build }
 
 - name: Get error build marks
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
   sudo: yes
   roles:
     - { role: build_mark/errors }

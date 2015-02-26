@@ -17,7 +17,7 @@
   hosts:
     - controller
     - compute
-    - tempest
+    - tester
     - networker
   tags: prep
   roles:
@@ -111,14 +111,14 @@
 
 # tempest
 - name: List ip address of tempest node
-  hosts: tempest
+  hosts: tester
   sudo: yes
   roles:
     - { role: tempest/iptables/node_data }
   tags: tempest_setup
 
 - name: Ensure iptables is open for tempest
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
   sudo: yes
   roles:
     - { role: tempest/iptables }
@@ -127,14 +127,14 @@
 - include: tempest.yml
 
 - name: Get error build marks
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
   sudo: yes
   roles:
     - { role: build_mark/errors }
   tags: provision
 
 - name: clean up
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
   sudo: yes
   roles:
     - { role: linux/rhsm }

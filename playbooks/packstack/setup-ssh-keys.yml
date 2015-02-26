@@ -1,7 +1,7 @@
 ---
 # build trust between controller and compute
 - name: Gather facts from all openstack hosts
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
 
 - name: Create ssh key if one does not exist
   hosts: controller:!skip_prep

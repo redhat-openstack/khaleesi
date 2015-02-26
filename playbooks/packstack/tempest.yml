@@ -1,13 +1,13 @@
 ---
 - name: List ip address of tempest node
-  hosts: tempest
+  hosts: tester
   roles:
     - { role: tempest/iptables/node_data }
   tags:
     - tempest_setup
 
 - name: Ensure iptables is open for tempest
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
   roles:
     - { role: tempest/iptables }
   tags:

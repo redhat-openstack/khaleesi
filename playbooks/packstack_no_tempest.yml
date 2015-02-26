@@ -92,7 +92,7 @@
     - { role: openstack/openstack-status }
 
 - name: Get error build marks
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
   sudo: yes
   roles:
     - { role: build_mark/errors }

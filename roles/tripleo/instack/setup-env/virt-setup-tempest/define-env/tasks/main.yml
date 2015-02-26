@@ -33,7 +33,7 @@
             timeout=300
 
 - name: add tempest host
-  add_host: name=tempest groups=tempest ansible_ssh_host=undercloud
+  add_host: name=tester groups=tester ansible_ssh_host=undercloud
 
 - name: add undercloud host
   add_host: name=undercloud groups=undercloud ansible_ssh_host=undercloud

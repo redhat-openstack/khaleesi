@@ -17,7 +17,7 @@
   hosts:
     - controller:!skip_prep
     - compute:!skip_prep
-    - tempest:!skip_prep
+    - tester:!skip_prep
     - networker:!skip_prep
   tags: prep
   roles:
@@ -118,14 +118,14 @@
 
 # tempest
 - name: List ip address of tempest node
-  hosts: tempest:!skip_tempest_setup
+  hosts: tester:!skip_tempest_setup
   sudo: yes
   roles:
     - { role: tempest/iptables/node_data }
   tags: tempest_setup
 
 - name: Ensure iptables is open for tempest
-  hosts: all:!localhost:!tempest:!skip_tempest_setup
+  hosts: all:!localhost:!tester:!skip_tempest_setup
   sudo: yes
   roles:
     - { role: tempest/iptables }
@@ -134,14 +134,14 @@
 - include: tempest.yml
 
 - name: Get error build marks
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
   sudo: yes
   roles:
     - { role: build_mark/errors }
   tags: provision
 
 - name: clean up
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
   sudo: yes
   roles:
     - { role: linux/rhsm }

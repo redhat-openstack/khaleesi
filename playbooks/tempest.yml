@@ -1,6 +1,6 @@
 ---
 - name: Gather facts from controller and compute
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
   sudo: yes
   tags:
     - tempest_setup
@@ -20,19 +20,19 @@
 
 
 - name: Create keystonerc
-  hosts: tempest:!skip_tempest_setup
+  hosts: tester:!skip_tempest_setup
   tags: tempest_setup
   roles:
     - { role: openstack/create-keystonerc }
 
 - name: Update RPMs on tempest node
-  hosts: tempest:!skip_rdoupdate_tempest
+  hosts: tester:!skip_rdoupdate_tempest
   sudo: yes
   roles:
     - { role: rdopkg/prep, when: rdopkg.update is defined, tags: ["rdoupdate_tempest"] }
 
 - name: Setup tempest and install packages for tempest
-  hosts: tempest:!skip_tempest_setup
+  hosts: tester:!skip_tempest_setup
   tags: tempest_setup
   roles:
     - { role: tempest/package-dependencies, sudo: yes }
@@ -43,7 +43,7 @@
 
 
 - name: Run tempest
-  hosts: tempest
+  hosts: tester
   tags: tempest_run
   roles:
     - { role: tempest/run }

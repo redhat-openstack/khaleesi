@@ -4,18 +4,18 @@
   when: job.verbosity <= verbosity.debug
 
 - name: dump network and node info  of tempest
-  debug: var=hostvars[nodes.tempest.name].ansible_interfaces
+  debug: var=hostvars[nodes.tester.name].ansible_interfaces
   when: job.verbosity <= verbosity.debug
 
 - name: ensure tempest node can connect to controller
   command: >
     iptables -I INPUT 1
-    -s {{hostvars[nodes.tempest.name]['ansible_' + item].ipv4.address}}/32
+    -s {{hostvars[nodes.tester.name]['ansible_' + item].ipv4.address}}/32
     -p tcp -j ACCEPT
   when:
     item not in ('lo')
-    and hostvars[nodes.tempest.name]['ansible_' + item].ipv4.address is defined
-  with_items: hostvars[nodes.tempest.name].ansible_interfaces
+    and hostvars[nodes.tester.name]['ansible_' + item].ipv4.address is defined
+  with_items: hostvars[nodes.tester.name].ansible_interfaces
 
 - name: save iptables
   shell: service iptables save

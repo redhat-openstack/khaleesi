@@ -1,20 +1,20 @@
 ---
 - name: Gather facts from controller and compute
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
   sudo: yes
   tags:
     - tempest_setup
     - tempest_run
 
 - name: Ensure Openstack utils is installed
-  hosts: all:!localhost:!tempest
+  hosts: all:!localhost:!tester
   sudo: yes
   roles:
     - { role: openstack/install-openstack-utils,
         when: workarounds.enabled|bool }
 
 - name: Workarounds | BZ 1162945 | specifc to tempest
-  hosts: tempest
+  hosts: tester
   roles:
     - { role: workarounds/juno-prettytable-fix,
         tags: workaround,
