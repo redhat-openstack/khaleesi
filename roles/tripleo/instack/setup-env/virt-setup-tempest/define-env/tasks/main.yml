@@ -25,18 +25,12 @@
 - name: copy ssh_config back to the slave
   fetch: src=~/ssh.config.ansible dest=../../ssh.config.ansible flat=yes
 
+- name: copy id_rsa key back to the slave
+  fetch: src=~/.ssh/id_rsa dest=../../id_rsa_virt_host flat=yes
+
 - name: wait until ssh is available on tempest box
   wait_for: host={{ tempest_ip.stdout }}
             state=started
             port=22
             delay=15
             timeout=300
-
-- name: add tempest host
-  add_host: name=tester groups=tester ansible_ssh_host=undercloud
-
-- name: add undercloud host
-  add_host: name=undercloud groups=undercloud ansible_ssh_host=undercloud
-
-- name: add controller host
-  add_host: name=controller groups=controller ansible_ssh_host=controller

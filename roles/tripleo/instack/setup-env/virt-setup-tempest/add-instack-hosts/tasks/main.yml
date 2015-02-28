@@ -1,0 +1,12 @@
+---
+- name: update key permissions on slave
+  file: path=../../id_rsa_virt_host mode=0600
+
+- name: add tempest host
+  add_host: name=tester groups=tester ansible_ssh_host=undercloud
+
+- name: add undercloud host
+  add_host: name=undercloud groups=undercloud ansible_ssh_host=undercloud
+
+- name: add controller host
+  add_host: name=controller groups=controller ansible_ssh_host=controller

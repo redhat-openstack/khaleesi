@@ -16,6 +16,18 @@
   sudo_user: "{{ instack.user.stack.name }}"
   sudo: yes
 
+- name: inspect virsh capabilities
+  command: 'virsh capabilities'
+
+- name: remove libvirt qemu capabilities cache
+  command:  rm -Rf  /var/cache/libvirt/qemu/capabilities/
+
+- name: restart libvirtd
+  service: name=libvirtd state=restarted
+
+- name: inspect virsh capabilities
+  command: 'virsh capabilities'
+
 - name: run script to setup virtual environment
   register: instack_virt_result
   shell: >

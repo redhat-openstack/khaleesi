@@ -7,6 +7,11 @@
   roles:
     - { role: tripleo/instack/setup-env/virt-setup-tempest/define-env }
 
+- name: add hosts
+  hosts: local
+  roles:
+    - { role: tripleo/instack/setup-env/virt-setup-tempest/add-instack-hosts }
+
 - name: get ssh key  from undercloud
   hosts: undercloud
   roles:
