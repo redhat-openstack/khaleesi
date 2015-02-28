@@ -5,59 +5,44 @@
 # provision
 - include: beaker-provision.yml
 
-- include: ../group_by.yml
-- include: ../prep.yml
-
-- name: add stack user for the machine
+- name: Create instack user {{ instack.user.stack.name }}
   hosts: instack-virt-host
+  vars:
+    - ansible_ssh_user: root
   roles:
-    - { role: tripleo/instack/common-undercloud }
-    - { role: tripleo/instack/common }
+      - tripleo/instack_user
 
 - name: setup the virt-host
   hosts: instack-virt-host
   roles:
-   - { role: tripleo/spinalironic/setup-host, sudo_user: "{{ instack.user.stack.name }}", sudo: yes }
-   - { role: tripleo/instack/instack-virt-tunnel-and-user }
+    - { role: tripleo/spinalironic/setup-host }
+    - { role: tripleo/define-env/add-tripleo-hosts }
 
-- name: add the undercloud VM to ansible
-  hosts: instack-virt-host
+- name: verify ssh connection
+  hosts: all:!localhost
   roles:
-   - { role: tripleo/instack/setup-env/virt-setup-undercloud }
+    - { role: tripleo/define-env/verify-ssh }
+
+- name: Get build details
+  hosts: instack-virt-host
+  sudo: yes
+  roles:
+    - { role: build_mark/build }
 
 - name: install the undercloud
-  hosts: instack-undercloud
+  hosts: undercloud
   roles:
-   - { role: tripleo/instack/common }
    - { role: tripleo/spinalironic/install-undercloud }
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
 
 - name: build the openstack-full image on the undercloud VM
-  hosts: instack-undercloud
+  hosts: undercloud
   roles:
    - { role: tripleo/spinalironic/build-openstack-full }
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
 
 - name: deploy the nodes
-  hosts: instack-undercloud
+  hosts: undercloud
   roles:
    - { role: tripleo/spinalironic/deploy-nodes }
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
-
-- name: run provision.sh from spinal stack
-  hosts: instack-undercloud
-  roles:
-   - { role: tripleo/spinalironic/provision }
-
-- name: trigger the puppet job, create jenkins tunnel
-  hosts: instack-virt-host
-  roles:
-   - { role: tripleo/spinalironic/trigger-jenkins }
-  sudo_user: "{{ instack.user.stack.name }}"
-  sudo: yes
 
 - name: Gather Logs
   hosts: all:!localhost

@@ -1,0 +1,39 @@
+---
+- name: list vms
+  shell: "virsh list --all"
+
+- name: get undercloud vm ip address
+  shell: >
+     cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac instack) | awk '{print $3;}'
+  when: undercloud_ip is not defined
+  register: undercloud_vm_ip_result
+
+- name: wait until ssh is available on undercloud node
+  when: undercloud_ip is not defined
+  wait_for: host={{ undercloud_vm_ip_result.stdout }}
+            state=started
+            port=22
+            delay=15
+            timeout=300
+
+- name: set_fact for undercloud ip
+  set_fact: undercloud_ip={{undercloud_vm_ip_result.stdout}}
+  when: undercloud_ip is not defined
+
+- name: setup ssh config
+  template: src=ssh_config.j2 dest=~/ssh.config.ansible mode=0755
+
+- name: copy ssh_config back to the slave
+  fetch: src=~/ssh.config.ansible dest=../../ssh.config.ansible flat=yes
+
+- name: copy id_rsa key back to the slave
+  fetch: src=~/.ssh/id_rsa dest=../../id_rsa_virt_host flat=yes
+
+- name: copy undercloud root user authorized_keys to stack user
+  shell: 'ssh -F ssh.config.ansible undercloud-from-virthost "cp /root/.ssh/authorized_keys /home/stack/.ssh/"'
+
+- name: chown authorized_keys for stack user
+  shell: 'ssh -F ssh.config.ansible undercloud-from-virthost "chown stack:stack /home/stack/.ssh/authorized_keys"'
+
+- name: add undercloud host
+  add_host: name=undercloud groups=undercloud ansible_ssh_host=undercloud

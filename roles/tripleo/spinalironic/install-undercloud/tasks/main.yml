@@ -1,26 +1,39 @@
 ---
-
-- name: cleanup a possible previous run
-  shell: >
-    sudo rm -rf /opt/;
-
 - name: get instack-set-host-rhel7 script
-  get_url: url=https://raw.githubusercontent.com/rdo-management/instack-undercloud/master/scripts/instack-setup-host-rhel7 dest={{ instack_user_home.stdout }}
+  get_url: url=https://raw.githubusercontent.com/rdo-management/instack-undercloud/master/scripts/instack-setup-host-rhel7
+                dest={{ instack_user_home }}
+                validate_certs=no
+                timeout=30
 
 - name: run instack-setup-host-rhel7 script
   shell: >
-    export RUN_RHOS_RELEASE=0;
     bash -x instack-setup-host-rhel7
 
+- name: install instack-undercloud
+  yum: name=instack-undercloud state=latest
+  sudo: yes
+
 - name: copy the repo from jenkins with the gerrit changeset when gating
-  synchronize: src=instack-undercloud dest={{ instack_user_home.stdout }} recursive=yes delete=yes
+  synchronize: src=instack-undercloud dest={{ instack_user_home }} recursive=yes delete=yes
   when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
 
 - name: install the undercloud
-  shell: >
-    source instack-undercloud/rhel7rc;
-    instack-undercloud/scripts/instack-install-undercloud;
+  command: instack-install-undercloud
+
+- name: copy files to home
+  sudo: yes
+  command: cp /root/{{ item }} {{ instack_user_home }}/{{ item }}
+  with_items:
+    - tripleo-undercloud-passwords
+    - stackrc
+
+- name: chown files for stack user
+  sudo: yes
+  command: chown stack:stack {{ instack_user_home }}/{{ item }}
+  with_items:
+    - tripleo-undercloud-passwords
+    - stackrc
 
 - name: get the rhel-guest-image
-  get_url: url={{ product.images['rhel'][ansible_distribution_version].remote_file_server }}{{ product.images['rhel'][ansible_distribution_version].guest_image_name }} dest={{ instack_user_home.stdout }}
-
+  get_url: url={{ distro.images['rhel'][ansible_distribution_version].remote_file_server }}{{ distro.images['rhel'][ansible_distribution_version].guest_image_name }}
+                dest={{ instack_user_home }}

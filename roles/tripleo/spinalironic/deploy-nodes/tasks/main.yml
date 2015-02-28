@@ -1,39 +1,35 @@
 ---
-
-- name: copy stackrc
-  shell: >
-    cp /root/stackrc {{ instack_user_home.stdout }}/stackrc;
-    chown {{ instack.user.stack.name }}:{{ instack.user.stack.name }} {{ instack_user_home.stdout }}/stackrc
-  sudo_user: root
-  sudo: yes
-
-- name: prepare for overcloud
-  shell: >
-    source {{ instack_user_home.stdout }}/stackrc;
-    {{ instack_user_home.stdout }}/instack-undercloud/scripts/instack-prepare-for-overcloud
-
 - name: register bm nodes with ironic
+  register: result
+  retries: 10
+  delay: 10
+  until: result.rc == 0
   shell: >
-    source {{ instack_user_home.stdout }}/stackrc;
-    {{ instack_user_home.stdout }}/instack-undercloud/scripts/instack-ironic-deployment --nodes-json instackenv.json --register-nodes;
+      source {{ instack_user_home }}/stackrc;
+      instack-ironic-deployment --nodes-json instackenv.json --register-nodes;
 
-- name: wait until hosts show up in nova hypervisor-stats
+- name: discover nodes
+  register: result
+  retries: 5
+  delay: 10
+  until: result.stdout.find('DISCOVERED.') != -1
+  failed_when: "'ERROR:' in result.stdout"
   shell: >
-    source {{ instack_user_home.stdout }}/stackrc;
-    while [ `nova hypervisor-stats|grep count| sed 's/| count *| \([0-9]*\) *|/\1/'` -lt 4 ]; do
-        sleep 5;
-    done;
-    sleep 180
+      source {{ instack_user_home }}/stackrc;
+      instack-ironic-deployment  --discover-nodes;
 
-- name: discover nodes and setup flavors
+- name: show profile
   shell: >
-    source {{ instack_user_home.stdout }}/stackrc;
-    {{ instack_user_home.stdout }}/instack-undercloud/scripts/instack-ironic-deployment --nodes-json instackenv.json --discover-nodes;
-    {{ instack_user_home.stdout }}/instack-undercloud/scripts/instack-ironic-deployment --nodes-json instackenv.json --show-profile;
-    {{ instack_user_home.stdout }}/instack-undercloud/scripts/instack-ironic-deployment --setup-flavors
+      source {{ instack_user_home }}/stackrc;
+      instack-ironic-deployment  --show-profile;
+
+- name: setup flavors
+  shell: >
+      source {{ instack_user_home }}/stackrc;
+      instack-ironic-deployment --setup-flavors
 
 - name: start the nodes
   shell: >
-    chdir={{ instack_user_home.stdout }}
-    source {{ instack_user_home.stdout }}/stackrc;
-    COMPUTE_COUNT=3 CONTROL_COUNT=0 {{ instack_user_home.stdout }}/instack-undercloud/scripts/instack-ironic-deployment --deploy-nodes
+      source {{ instack_user_home }}/stackrc;
+      COMPUTE_COUNT=3 CONTROL_COUNT=0 instack-ironic-deployment --deploy-nodes
+

@@ -37,6 +37,10 @@
   command: virsh net-destroy default
   ignore_errors: true
 
+- name: destroy virbr0 network if present
+  command: brctl delbr virbr0
+  ignore_errors: true
+
 - name: stop libvirtd
   service: name=libvirtd state=stopped
   ignore_errors: true
@@ -91,7 +95,6 @@
     - rhos-release
     - libvirt
     - libvirt-daemon
-    - libvirt-client
     - openvswitch
     - NetworkManager
     - qemu-*

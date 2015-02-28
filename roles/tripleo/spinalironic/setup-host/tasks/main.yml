@@ -1,41 +1,77 @@
 ---
-
-- name: add export of LIVBIRT_DEFAULT_URI to bashrc file
-  shell: "echo 'export LIBVIRT_DEFAULT_URI=\"qemu:///system\"' >> ~/.bashrc"
-
-- name: cleanup a possible previous run
-  shell: >
-    rm -f ~/instack*qcow2
-
 - name: get instack-set-host-rhel7 script
-  get_url: url=https://raw.githubusercontent.com/rdo-management/instack-undercloud/master/scripts/instack-setup-host-rhel7 dest={{ instack_user_home.stdout }}
+  get_url: url=https://raw.githubusercontent.com/rdo-management/instack-undercloud/master/scripts/instack-setup-host-rhel7
+                  dest={{ instack_user_home }}
 
 - name: run instack-setup-host-rhel7 script
   shell: >
-    export RUN_RHOS_RELEASE=0;
     bash -x instack-setup-host-rhel7
 
+- name: install instack-undercloud
+  yum: name=instack-undercloud state=latest
+  sudo: yes
+
 - name: copy the repo from jenkins with the gerrit changeset when gating
-  synchronize: src=instack-undercloud dest={{ instack_user_home.stdout }} recursive=yes delete=yes
+  synchronize: src=instack-undercloud dest={{ instack_user_home }} recursive=yes delete=yes
   when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
 
-# we need to ignore the last command's 1 output because it's a bad hack
-- name: run script to install required dependencies
-  shell: >
-    source /usr/libexec/openstack-tripleo/devtest_variables.sh;
-    tripleo install-dependencies;
-    tripleo set-usergroup-membership;
-    if [ $? -gt 1 ]; then /bin/false; fi
+- name: get the guest-image
+  get_url: url={{ distro.images[distro.name][ansible_distribution_version].remote_file_server }}{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
+                dest={{ instack_user_home }}
 
-- name: get the rhel-guest-image
-  get_url: url={{ product.images['rhel'][ansible_distribution_version].remote_file_server }}{{ product.images['rhel'][ansible_distribution_version].guest_image_name }} dest={{ instack_user_home.stdout }}
+- name: destroy virbr0 network if present
+  command: brctl delbr virbr0
+  ignore_errors: true
 
+#see https://review.gerrithub.io/#/c/217853/
 - name: run instack-virt-setup
+  register: instack_virt_setup_result
+  ignore_errors: yes
   shell: >
-    chdir={{ instack_user_home.stdout }}
-    source instack-undercloud/rhel7rc;
-    export DIB_LOCAL_IMAGE={{ product.images['rhel'][ansible_distribution_version].guest_image_name }};
-    export DIB_YUM_REPO_CONF=/etc/yum.repos.d/rhos-release-6-rhel-{{ ansible_distribution_version }}.repo;
+    export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
+    export DIB_YUM_REPO_CONF=/etc/yum.repos.d/rhos-release-6-rhel-7.1.repo;
     export NODE_DIST=rhel7;
-    instack-undercloud/scripts/instack-virt-setup;
+    instack-virt-setup;
 
+- name: update libvirtd unix_sock_group
+  sudo: yes
+  lineinfile: dest=/etc/libvirt/libvirtd.conf
+                  regexp=^unix_sock_group
+                  line='unix_sock_group = "stack"'
+
+- name: restart libvirtd
+  service: name=libvirtd state=restarted
+  sudo: yes
+
+- name: inspect virsh capabilities
+  command: 'virsh capabilities'
+  sudo: yes
+
+# workaround for the SATA error RHBZ#1195882
+- name: remove libvirt qemu capabilities cache
+  command:  rm -Rf  /var/cache/libvirt/qemu/capabilities/
+  sudo: yes
+  when: "instack_virt_setup_result.rc != 0"
+
+# workaround for the SATA error RHBZ#1195882
+- name: restart libvirtd
+  service: name=libvirtd state=restarted
+  sudo: yes
+  when: "instack_virt_setup_result.rc != 0"
+
+- name: inspect virsh capabilities
+  command: 'virsh capabilities'
+  when: "instack_virt_setup_result.rc != 0"
+
+- name: retry run instack-virt-setup
+  shell: >
+    virsh undefine instack;
+    export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
+    export DIB_YUM_REPO_CONF=/etc/yum.repos.d/rhos-release-6-rhel-7.1.repo;
+    export NODE_DIST=rhel7;
+    instack-virt-setup;
+  when: "instack_virt_setup_result.rc != 0"
+
+- name: print out all the VMs
+  shell: >
+    sudo virsh list --all
