@@ -22,7 +22,7 @@
   notify:
     - Yum clean all
     - yum -y update to latest packages
-  when: installer.name == "foreman" and installer_host_repo | default('') != ''
+  when: installer is defined and installer.name == "foreman" and installer_host_repo | default('') != ''
 
 - name: Change server location for repos in  rhos-release
   replace:
