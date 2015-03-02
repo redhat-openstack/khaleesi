@@ -11,16 +11,28 @@
   copy: src=RPM-GPG-KEY-RDO-Havana dest=/etc/pki/rpm-gpg/ owner=root group=root
   when: product.version == "havana"
 
-- name: Create the rdo-release repositories for Fedora
-  template: src=rdo.repo.j2 dest=/etc/yum.repos.d/rdo-release.repo
-  notify:
-    - Yum clean all
+- name: yum install rdo-release
+  yum: name="{{ product.rpm[ ansible_distribution ] }}" state=present     #"
+  when: product.repo_type in ('production', 'stage', 'delorean')
+  retries: 3
+  delay: 30
+  register: rdo_release_install_result
+  until: rdo_release_install_result.rc == 0
 
 - name: Create the upstream delorean repositories for Fedora RDO
   template: src=delorean.repo.j2 dest=/etc/yum.repos.d/rdo-trunk-release.repo
   notify:
     - Yum clean all
   when: product.repo_type == 'delorean'
+
+- name: set baseurl for rdo if stage
+  lineinfile:
+    dest=/etc/yum.repos.d/rdo-release.repo
+    regexp=^baseurl=
+    line="baseurl={{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"
+  when: product.repo_type == 'stage'
+  notify:
+    - Yum clean all
 
 - name: disable gpgcheck for rdo if not distribution-repo
   lineinfile:
