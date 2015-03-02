@@ -3,7 +3,7 @@
 - name: get fedora image for instack-test-overcloud
   shell: >
     curl -o {{ instack_user_home.stdout }}/fedora-user.qcow2 \
-    "{{ product.images['fedora']['20'].remote_file_server }}{{ product.images['fedora']['20'].guest_image_name }}"
+    "{{ distro.images['fedora']['20'].remote_file_server }}{{ distro.images['fedora']['20'].guest_image_name }}"
 
   when: ansible_distribution == 'RedHat'
 
