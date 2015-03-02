@@ -15,10 +15,9 @@
   template: src=rdo.repo.j2 dest=/etc/yum.repos.d/rdo-release.repo
   notify:
     - Yum clean all
-  when: product.repo_type in ('production', 'stage')
 
 - name: Create the upstream delorean repositories for Fedora RDO
-  template: src=delorean.repo.j2 dest=/etc/yum.repos.d/rdo-release.repo
+  template: src=delorean.repo.j2 dest=/etc/yum.repos.d/rdo-trunk-release.repo
   notify:
     - Yum clean all
   when: product.repo_type == 'delorean'
