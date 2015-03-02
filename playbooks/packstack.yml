@@ -35,7 +35,6 @@
 - name: Get build details
   hosts: controller
   sudo: no
-  tags: provision
   roles:
     - { role: build_mark/build }
 
@@ -131,13 +130,11 @@
   sudo: yes
   roles:
     - { role: build_mark/search_problems }
-  tags: provision
 
 - name: Produce build marks summaries
   hosts: localhost
   roles:
     - { role: build_mark/summary }
-  tags: provision
 
 - name: clean up
   hosts: all:!localhost:!tester
