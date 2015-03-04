@@ -1,8 +1,4 @@
 ---
-- name: destroy virbr0 network if present
-  command: brctl delbr virbr0
-  ignore_errors: true
-
 #see https://review.gerrithub.io/#/c/217853/
 - name: run instack-virt-setup
   register: instack_virt_setup_result
@@ -42,6 +38,11 @@
 - name: inspect virsh capabilities
   command: 'virsh capabilities'
   when: "instack_virt_setup_result.rc != 0"
+
+- name: destroy virbr0 network if present
+  command: brctl delbr virbr0
+  sudo: yes
+  ignore_errors: true
 
 - name: retry run instack-virt-setup
   shell: >
