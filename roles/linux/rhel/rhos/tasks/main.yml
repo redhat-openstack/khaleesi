@@ -70,6 +70,10 @@
   template: src=foreman-poodle.repo.j2 dest=/etc/yum.repos.d/foreman-poodle.repo
   when: (product.repo_type == 'poodle' and installer is defined and installer.name == 'staypuft')
 
+- name: Create the COPR repos required for component tests
+  template: src=apevec-copr-repo.j2 dest=/etc/yum.repos.d/apevec-copr.repo
+  when: (tester.name is defined and tester.name == 'unittest' and product.version|int == 7)
+
 - name: Enable Foreman poodle repository if this is a poodle
   ini_file: dest=/etc/yum.repos.d/foreman-poodle.repo
             section=foreman-poodle
