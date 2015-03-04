@@ -72,7 +72,7 @@
 
 - name: Create the COPR repos required for component tests
   template: src=apevec-copr-repo.j2 dest=/etc/yum.repos.d/apevec-copr.repo
-  when: (tester.name is defined and tester.name == 'unittest' and product.version|int == 7)
+  when: (test.type.name is defined and test.type.name == 'unit-test' and product.version|int == 7)
 
 - name: Enable Foreman poodle repository if this is a poodle
   ini_file: dest=/etc/yum.repos.d/foreman-poodle.repo
