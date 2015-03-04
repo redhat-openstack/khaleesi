@@ -9,11 +9,11 @@
        name: "{{ item.value.name }}"
        image_id: "{{ item.value.image_id }}"
        key_name: "{{ provisioner.key_name }}"
-       wait_for: "{{ distro.config.initial_boot_timeout }}"
+       wait_for: 240
        flavor_id: "{{ item.value.flavor_id }}"
        nics: "{{ item.value.nics }}"
        config_drive: True
   register: new_nodes
   retries: 4
-  delay: 60
+  delay: "{{ 240 |random(60, 10) }}"
   with_dict: nodes
