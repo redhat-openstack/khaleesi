@@ -14,7 +14,7 @@
   sudo: yes
 
 - name: copy the repo from jenkins with the gerrit changeset when gating
-  synchronize: src=instack-undercloud dest={{ instack_user_home }} recursive=yes delete=yes
+  synchronize: src={{ lookup('env', 'WORKSPACE') }}/instack-undercloud dest={{ instack_user_home }} recursive=yes delete=yes
   when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
 
 - name: install the undercloud
