@@ -49,4 +49,5 @@
 
 - name: install the generated rpm
   yum: name={{ build_dir }}/instack-undercloud-{{ pkg_version.stdout }}-99999.noarch.rpm state=present
+  sudo: yes
 
