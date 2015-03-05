@@ -1,5 +1,5 @@
 ---
-#determine provisioner and whether or not to skip
+# determine provisioner and whether or not to skip
 - include: ../group_by_provision.yml
 
 # provision
@@ -15,37 +15,43 @@
 - name: setup the virt-host
   hosts: instack-virt-host
   roles:
-    - { role: tripleo/spinalironic/setup-host }
-    - { role: tripleo/define-env/add-tripleo-hosts }
+    - tripleo/spinalironic/setup-host
+    - { role: tripleo/spinalironic/gate-instack-undercloud,
+        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
+    - tripleo/spinalironic/virt-setup
+    - tripleo/define-env/add-tripleo-hosts
 
 - name: verify ssh connection
   hosts: all:!localhost
   roles:
-    - { role: tripleo/define-env/verify-ssh }
+    - tripleo/define-env/verify-ssh
 
 - name: Get build details
   hosts: instack-virt-host
   sudo: yes
   roles:
-    - { role: build_mark/build }
+    - build_mark/build
 
 - name: install the undercloud
   hosts: undercloud
   roles:
-   - { role: tripleo/spinalironic/install-undercloud }
+    - tripleo/spinalironic/setup-host
+    - { role: tripleo/spinalironic/gate-instack-undercloud,
+        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
+    - tripleo/spinalironic/install-undercloud
 
 - name: build the openstack-full image on the undercloud VM
   hosts: undercloud
   roles:
-   - { role: tripleo/spinalironic/build-openstack-full }
+   - tripleo/spinalironic/build-openstack-full
 
 - name: deploy the nodes
   hosts: undercloud
   roles:
-   - { role: tripleo/spinalironic/deploy-nodes }
+   - tripleo/spinalironic/deploy-nodes
 
 - name: Gather Logs
   hosts: all:!localhost
   sudo: yes
   roles:
-    - { role: collect_logs }
+    - collect_logs

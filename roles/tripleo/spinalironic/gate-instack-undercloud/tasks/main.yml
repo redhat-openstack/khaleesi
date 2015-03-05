@@ -1,0 +1,52 @@
+---
+- name: remove instack-undercloud package
+  yum: name=instack-undercloud state=absent
+  sudo: yes
+
+- name: Set the build directory as a fact
+  set_fact:
+      build_dir: "/tmp/{{ lookup('env', 'BUILD_TAG') }}"
+
+- name: Create build directory
+  file: path={{ build_dir }} state=directory
+
+- name: Clone instack-undercloud-packaging
+  command: creates={{ build_dir }}/instack-undercloud-packaging
+      chdir={{ build_dir }}
+      git clone https://github.com/rdo-management/instack-undercloud-packaging
+
+- name: Clone instack-undercloud
+  command: creates={{ build_dir }}/instack-undercloud
+      chdir={{ build_dir }}
+      git clone https://github.com/rdo-management/instack-undercloud
+
+- name: Fetch the patchset
+  shell:
+      chdir={{ build_dir }}/instack-undercloud
+      git fetch https://review.gerrithub.io/rdo-management/instack-undercloud {{ lookup('env', 'GERRIT_REFSPEC') }} && git checkout FETCH_HEAD;
+
+- name: get version of package
+  command: chdir={{ build_dir }}/instack-undercloud
+      python setup.py --version
+  register: pkg_version
+
+- name: create the content of the package
+  shell: >
+      chdir={{ build_dir }}/instack-undercloud
+      set +x;
+      rm -rf dist/;
+      python setup.py sdist;
+      cd dist;
+      for f in *.tar.gz; do
+          cp $f {{ pkg_version.stdout }}.tar.gz;
+      done;
+      cd ../..;
+      cp instack-undercloud-packaging/*.spec .;
+      sed -i "s/^Version.*/Version: {{ pkg_version.stdout }}/" *.spec;
+      sed -i "s/^Release.*/Release: 99999/" *.spec;
+      rpmbuild --define "_sourcedir {{ build_dir}}/instack-undercloud/dist" --define "upstream_version {{ pkg_version.stdout }}" -bb *.spec;
+      mv ~/rpmbuild/RPMS/noarch/instack-undercloud-{{ pkg_version.stdout }}-99999.noarch.rpm {{ build_dir }};
+
+- name: install the generated rpm
+  yum: name={{ build_dir }}/instack-undercloud-{{ pkg_version.stdout }}-99999.noarch.rpm state=present
+
