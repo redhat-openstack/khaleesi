@@ -14,3 +14,4 @@
   with_dict: nodes
   retries: 2
   delay: 60
+  ignore_errors: yes

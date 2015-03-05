@@ -11,6 +11,7 @@
        internal_network_name: default
   with_dict: nodes
   register: floating_ips
+  ignore_errors: yes
 
 - debug: var=floating_ips
 
@@ -23,3 +24,4 @@
        login_tenant_name: "{{ provisioner.tenant_name }}"
        ip_address: "{{ item.result.floatingip.floating_ip_address }}"
   with_items: floating_ips.results
+  ignore_errors: yes
