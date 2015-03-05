@@ -82,12 +82,20 @@
   when: product.repo_type == 'poodle' and installer is defined and installer.name == 'staypuft'
 
 - name: Change poodle version for repos in rhos-release
-  shell: "rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};  rhos-release  {{ product.version|int }}{{ installer_host_repo | default('')}} -d -p {{ product.repo.poodle_pin_version }}"
-  when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version != 'latest|GA' and product.repo_type == 'poodle')
+  shell: "rhos-release  -x {{ product.version|int }}; rhos-release  {{ product.version|int }} -d -p {{ product.repo.poodle_pin_version }}"
+  when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version != 'latest|GA' and product.repo_type == 'poodle'  and installer_host_repo | default('') == '')
+
+- name: Change poodle version for repos in rhos-release for OFI installer host
+  shell: "rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};  rhos-release  {{ product.version|int }}{{ installer_host_repo | default('')}} -d -p {{ product.repo.installer_poodle_pin_version }}"
+  when: (product.repo.installer_poodle_pin_version is defined and product.repo.installer_poodle_pin_version != 'latest|GA' and product.repo_type == 'poodle' and installer is defined and installer.name == "foreman" and installer_host_repo | default('') != '')
 
 - name: Change poodle version for repos in rhos-release for GA -> Latest Poodle
-  shell: "rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};  rhos-release  {{ product.version|int }}{{ installer_host_repo | default('')}} -p {{ product.repo.poodle_pin_version }}"
-  when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version == 'GA' and product.repo_type == 'poodle')
+  shell: "rhos-release  -x {{ product.version|int }};  rhos-release  {{ product.version|int }} -p {{ product.repo.poodle_pin_version }}"
+  when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version == 'GA' and product.repo_type == 'poodle' and installer_host_repo | default('') == '')
+
+- name: Change poodle version for repos in rhos-release for OFI installer host and GA-> latest Poodle
+  shell: "rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};  rhos-release  {{ product.version|int }}{{ installer_host_repo | default('')}} -d -p {{ product.repo.installer_poodle_pin_version }}"
+  when: (product.repo.installer_poodle_pin_version is defined and product.repo.installer_poodle_pin_version == 'latest|GA' and product.repo_type == 'poodle' and installer is defined and installer.name == "foreman" and installer_host_repo | default('') != '')
 
 - name: Enable RHSM
   shell: >
