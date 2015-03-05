@@ -13,8 +13,9 @@
   yum: name=instack-undercloud state=latest
   sudo: yes
 
+#synchronize does not pass the ssh config to rysync, local_action required
 - name: copy the repo from jenkins with the gerrit changeset when gating
-  synchronize: src={{ lookup('env', 'WORKSPACE') }}/instack-undercloud dest={{ instack_user_home }} recursive=yes delete=yes
+  local_action: command rsync -avz -e "ssh -F {{ lookup('env', 'WORKSPACE') }}/khaleesi/ssh.config.ansible" {{ lookup('env', 'WORKSPACE') }}/instack-undercloud undercloud:{{ instack_user_home }} --delete
   when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
 
 - name: install the undercloud
