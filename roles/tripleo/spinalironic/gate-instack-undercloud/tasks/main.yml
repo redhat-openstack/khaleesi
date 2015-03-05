@@ -30,6 +30,11 @@
       python setup.py --version
   register: pkg_version
 
+- name: yum install and dependencies
+  yum: name={{ item }} state=latest
+  with_items:
+    - rpm-build
+
 - name: create the content of the package
   shell: >
       chdir={{ build_dir }}/instack-undercloud
