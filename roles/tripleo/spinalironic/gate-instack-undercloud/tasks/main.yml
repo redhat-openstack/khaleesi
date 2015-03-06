@@ -30,10 +30,11 @@
       python setup.py --version
   register: pkg_version
 
-- name: yum install and dependencies
+- name: yum install packages to build rpm
   yum: name={{ item }} state=latest
   with_items:
     - rpm-build
+  sudo: yes
 
 - name: create the content of the package
   shell: >
