@@ -1,0 +1,19 @@
+---
+- name: ensure wget is available
+  yum: name=wget state=latest
+  sudo: yes
+
+- name: download instack images
+  shell: >
+    chdir={{ instack_user_home }}
+    export IMG_SOURCE_URL="{{ product.instack_tmp_images[ ansible_distribution ][ansible_distribution_version] }}";
+    wget --no-verbose --no-parent --recursive --level=1 --no-directories $IMG_SOURCE_URL
+  async: 18000
+  poll: 300
+
+- name: prepare for overcloud by loading the images into glance
+  command: instack-prepare-for-overcloud
+
+- name: create the nodes.json file
+  shell: >
+    jq '.nodes[].memory=null | .nodes[].disk=null | .nodes[].arch=null | .nodes[].cpu=null | .nodes' instackenv.json > nodes.json

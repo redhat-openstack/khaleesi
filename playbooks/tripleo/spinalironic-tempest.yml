@@ -1,0 +1,29 @@
+---
+- name: verify ssh connection
+  hosts: all:!localhost
+  roles:
+    - tripleo/define-env/verify-ssh
+
+- name: set up environment
+  hosts: undercloud
+  roles:
+    -  role: tripleo/controller-info
+
+- name: setup the virt-host
+  hosts: instack-virt-host
+  roles:
+    - tripleo/define-env/add-tripleo-hosts
+
+- name: verify ssh connection
+  hosts: all:!localhost
+  roles:
+    - tripleo/define-env/verify-ssh
+
+- name: get overcloud config from undercloud
+  hosts: undercloud
+  roles:
+    - { role: tripleo/spinalironic/virt-setup-tempest/overcloud-keystonerc }
+
+- include: ../group_by.yml
+
+- include: ../tempest.yml

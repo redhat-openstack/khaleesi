@@ -1,0 +1,6 @@
+---
+- name: instack-deploy-overcloud
+  shell: >
+      source {{ instack_user_home }}/stackrc;
+      instack-deploy-overcloud
+

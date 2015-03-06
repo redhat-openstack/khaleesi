@@ -1,0 +1,6 @@
+---
+- name: create overcloudrc file
+  script: create_overcloudrc.sh
+
+- name: fetch keystonerc_admin from controller
+  fetch: src=~/overcloudrc dest=../../stackrc flat=yes

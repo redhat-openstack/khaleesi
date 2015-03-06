@@ -40,20 +40,35 @@
         when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
     - tripleo/spinalironic/install-undercloud
 
-- name: build the openstack-full image on the undercloud VM
+- name: build the openstack-images
   hosts: undercloud
   roles:
-   - tripleo/spinalironic/build-openstack-full
+   - { role: tripleo/spinalironic/build-images,
+        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
+
+- name: import instack images
+  hosts: undercloud
+  roles:
+  - { role: tripleo/spinalironic/import-images,
+       when: "\"rdo-management/instack-undercloud\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
 
 - name: deploy the nodes
   hosts: undercloud
   roles:
    - tripleo/spinalironic/deploy-nodes
 
-- name: start the nodes
+- name: deploy the nodes
   hosts: undercloud
   roles:
-   - tripleo/spinalironic/start-nodes
+   - tripleo/spinalironic/instack-deploy-overcloud
+
+#test-overcloud is not working at the moment
+# - name: test overcloud with built in script
+#   hosts: undercloud
+#   roles:
+#     - role: tripleo/spinalironic/test-overcloud
+
+#- include: spinalironic-tempest.yml
 
 - name: Gather Logs
   hosts: all:!localhost

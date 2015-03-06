@@ -1,0 +1,39 @@
+---
+- name: ensure /tmp/svc-map-services is absent
+  file: path=/tmp/svc-map-services state=absent
+  sudo: yes
+
+- name: build-images deploy-ramdisk
+  shell: >
+        export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }};
+        instack-build-images deploy-ramdisk
+
+- name: ensure /tmp/svc-map-services is absent
+  file: path=/tmp/svc-map-services state=absent
+  sudo: yes
+
+- name: build-images discovery-ramdisk
+  shell: >
+        export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }};
+        instack-build-images discovery-ramdisk
+
+- name: ensure /tmp/svc-map-services is absent
+  file: path=/tmp/svc-map-services state=absent
+  sudo: yes
+
+- name: build overcloud-control
+  shell: >
+        export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }};
+        instack-build-images overcloud-control
+
+- name: ensure /tmp/svc-map-services is absent
+  file: path=/tmp/svc-map-services state=absent
+  sudo: yes
+
+- name: build overcloud-compute
+  shell: >
+        export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }};
+        instack-build-images overcloud-compute
+
+- name: prepare for overcloud by loading the images into glance
+  command: instack-prepare-for-overcloud

@@ -1,15 +1,13 @@
 ---
-
 - name: get fedora image for instack-test-overcloud
   shell: >
-    curl -o {{ instack_user_home.stdout }}/fedora-user.qcow2 \
+    curl -o {{ instack_user_home }}/fedora-user.qcow2 \
     "{{ distro.images['fedora']['20'].remote_file_server }}{{ distro.images['fedora']['20'].guest_image_name }}"
 
 - name: run script to test the overcloud
   shell: >
-    chdir={{ instack_user_home.stdout }}
-    source {{ instack_user_home.stdout }}/stackrc;
-    source {{ instack_user_home.stdout }}/deploy-overcloudrc;
+    source {{ instack_user_home }}/stackrc;
+    source {{ instack_user_home }}/deploy-overcloudrc;
     instack-test-overcloud
   register: test_output
 
