@@ -7,6 +7,7 @@
 
 - name: ensure libvirt-python is installed
   yum: name=libvirt-python state=present
+  ignore_errors: true
 
 - name: get list of running libvirt guests
   virt: command=list_vms
@@ -15,6 +16,7 @@
 
 - name: display list of vms
   debug: var=vms.list_vms
+  ignore_errors: true
 
 - name: undefine vms
   virt: command=undefine name={{ item }}
