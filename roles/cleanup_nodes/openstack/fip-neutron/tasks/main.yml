@@ -8,7 +8,7 @@
        login_tenant_name: "{{ provisioner.tenant_name }}"
        network_name: "{{ provisioner.network.name }}"
        instance_name: "{{ item.value.name }}"
-       internal_network_name: default
+       internal_network_name: "{{ provisioner.network.nic.net_1.name }}"
   with_dict: nodes
   register: floating_ips
   ignore_errors: yes
