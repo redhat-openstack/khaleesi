@@ -22,7 +22,7 @@
 - name: get overcloud config from undercloud
   hosts: undercloud
   roles:
-    - { role: tripleo/spinalironic/virt-setup-tempest/overcloud-keystonerc }
+    - { role: rdo-manager/virt-setup-tempest/overcloud-keystonerc }
 
 - include: ../group_by.yml
 

@@ -127,7 +127,7 @@ function run_ansible_rdo_manager() {
     --private-key=${PRIVATE_KEY} \
     -i instack_hosts \
     --extra-vars @ksgen_settings.yml \
-    playbooks/tripleo/rdo-manager.yml
+    playbooks/rdo-manager.yml
     popd
 }
 

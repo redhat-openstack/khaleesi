@@ -1,9 +1,9 @@
 ---
 # determine provisioner and whether or not to skip
-- include: ../group_by_provision.yml
+- include: group_by_provision.yml
 
 # provision
-- include: beaker-provision.yml
+- include: tripleo/beaker-provision.yml
 
 - name: Create instack user {{ instack.user.stack.name }}
   hosts: instack-virt-host
@@ -15,10 +15,10 @@
 - name: setup the virt-host
   hosts: instack-virt-host
   roles:
-    - tripleo/spinalironic/setup-host
-    - { role: tripleo/spinalironic/gate-instack-undercloud,
+    - rdo-manager/setup-host
+    - { role: rdo-manager/gate-instack-undercloud,
         when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
-    - tripleo/spinalironic/virt-setup
+    - rdo-manager/virt-setup
     - tripleo/define-env/add-tripleo-hosts
 
 - name: verify ssh connection
@@ -35,40 +35,40 @@
 - name: install the undercloud
   hosts: undercloud
   roles:
-    - tripleo/spinalironic/setup-host
-    - { role: tripleo/spinalironic/gate-instack-undercloud,
+    - rdo-manager/setup-host
+    - { role: rdo-manager/gate-instack-undercloud,
         when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
-    - tripleo/spinalironic/install-undercloud
+    - rdo-manager/install-undercloud
 
 - name: build the openstack-images
   hosts: undercloud
   roles:
-   - { role: tripleo/spinalironic/build-images,
+   - { role: rdo-manager/build-images,
         when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
 
 - name: import instack images
   hosts: undercloud
   roles:
-  - { role: tripleo/spinalironic/import-images,
+  - { role: rdo-manager/import-images,
        when: "\"rdo-management/instack-undercloud\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
 
 - name: deploy the nodes
   hosts: undercloud
   roles:
-   - tripleo/spinalironic/deploy-nodes
+   - rdo-manager/deploy-nodes
 
 - name: deploy the nodes
   hosts: undercloud
   roles:
-   - tripleo/spinalironic/instack-deploy-overcloud
+   - rdo-manager/instack-deploy-overcloud
 
 #test-overcloud is not working at the moment
 # - name: test overcloud with built in script
 #   hosts: undercloud
 #   roles:
-#     - role: tripleo/spinalironic/test-overcloud
+#     - role: rdo-manager/test-overcloud
 
-- include: spinalironic-tempest.yml
+#- include: rdo-manager-tempest.yml
 
 - name: Gather Logs
   hosts: all:!localhost

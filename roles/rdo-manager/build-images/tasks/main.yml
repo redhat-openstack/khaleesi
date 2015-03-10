@@ -1,0 +1,12 @@
+---
+- name: ensure /tmp/svc-map-services is absent
+  file: path=/tmp/svc-map-services state=absent
+  sudo: yes
+
+- name: build all the images
+  shell: >
+        export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }};
+        instack-build-images
+
+- name: prepare for overcloud by loading the images into glance
+  command: instack-prepare-for-overcloud

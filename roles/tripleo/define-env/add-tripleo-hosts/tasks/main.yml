@@ -43,11 +43,14 @@
 - name: setup ssh config
   template: src=ssh_config.j2 dest=~/ssh.config.ansible mode=0755
 
+- name: print PWD
+  debug: var=ansible_env.PWD
+
 - name: copy ssh_config back to the slave
-  fetch: src=~/ssh.config.ansible dest=../../ssh.config.ansible flat=yes
+  fetch: src=~/ssh.config.ansible dest=../ssh.config.ansible flat=yes
 
 - name: copy id_rsa key back to the slave
-  fetch: src=~/.ssh/id_rsa dest=../../id_rsa_virt_host flat=yes
+  fetch: src=~/.ssh/id_rsa dest=../id_rsa_virt_host flat=yes
 
 - name: copy undercloud root user authorized_keys to stack user
   shell: 'ssh -F ssh.config.ansible undercloud-from-virthost "cp /root/.ssh/authorized_keys /home/stack/.ssh/"'
