@@ -68,7 +68,7 @@
 #   roles:
 #     - role: tripleo/spinalironic/test-overcloud
 
-#- include: spinalironic-tempest.yml
+- include: spinalironic-tempest.yml
 
 - name: Gather Logs
   hosts: all:!localhost
