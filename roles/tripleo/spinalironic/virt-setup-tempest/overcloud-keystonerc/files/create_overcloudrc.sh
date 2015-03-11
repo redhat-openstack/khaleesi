@@ -1,8 +1,9 @@
+source stackrc
 source instack.answers
 source tripleo-overcloud-passwords
 export OVERCLOUD_IP=$(nova list | grep controller0.*ctlplane | sed  -e "s/.*=\\([0-9.]*\\).*/\1/")
 export TE_DATAFILE=/home/stack/instackenv.json
-sudo cp /etc/tripleo/overcloudrc_template .
+sudo cp /etc/tripleo/overcloudrc ./overcloudrc_template
 
 source overcloudrc_template
 
