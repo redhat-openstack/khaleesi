@@ -24,6 +24,6 @@
   roles:
     - { role: rdo-manager/virt-setup-tempest/overcloud-keystonerc }
 
-- include: ../group_by.yml
+- include: group_by.yml
 
-- include: ../tempest.yml
+- include: tempest.yml
