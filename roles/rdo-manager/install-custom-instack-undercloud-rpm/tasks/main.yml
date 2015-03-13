@@ -1,0 +1,4 @@
+---
+- name: install the rpm we previously built
+  yum: name=/home/stack/instack-undercloud-*-99999.noarch.rpm state=present
+  sudo: yes

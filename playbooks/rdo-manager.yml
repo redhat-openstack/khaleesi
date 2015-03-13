@@ -5,6 +5,9 @@
 # provision
 - include: tripleo/beaker-provision.yml
 
+- include: group_by.yml ansible_ssh_user=root
+- include: prep.yml ansible_ssh_user=root
+
 - name: Create instack user {{ instack.user.stack.name }}
   hosts: instack-virt-host
   vars:
@@ -15,11 +18,13 @@
 - name: setup the virt-host
   hosts: instack-virt-host
   roles:
-    - rdo-manager/setup-host
     - { role: rdo-manager/gate-instack-undercloud,
         when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
+    - rdo-manager/setup-host
     - rdo-manager/virt-setup
     - tripleo/define-env/add-tripleo-hosts
+    - { role: rdo-manager/copy-instack-undercloud-rpm,
+        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
 
 - name: verify ssh connection
   hosts: all:!localhost
@@ -35,22 +40,15 @@
 - name: install the undercloud
   hosts: undercloud
   roles:
-    - rdo-manager/setup-host
-    - { role: rdo-manager/gate-instack-undercloud,
+    - { role: rdo-manager/install-custom-instack-undercloud-rpm,
         when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
+    - rdo-manager/setup-host
     - rdo-manager/install-undercloud
 
 - name: build the openstack-images
   hosts: undercloud
   roles:
-   - { role: rdo-manager/build-images,
-        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
-
-- name: import instack images
-  hosts: undercloud
-  roles:
-  - { role: rdo-manager/import-images,
-       when: "\"rdo-management/instack-undercloud\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
+   - rdo-manager/build-images
 
 - name: deploy the nodes
   hosts: undercloud
