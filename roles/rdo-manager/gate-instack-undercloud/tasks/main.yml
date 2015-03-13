@@ -20,21 +20,23 @@
       chdir={{ build_dir }}
       git clone https://github.com/rdo-management/instack-undercloud
 
+- name: yum install packages to build rpm
+  yum: name={{ item }} state=latest
+  with_items:
+    - rpm-build
+    - python-pbr
+  sudo: yes
+
 - name: Fetch the patchset
   shell:
       chdir={{ build_dir }}/instack-undercloud
       git fetch https://review.gerrithub.io/rdo-management/instack-undercloud {{ lookup('env', 'GERRIT_REFSPEC') }} && git checkout FETCH_HEAD;
 
 - name: get version of package
-  command: chdir={{ build_dir }}/instack-undercloud
-      python setup.py --version
+  shell: >
+      chdir={{ build_dir }}/instack-undercloud
+      python setup.py --version | tail -n 1
   register: pkg_version
-
-- name: yum install packages to build rpm
-  yum: name={{ item }} state=latest
-  with_items:
-    - rpm-build
-  sudo: yes
 
 - name: create the content of the package
   shell: >
