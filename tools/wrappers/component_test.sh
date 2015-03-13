@@ -13,7 +13,7 @@ function ensure_khaleesi() {
 }
 
 function ensure_rpm_prereqs() {
-    sudo yum install rsync;
+    sudo yum install rsync python-pip python-virtualenv
 }
 
 function ensure_component() {
@@ -28,6 +28,7 @@ function ensure_ansible() {
     fi
     source ansible_venv/bin/activate
     pip install -U ansible
+    pip install markupsafe
 }
 
 function ensure_ksgen() {

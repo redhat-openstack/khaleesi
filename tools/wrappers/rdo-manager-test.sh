@@ -13,7 +13,7 @@ function ensure_khaleesi() {
 }
 
 function ensure_rpm_prereqs() {
-    sudo yum install rsync;
+    sudo yum install rsync python-pip python-virtualenv
 }
 
 function ensure_component() {
@@ -28,6 +28,7 @@ function ensure_ansible() {
     fi
     source ansible_venv/bin/activate
     pip install -U ansible
+    pip install markupsafe
 }
 
 function ensure_ksgen() {
@@ -78,6 +79,18 @@ function ensure_ssh_key() {
     else
         echo "ssh keys are properly set up"
     fi
+}
+
+function configure_ansible_hosts_root() {
+    pushd khaleesi
+    cat <<EOF >instack_hosts
+[instack-virt-host]
+$TESTBED_IP groups=testbed ansible_ssh_host=$TESTBED_IP ansible_ssh_user=root
+
+[local]
+localhost ansible_connection=local
+EOF
+    popd
 }
 
 function configure_ansible_hosts() {
@@ -144,6 +157,8 @@ ensure_khaleesi
 ensure_component
 ensure_ansible
 ensure_ksgen
+configure_ansible_hosts_root
+ensure_ansible_connection
 configure_ansible_hosts
 configure_ansible_cfg
 ensure_ssh_key
