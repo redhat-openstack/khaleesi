@@ -21,7 +21,7 @@ tempest.testr() {
     local include_list=""
 
     testr init
-    testr run --parallel --subunit \
+    testr run --concurrency=4 --parallel --subunit \
               --load-list=<(testr list-tests $include_list |\
                           tail -n +5 |\
                           grep -v "$prevent_empty_list$grep_skip_options") |
@@ -57,7 +57,7 @@ tempest.tox() {
     local grep_skip_options="\\("$(sed -e 's|\ |\\\||g' <<< $skip_list)"\\)"
     local include_list="smoke"
 
-    tox -- --parallel --subunit \
+    tox -- --concurrency=4 --parallel --subunit \
               --load-list=<(testr list-tests $include_list |\
                           tail -n +5 |\
                           grep -v "$prevent_empty_list$grep_skip_options") |
@@ -71,7 +71,7 @@ tempest.tox_single() {
     echo "Running testr ... "
     local tempest_test_name=${1:-""}
 
-    tox -- --subunit $tempest_test_name |
+    tox -- --concurrency=4 --subunit $tempest_test_name |
         tee >( subunit2junitxml --output-to=nosetests.xml ) |
         subunit-2to1 | tee run.log |
         tools/colorizer.py
