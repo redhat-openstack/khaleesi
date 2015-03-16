@@ -51,7 +51,7 @@
   command: rm -Rf /etc/libvirt
 
 - name: remove any yum repos
-  command: rm -Rf /etc/yum.repos.d/*
+  shell: rm -Rf /etc/yum.repos.d/*.repo
 
 - name: remove any openvswitch bridge networks
   openvswitch_bridge: bridge=brbm state=absent
