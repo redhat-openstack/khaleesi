@@ -40,9 +40,9 @@
 - name: install the undercloud
   hosts: undercloud
   roles:
+    - rdo-manager/setup-host
     - { role: rdo-manager/install-custom-instack-undercloud-rpm,
         when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
-    - rdo-manager/setup-host
     - rdo-manager/install-undercloud
 
 - name: build the openstack-images

@@ -1,4 +1,12 @@
 ---
+- name: ensure release rpms are removed
+  yum: name={{item }} state=absent
+  sudo: yes
+  with_items:
+    - rhos-release
+    - rdo-release
+    - epel-release
+
 - name: remove any yum repos before the setup host script
   shell: rm -Rf /etc/yum.repos.d/*.repo
   sudo: yes
@@ -18,3 +26,4 @@
 - name: install instack-undercloud
   yum: name=instack-undercloud state=present
   sudo: yes
+  when: "\"rdo-management/instack-undercloud\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\""

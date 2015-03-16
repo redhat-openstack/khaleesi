@@ -1,4 +1,8 @@
 ---
+- name: ensure install-undercloud is not installed
+  yum: name=instack-undercloud state=absent
+  sudo: yes
+
 - name: install the rpm we previously built
-  yum: name=/home/stack/instack-undercloud-*-99999.noarch.rpm state=present
+  shell: yum -y install /home/stack/instack-undercloud-*
   sudo: yes

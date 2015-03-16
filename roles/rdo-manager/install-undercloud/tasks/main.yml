@@ -19,4 +19,5 @@
 - name: get the rhel-guest-image
   get_url: url={{ distro.images['rhel'][ansible_distribution_version].remote_file_server }}{{ distro.images['rhel'][ansible_distribution_version].guest_image_name }}
                 dest={{ instack_user_home }}
+                force=no
 
