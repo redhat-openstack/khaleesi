@@ -1,4 +1,4 @@
-Getting Started with Khaleesi
+Getting Started with Khaleesi.
 -----------------------
 https://github.com/redhat-openstack/khaleesi-settings/blob/master/doc/khaleesi.rst
 
