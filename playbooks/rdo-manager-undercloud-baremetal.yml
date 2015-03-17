@@ -1,0 +1,44 @@
+---
+- name: Create EPEL repos
+  hosts: undercloud
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    - linux/rhel/rdo
+
+- name: Create instack user {{ instack.user.stack.name }}
+  hosts: undercloud
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    - tripleo/instack_user
+
+- name: copy json file
+  hosts: localhost
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    - rdo-manager/baremetal/copy-json-file
+
+- name: set up json file for baremetal nodes
+  hosts: undercloud
+  roles:
+    - rdo-manager/baremetal/setup-nodes-file
+
+- name: Get build details
+  hosts: undercloud
+  sudo: yes
+  roles:
+    - build_mark/build
+
+- name: install instack undercloud
+  hosts: undercloud
+  roles:
+    - rdo-manager/setup-host
+    - rdo-manager/baremetal/copy-answers-file
+    - rdo-manager/install-undercloud
+
+- name: set up for overcloud deploy
+  hosts: undercloud
+  roles:
+    - rdo-manager/baremetal/setup-for-deployment

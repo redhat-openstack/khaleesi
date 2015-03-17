@@ -1,0 +1,33 @@
+---
+
+- name: chown instackenv.json
+  file: path={{ instack_user_home }}/instackenv.json owner=stack group=stack
+  sudo_user: root
+  sudo: yes
+
+- name: install ipmitool
+  yum: name={{ item }} state=latest
+  with_items:
+    - OpenIPMI
+    - OpenIPMI-tools
+  sudo_user: root
+  sudo: yes
+
+- name: start IMPI service
+  shell: >
+    sudo chkconfig ipmi on;
+    sudo service ipmi start
+
+- name: get number of overcloud nodes
+  shell: >
+    export IP_LENGTH=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | wc -l`);
+    echo $(($IP_LENGTH-1))
+  register: node_length
+
+- name: power off node boxes
+  shell: >
+     export IP=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | sed 's/\"//g'`);
+     export USER=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_user.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
+     export PASSWORD=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_password.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
+     ipmitool -I lanplus -H ${IP[item]} -U ${USER[item]} -P ${PASSWORD[item]} power off
+  with_sequence: count="{{node_length.stdout}}"

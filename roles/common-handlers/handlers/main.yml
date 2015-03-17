@@ -82,7 +82,7 @@
     - Print instance uptime
     - Fix centos naming scheme
     - Reload facts
-  when: yum_update | bool and "libvirt_guest" not in hostvars[inventory_hostname].group_names
+  when: yum_update | bool
 
 - name: yum -y update to latest packages
   yum: name=* state=latest
@@ -95,7 +95,7 @@
     - Print instance uptime
     - Fix centos naming scheme
     - Reload facts
-  when: yum_update | bool and "libvirt_guest" in hostvars[inventory_hostname].group_names
+  when: yum_update | bool
 
 - name: restart network
   service: name=network state=restarted

@@ -1,0 +1,16 @@
+---
+
+- name: check answers file exists
+  stat: path="/usr/share/instack-undercloud/instack.answers.sample"
+  register: answers_file_present
+  failed_when: answers_file_present.stat.exists == False
+
+- name: copy baremetal answers file
+  shell: cp /usr/share/instack-undercloud/instack.answers.sample {{ instack_user_home }}/instack.answers
+
+- name: edit instack.answers file - local_interface
+  lineinfile: dest={{ instack_user_home }}/instack.answers regexp=^LOCAL_INTERFACE line=LOCAL_INTERFACE={{ hw_env.local_interface }}
+
+- name: edit instack.answers file - network
+  replace: dest={{ instack_user_home }}/instack.answers regexp='192.0.2' replace={{ hw_env.network }}
+  when: hw_env.network is defined

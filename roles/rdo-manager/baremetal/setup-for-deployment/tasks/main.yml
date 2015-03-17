@@ -1,0 +1,9 @@
+---
+- name: copy template file with baremetal environment variables
+  template:
+    src=deploy-overcloudrc-baremetal.j2
+    dest={{ instack_user_home }}/deploy-overcloudrc
+    mode=0755
+
+- name: copy instackenv.json to nodes.json
+  shell: cp {{ instack_user_home }}/instackenv.json {{ instack_user_home }}/nodes.json

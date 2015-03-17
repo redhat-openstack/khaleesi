@@ -2,5 +2,6 @@
 - name: instack-deploy-overcloud
   shell: >
       source {{ instack_user_home }}/stackrc;
+      if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then {{ instack_user_home }}/deploy-overcloudrc; fi;
       instack-deploy-overcloud
 
