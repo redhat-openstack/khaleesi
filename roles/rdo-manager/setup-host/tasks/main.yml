@@ -20,8 +20,9 @@
   shell: instack-setup-host
 
 - name: get the guest-image
-  get_url: url={{ distro.images[distro.name][ansible_distribution_version].remote_file_server }}{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
-                dest={{ instack_user_home }}
+  shell: >
+    curl -o /home/stack/{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }} \
+    "{{ distro.images[distro.name][ansible_distribution_version].remote_file_server }}{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}"
 
 - name: install instack-undercloud
   yum: name=instack-undercloud state=present
