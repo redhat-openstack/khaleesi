@@ -93,19 +93,6 @@ EOF
     popd
 }
 
-function configure_ansible_hosts() {
-    pushd khaleesi
-    cat <<EOF >instack_hosts
-[instack-virt-host]
-$TESTBED_IP groups=testbed ansible_ssh_host=$TESTBED_IP ansible_ssh_user=$TESTBED_USER
-
-[local]
-localhost ansible_connection=local
-EOF
-    popd
-}
-
-
 function configure_ansible_cfg() {
     pushd khaleesi
     if [ ! -f  ansible.cfg ]; then
@@ -159,7 +146,6 @@ ensure_ansible
 ensure_ksgen
 configure_ansible_hosts_root
 ensure_ansible_connection
-configure_ansible_hosts
 configure_ansible_cfg
 ensure_ssh_key
 run_ansible_cleanup

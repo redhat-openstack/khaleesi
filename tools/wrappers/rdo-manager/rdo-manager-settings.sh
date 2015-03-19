@@ -1,13 +1,18 @@
-#settings file to be used with rdo-manager-test.sh
-#source this file then copy rdo-manager-test.sh to $WORKSPACE and execute
+# This is the settings file to be used with rdo-manager-test.sh
+# Note: only tested running from fedora20+
 
-# READ_ME: Prior to executing rdo-manager-test.sh ensure ssh
+# READ_ME:
+# mkdir /tmp/empty_dir;
+# cp rdo-manager* /tmp/empty_dir;
+# ensure any value marked CHANGE_ME is updated
+# source this file execute rdo-manager-test.sh
+
+# READ_ME:
+# Prior to executing rdo-manager-test.sh ensure ssh
 # can connect to the $TEST_BED_IP as root via ssh keys.
 # e.g. ssh-copy-id root@$TESTBED_IP
 
-# Also ensure any value marked CHANGE_ME is updated
-
-WORKSPACE=CHANGE_ME #base path of git checkouts, e.g. /tmp
+WORKSPACE=CHANGE_ME #base path of git checkouts, e.g. /tmp/empty_dir
 TESTBED_IP=CHANGE_ME #hostname or ip of baremetal box
 TESTBED_USER=stack  #don't use root here,only use stack
 CONFIG_BASE=$WORKSPACE/khaleesi-settings
