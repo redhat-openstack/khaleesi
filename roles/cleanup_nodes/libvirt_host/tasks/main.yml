@@ -72,7 +72,7 @@
 #   user: name=stack state=absent remove=yes
 
 - name: remove stack home dir
-  command: rm -Rf {{ item }}
+  shell: rm -Rf {{ item }}
   ignore_errors: true
   with_items:
     - /home/stack
@@ -109,3 +109,8 @@
     - Wait for host to stop
     - Wait for host to come back
     - Wait after ssh service is back
+
+- name: remove files automation files from /root
+  file: name={{item}} state=absent
+  with_items:
+    - /usr/share/instack-undercloud
