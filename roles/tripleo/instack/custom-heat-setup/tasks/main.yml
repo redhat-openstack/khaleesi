@@ -1,4 +1,13 @@
 ---
+- name: enable packet forwarding
+  sudo: yes
+  shell: >
+    chdir={{ instack_user_home.stdout }}
+    iptables -D FORWARD -j REJECT --reject-with icmp-host-prohibited
+  register: enable_packet_forwarding_output
+
+- name: print packet forwarding output
+  debug: var=enable_package_forwarding_output.stdout
 
 - name: get neutron subnet name
   shell: >
