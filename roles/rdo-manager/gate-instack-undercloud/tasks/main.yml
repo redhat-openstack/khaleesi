@@ -10,6 +10,14 @@
 - name: Create build directory
   file: path={{ build_dir }} state=directory
 
+- name: yum install packages to build rpm
+  yum: name={{ item }} state=latest
+  with_items:
+    - rpm-build
+    - python-pbr
+    - git
+  sudo: yes
+
 - name: Clone instack-undercloud-packaging
   command: creates={{ build_dir }}/instack-undercloud-packaging
       chdir={{ build_dir }}
@@ -19,13 +27,6 @@
   command: creates={{ build_dir }}/instack-undercloud
       chdir={{ build_dir }}
       git clone https://github.com/rdo-management/instack-undercloud
-
-- name: yum install packages to build rpm
-  yum: name={{ item }} state=latest
-  with_items:
-    - rpm-build
-    - python-pbr
-  sudo: yes
 
 - name: Fetch the patchset
   shell:
