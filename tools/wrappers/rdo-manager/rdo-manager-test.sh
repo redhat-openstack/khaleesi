@@ -13,7 +13,7 @@ function ensure_khaleesi() {
 }
 
 function ensure_rpm_prereqs() {
-    sudo yum install rsync python-pip python-virtualenv gcc
+    sudo yum install -y rsync python-pip python-virtualenv gcc
 }
 
 function ensure_component() {
@@ -120,6 +120,18 @@ function run_ansible_cleanup() {
     popd
 }
 
+function test_git_checkout() {
+    if [ ! -d khaleesi-settings ]; then
+     echo "khaleesi-settings not found"
+     exit 1
+    fi
+
+    if [ ! -d khaleesi ]; then
+         echo "khaleesi not found"
+         exit 1
+    fi
+}
+
 function run_ansible_rdo_manager() {
     pushd khaleesi
     ansible-playbook -vv \
@@ -141,6 +153,7 @@ source rdo-manager-settings.sh
 ensure_rpm_prereqs
 ensure_component
 ensure_khaleesi
+test_git_checkout
 ensure_component
 ensure_ansible
 ensure_ksgen
