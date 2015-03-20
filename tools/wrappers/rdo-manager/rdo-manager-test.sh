@@ -13,7 +13,7 @@ function ensure_khaleesi() {
 }
 
 function ensure_rpm_prereqs() {
-    sudo yum install rsync python-pip python-virtualenv
+    sudo yum install rsync python-pip python-virtualenv gcc
 }
 
 function ensure_component() {
