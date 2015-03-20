@@ -8,6 +8,13 @@
 - include: group_by.yml ansible_ssh_user=root
 - include: prep.yml ansible_ssh_user=root
 
+- name: Create EPEL repos
+  hosts: instack-virt-host
+  vars:
+    - ansible_ssh_user: root
+  roles:
+      - linux/rhel/rdo
+
 - name: Create instack user {{ instack.user.stack.name }}
   hosts: instack-virt-host
   vars:
