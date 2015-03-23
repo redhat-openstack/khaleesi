@@ -32,6 +32,7 @@
   shell:
       chdir={{ build_dir }}/instack-undercloud
       git fetch https://review.gerrithub.io/rdo-management/instack-undercloud {{ lookup('env', 'GERRIT_REFSPEC') }} && git checkout FETCH_HEAD;
+  when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
 
 - name: get version of package
   shell: >

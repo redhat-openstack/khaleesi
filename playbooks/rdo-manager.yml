@@ -26,12 +26,14 @@
   hosts: instack-virt-host
   roles:
     - { role: rdo-manager/gate-instack-undercloud,
-        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
+        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\" or
+              \"redhat-openstack/khaleesi\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
     - rdo-manager/setup-host
     - rdo-manager/virt-setup
     - tripleo/define-env/add-tripleo-hosts
     - { role: rdo-manager/copy-instack-undercloud-rpm,
-        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
+        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\" or
+              \"redhat-openstack/khaleesi\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
 
 - name: verify ssh connection
   hosts: all:!localhost
@@ -49,7 +51,8 @@
   roles:
     - rdo-manager/setup-host
     - { role: rdo-manager/install-custom-instack-undercloud-rpm,
-        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
+        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\" or
+              \"redhat-openstack/khaleesi\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
     - rdo-manager/install-undercloud
 
 - name: build the openstack-images
