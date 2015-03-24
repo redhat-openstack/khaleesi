@@ -84,6 +84,7 @@
     - /root/KEYS
     - /root/fedora-prep
     - /root/.ssh/known_hosts
+    - /root/.ssh/id_rsa_virt_power
 
 - name: kill all the network managers processes
   shell: kill -9 $(ps aux | grep NetworkManager | awk '{print $2}')
