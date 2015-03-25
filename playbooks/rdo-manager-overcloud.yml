@@ -1,0 +1,23 @@
+---
+- name: build the openstack-images
+  hosts: undercloud
+  roles:
+   - rdo-manager/build-images
+
+- name: deploy the nodes
+  hosts: undercloud
+  roles:
+   - rdo-manager/deploy-nodes
+
+- name: deploy the nodes
+  hosts: undercloud
+  roles:
+   - rdo-manager/instack-deploy-overcloud
+
+#test-overcloud is not working at the moment
+# - name: test overcloud with built in script
+#   hosts: undercloud
+#   roles:
+#     - role: rdo-manager/test-overcloud
+
+#- include: rdo-manager-tempest.yml

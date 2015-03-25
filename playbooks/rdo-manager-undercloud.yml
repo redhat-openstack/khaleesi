@@ -1,0 +1,47 @@
+---
+- name: Create EPEL repos
+  hosts: instack-virt-host
+  vars:
+    - ansible_ssh_user: root
+  roles:
+      - linux/rhel/rdo
+
+- name: Create instack user {{ instack.user.stack.name }}
+  hosts: instack-virt-host
+  vars:
+    - ansible_ssh_user: root
+  roles:
+      - tripleo/instack_user
+
+- name: setup the virt-host
+  hosts: instack-virt-host
+  roles:
+    - { role: rdo-manager/gate-instack-undercloud,
+        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\" or
+              \"redhat-openstack/khaleesi\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
+    - rdo-manager/setup-host
+    - rdo-manager/virt-setup
+    - tripleo/define-env/add-tripleo-hosts
+    - { role: rdo-manager/copy-instack-undercloud-rpm,
+        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\" or
+              \"redhat-openstack/khaleesi\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
+
+- name: verify ssh connection
+  hosts: all:!localhost
+  roles:
+    - tripleo/define-env/verify-ssh
+
+- name: Get build details
+  hosts: instack-virt-host
+  sudo: yes
+  roles:
+    - build_mark/build
+
+- name: install the undercloud
+  hosts: undercloud
+  roles:
+    - rdo-manager/setup-host
+    - { role: rdo-manager/install-custom-instack-undercloud-rpm,
+        when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\" or
+              \"redhat-openstack/khaleesi\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
+    - rdo-manager/install-undercloud
