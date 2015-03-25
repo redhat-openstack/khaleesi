@@ -1,7 +1,7 @@
 ---
   - name: Search for AVC denied
     sudo: yes
-    shell: "! grep -i denied /var/log/audit/audit.log"
+    shell: "! grep -i denied /var/log/audit/audit*"
     register: result
     ignore_errors: yes
 
