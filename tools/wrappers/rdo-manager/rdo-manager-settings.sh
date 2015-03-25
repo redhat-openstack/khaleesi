@@ -14,10 +14,9 @@
 
 WORKSPACE=CHANGE_ME #base path of git checkouts, e.g. /tmp/empty_dir
 TESTBED_IP=CHANGE_ME #hostname or ip of baremetal box
-TESTBED_USER=stack  #don't use root here,only use stack
 CONFIG_BASE=$WORKSPACE/khaleesi-settings
 TEST_COMPONENT=instack-undercloud
-TEST_COMPONENT_URL=git@github.com:rdo-management/instack-undercloud.git
+TEST_COMPONENT_URL=https://github.com/rdo-management/instack-undercloud.git
 PROVISION_OPTION=skip_provision  #[skip_provision, execute_provision] for baremetal box
 DISTRO=rhel-7.1
 PRIVATE_KEY=CHANGE_ME  # ~/.ssh/id_rsa

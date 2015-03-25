@@ -2,6 +2,7 @@
 #script to be used with component_settings.sh
 
 function ensure_khaleesi() {
+    export GIT_SSL_NO_VERIFY=true;
     if [ ! -d khaleesi ]; then
     git clone $KHALEESI
     fi
@@ -64,8 +65,16 @@ function ensure_ksgen() {
 
 function ensure_ansible_connection(){
     pushd khaleesi
+    cat <<EOF >instack_hosts
+[instack-virt-host]
+$TESTBED_IP groups=testbed ansible_ssh_host=$TESTBED_IP ansible_ssh_user=root
+
+[local]
+localhost ansible_connection=local
+EOF
+
     ansible -i instack_hosts  \
-        -u $TESTBED_USER \
+        -u root \
         --private-key=$PRIVATE_KEY \
         -vvvv -m ping all
     connection=$?
@@ -75,7 +84,7 @@ function ensure_ansible_connection(){
 
 function ensure_ssh_key() {
     if ! ensure_ansible_connection; then
-        ssh-copy-id "${TESTBED_USER}@${TESTBED_IP}"
+        ssh-copy-id "root@${TESTBED_IP}"
     else
         echo "ssh keys are properly set up"
     fi
@@ -83,9 +92,10 @@ function ensure_ssh_key() {
 
 function configure_ansible_hosts() {
     pushd khaleesi
+    rm -Rf instack_hosts
     cat <<EOF >instack_hosts
 [instack-virt-host]
-$TESTBED_IP groups=testbed ansible_ssh_host=$TESTBED_IP ansible_ssh_user=$TESTBED_USER
+$TESTBED_IP groups=testbed ansible_ssh_host=$TESTBED_IP ansible_ssh_user=stack
 
 [local]
 localhost ansible_connection=local
@@ -112,7 +122,6 @@ EOF
 function run_ansible_cleanup() {
     pushd khaleesi
     ansible-playbook -vv \
-    -u $TESTBED_USER \
     --private-key=${PRIVATE_KEY} \
     -i instack_hosts \
     --extra-vars @ksgen_settings.yml \
@@ -135,7 +144,6 @@ function test_git_checkout() {
 function run_ansible_rdo_manager() {
     pushd khaleesi
     ansible-playbook -vv \
-    -u $TESTBED_USER \
     --private-key=${PRIVATE_KEY} \
     -i instack_hosts \
     --extra-vars @ksgen_settings.yml \
@@ -157,10 +165,10 @@ test_git_checkout
 ensure_component
 ensure_ansible
 ensure_ksgen
-configure_ansible_hosts
 ensure_ansible_connection
 configure_ansible_cfg
 ensure_ssh_key
+configure_ansible_hosts
 run_ansible_cleanup
 run_ansible_rdo_manager
 
