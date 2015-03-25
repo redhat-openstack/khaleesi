@@ -67,4 +67,4 @@
             option={{ item.option }}
             value={{ item.value }}
   with_items:
-    tempest.additional_default_settings
+    tester.configuration.additional_default_settings
