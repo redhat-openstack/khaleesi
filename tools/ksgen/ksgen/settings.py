@@ -352,7 +352,10 @@ def load_configuration(file_path, rel_dir=None):
     logger.debug('Loading file: %s', file_path)
     try:
         return Configuration.from_file(file_path).configure()
-    except ConfigurationError as e:
+    except (yaml.scanner.ScannerError,
+            yaml.parser.ParserError,
+            TypeError,
+            ConfigurationError) as e:
         rel_dir = rel_dir or os.curdir
         logger.error("Error loading: %s; reason: %s",
                      os.path.relpath(file_path, rel_dir), e)
