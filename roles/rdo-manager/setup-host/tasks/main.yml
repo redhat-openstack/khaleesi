@@ -1,4 +1,9 @@
 ---
+- name: ensure rhos-release is disabled
+  shell: "rhos-release  -x {{ product.version|int }}; "
+  sudo: yes
+  ignore_errors: yes
+
 - name: ensure release rpms are removed
   yum: name={{item }} state=absent
   sudo: yes
@@ -17,7 +22,7 @@
   sudo: yes
 
 - name: run instack-setup-host script
-  shell: instack-setup-host
+  shell: export RUN_RHOS_RELEASE=1; instack-setup-host
 
 - name: get the guest-image
   shell: >
