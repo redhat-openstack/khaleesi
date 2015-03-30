@@ -27,10 +27,10 @@
       network_name: "{{ provisioner.network.name }}"
       name: external-subnet
       enable_dhcp: False
-      gateway_ip: "{{ tester.configuration.public_subnet_gateway }}"
-      cidr: "{{ tester.configuration.public_subnet_cidr}}"
-      allocation_pool_start: "{{ tester.configuration.public_allocation_start }}"
-      allocation_pool_end: "{{ tester.configuration.public_allocation_end }}"
+      gateway_ip: "{{ provisioner.network.public_subnet_gateway }}"
+      cidr: "{{ provisioner.network.public_subnet_cidr}}"
+      allocation_pool_start: "{{ provisioner.network.public_allocation_start }}"
+      allocation_pool_end: "{{ provisioner.network.public_allocation_end }}"
   when: "'{{ installer.network.plugin.name }}' == 'neutron' and job.ha_configuration | default(false) == false "
 
 
@@ -62,8 +62,8 @@
       network_name: "{{ provisioner.network.name }}"
       name: external-subnet
       enable_dhcp: False
-      gateway_ip: "{{ tester.configuration.public_subnet_gateway }}"
-      cidr: "{{ tester.configuration.public_subnet_cidr}}"
-      allocation_pool_start: "{{ tester.configuration.public_allocation_start }}"
-      allocation_pool_end: "{{ tester.configuration.public_allocation_end }}"
+      gateway_ip: "{{ provisioner.network.public_subnet_gateway }}"
+      cidr: "{{ provisioner.network.public_subnet_cidr}}"
+      allocation_pool_start: "{{ provisioner.network.public_allocation_start }}"
+      allocation_pool_end: "{{ provisioner.network.public_allocation_end }}"
   when: "'{{ installer.network.plugin.name }}' == 'neutron' and job.ha_configuration | default(false) "
