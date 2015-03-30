@@ -93,6 +93,12 @@
 - name: ensure the network service is enabled
   service: name=network enabled=yes
 
+- name: remove files automation files from /root
+  file: name={{item}} state=absent
+  with_items:
+    - /usr/share/instack-undercloud
+    - /usr/bin/instack-setup-host
+
 - name: remove any instack rpms from the host
   yum: name={{item}} state=absent
   with_items:
@@ -111,7 +117,3 @@
     - Wait for host to come back
     - Wait after ssh service is back
 
-- name: remove files automation files from /root
-  file: name={{item}} state=absent
-  with_items:
-    - /usr/share/instack-undercloud
