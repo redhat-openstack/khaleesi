@@ -7,3 +7,12 @@
   command: subscription-manager unregister
   ignore_errors: yes
   when: (product.repo_type == 'rhsm' and ansible_distribution == 'RedHat')
+
+- name: return rhsm subscriptions osp-manager
+  command: subscription-manager remove --all
+  when: (product.repo_type_override is defined and product.repo_type_override == 'rhsm')
+
+- name: unsubscribe from rhsm osp-manager
+  command: subscription-manager unregister
+  ignore_errors: yes
+  when: (product.repo_type_override is defined and product.repo_type_override == 'rhsm')

@@ -1,4 +1,9 @@
 ---
+- name: verify ssh connection
+  hosts: all:!localhost
+  roles:
+    - tripleo/define-env/verify-ssh
+
 - name: build the openstack-images
   hosts: undercloud
   roles:

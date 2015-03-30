@@ -1,15 +1,34 @@
 ---
 - name: Create the RHOS Release Repository
   template: src=rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
+  when: product.repo_type_override is not defined
 
 - name: install rhos-release
   yum: name=rhos-release state=latest
+  when: product.repo_type_override is not defined
 
 - name: Execute rhos-release {{ product.version|int }}
   command: "rhos-release {{ product.version|int }}"
   notify:
     - Yum clean all
     - yum -y update to latest packages
+  when: product.repo_type_override is not defined
+
+#hack for the multiple products involved in setting up rdo-manager
+- name: Create the RHOS Release Repository for rdo-manager
+  template: src=rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
+  when: product_override_version is defined and product.repo_type_override == 'rhos-release'
+
+- name: install rhos-release for rdo-manager
+  yum: name=rhos-release state=latest
+  when: product_override_version is defined and product.repo_type_override == 'rhos-release'
+
+- name: Execute rhos-release for rdo-manager {{ product_override_version|int }}
+  command: "rhos-release {{ product_override_version|int }}"
+  notify:
+    - Yum clean all
+    - yum -y update to latest packages
+  when: product_override_version is defined and product.repo_type_override == 'rhos-release'
 
 - name: Execute rhos-release {{ product.version|int }}{{ installer_host_repo | default('')}}
   command: "rhos-release {{ product.version|int }}{{ installer_host_repo | default('')}}"
@@ -39,8 +58,49 @@
     replace=/Foreman/{{ product.repo.foreman_pin_version }}/
   when: (product.repo.foreman_pin_version is defined and product.repo.foreman_pin_version != 'latest')
 
+- name: Enable RHSM
+  shell: >
+    rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};
+    rm -Rf /etc/yum.repos.d/rhos-release.repo;
+    subscription-manager register --username {{ distro.rhel.subscription.username }} --password {{ distro.rhel.subscription.password }};
+    subscription-manager subscribe --pool {{ distro.rhel.subscription.pool }};
+    subscription-manager repos --disable=*;
+  when: (product.repo_type == 'rhsm' and ansible_distribution_version|int == 7)
+
+- name: Enable RHSM yum repos
+  shell: >
+    subscription-manager repos --disable=*;
+    subscription-manager repos --enable=rhel-7-server-rpms;
+    subscription-manager repos --enable=rhel-7-server-optional-rpms;
+    subscription-manager repos --enable=rhel-7-server-extras-rpms;
+    subscription-manager repos --enable=rhel-7-server-openstack-{{ product.version }}-rpms;
+    yum-config-manager --setopt="rhel-7-server-openstack-{{ product.version }}-rpms.priority=1" --enable rhel-7-server-openstack-{{ product.version }}-rpms;
+  when: (product.repo_type == 'rhsm' and ansible_distribution_version|int == 7)
+
+- name: Enable RHSM for rdo-manager
+  shell: >
+    rm -Rf /etc/yum.repos.d/rhos-release.repo;
+    subscription-manager register --username {{ distro.rhel.subscription.username }} --password {{ distro.rhel.subscription.password }};
+    subscription-manager subscribe --pool {{ distro.rhel.subscription.physical_pool }};
+    subscription-manager repos --disable=*;
+  when: (product_repo_type_override is defined and product_repo_type_override == 'rhsm' and ansible_distribution_version|int == 7)
+
+- name: Enable RHSM yum repos for rdo-manager
+  shell: >
+    subscription-manager repos --disable=*;
+    subscription-manager repos --enable=rhel-7-server-rpms;
+    subscription-manager repos --enable=rhel-7-server-optional-rpms;
+    subscription-manager repos --enable=rhel-7-server-extras-rpms;
+    subscription-manager repos --enable=rhel-7-server-openstack-{{ product_override_version }}-rpms;
+    yum-config-manager --setopt="rhel-7-server-openstack-{{ product_override_version }}-rpms.priority=1" --enable rhel-7-server-openstack-{{ product_override_version }}-rpms;
+  when: (product_repo_type_override is defined and product_repo_type_override == 'rhsm' and ansible_distribution_version|int == 7)
+
+
 - name: ensure yum-utils
-  yum: name=yum-utils state=present
+  yum: name={{ item }} state=present
+  with_items:
+    - yum-utils
+    - yum-plugin-priorities
 
 - name: Disable default foreman puddle rhelosp repo when using poodle
   shell: /usr/bin/yum-config-manager --disable 'rhelosp-*-OS-Foreman'
@@ -80,24 +140,6 @@
   shell: "rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};  rhos-release  {{ product.version|int }}{{ installer_host_repo | default('')}} -d -p {{ product.repo.installer_poodle_pin_version }}"
   when: (product.repo.installer_poodle_pin_version is defined and product.repo.installer_poodle_pin_version == 'latest|GA' and product.repo_type == 'poodle' and installer is defined and installer.name == "foreman" and installer_host_repo | default('') != '')
 
-- name: Enable RHSM
-  shell: >
-    rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};
-    rm -Rf /etc/yum.repos.d/rhos-release.repo;
-    subscription-manager register --username {{ distro.rhel.subscription.username }} --password {{ distro.rhel.subscription.password }};
-    subscription-manager subscribe --pool {{ distro.rhel.subscription.pool }};
-    subscription-manager repos --disable=*;
-  when: (product.repo_type == 'rhsm' and ansible_distribution_version|int == 7)
-
-- name: Enable RHSM yum repos
-  shell: >
-    subscription-manager repos --disable=*;
-    subscription-manager repos --enable=rhel-7-server-rpms;
-    subscription-manager repos --enable=rhel-7-server-optional-rpms;
-    subscription-manager repos --enable=rhel-7-server-openstack-{{ product.version }}-rpms;
-    yum-config-manager --setopt=”rhel-7-server-openstack-{{ product.version }}-rpms.priority=1” --enable rhel-7-server-openstack-{{ product.version }}-rpms;
-  when: (product.repo_type == 'rhsm' and ansible_distribution_version|int == 7)
-
 # copr repos
 - name: enable tripleo copr repository
   shell: "sudo curl -o /etc/yum.repos.d/slagle-openstack-m.repo {{ product.repo.copr[ ansible_distribution ][distro.version] }}"
@@ -118,10 +160,7 @@
   debug: var=rdo_repo_output.stdout
   when: installer.custom_repo is defined
 
-- name: Ensure common dependencies
-  yum: name={{ item }} state=present
-  with_items:
-    - libselinux-python
-
-- name: Install vim
-  yum: name=vim state=installed
+- name: Remove any rhel repo created by rdo-ci #used when both rdo and rhos are in play
+  file: path=/etc/yum.repos.d/rhel_ci.repo state=absent
+  notify:
+    - Yum clean all

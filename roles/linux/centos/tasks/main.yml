@@ -16,10 +16,3 @@
     - Yum clean all
     - yum -y update to latest packages
 
-- name: ensure yum-utils
-  yum: name=yum-utils state=present
-
-- name: Ensure common dependencies
-  yum: name={{ item }} state=present
-  with_items:
-    - libselinux-python

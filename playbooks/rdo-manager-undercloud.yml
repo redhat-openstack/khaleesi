@@ -1,10 +1,6 @@
 ---
-- name: Create EPEL repos
-  hosts: instack-virt-host
-  vars:
-    - ansible_ssh_user: root
-  roles:
-      - linux/rhel/rdo
+- include: group_by.yml ansible_ssh_user=root
+- include: rdo-manager-prep-host.yml
 
 - name: Create instack user {{ instack.user.stack.name }}
   hosts: instack-virt-host
@@ -34,6 +30,8 @@
   sudo: yes
   roles:
     - build_mark/build
+
+- include: rdo-manager-prep-undercloud.yml
 
 - name: install the undercloud
   hosts: undercloud

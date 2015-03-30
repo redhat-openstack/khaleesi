@@ -2,8 +2,16 @@
 # If there is NetworkManager process running, but uninstalled, it will cause
 # problems upon service network restart, searching for not-existing
 # /usr/libexec/nm-dhcp-helper
-- name: install psmisc
-  yum: name=psmisc state=present
+- name: Ensure common dependencies
+  yum: name={{ item }} state=present
+  with_items:
+    - yum-utils
+    - yum-plugin-priorities
+    - vim
+    - iptables
+    - libselinux-python
+    - psmisc
+    - redhat-lsb-core
 
 - name: disable NetworkManager
   service: name=NetworkManager state=stopped enabled=no
@@ -32,7 +40,3 @@
 - name: collect performance data, vmstat
   command: vmstat
 
-- name: Ensure redhat-lsb-core
-  yum: name={{ item }} state=present
-  with_items:
-    - redhat-lsb-core

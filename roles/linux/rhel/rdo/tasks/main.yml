@@ -4,7 +4,7 @@
   yum: name=redhat-release-server state=present
 
 - name: Create the RHEL Repositories
-  template: src=rhel.repo.j2 dest=/etc/yum.repos.d/rhel.repo
+  template: src=rhel.repo.j2 dest=/etc/yum.repos.d/rhel_ci.repo
   notify:
     - Yum clean all
     - yum -y update to latest packages
@@ -13,9 +13,6 @@
   template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
   notify:
     - Yum clean all
-
-- name: ensure yum-utils
-  yum: name=yum-utils state=present
 
 #WORKAROUND
 - name: Ensure /etc/sysconfig/iptables-services
@@ -30,10 +27,3 @@
   when: workaround_rhel7_iptable_services|default(false)
         and ansible_distribution_version == "7.0"
 
-- name: Ensure common dependencies
-  yum: name={{ item }} state=present
-  with_items:
-    - libselinux-python
-
-- name: Install vim
-  yum: name=vim state=installed

@@ -1,0 +1,54 @@
+---
+
+- include: group_by.yml ansible_ssh_user=root
+
+# Provides CentOS repos if absent
+- name: CentOS RDO prep
+  hosts: instack-virt-host:&CentOS
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    - { role: linux/centos }
+
+# Provides EPEL
+- name: RHEL RDO prep
+  hosts: instack-virt-host:&RedHat
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    - { role: linux/rhel/rdo, yum_update: false}
+
+# Provides rhos-release
+- name: RHEL RHOS prep
+  hosts: instack-virt-host:&RedHat
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    - { role: linux/rhel/rhos, product_override_version: "6",
+         when: product.repo_type_override is defined and product.repo_type_override == 'rhos-release' }
+
+# Provides rhsm repos
+- name: RHEL RHOS prep
+  hosts: instack-virt-host:&RedHat
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    - { role: linux/rhel/rhos, product_override_version: 6.0, product_repo_type_override: "rhsm",
+          when: product.repo_type_override is defined and product.repo_type_override == 'rhsm'}
+
+# Collect performance data, etc.
+- name: Linux common prep
+  hosts: instack-virt-host
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    - { role: linux-common }
+
+ # Provides rdo and delorean repos
+- name: Setup dependencies on nodes (rdo)
+  hosts: instack-virt-host
+  vars:
+    - ansible_ssh_user: root
+  roles:
+      - product/rdo
+

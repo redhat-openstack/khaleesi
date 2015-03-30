@@ -14,22 +14,8 @@
     - Yum clean all
     - yum -y update to latest packages
 
-- name: ensure yum-utils
-  yum: name=yum-utils state=present
-
 - name: WORKAROUND | BZ | Ensure iptables-services
   yum: name=iptables-services state=present
   tags: workaround
   when: workarounds_disabled is not defined or
         workarounds_disabled|bool == false
-
-- name: Ensure common dependencies
-  yum: name={{ item }} state=present
-  with_items:
-    - libselinux-python
-
-- name: Install vim on tempest node
-  yum: name={{ item }} state=latest
-  with_items:
-      - vim-minimal
-      - vim

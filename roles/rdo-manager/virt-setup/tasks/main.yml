@@ -1,12 +1,12 @@
 ---
-#see https://review.gerrithub.io/#/c/217853/
+- name: setup environment vars
+  template: src=virt-setup-env.j2 dest=~/virt-setup-env mode=0755
+
 - name: run instack-virt-setup
   register: instack_virt_setup_result
   ignore_errors: yes
   shell: >
-    export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
-    export DIB_YUM_REPO_CONF=/etc/yum.repos.d/rhos-release-6-rhel-7.1.repo;
-    export NODE_DIST=rhel7;
+    source {{ instack_user_home }}/virt-setup-env;
     instack-virt-setup;
 
 - name: update libvirtd unix_sock_group
@@ -47,9 +47,7 @@
 - name: retry run instack-virt-setup
   shell: >
     virsh undefine instack;
-    export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
-    export DIB_YUM_REPO_CONF=/etc/yum.repos.d/rhos-release-6-rhel-7.1.repo;
-    export NODE_DIST=rhel7;
+    source {{ instack_user_home }}/virt-setup-env;
     instack-virt-setup;
   when: "instack_virt_setup_result.rc != 0"
 

@@ -1,12 +1,14 @@
 ---
+- name: setup environment vars
+  template: src=build-img-env.j2 dest=~/build-img-env mode=0755
+
 - name: ensure /tmp/svc-map-services is absent
   file: path=/tmp/svc-map-services state=absent
   sudo: yes
 
 - name: build all the images
   shell: >
-        export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }};
-        export RUN_RHOS_RELEASE=1;
+        source {{ instack_user_home }}/build-img-env;
         instack-build-images
 
 - name: prepare for overcloud by loading the images into glance

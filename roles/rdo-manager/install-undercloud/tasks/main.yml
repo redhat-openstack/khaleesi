@@ -1,4 +1,9 @@
 ---
+#workaround for puppet, discovered on centos7
+- name: update hosts file for localhost.localhost
+  lineinfile: dest=/etc/hosts line="127.0.0.1   localhost localhost.localhost"
+  sudo: yes
+
 - name: install the undercloud
   command: instack-install-undercloud
 
@@ -16,8 +21,7 @@
     - tripleo-undercloud-passwords
     - stackrc
 
-- name: get the rhel-guest-image
-  get_url: url={{ distro.images['rhel'][ansible_distribution_version].remote_file_server }}{{ distro.images['rhel'][ansible_distribution_version].guest_image_name }}
+- name: get the guest-image
+  get_url: url={{ distro.images[distro.name][ansible_distribution_version].remote_file_server }}{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
                 dest={{ instack_user_home }}
                 force=no
-
