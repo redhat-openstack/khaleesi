@@ -27,7 +27,7 @@
       network_name: "{{ provisioner.network.name }}"
       name: external-subnet
       enable_dhcp: False
-      gateway_ip: "{{ provisioner.network.public_allocation_gateway }}"
+      gateway_ip: "{{ provisioner.network.public_subnet_gateway }}"
       cidr: "{{ provisioner.network.public_subnet_cidr}}"
       allocation_pool_start: "{{ provisioner.network.public_allocation_start }}"
       allocation_pool_end: "{{ provisioner.network.public_allocation_end }}"
@@ -62,7 +62,7 @@
       network_name: "{{ provisioner.network.name }}"
       name: external-subnet
       enable_dhcp: False
-      gateway_ip: "{{ provisioner.network.public_allocation_gateway }}"
+      gateway_ip: "{{ provisioner.network.public_subnet_gateway }}"
       cidr: "{{ provisioner.network.public_subnet_cidr}}"
       allocation_pool_start: "{{ provisioner.network.public_allocation_start }}"
       allocation_pool_end: "{{ provisioner.network.public_allocation_end }}"
