@@ -2,6 +2,7 @@
 
 tempest_valid_setup_methods:
     - packstack/provision
+    - tempest/source
     - tempest/config_script
     - tempest/rpm
 

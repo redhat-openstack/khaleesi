@@ -20,7 +20,7 @@
         tags: ['tempest_setup']}
 
 - { include: setup-tempest-use-config-tool.yml,
-        when: "tempest.setup_method == 'tempest/config_script'",
+        when: "tempest.setup_method == 'tempest/config_script' or tempest.setup_method == 'tempest/source'",
         tags: ['tempest_setup']}
 
 - { include: setup-tempest-use-rpm.yml,  #"
