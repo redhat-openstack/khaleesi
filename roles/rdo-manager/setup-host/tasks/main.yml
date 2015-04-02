@@ -12,9 +12,12 @@
     - rdo-release
     - epel-release
 
-- name: remove any yum repos before the setup host script
-  shell: rm -Rf /etc/yum.repos.d/*.repo
+- name: ensure yum repos metadata and cache are clean
   sudo: yes
+  shell: >
+    yum clean all;
+    rm -Rf /var/cache/yum;
+    rm -Rf /etc/yum.repos.d/*.repo
 
 - name: get instack-setup-host script if it doesn't exist
   get_url: url=https://raw.githubusercontent.com/rdo-management/instack-undercloud/master/scripts/instack-setup-host
