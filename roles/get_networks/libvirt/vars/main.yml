@@ -1,0 +1,2 @@
+---
+libvirt_qemu_resolv_conf_head: '/etc/resolvconf/resolv.conf.d/head'

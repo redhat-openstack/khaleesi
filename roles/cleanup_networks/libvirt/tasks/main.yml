@@ -1,0 +1,8 @@
+---
+- name: remove networks
+  shell: |
+    virsh net-destroy {{ item.value.name }}
+    virsh net-undefine {{ item.value.name }}
+  with_dict: provisioner.network.nic
+  when: item.value.khaleesi_managed | default(false) == True
+  ignore_errors: true

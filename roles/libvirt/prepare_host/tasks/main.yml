@@ -1,0 +1,62 @@
+---
+- name: Create the EPEL Repository
+  template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
+  when: ansible_distribution == "RedHat"
+  notify:
+    - Yum clean all
+
+- name: Install libvirt dependencies
+  yum: name={{ item }} state=latest
+  with_items:
+    - libselinux-python
+    - tftp-server
+    - qemu-kvm
+    - qemu-kvm-tools
+    - libvirt
+    - libvirt-client
+    - virt-who
+    - virt-what
+    - fence-virtd-libvirt
+    - fence-virtd-multicast
+    - fence-virtd-serial
+    - bpg-sans-fonts
+    - virt-viewer
+    - xauth
+    - python-beautifulsoup4
+    - rubygem-nokogiri
+    - python-httplib2
+    - genisoimage
+    - qemu-img
+
+- name: Set selinux state
+  selinux: policy=targeted state={{ distro.config.selinux }}
+
+
+- name: Load kvm_intel to check for nested caps
+  sudo: yes
+  modprobe: name=kvm_intel state=present
+
+- name: Check for nested
+  stat: path=/sys/module/kvm_intel/parameters/nested
+  register: can_nest_result
+
+- name: Copy kvm.conf
+  sudo: yes
+  template: src=kvm.conf.j2 dest=/etc/modprobe.d/kvm.conf
+  when: can_nest_result.stat.exists
+
+- name: Unload kvm_intel
+  sudo: yes
+  modprobe: name=kvm_intel state=absent
+
+- name: Reload kvm_intel
+  sudo: yes
+  modprobe: name=kvm_intel state=present
+
+- name: Restart libvirtd
+  service: name=libvirtd state=restarted
+
+
+- name: create temporary storage paths
+  file: state=directory path={{hypervisor_image_path}}/khaleesi_provisioner/image-cache
+

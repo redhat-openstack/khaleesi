@@ -1,7 +1,0 @@
----
-- name: delete  vagrant host
-  command: "vagrant destroy foreman chdir={{ ansible_env.HOME }}/staypuft-install-groups/group1"
-  environment:
-    VAGRANT_DEFAULT_PROVIDER: "libvirt"
-    VAGRANT_PLAYBOOK: "{{ ansible_env.HOME }}/khaleesi/playbooks/staypuft/foreman-vagrant-provision.yml"
-    VAGRANT_KHALEESI_SETTINGS: "{{ ansible_env.HOME }}/staypuft-install-groups/group1/ksgen_settings.yml"

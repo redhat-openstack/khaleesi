@@ -1,18 +1,90 @@
 ---
-- include: staypuft/baremetal-setup.yml
-- include: staypuft/foreman-vm-create.yml
-- include: staypuft/deploy-vms-create.yml
+#  Error with selinux-python
+#- include: dump_settings.yml
+#
+# #determine provisioner and whether or not to skip
+- include: group_by_provision.yml
 
+- name: initialize bastion config
+  hosts: local
+  sudo: no
+  roles:
+    - { role: libvirt/ssh_config, stage: create}
+
+- include: provision.yml
+
+- name: populate bastion config
+  hosts: local
+  sudo: no
+  roles:
+    - { role: libvirt/ssh_config, stage: populate}
+
+#- name: breakpoing
+#  hosts: libvirt_host
+#  tasks:
+#   - fail: msg="breakpoint, check ssh connection through bastion host"
+
+- include: group_by.yml tags=provision
+
+- include: prep.yml
+
+- name: IPtables firewall
+  hosts: staypuft_host:RedHat-6:CentOS-6:!~(Fedora-20|(RedHat|CentOS)-7)
+  sudo: yes
+  roles:
+    - { role: libvirt/firewall/iptables }
+
+- name: Firewalld firewall
+  hosts: staypuft_host:!~(RedHat|CentOS)-6
+  sudo: yes
+  roles:
+    - { role: libvirt/firewall/firewalld }
+
+- name: Create NFS
+  hosts: staypuft_host
+  sudo: yes
+  roles:
+    - { role: staypuft/nfs_server }
+
+- name: retrieve mac_address for pxe_net interface on staypuft guest
+  hosts: libvirt_host
+  tasks:
+    - shell: virsh domiflist {{ nodes.staypuft.name }} | grep {{ provisioner.network.nic.net_2.name }} | awk {'print $5'}
+      register: staypuft_host_provision_mac_address
+
+- name: Install staypuft
+  hosts: staypuft_host
+  sudo: yes
+  roles:
+    - { role: staypuft/install }
+
+- name: Run staypuft installer
+  hosts: staypuft_host
+  sudo: yes
+  roles:
+    - { role: staypuft/run_install }
+
+- name: Start empty vms
+  hosts: libvirt_host
+  tasks:
+     - name: start empty vms
+       virt: state=running name={{item.value.name}}
+       with_dict: nodes
+       when: item.value.create_empty | default(false) == true
+#
+# apply post-install workarouds
+- include: ../workarounds/workarounds-staypuft-prep.yml tags=workaround
 # TODO a better way should be to check when api/v2/discovered_hosts return 5 hosts
 # But this requires a login (and the login task to be share among playbooks)
+
 - name: we have to wait for the deploy host to become discovered
   hosts: localhost
   tasks:
     - pause: minutes=4
 
-- include: staypuft/deployments.yml
+#- include: staypuft/deployments.yml
 
-- include: staypuft/ha_deployments.yml
+#- include: staypuft/ha_deployments.yml
 
-- include: staypuft/tempest.yml
+#- include: tempest.yml
 

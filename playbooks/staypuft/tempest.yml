@@ -1,5 +1,0 @@
-- name: launch tempest with a inner khaleesi
-  hosts: staypuft_host
-  roles:
-      - staypuft/tempest
-

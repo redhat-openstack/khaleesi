@@ -1,0 +1,35 @@
+- name: create config.d dir
+  file: state=directory path={{ provisioner.ssh_config.location }}/ssh-config.{{ tmp.node_prefix }}/
+
+- name: get key pairs if not defined
+  set_fact: key_file={{ ansible_env.HOME }}/.ssh/id_rsa
+  when: provisioner.key_file is not defined 
+
+- set_fact: key_file={{ provisioner.key_file }}
+  when: provisioner.key_file is defined
+
+- name: get public key if nod defined
+  command: cat {{ ansible_env.HOME }}/.ssh/id_rsa.pub
+  register: public_key_result
+  when: provisioner.public_key is not defined
+
+- set_fact: public_key="{{public_key_result.stdout}}"
+
+- name: touch
+  command: touch {{ provisioner.ssh_config.location }}/ssh-config.{{ tmp.node_prefix }}/{{tmp.node_prefix}}empty
+
+- name: create ssh_config with bastion config
+  template: src=ssh_config.j2 dest={{ provisioner.ssh_config.location }}/ssh-config.{{ tmp.node_prefix }}/bastion
+  when: stage == "create"
+
+- name: add host to bastion config
+  template: src=ssh_config_host.j2 dest={{ provisioner.ssh_config.location }}/ssh-config.{{ tmp.node_prefix }}/{{ item.value.name }}
+  with_dict: nodes
+  when: item.value.create_empty| default(false) == false  and stage=="populate"
+
+- name: merge configuration pieces
+  shell: chdir={{ provisioner.ssh_config.location }}/ssh-config.{{ tmp.node_prefix }} cat bastion {{tmp.node_prefix}}* > {{ provisioner.ssh_config.location }}/ssh.config.ansible
+
+- name: create config.d dir
+  file: state=absent path={{ provisioner.ssh_config.location }}/ssh-config.{{ tmp.node_prefix }}/
+  when: stage=="populate"

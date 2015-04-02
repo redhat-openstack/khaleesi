@@ -1,5 +1,0 @@
----
-- include: ../group_by.yml
-
-- include: cleanup-foreman-vm.yml
-- include: cleanup-deploy-vms.yml

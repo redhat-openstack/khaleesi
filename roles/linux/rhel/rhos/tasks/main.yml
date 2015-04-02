@@ -1,10 +1,4 @@
 ---
-# Plese remove this workaround after modifying
-# base vagrant box to get rid of rhel.repo
-- name: get rid of any existing rhel.repo in broken vagrant box.
-  file: path=/etc/yum.repos.d/rhel.repo state=absent
-  when: installer is defined and installer.name == 'staypuft'
-
 - name: Create the RHOS Release Repository
   template: src=rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
 
@@ -66,20 +60,9 @@
   shell: "rhos-release  -x {{ product.version|int }};  rhos-release  -d {{ product.version|int }}a"
   when: product.repo_type == 'poodle_advanced'
 
-- name: Create the RHOS Foreman poodle repository (disabled)
-  template: src=foreman-poodle.repo.j2 dest=/etc/yum.repos.d/foreman-poodle.repo
-  when: (product.repo_type == 'poodle' and installer is defined and installer.name == 'staypuft')
-
 - name: Create the COPR repos required for component tests
   template: src=apevec-copr-repo.j2 dest=/etc/yum.repos.d/apevec-copr.repo
   when: (test.type.name is defined and test.type.name == 'unit-test' and ansible_distribution_version|int >= 7)
-
-- name: Enable Foreman poodle repository if this is a poodle
-  ini_file: dest=/etc/yum.repos.d/foreman-poodle.repo
-            section=foreman-poodle
-            option=enabled
-            value=1
-  when: product.repo_type == 'poodle' and installer is defined and installer.name == 'staypuft'
 
 - name: Change poodle version for repos in rhos-release
   shell: "rhos-release  -x {{ product.version|int }}; rhos-release  {{ product.version|int }} -d -p {{ product.repo.poodle_pin_version }}"

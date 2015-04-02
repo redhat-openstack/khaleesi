@@ -1,0 +1,7 @@
+Host libvirt_host 
+    User                   root
+    HostName               {{ libvirt_host.fqdn }} 
+    ProxyCommand           none
+    IdentityFile           {{ key_file }}
+    BatchMode              yes
+    PasswordAuthentication no

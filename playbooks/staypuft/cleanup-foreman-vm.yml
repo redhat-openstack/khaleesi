@@ -1,8 +1,0 @@
----
-- include: ../group_by.yml
-
-- name: Cleanup Foreman virtual machine from Staypuft host
-  hosts: staypuft_host
-  sudo: yes
-  roles:
-    - { role: staypuft/delete_foreman_vm }

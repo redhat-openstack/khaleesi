@@ -1,0 +1,52 @@
+---
+- name: create directory
+  file:
+    path: "{{ libvirt_bridge_path }}"
+    state: directory
+
+- name: create config
+  template:
+    src: config.xml.j2
+    dest: "{{ libvirt_bridge_path }}/{{ item.value.name }}.xml"
+  with_dict: provisioner.network.nic
+  when: item.value.khaleesi_managed == True
+  register: configure_result
+
+
+- name: check states
+  command: virsh net-info {{ item.item.value.name }}
+  failed_when: no
+  changed_when: no
+  with_items: configure_result.results
+  when: item.skipped is not defined
+  register: check_states_result
+
+- name: stop and undefine existing
+  shell: >
+    virsh net-destroy {{ item[0].item.value.name }};
+    virsh net-undefine {{ item[0].item.value.name }}
+  when: (item[1].rc is defined) and (item[1].rc == 0) and (item[0].changed) 
+  with_together:
+  - configure_result.results
+  - check_states_result.results
+
+- name: define and start
+  shell: >
+    virsh net-define {{ libvirt_bridge_path }}/{{ item[0].item.value.name }}.xml &&
+    virsh net-autostart {{ item[0].item.value.name }} &&
+    virsh net-start {{ item[0].item.value.name }}
+  when: item[0].changed or (item[1].rc is defined and item[1].rc == 1)
+  with_together:
+  - configure_result.results
+  - check_states_result.results
+
+#- name: add dnsmasq for host
+#  lineinfile:
+#    dest: "{{ libvirt_qemu_resolv_conf_head }}"
+#    regexp: "^nameserver"
+#    line: "nameserver {{ (libvirt_bridges | first).ip_address }}"
+#  register: nameserver_result
+
+#- name: call resolvconf
+#  command: "resolvconf -u"
+#  when: nameserver_result.changed

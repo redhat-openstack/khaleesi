@@ -1,0 +1,14 @@
+---
+
+- name: Destroy and undefine nodes
+  shell: |
+        virsh destroy {{item.value.name}} 
+        virsh undefine --remove-all-storage {{item.value.name}}
+  with_dict: nodes
+  ignore_errors: true
+
+- name: clear /etc/hosts
+  lineinfile: dest=/etc/hosts
+      regexp={{item.value.fqdn}} state=absent
+  with_dict: nodes
+  when: item.value.create_empty | default(false) == false

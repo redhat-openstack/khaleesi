@@ -1,0 +1,19 @@
+#cloud-config
+password: passw0rd
+chpasswd: { expire: False }
+ssh_pwauth: True
+# The only way to get vm ip ifrom outside is through dynamic dns feature offered by dnsmasq
+# but cloud-init is able to set hostname only after the network is already set up
+# so when hostname is changed dhcp request already finished with a blank hostname
+# we force here a dhcp disconnect and reconnect to present up with correct
+# Networkmanager disrupt every attempt to be deterministic, we disable it at all costs
+# as soon as we can
+# hostname
+runcmd:
+ - "service NetworkManager stop; sleep 2"
+ - "ip -o l | grep -v lo: | head -n 1 | awk -F': ' {'print $2'} > /tmp/first-interface"
+# works only when eth0 is not the first interface
+# - IF=$(cat /tmp/first-interface); sed -e "s/eth0/$IF/" /etc/sysconfig/network-scripts/ifcfg-eth0 > /etc/sysconfig/network-scripts/ifcfg-$IF
+ - "IF=$(cat /tmp/first-interface); ifdown $IF; ifup $IF"
+ssh_authorized_keys:
+ - {{ hostvars["localhost"].public_key }}

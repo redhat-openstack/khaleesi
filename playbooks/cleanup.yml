@@ -8,6 +8,18 @@
   tags:
     - provision
 
+- name: Cleanup libvirt guests from libvirt host
+  hosts: libvirt_host:&libvirt
+  gather_facts: False
+  roles:
+    - { role: cleanup_nodes/libvirt }
+
+- name: Cleanup libvirt networks from libvirt host
+  hosts: libvirt_host:&libvirt
+  gather_facts: False
+  roles:
+    - { role: cleanup_networks/libvirt }
+
 - name: Cleanup openstack nodes from nova
   hosts: local:&openstack:&nova
   sudo: no

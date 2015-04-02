@@ -1,9 +1,0 @@
----
-- include: ../group_by.yml
-
-
-- name: Cleanup virtual machines for deploy from staypuft host
-  hosts: staypuft_host
-  sudo: yes
-  roles:
-    - { role: staypuft/delete_deploy_vms, staypuft_guest_count: 5 }

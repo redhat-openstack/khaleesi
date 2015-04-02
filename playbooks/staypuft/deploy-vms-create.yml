@@ -1,8 +1,0 @@
----
-- include: ../group_by.yml
-
-- name: Populate virtual machines for Staypuft deployment
-  hosts: staypuft_host
-  sudo: yes
-  roles:
-    - { role: staypuft/create_vms, staypuft_guest_count: 5 }

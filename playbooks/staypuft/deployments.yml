@@ -1,8 +1,0 @@
----
-- include: ../group_by.yml
-
-- name: create deployment without GUI
-  hosts: localhost
-  roles:
-    - { role: staypuft/deployments,
-          when: staypuft.deploy.deployment_settings.layout_name == "Controller / Compute" }

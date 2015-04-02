@@ -8,7 +8,7 @@
     - prep
 
 - name: Prepare system
-  hosts: all:!localhost:!skip_prep
+  hosts: all:!localhost:!skip_prep:!libvirt_host
   sudo: yes
   roles:
     - { role: common }
@@ -16,7 +16,7 @@
     - prep
 
 - name: RHEL RHOS prep
-  hosts: all:!localhost:!foreman:&RedHat:&rhos:!skip_prep
+  hosts: all:!localhost:!foreman:!libvirt_host:&RedHat:&rhos:!skip_prep
   sudo: yes
   roles:
     - { role: linux/rhel/rhos }
@@ -24,7 +24,7 @@
     - prep
 
 - name: RHEL RHOS prep foreman host
-  hosts: foreman:&RedHat:&rhos:!skip_prep
+  hosts: foreman:staypuft_host:&RedHat:&rhos:!skip_prep
   sudo: yes
   roles:
     - { role: linux/rhel/rhos, installer_host_repo: "-installer", when: "{{ product.version | version_compare('6.0', '==')}}"}
@@ -33,7 +33,7 @@
     - prep
 
 - name: RHEL RDO prep
-  hosts: all:!localhost:&RedHat:&rdo:!skip_prep
+  hosts: all:!localhost:&RedHat:&rdo:!skip_prep:!libvirt_host
   sudo: yes
   roles:
     - { role: linux/rhel/rdo }
@@ -41,7 +41,7 @@
     - prep
 
 - name: CentOS RDO prep
-  hosts: all:!localhost:&CentOS:&rdo:!skip_prep
+  hosts: all:!localhost:&CentOS:&rdo:!skip_prep:!libvirt_host
   sudo: yes
   roles:
     - { role: linux/centos }
@@ -49,7 +49,7 @@
     - prep
 
 - name: Fedora RDO prep
-  hosts: all:!localhost:&Fedora:&rdo:!skip_prep
+  hosts: all:!localhost:&Fedora:&rdo:!skip_prep:!libvirt_host
   sudo: yes
   roles:
     - { role: linux/fedora }
@@ -57,7 +57,7 @@
     - prep
 
 - name: Linux common prep
-  hosts: all:!localhost:!skip_prep
+  hosts: all:!localhost:!skip_prep:!libvirt_host
   sudo: yes
   roles:
     - { role: linux-common }

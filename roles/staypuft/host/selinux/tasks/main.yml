@@ -1,7 +1,0 @@
----
-- name: install python bindings
-  yum: name=libselinux-python state=latest
-
-- name: Set selinux state
-  selinux: policy=targeted state={{ selinux_state }}
-

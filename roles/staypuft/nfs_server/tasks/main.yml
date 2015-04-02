@@ -21,5 +21,14 @@
 - name: Turn on rpcbind
   service: name=rpcbind state=started enabled=yes
 
+
+# Yes, I know what you're thinking "why you're not using ansible service: module"
+# Well, it doesn't work here, dunno why, tried a million times, no dice.
 - name: Turn on nfs
-  service: name=nfs state=restarted enabled=yes
+  shell: systemctl enable nfs; systemctl restart nfs
+#  service: name=nfs state=restarted enabled=yes
+
+- name: reexport fs
+  command: exportfs -r
+
+

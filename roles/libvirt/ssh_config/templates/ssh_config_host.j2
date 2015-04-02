@@ -1,0 +1,11 @@
+Host {{ item.value.name }}
+    ServerAliveInterval    60
+    TCPKeepAlive           yes
+    ProxyCommand           ssh -o ConnectTimeout=30 -A {{ hostvars["libvirt_host"].ansible_ssh_user}}@{{ hostvars["libvirt_host"].fqdn }}  nc --wait 30 %h.khaleesi.{{ hostvars["libvirt_host"].fqdn }} %p
+    ControlMaster          auto
+    ControlPath            ~/.ssh/mux-%r@%h:%p
+    ControlPersist         8h
+    User                   {{ item.value.remote_user }}
+    IdentityFile           {{ key_file }}
+    StrictHostKeyChecking  no
+    UserKnownHostsFile     /dev/null

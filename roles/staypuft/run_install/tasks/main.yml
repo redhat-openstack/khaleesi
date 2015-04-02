@@ -1,4 +1,14 @@
 ---
+- name: retrieve staypuft provision interface
+  shell: "ip -o link show | grep {{ hostvars['libvirt_host'].staypuft_host_provision_mac_address.stdout }} | awk -F': ' {'print $2'}"
+  register: staypuft_provision_interface
+
+- name: set staypuft provision interface configuration
+  template: src=ifcfg.j2 dest=/etc/sysconfig/network-scripts/ifcfg-{{ staypuft_provision_interface.stdout }}
+
+- name: set link up
+  command: ifup {{ staypuft_provision_interface.stdout }}
+
 - name: Copy templates to foreman server
   template: src="{{ item }}.j2" dest="/etc/foreman/{{ item }}" owner=root group=root mode=600
   with_items:
