@@ -17,6 +17,20 @@
 - name: clone opm git repo
   git: repo=https://github.com/redhat-openstack/openstack-puppet-modules.git
        dest={{ job.opm_path }}
+  when: gerrit_refspec is not defined
+
+- name: clone opm gerrit branch
+  git: repo=https://gerrithub.io/redhat-openstack/openstack-puppet-modules.git
+       dest={{ job.opm_path }}
+       recursive=no
+  when: gerrit_refspec is defined
+
+- name: switch to change branch
+  shell: |
+      cd {{ job.opm_path }}
+      git fetch origin {{ gerrit_refspec }}:change
+      git checkout change
+  when: gerrit_refspec is defined
 
 - name: clone opm tests
   git: repo=https://github.com/paramite/opmci.git
@@ -27,6 +41,6 @@
         state=link
         src=/etc/hiera.yaml
 
-- name: genereate hiera defaults
+- name: generate hiera defaults
   command: cp {{ job.opm_tests_path }}/hiera/defaults.yaml /var/lib/hiera/
 
