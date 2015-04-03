@@ -1,4 +1,9 @@
 ---
+- name: fetch commit dependencies
+  roles:
+    - depends-on
+  hosts: localhost
+
 # determine provisioner and whether or not to skip
 - include: group_by_provision.yml
 

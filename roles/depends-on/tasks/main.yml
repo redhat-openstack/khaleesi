@@ -1,0 +1,4 @@
+---
+- name: search and fetch dependent changes
+  script: depends_on.py {{ lookup('env', 'WORKSPACE') }}
+  when: "\"\" != \"{{ lookup('env', 'GERRIT_CHANGE_COMMIT_MESSAGE') }}\""
