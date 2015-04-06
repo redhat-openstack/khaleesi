@@ -19,11 +19,21 @@
   register: rdo_release_install_result
   until: rdo_release_install_result.rc == 0
 
-- name: Create the upstream delorean repositories for EPEL RDO
-  get_url: url="{{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"/delorean.repo dest=/etc/yum.repos.d/rdo-trunk-release.repo mode=0644
+- name: Create the upstream delorean repositories for Fedora RDO
+  get_url: url="{{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"/current/delorean.repo
+            dest=/etc/yum.repos.d/rdo-trunk-release.repo
+            mode=0644
   notify:
     - Yum clean all
   when: product.repo_type == 'delorean'
+
+- name: Create the pinned upstream delorean repositories for Fedora RDO
+  get_url: url="{{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"/"{{product.repo.delorean_pin_version}}"/delorean.repo
+            dest=/etc/yum.repos.d/rdo-trunk-release.repo
+            mode=0644
+  notify:
+    - Yum clean all
+  when: product.repo_type in ['delorean'] and product.repo.delorean_pin_version is defined
 
 - name: set baseurl for rdo if stage
   lineinfile:
