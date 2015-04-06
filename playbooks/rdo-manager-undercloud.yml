@@ -16,10 +16,10 @@
 - name: setup the virt-host
   hosts: instack-virt-host
   roles:
+    - rdo-manager/setup-host
     - { role: rdo-manager/gate-instack-undercloud,
         when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\" or
               \"redhat-openstack/khaleesi\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
-    - rdo-manager/setup-host
     - rdo-manager/virt-setup
     - tripleo/define-env/add-tripleo-hosts
     - { role: rdo-manager/copy-instack-undercloud-rpm,
