@@ -5,7 +5,7 @@
 
 # handle images
 - name: download image if not in cache (this may take a long time)
-  get_url: url={{ item.value.image_url }} dest={{hypervisor_image_path}}/khaleesi_provisioner/image-cache/{{item.value.image_name}}
+  get_url: url={{ item.value.image_url }}{{ item.value.image_name }} dest={{hypervisor_image_path}}/khaleesi_provisioner/image-cache/{{item.value.image_name}}
   with_dict: nodes
   when: item.value.create_empty | default(false) == false
 
