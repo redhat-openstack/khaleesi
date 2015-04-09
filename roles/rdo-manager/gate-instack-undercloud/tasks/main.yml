@@ -1,14 +1,17 @@
 ---
-- name: remove instack-undercloud package
-  yum: name=instack-undercloud state=absent
-  sudo: yes
-
 - name: Set the build directory as a fact
   set_fact:
       build_dir: "/tmp/{{ lookup('env', 'BUILD_TAG') }}"
 
 - name: Create build directory
   file: path={{ build_dir }} state=directory
+
+- name: Copy the instack-undercloud repo
+  synchronize: src=../../instack-undercloud/ dest={{ build_dir }}/instack-undercloud delete=yes recursive=yes
+
+- name: remove instack-undercloud package
+  yum: name=instack-undercloud state=absent
+  sudo: yes
 
 - name: yum install packages to build rpm
   yum: name={{ item }} state=latest
@@ -23,16 +26,10 @@
       chdir={{ build_dir }}
       git clone https://github.com/rdo-management/instack-undercloud-packaging
 
-- name: Clone instack-undercloud
-  command: creates={{ build_dir }}/instack-undercloud
-      chdir={{ build_dir }}
-      git clone https://github.com/rdo-management/instack-undercloud
-
-- name: Fetch the patchset
-  shell:
+- name: Remove the build tag if exists to get the proper version
+  shell: >
       chdir={{ build_dir }}/instack-undercloud
-      git fetch https://review.gerrithub.io/rdo-management/instack-undercloud {{ lookup('env', 'GERRIT_REFSPEC') }} && git checkout FETCH_HEAD;
-  when: "\"rdo-management/instack-undercloud\" == \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
+      git tag -d {{ lookup('env', 'BUILD_TAG') }} || /bin/true
 
 - name: get version of package
   shell: >
