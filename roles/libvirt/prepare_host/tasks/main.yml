@@ -31,7 +31,6 @@
 - name: Set selinux state
   selinux: policy=targeted state={{ distro.config.selinux }}
 
-
 - name: Load kvm_intel to check for nested caps
   sudo: yes
   modprobe: name=kvm_intel state=present
@@ -44,17 +43,21 @@
   sudo: yes
   template: src=kvm.conf.j2 dest=/etc/modprobe.d/kvm.conf
   when: can_nest_result.stat.exists
+  register: nested_conf
 
 - name: Unload kvm_intel
   sudo: yes
   modprobe: name=kvm_intel state=absent
+  when: nested_conf | changed
 
 - name: Reload kvm_intel
   sudo: yes
   modprobe: name=kvm_intel state=present
+  when: nested_conf | changed
 
 - name: Restart libvirtd
   service: name=libvirtd state=restarted
+  when: nested_conf | changed
 
 
 - name: create temporary storage paths

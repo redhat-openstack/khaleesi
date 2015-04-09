@@ -3,7 +3,7 @@
 
 - name: get key pairs if not defined
   set_fact: key_file={{ ansible_env.HOME }}/.ssh/id_rsa
-  when: provisioner.key_file is not defined 
+  when: provisioner.key_file is not defined
 
 - set_fact: key_file={{ provisioner.key_file }}
   when: provisioner.key_file is defined

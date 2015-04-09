@@ -1,4 +1,6 @@
 ---
+- debug: var=hostvars['libvirt_host']
+
 - name: retrieve staypuft provision interface
   shell: "ip -o link show | grep {{ hostvars['libvirt_host'].staypuft_host_provision_mac_address.stdout }} | awk -F': ' {'print $2'}"
   register: staypuft_provision_interface

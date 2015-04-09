@@ -1,6 +1,6 @@
 Host libvirt_host 
     User                   root
-    HostName               {{ libvirt_host.fqdn }} 
+    HostName               {{ hostvars['libvirt_host'].ansible_ssh_host }}
     ProxyCommand           none
     IdentityFile           {{ key_file }}
     BatchMode              yes

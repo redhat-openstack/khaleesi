@@ -67,7 +67,7 @@
     :repositories: rhel-7-server-openstack-5.0-rpms
     :skip_repo_path: false
     :sm_username: "{{ distro.rhel.subscription.username }}"
-    :repo_path: "{{ staypuft.deploy.repo_path}}"
+    :repo_path: "{{ distro[distro.name][distro.version].kickstart_url }}"
     :sm_password: "{{ distro.rhel.subscription.password }}"
     :skip_subscription_seeding: true
     :sm_pool: "{{ distro.rhel.subscription.pool }}"

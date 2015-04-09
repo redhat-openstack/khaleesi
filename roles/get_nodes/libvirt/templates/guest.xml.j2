@@ -4,7 +4,7 @@
   <currentMemory unit='MiB'>{{item.value.flavor.memory}}</currentMemory>
   <vcpu placement='static'>{{item.value.flavor.vcpus}}</vcpu>
   <os>
-    <type arch='x86_64' machine='pc-i440fx-rhel7.0.0'>hvm</type>
+    <type arch='x86_64' machine='pc'>hvm</type>
   </os>
   <features>
     <acpi/>
@@ -16,10 +16,9 @@
   <on_reboot>restart</on_reboot>
   <on_crash>restart</on_crash>
   <devices>
-    <emulator>/usr/libexec/qemu-kvm</emulator>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2' cache='none'/>
-      <source file='{{hypervisor_image_path}}/{{ item.value.name }}.qcow2'/>
+      <source file='{{hypervisor_image_path}}{{ item.value.name }}.qcow2'/>
       <target dev='vda' bus='virtio'/>
       <boot order='2'/>
     </disk>

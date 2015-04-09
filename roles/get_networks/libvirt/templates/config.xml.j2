@@ -1,4 +1,3 @@
-<!-- {{ ansible_managed }} -->
 <network>
   <name>{{ item.value.name | default('default', true) }}</name>
   <forward mode='{{ item.value.forward_mode }}'/>
