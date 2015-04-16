@@ -71,3 +71,8 @@
                   workaround.paackstack_bridge_fix|bool
 
     }
+    - { role: workarounds/neutron-l3-agent-restart,
+        tags: workarounds,
+        when: workarounds.enabled|bool and
+                  installer.network.plugin.name == "neutron"
+    }
