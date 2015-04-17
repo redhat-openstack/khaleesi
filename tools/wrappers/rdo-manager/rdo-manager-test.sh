@@ -42,14 +42,16 @@ function ensure_ksgen() {
     export JOB_NAME=''
     export BEAKER_MACHINE=$TESTBED_IP
     ksgen --config-dir=$CONFIG_BASE/settings generate \
-    --rules-file=$CONFIG_BASE/rules/instack-virt-rhos.yml \
+    --rules-file=$CONFIG_BASE/rules/instack-virt-rdo.yml \
     --provisioner=beaker \
     --provisioner-site=bkr \
+    --provisioner-distro=rhel \
     --provisioner-distro-version=7.1 \
     --provisioner-site-user=rdoci-jenkins \
     --provisioner-options=skip_provision \
-    --product-version=6.0 \
-    --product-version-repo=puddle \
+    --product-version=kilo \
+    --product-version-build=last_known_good \
+    --product-version-repo=delorean_mgt \
     --product-version-workaround=rhel-7.1 \
     --workarounds=enabled \
     --distro=rhel-7.1 \
@@ -59,6 +61,7 @@ function ensure_ksgen() {
     --tester=tempest \
     --tester-setup=rpm \
     --tester-tests=minimal \
+    --extra-vars product.repo_type_override=rhos-release \
     ksgen_settings.yml
     popd
 }
