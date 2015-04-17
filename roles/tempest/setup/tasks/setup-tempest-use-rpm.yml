@@ -19,13 +19,13 @@
   yum: name=openstack-tempest-{{ tempest.rdo.version }}-{{ tempest.rpm.version }} state=present
   sudo: yes
   tags: tempest_setup_rpm
-  when: tempest.rpm is defined
+  when: tempest.rpm is defined and rdopkg_is_tempest_update is not defined
 
 - name: rpm | install tempest rpm 
   yum: name=openstack-tempest-{{ tempest.rdo.version }} state=present
   sudo: yes
   tags: tempest_setup_rpm
-  when: tempest.rpm is not defined
+  when: tempest.rpm is not defined and rdopkg_is_tempest_update is not defined
 
 - debug: msg="{{ tempest.dir }}"
   tags: tempest_setup_rpm
