@@ -3,10 +3,11 @@
 # problems upon service network restart, searching for not-existing
 # /usr/libexec/nm-dhcp-helper
 - name: Ensure common dependencies
-  yum: name={{ item }} state=present
+  yum: name={{ item }} state=latest
   with_items:
     - yum-utils
     - yum-plugin-priorities
+    - vim-minimal
     - vim
     - iptables
     - libselinux-python
