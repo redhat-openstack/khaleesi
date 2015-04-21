@@ -21,7 +21,7 @@
 - name: get number of overcloud nodes
   shell: >
     export IP_LENGTH=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | wc -l`);
-    echo $(($IP_LENGTH-1))
+    echo $(($IP_LENGTH))
   register: node_length
 
 - name: power off node boxes

@@ -4,7 +4,7 @@
   ignore_errors: yes
   shell: >
       source {{ instack_user_home }}/stackrc;
-      if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then {{ instack_user_home }}/deploy-overcloudrc; fi;
+      if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then source {{ instack_user_home }}/deploy-overcloudrc; fi;
       instack-deploy-overcloud --tuskar
 
 - name: print result of instack-deploy-overcloud install
@@ -15,7 +15,6 @@
   when: result.rc != 0
   shell: >
       source {{ instack_user_home }}/stackrc;
-      if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then {{ instack_user_home }}/deploy-overcloudrc; fi;
       heat stack-list;
       heat resource-list overcloud;
       heat event-list overcloud;
@@ -26,7 +25,6 @@
   ignore_errors: yes
   shell: >
       source {{ instack_user_home }}/stackrc;
-      if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then {{ instack_user_home }}/deploy-overcloudrc; fi;
       heat resource-show overcloud ControllerNodesPostDeployment;
 
 - name: grep for errors in heat-engine.log

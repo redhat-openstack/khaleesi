@@ -1,11 +1,4 @@
 ---
-- name: Create EPEL repos
-  hosts: undercloud
-  vars:
-    - ansible_ssh_user: root
-  roles:
-    - linux/rhel/rdo
-
 - name: Create instack user {{ instack.user.stack.name }}
   hosts: undercloud
   vars:
@@ -30,6 +23,14 @@
   sudo: yes
   roles:
     - build_mark/build
+
+- include: rdo-manager-prep-undercloud.yml
+
+- name: installing python-six - workaround
+  hosts: undercloud
+  sudo: yes
+  tasks:
+    yum: name=python-six state=present
 
 - name: install instack undercloud
   hosts: undercloud

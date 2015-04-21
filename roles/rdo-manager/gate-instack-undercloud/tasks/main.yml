@@ -16,9 +16,10 @@
 - name: yum install packages to build rpm
   yum: name={{ item }} state=latest
   with_items:
-    - rpm-build
-    - python-pbr
     - git
+    - python-pbr
+    - rpm-build
+    - rsync
   sudo: yes
 
 - name: Clone instack-undercloud-packaging
