@@ -7,8 +7,6 @@
   with_items:
     - yum-utils
     - yum-plugin-priorities
-    - vim-minimal
-    - vim
     - iptables
     - libselinux-python
     - psmisc
