@@ -1,0 +1,22 @@
+---
+- name: scales out overcloud compute nodes
+  shell: >
+   openstack overcloud scale -r Compute-1 -n {{ nodes.compute.scale_change }}
+  when: nodes.compute.scale_change is defined
+
+- name: scales out overcloud ceph nodes
+  shell: >
+    openstack overcloud scale -r Ceph-Storage-1 -n {{ nodes.cephstorage.scale_change }}
+  when: nodes.cephstorage.scale_change is defined
+
+- name: scales out overcloud cinder nodes
+  shell: >
+    openstack overcloud scale -r Cinder-Storage-1 -n {{ nodes.blockstorage.scale_change }}
+  when: nodes.blockstorage.scale_change is defined
+
+- name: scales out overcloud swift nodes
+  shell: >
+    openstack overcloud scale -r Swift-Storage-1 -n {{ nodes.swiftstorage.scale_change }}
+  when: nodes.swiftstorage.scale_change is defined
+
+

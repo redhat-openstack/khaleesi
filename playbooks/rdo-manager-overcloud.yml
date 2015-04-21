@@ -19,6 +19,11 @@
   roles:
    - rdo-manager/instack-deploy-overcloud
 
+- name: scale overcloud nodes
+  hosts: undercloud
+  roles:
+   - rdo-manager/scale-nodes
+
 #test-overcloud is not working at the moment
 # - name: test overcloud with built in script
 #   hosts: undercloud
