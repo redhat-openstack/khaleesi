@@ -33,7 +33,7 @@
     - Yum clean all
 
 - name: Create the upstream delorean repositories for EPEL RDO
-  get_url: url="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}"/current/delorean.repo 
+  get_url: url="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}/current/{{ product.repo.delorean.repo_file }}"
             dest=/etc/yum.repos.d/rdo-trunk-release.repo
             mode=0644
   notify:
@@ -41,7 +41,7 @@
   when: product.repo_type in ['delorean', 'delorean_mgt'] and product.repo.delorean_pin_version is not defined
 
 - name: Create the pinned upstream delorean repositories for EPEL RDO
-  get_url: url="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}"/"{{product.repo.delorean_pin_version}}"/delorean.repo
+  get_url: url="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}/{{product.repo.delorean_pin_version}}/{{ product.repo.delorean.repo_file }}"
             dest=/etc/yum.repos.d/rdo-trunk-release.repo
             mode=0644
   notify:
@@ -49,7 +49,7 @@
   when: product.repo_type in ['delorean', 'delorean_mgt'] and product.repo.delorean_pin_version is defined
 
 - name: Create the upstream delorean mgt repositories for EPEL RDO
-  get_url: url="{{ product.repo['delorean_mgt'][ansible_distribution][ansible_distribution_version] }}"/current/delorean-rdo-management.repo
+  get_url: url="{{ product.repo['delorean_mgt'][ansible_distribution][ansible_distribution_version] }}/current/delorean-rdo-management.repo"
             dest=/etc/yum.repos.d/rdo-mgt-trunk-release.repo
             mode=0644
   notify:

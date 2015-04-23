@@ -20,7 +20,7 @@
   until: rdo_release_install_result.rc == 0
 
 - name: Create the upstream delorean repositories for Fedora RDO
-  get_url: url="{{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"/current/delorean.repo
+  get_url: url="{{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}/current/{{ product.repo.delorean.repo_file }}"
             dest=/etc/yum.repos.d/rdo-trunk-release.repo
             mode=0644
   notify:
@@ -28,7 +28,7 @@
   when: product.repo_type == 'delorean' and product.repo.delorean_pin_version is not defined
 
 - name: Create the pinned upstream delorean repositories for Fedora RDO
-  get_url: url="{{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"/"{{product.repo.delorean_pin_version}}"/delorean.repo
+  get_url: url="{{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}/{{product.repo.delorean_pin_version}}/{{ product.repo.delorean.repo_file }}"
             dest=/etc/yum.repos.d/rdo-trunk-release.repo 
             mode=0644
   notify:
