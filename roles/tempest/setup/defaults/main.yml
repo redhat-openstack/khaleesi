@@ -11,21 +11,3 @@ tempest_redhat_repo:
 
 
 tempest_config_image_url: http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-disk.img
-
-tempest_config_generate_command: >
-  python {{ tempest.dir }}/tools/config_tempest.py --out {{ tempest.dir }}/etc/tempest.conf
-        --debug  --create
-        identity.uri http://{{ hostvars[controller_name].ansible_default_ipv4.address }}:5000/v2.0/
-        compute.allow_tenant_isolation true
-        object-storage.operator_role SwiftOperator
-        identity.admin_password "{{ tempest_admin_password.stdout | default('redhat') }}"
-        identity.password "{{ tempest.demo_password | default('secrete') }}"
-        compute.image_ref "{{ cirros_id.stdout }}"
-        compute.image_ref_alt "{{ cirros_id.stdout }}"
-        compute.build_timeout 500
-        compute.image_ssh_user cirros
-        compute.ssh_user cirros
-        network.build_timeout 500
-        volume.build_timeout 500
-        scenario.ssh_user cirros
-        scenario.img_dir ..
