@@ -1,0 +1,54 @@
+---
+- name: Setup packstack on controller
+  hosts: controller
+  gather_facts: no
+  sudo: yes
+  tasks:
+      - name: Install packstack package
+        yum: name=openstack-packstack state=present
+
+      - name: Generate answer file
+        shell: "packstack --gen-answer-file={{ installer.packstack.answer_file }}"
+
+      - name: Fetch the answer file for editing
+        fetch:
+            src="{{ installer.packstack.answer_file }}"
+            dest=/tmp/
+            flat=yes
+            fail_on_missing=yes
+
+      - name: create packstack answer-file from the config
+        sudo: no
+        local_action: lineinfile
+                dest="/tmp/{{ installer.packstack.answer_file }}"
+                regexp='{{ item.key }}=.*'
+                line='{{ item.key }}={{ item.value }}'
+        with_dict: installer.packstack.config
+
+      - name: Copy updated answer file back to controller
+        copy: src="/tmp/{{ installer.packstack.answer_file }}" dest="/root/{{ installer.packstack.answer_file }}"
+
+      - name: Update answer file with default password
+        command:
+          sed
+              -e 's|_PASSWORD=.*|_PASSWORD=redhat|'
+              -e 's|_PW=.*|_PW=redhat|'
+              -i /root/{{ installer.packstack.answer_file }}
+
+      - name: Update network hosts
+        replace:
+            dest="/root/{{ installer.packstack.answer_file }}"
+            regexp=^CONFIG_NETWORK_HOSTS=.*$
+            replace=CONFIG_NETWORK_HOSTS="{% for host in groups.network %}{{ hostvars[host]['ansible_default_ipv4']['address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
+
+      - name: Update compute hosts
+        replace:
+            dest="/root/{{ installer.packstack.answer_file }}"
+            regexp=^CONFIG_COMPUTE_HOSTS=.*$
+            replace=CONFIG_COMPUTE_HOSTS="{% for host in groups.compute %}{{ hostvars[host]['ansible_default_ipv4']['address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
+
+      - name: Running packstack
+        shell: "packstack --answer-file=/root/{{ installer.packstack.answer_file }} && touch /root/packstack-already-done"
+        args:
+          creates: /root/packstack-already-done
+        register: result

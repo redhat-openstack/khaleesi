@@ -1,0 +1,43 @@
+---
+# setup packstack prerequisites
+- name: Setup openstack repos
+  hosts:
+      - controller
+      - networker
+      - compute
+  gather_facts: yes
+  sudo: yes
+  tasks:
+      - name: Disable any existing repos
+        shell: sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/*
+        register: shell_result
+        changed_when: "shell_result.rc == 0"
+        failed_when: "shell_result.rc > 2"
+
+      - name: Install release tool on machines
+        command: yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/rhos-release-latest.noarch.rpm
+
+      - name: Execute the release tool
+        shell: "{{ product.name }}-release {{ product.version|int }}"
+        register: shell_result
+        changed_when: "shell_result == 0"
+
+- name: Create ssh key if one does not exist
+  hosts: controller
+  gather_facts: no
+  sudo: yes
+  tasks:
+      - name: create key
+        #this will not overwrite an existing key
+        user: name=root generate_ssh_key=yes
+
+      - name: fetch ssh-key generated from controller
+        fetch: src=/root/.ssh/id_rsa.pub dest=/tmp/ssh_keys/ flat=yes fail_on_missing=yes
+
+- name: Copy ssh-key to compute and network hosts
+  hosts: openstack_nodes
+  gather_facts: no
+  sudo: yes
+  tasks:
+    - name: copy ssh-key to nodes
+      authorized_key: user=root key="{{ lookup('file', '/tmp/ssh_keys/id_rsa.pub') }}"

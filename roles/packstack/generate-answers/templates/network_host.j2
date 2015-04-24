@@ -1,7 +1,0 @@
-{% set ip = [] %}
-{% for grp in ['networker'] -%}
-    {%- for h in groups[grp] %}
-        {%- if ip.append(hostvars[h].ansible_default_ipv4.address) %} {%- endif %}
-    {%- endfor %}
-{% endfor -%}
-{{ ip | unique | join(',') }}

@@ -1,7 +1,0 @@
----
-- name: List basic config variables
-  debug: var=config
-
-- name: List nodes
-  debug: var=nodes
-
