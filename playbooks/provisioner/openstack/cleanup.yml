@@ -1,0 +1,15 @@
+---
+- name: Cleanup
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Delete created nodes
+      nova_compute:
+           auth_url: "{{ provisioner.url }}"
+           state: absent
+           login_username: "{{ provisioner.username }}"
+           login_password: "{{ provisioner.password }}"
+           login_tenant_name: "{{ provisioner.tenant_name }}"
+           name: "{{ item.value.name }}"
+      retries: 4
+      with_dict: nodes

@@ -1,0 +1,4 @@
+---
+- name: No provisioning needed - using manual
+  hosts: localhost
+
