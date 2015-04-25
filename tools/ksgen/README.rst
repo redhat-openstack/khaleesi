@@ -276,13 +276,25 @@ Lookup helps keep the yaml files DRY_ by replacing looking up values for keys.
 ::
 
  foo: bar
- value_of_foo: !lookup foo
+ key_foo: !lookup foo
 
-After ksgen process the yaml above the `value_of_foo` will be replaced by
+After ksgen process the yaml above the value of `key_foo` will be replaced by
 `bar` resulting in the output below. ::
 
  foo: bar
- value_of_foo: bar
+ key_foo: bar
+
+This works for several consecutive !lookup as well such as ::
+
+ foo:
+     barfoo: foobar
+ bar:
+     foo: barfoo
+
+ key_foo: !lookup foo[ !lookup bar.foo ]
+
+After ksgen process the yaml above the value of `key_foo` will be replaced by
+`foobar`
 
 .. Warning:: (Limitation) Lookup is done only after all yaml files are loaded
    and the values are merged so that the entire yaml tree can be searched. This

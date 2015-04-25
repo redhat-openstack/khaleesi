@@ -16,6 +16,7 @@ from collections import OrderedDict
 from configure import Configuration, ConfigurationError
 import logging
 import string
+import re
 import yaml
 
 
@@ -140,12 +141,30 @@ class LookupDirective(yaml.YAMLObject):
             return '{{ %s }}' % self._key
 
         key = self._key
+        if self.yaml_tag in key:
+            parser = re.compile('\[\s*!lookup\s[^\s]+\s*\]')
+            additional_lookups = parser.findall(key)
+
+            for another_lookup in additional_lookups:
+                self._key = another_lookup[1:-1].strip().split()[1]
+                result = "{0}".format(self.lookup())
+
+                # this is necessary in cases when the key has "." in it like 7.1
+                if '.' in result:
+                    result = result.replace('.', '<DOT_ANCHOR>')
+                key = key.replace(another_lookup, ".{0}".format(result))
+
+            self._key = key
+
         if hasattr(LookupDirective.lookup_table, 'delimiter'):
             key = key.replace('.', LookupDirective.lookup_table.delimiter)
+            if key.find('<DOT_ANCHOR>') != -1:
+                key = key.replace('<DOT_ANCHOR>', '.')
 
         if key not in LookupDirective.lookup_table:
             logging.warn("key %s not in  lookup table ", self._key)
             return '{{ %s }}' % self._key
+
         return LookupDirective.lookup_table[key]
 
     def __repr__(self):
