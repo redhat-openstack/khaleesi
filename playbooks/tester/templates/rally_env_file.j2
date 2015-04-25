@@ -1,0 +1,6 @@
+admin:
+  password: {{ hostvars[nodes.controller.name].admin_password | default('redhat') }}
+  tenant_name: admin
+  username: admin
+auth_url: http://{{ hostvars[nodes.controller.name].ansible_default_ipv4.address }}:35357/v2.0/
+type: ExistingCloud

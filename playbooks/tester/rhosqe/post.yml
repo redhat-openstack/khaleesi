@@ -1,0 +1,7 @@
+---
+- name: Fetch results
+  hosts: tester
+  gather_facts: no
+  tasks:
+    -  fetch: src={{ tempest.dir }}/tempest.xml
+              dest=tempest.xml flat=yes

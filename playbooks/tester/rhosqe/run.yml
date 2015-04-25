@@ -1,0 +1,8 @@
+---
+- name: Run tests
+  hosts: controller
+  gather_facts: no
+  sudo: yes
+  tasks:
+    - shell: /root/run-tests.sh | tee "{{ tester.dir }}.log"
+      ignore_errors: True

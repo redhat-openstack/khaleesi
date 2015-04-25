@@ -1,0 +1,72 @@
+---
+- name: Rally Scenarios - Post tasks
+  hosts: tester
+  tasks:
+    - name: Create Output Directory
+      file: path={{ rally.outputdir }} state=directory
+
+# TODO(yfried): fix relative link in index so they point to the right path and don't use gz files
+#    - name: Create nice index
+#      shell: "{{ rally.path }}/python rally/ui/utils.py render tests/ci/rally-gate/index.mako >  {{ rally.outputdir }}/index.html"
+#      args:
+#        creates: "{{ rally.outputdir }}/index.html"
+#        chdir: "{{ rally.dir }}"
+
+    - name: Create Report
+      command: "{{ rally.path }}/rally task report --out {{ rally.outputdir }}/results.html"
+      args:
+        creates: "{{ rally.outputdir }}/results.html"
+        chdir: "{{ rally.dir }}"
+
+    - name: JSON results
+      shell: "{{ rally.path }}/rally task results | {{ rally.path }}/python -m json.tool > {{ rally.outputdir }}/results.json"
+      args:
+        creates: "{{ rally.outputdir }}/results.json"
+        chdir: "{{ rally.dir }}"
+
+    - name: Iteration Data
+      shell: "{{ rally.path }}/rally task detailed > {{ rally.outputdir }}/detailed.txt"
+      args:
+        creates: "{{ rally.outputdir }}/detailed.txt"
+
+    - name: Detatiled Iteration Data
+      shell: "{{ rally.path }}/rally task detailed --iterations-data > {{ rally.outputdir }}/detailed_with_iterations.txt"
+      args:
+        creates: "{{ rally.outputdir }}/detailed_with_iterations.txt"
+
+    - name: SLA Check
+      shell: "{{ rally.path }}/rally task sla_check > {{ rally.outputdir }}/sla.txt"
+      args:
+        creates: "{{ rally.outputdir }}/sla.txt"
+#      register: sla_check
+      ignore_errors: True
+
+    - name: SLA Check JSON
+      shell: "{{ rally.path }}/rally task sla_check --json > {{ rally.outputdir }}/sla.json"
+      args:
+        creates: "{{ rally.outputdir }}/sla.json"
+#      register: sla_check
+      ignore_errors: True
+
+
+# These need to be archived by Jenkins Somehow
+    - name: Fetch Results
+    # Assumes env has $WORKSPACE defined like in Jenkins
+      fetch: src={{ item }} dest="{{ lookup('env','WORKSPACE') }}/rally_results/" fail_on_missing=yes flat=yes
+      with_items:
+#        - "{{ rally.outputdir }}/index.html"
+        - "{{ rally.outputdir }}/results.html"
+        - "{{ rally.outputdir }}/detailed.txt"
+        - "{{ rally.outputdir }}/detailed_with_iterations.txt"
+        - "{{ rally.outputdir }}/sla.txt"
+        - "{{ rally.outputdir }}/sla.json"
+
+    - name: Convert SLA to JUnit
+      delegate_to: localhost
+      shell: python "{{ working_dir }}/tools/sla2junit.py" "{{ item }}/sla.json" "{{ item }}/nosetests.xml"
+      args:
+          creates: "{{ item }}/nosetests.xml"
+      sudo: no
+      with_items:
+        - "{{ lookup('env','WORKSPACE') }}/rally_results"
+

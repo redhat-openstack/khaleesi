@@ -1,0 +1,8 @@
+---
+- name: Install rhosqe tests from source
+  hosts: controller
+  tasks:
+    - git: repo={{ tester.rhosqe.git.repo }} version={{ tester.git.rhosqe.revision }}
+           dest={{ tester.dir }}
+    - template: dest="/root/run-tests.sh" src="../templates/run_rhosqe_tests.sh"
+

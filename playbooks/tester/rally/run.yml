@@ -1,0 +1,65 @@
+---
+- name: Create keystonerc
+  hosts: tester
+  sudo: yes
+  tasks:
+      - name: Create keystonerc_admin
+        template: "src=../templates/rally_env_file.j2 dest={{ rally.dir }}/rally_env_file.yml"
+
+- name: Copy to Task Files Rally
+  hosts: tester
+  sudo: yes
+  tasks:
+  - name: Copy Task file from Khaleesi Settings
+    copy: dest={{ rally.dir }}/{{ rally.taskfile }} src={{ lookup('env', 'PWD') }}/../{{ rally.local_taskfile }} force=yes
+
+- name: Setup Rally
+  hosts: tester
+  tasks:
+#  Need to somehow skip this if deployment exists
+  - name: Create Rally deployment
+    shell: "{{ rally.path }}/rally deployment create --name {{ rally.deployment }} --filename {{ rally.dir }}/rally_env_file.yml | awk '/{{ rally.deployment }}/ {print $2}'"
+    register: rally_deployment_uuid
+    ignore_errors: True
+
+  - debug: var=rally_deployment_uuid
+
+  - name: Use Rally deployment
+    shell: "{{ rally.path }}/rally use deployment {{ rally.deployment }} | awk '/Using deployment/ {print $3}'"
+    register: rally_deployment_uuid
+    when: "'Deployment' in rally_deployment_uuid.stdout"
+
+  - debug: var=rally_deployment_uuid
+
+- name: Run Rally Task
+  hosts: tester
+  tasks:
+  - name: Check Rally deployment
+    command: "{{ rally.path }}/rally deployment check"
+  - name: Start Rally task
+    command: "{{ rally.path }}/rally -v task start --task {{ rally.dir }}/{{ rally.taskfile }}"
+
+
+# TODO(yfried): Add this to enable Tempset Via Rally
+#- name: Setup Tempest
+#  hosts: tester
+#  tasks:
+#  - name: Install Tempest with Rally
+#    command: "{{ rally.path }}/rally-manage -v tempest install --deployment {{ rally.deployment }} --source {{ rally.tempest.git.repo }}"
+#
+#  - name: Set Tempest Branch to Juno to get tempest config
+#    command: "git checkout {{ rally.tempest.git.revision }}"
+#    args:
+#      chdir: "{{ rally.tempest.base }}/for-deployment-{{ rally_deployment_uuid.stdout }}"
+#      creates: "{{ rally.tempest.base }}/for-deployment-{{ rally_deployment_uuid.stdout }}/tools/config_tempest.py"
+#
+#  - name: Create tempest config file
+#    shell: "{{ rally.path }}/python {{ item }}/tools/config_tempest.py --out {{ rally.tempest.conf }} --debug  --create identity.uri http://{{ hostvars[nodes.controller.name].ansible_default_ipv4.address }}:5000/v2.0/ compute.allow_tenant_isolation true object-storage.operator_role SwiftOperator identity.admin_password {{ hostvars[nodes.controller.name].admin_password|default('redhat') }} identity.password {{ hostvars[nodes.controller.name].demo_password|default('secrete') }} network.public_network_id {{ hostvars[nodes.controller.name].network.id }}"
+#    args:
+#      chdir: "{{ item }}"
+#      creates: "{{ rally.tempest.conf }}"
+#    with_items:
+#      - "{{ rally.tempest.base }}/for-deployment-{{ rally_deployment_uuid.stdout }}"
+#
+#  - name: Start Tempest Via Rally
+#    command: "{{ rally.path }}/rally -v verify start --deployment {{ rally.deployment }} --regex {{ rally.tempest.regex }} --tempest-config {{ rally.tempest.conf }}"

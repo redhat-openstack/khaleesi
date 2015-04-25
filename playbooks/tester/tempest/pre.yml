@@ -6,7 +6,7 @@
   sudo: yes
   tasks:
     - copy:
-        dest: "{{ tempest.dir}}/with_venv"
+        dest: "{{ tester.dir}}/with_venv"
         mode: 0755
         content: |
           #!/bin/bash
@@ -16,10 +16,10 @@
     #        after tempest.rpm ships and reads /etc/tempest or ~/tempest.conf (or something in that style)
     - template: dest=/root/configure-tempest.sh src=../templates/configure-tempest.sh owner=root group=root mode=0755
       register: config_script
-    - command: "{{ tempest.dir }}/with_venv /root/configure-tempest.sh"
+    - command: "{{ tester.dir }}/with_venv /root/configure-tempest.sh"
       when: config_script|changed
-    - shell: "{{ tempest.dir }}/with_venv testr init"
+    - shell: "{{ tester.dir }}/with_venv testr init"
       args:
-        chdir: "{{ tempest.dir }}"
-        creates: "{{ tempest.dir }}/.testrepository"
+        chdir: "{{ tester.dir }}"
+        creates: "{{ tester.dir }}/.testrepository"
 
