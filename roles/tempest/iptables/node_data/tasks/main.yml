@@ -1,3 +1,0 @@
----
-- name: dump network and node info
-  debug: var=hostvars[nodes.tester.name].ansible_default_ipv4.address
