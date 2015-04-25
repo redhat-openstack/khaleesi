@@ -1,0 +1,10 @@
+---
+- name: Run tempest
+  hosts: tester
+  gather_facts: no
+  sudo: yes # FIXME: drop sudo after tempest.rpm support it (no writing into /usr/share needed)
+  tasks:
+      - name: run tempest
+        shell: chdir="{{ tester.dir }}" ./with_venv ./tools/run-tests.sh tempest
+        ignore_errors: True
+        # TODO: apply the filters from settings, tempest.tests/skip/...

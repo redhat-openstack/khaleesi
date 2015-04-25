@@ -1,0 +1,63 @@
+---
+- name: Install rpm deps for source-based tempest
+  hosts: tester
+  sudo: yes
+  tasks:
+    - name: Install release tool rpm for dependencies (python-ironicclient)
+      shell: yum localinstall -y {{ tempest.rdo.rpm }}
+
+    - name: Install tempest-rpm to pull in tempest deps via rpms
+      yum: name=openstack-tempest-{{ tempest.rdo.version }}-{{ tempest.rpm.version }} state=present
+
+      #TODO(tkammer): move the list of packages to khaleesi-settings
+    - name: Install support packages for pip-based deps building
+      yum: name={{ item }} state=present
+      with_items:
+        - facter
+        - gcc
+        - git
+        - libffi-devel
+        - libxml2-devel
+        - libxslt-devel
+        - mariadb-devel
+        - openssl-devel
+        - python-pip
+        - python-virtualenv
+
+- name: Install tempest from source
+  hosts: tester
+  tasks:
+    - git: repo={{ tester.git.repo }} version={{ tester.git.revision }}
+           dest={{ tester.dir }}
+      register: tempest_repo
+
+    - command: chdir={{ tester.dir }} git log -1 --pretty=format:%h
+      register: tempest_repo_version
+
+    - debug: "msg='Build mark: tempest={{ tempest_repo_version.stdout }}'"
+
+    - name: install virtualenv
+      command: "python {{ tester.dir }}/tools/install_venv.py {{ tester.dir }}"
+      when: tempest_repo|changed
+
+      #TODO(tkammer): move this to khaleesi-settings
+    - name: prepare list of extra/specific pip pkgs to install
+      copy:
+        dest: "{{ tester.dir }}/extra-requirements.txt"
+        content: |
+          junitxml
+          unittest2
+          nose
+          testtools==0.9.34
+          python-subunit==0.0.15
+          python-ceilometerclient==1.0.10 # fix: tempest failure
+      register: extra_reqs
+
+    - name: pip install requirements
+      pip: requirements="{{ tester.dir }}/{{ item }}" state=present virtualenv="{{ tester.dir }}/.venv"
+      with_items:
+        - requirements.txt
+        - test-requirements.txt
+        - extra-requirements.txt
+      when: tempest_repo|changed or extra_reqs|changed
+

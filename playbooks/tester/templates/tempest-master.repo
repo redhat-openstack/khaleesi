@@ -1,0 +1,19 @@
+{% if tester.rpm.url is defined %}
+[tempest]
+name=Tempest
+failovermethod=priority
+baseurl={{ tester.rpm.url }}
+enabled=1
+metadata_expire=1d
+gpgcheck=0
+skip_if_unavailable=False
+{% endif %}
+
+[delorean-core]
+name=Delorean core
+baseurl=http://trunk.rdoproject.org/f21/current/
+enabled=1
+gpgcheck=0
+metadata_expire=1d
+skip_if_unavailable=False
+failovermethod=priority
