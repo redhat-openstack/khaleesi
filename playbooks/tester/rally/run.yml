@@ -38,6 +38,9 @@
     command: "{{ rally.path }}/rally deployment check"
   - name: Start Rally task
     command: "{{ rally.path }}/rally -v task start --task {{ rally.dir }}/{{ rally.taskfile }}"
+    args:
+      chdir: "{{ rally.dir }}"
+
 
 
 # TODO(yfried): Add this to enable Tempset Via Rally

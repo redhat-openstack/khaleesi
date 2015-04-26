@@ -26,10 +26,19 @@
       args:
         creates: "{{ rally.path }}/rally"
 
-
-- name: Prepare Openstack
+- name: Create keystonerc - FIXME - why to do this, esp. here?
   hosts: controller
   tasks:
+    - name: Create keystonerc_admin
+      template: src=../templates/keystonerc_admin.j2 dest=/root/keystonerc_admin
+      sudo: yes
+
+    - name: Create nano falvor
+      shell: "source /root/keystonerc_admin && nova flavor-create m1.nano 42 64 0 1"
+      sudo: yes
+      # ignore errors if flavor already created
+      ignore_errors: True
+
     - name: Create Glance Image
       glance_image:
         login_username: admin
