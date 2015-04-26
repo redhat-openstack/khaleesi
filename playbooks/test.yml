@@ -1,0 +1,4 @@
+---
+- include: tester/{{ tester.name }}/pre.yml
+- include: tester/{{ tester.name }}/run.yml
+- include: tester/{{ tester.name }}/post.yml

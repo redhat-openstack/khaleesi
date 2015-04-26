@@ -1,0 +1,6 @@
+---
+- include: provision.yml
+- include: install.yml
+- include: test.yml
+- include: collect_logs.yml
+- include: cleanup.yml
