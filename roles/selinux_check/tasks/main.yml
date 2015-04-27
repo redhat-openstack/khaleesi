@@ -1,15 +1,21 @@
 ---
-  - name: install openstack-selinux-test
-    yum: name=openstack-selinux-test state=latest enablerepo=rhos-poodle
-    when: ansible_distribution_version == "7.0"
+- name: getenforce
+  command: getenforce
+  register: result
 
-  - name: execute openstack-selinux-test
-    shell: /usr/share/openstack-selinux/*/tests/check_all
-    when: ansible_distribution_version == "7.0"
-    register: result
-    ignore_errors: yes
+- debug: msg="Setting SELINUX to {{distro.config.selinux|default('permissive')}}"   #"
+  when: result.stdout|capitalize != distro.config.selinux|default('permissive')|capitalize
 
-  - name: out of selinux-selinux-test
-    debug: var=result.stdout_lines
-    when: ansible_distribution_version == "7.0"
-    ignore_errors: yes
+- selinux: policy=targeted state={{distro.config.selinux|default('permissive')}}
+  when: result.stdout|capitalize != distro.config.selinux|default('permissive')|capitalize
+
+- selinux: policy=targeted state=permissive
+  when: ansible_distribution == 'Fedora'
+
+- name: getenforce
+  command: getenforce
+  register: result
+
+- debug: msg="SELINUX currently set to {{ result.stdout }}"  #"
+
+#TO-DO: removed openstack-selinux-test, check w/ lhh for updates

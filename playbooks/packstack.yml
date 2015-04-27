@@ -9,6 +9,14 @@
 
 # prep
 - include: ../workarounds/workarounds-pre-prep.yml tags=workaround
+
+- name: selinux
+  sudo: yes
+  hosts: all:!localhost
+  tags: prep
+  roles:
+    -  selinux_check
+
 - include: packstack/setup-ssh-keys.yml tags=prep
 - include: prep.yml
 
