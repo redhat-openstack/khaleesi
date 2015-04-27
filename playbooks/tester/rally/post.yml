@@ -63,7 +63,7 @@
 
     - name: Convert SLA to JUnit
       delegate_to: localhost
-      shell: python "{{ working_dir }}/tools/sla2junit.py" "{{ item }}/sla.json" "{{ item }}/nosetests.xml"
+      shell: python "{{ lookup('env', 'PWD') }}/tools/sla2junit.py" "{{ item }}/sla.json" "{{ item }}/nosetests.xml"
       args:
           creates: "{{ item }}/nosetests.xml"
       sudo: no

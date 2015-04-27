@@ -1,5 +1,5 @@
 ---
 - name: Wait for SSH
   local_action:
-    module: command {{ working_dir }}/tools/wait_for_ssh.sh -v {{ hostvars[inventory_hostname].ansible_ssh_host }} -o User={{ hostvars[inventory_hostname].ansible_ssh_user }} -i {{ provisioner.key_file }}
+    module: command {{ lookup('env', 'PWD') }}/tools/wait_for_ssh.sh -v {{ hostvars[inventory_hostname].ansible_ssh_host }} -o User={{ hostvars[inventory_hostname].ansible_ssh_user }} -i {{ provisioner.key_file }}
   sudo: no

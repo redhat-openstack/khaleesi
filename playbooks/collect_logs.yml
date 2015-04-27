@@ -1,10 +1,45 @@
 ---
-- include: provision.yml
-
 - name: Gather Logs
   hosts: all:!localhost
+  gather_facts: no
   sudo: yes
-  roles:
-    - { role: collect_logs }
+  tasks:
+    - name: Ensure required rpms for logging are installed
+      yum: name={{ item }} state=present
+      with_items:
+        - gzip
+        - tar
+
+    - name: collect list of installed rpms
+      shell: rpm -qa > /var/log/rpm.list
+
+    - name: collect list of running kernel modules
+      shell: lsmod > /var/log/module_list
+      ignore_errors: true
+
+    - name: prepare directory with extra logs
+      file: dest=/var/log/extra state=directory
+      ignore_errors: true
+
+    - name: collect logs from all failed systemd services
+      shell: |
+        systemctl -t service --failed --no-legend | awk '{print $1}' \
+            | xargs -r -n1 journalctl -u > /var/log/extra/services 2>&1
+      ignore_errors: true
+
+    - name: collect logs
+      shell: |
+        mkdir -p /tmp/{{ inventory_hostname }};
+        for F in $(ls -d1 /var/log/rpm.list {{ job.archive|join(' ') }}); do
+          cp -rpL --parents $F /tmp/{{ inventory_hostname }}
+        done
+        cd /tmp
+        tar czf {{ inventory_hostname }}.tar.gzip {{ inventory_hostname }}
+      ignore_errors: true
+
+    - name: fetch log archive (gzip)
+      fetch: src=/tmp/{{ inventory_hostname }}.tar.gzip flat=yes dest=../collected_files/{{ inventory_hostname }}.tar.gzip
+      ignore_errors: true
+
 
 

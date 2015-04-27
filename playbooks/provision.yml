@@ -4,9 +4,9 @@
   hosts: localhost
   tasks:
     - template:
-        dest: "{{ working_dir }}/{{ tmp.node_prefix }}hosts"
+        dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
         src: provisioner/templates/inventory.j2
     - file:
-        dest: "{{ working_dir }}/hosts"
+        dest: "{{ lookup('env', 'PWD') }}/hosts"
         state: link
-        src: "{{ working_dir }}/{{ tmp.node_prefix }}hosts"
+        src: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
