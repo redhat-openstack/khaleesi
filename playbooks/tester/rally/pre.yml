@@ -26,7 +26,7 @@
       args:
         creates: "{{ rally.path }}/rally"
 
-- name: Create keystonerc - FIXME - why to do this, esp. here?
+- name: Prepare Openstack
   hosts: controller
   tasks:
     - name: Create keystonerc_admin
