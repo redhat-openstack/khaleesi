@@ -25,6 +25,8 @@
       with_dict: provisioner.nodes
       register: created_nodes
 
+    - debug: var={{ created_nodes.results }}
+
     - name: Add created hosts to host list
       add_host:
         name="{{ item.item.value.name }}"
@@ -32,7 +34,7 @@
             if item.item.value.groups is string
             else item.item.value.groups| join(',') }}"
         ansible_fqdn="{{ item.item.value.hostname }}"
-        ansible_ssh_user="{{ distro.images[distro.name][distro.version].remote_user }}"
+        ansible_ssh_user="{{ item.item.value.remote_user }}"
         ansible_ssh_private_key_file="{{ provisioner.key_file }}"
         ansible_ssh_host={%- if item.public_ip %}{{ item.public_ip }}{%- else %}{{ item.info.addresses[provisioner.network.nic.net_1.name][0].addr }}{% endif %}
       with_items: created_nodes.results
