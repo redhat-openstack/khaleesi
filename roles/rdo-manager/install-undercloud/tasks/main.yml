@@ -5,7 +5,7 @@
   sudo: yes
 
 - name: install the undercloud
-  command: instack-install-undercloud
+  command: openstack undercloud install
 
 - name: copy files to home
   sudo: yes
