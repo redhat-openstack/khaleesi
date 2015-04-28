@@ -53,8 +53,12 @@
           python-ceilometerclient==1.0.10 # fix: tempest failure
       register: extra_reqs
 
+    - name: Get working directory
+      shell: echo $PWD
+      register: home_dir
+
     - name: pip install requirements
-      pip: requirements="{{ tester.dir }}/{{ item }}" state=present virtualenv="{{ tester.dir }}/.venv"
+      pip: requirements="{{ home_dir.stdout }}/{{ tester.dir }}/{{ item }}" state=present virtualenv="{{ home_dir.stdout }}/{{ tester.dir }}/.venv"
       with_items:
         - requirements.txt
         - test-requirements.txt
