@@ -17,7 +17,7 @@
 
 - template: src=tempest_config_cmdline.j2
             dest=/tmp/tempest_config_cmdline.sh
-            mode="u=rwx,g=r,o=r"
+            mode=0744
   tags:
     - tempest_setup_rpm
     - tempest_setup_gen_conf
