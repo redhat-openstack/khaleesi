@@ -1,0 +1,23 @@
+---
+- name: Configure object storage for controller
+  hosts: storageobject
+  vars:
+      - swift_conf_temp: "/etc/swift/swift.conf.temp"
+      - swift_conf: "/etc/swift/swift.conf"
+  tasks:
+      - name: swift | set config vars
+        set_fact:
+            storage_type: 'object'
+            storage_daemon: 'swift'
+        when: storage.object.config.swift is defined
+
+      - name: swift | service | is configured
+        sudo: yes
+        template: src=templates/config.j2 dest={{ swift_conf_temp }}
+        when: storage.object.config.swift is defined
+
+      - name: swift | crudini | merge config files
+        sudo: yes
+        shell: crudini --merge {{ swift_conf }} < {{ swift_conf_temp }}
+        when: storage.object.config.swift is defined
+

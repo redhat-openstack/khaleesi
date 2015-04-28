@@ -1,0 +1,60 @@
+---
+- name: Configure image storage for controller
+  hosts: storageimage
+  vars:
+      - glance_conf_temp: "/etc/glance/glance-api.conf.temp"
+      - glance_conf: "/etc/glance/glance-api.conf"
+      - cinder_conf_temp: "/etc/cinder/cinder.conf.temp"
+      - cinder_conf: "/etc/cinder/cinder.conf"
+      - nova_conf_temp: "/etc/nova/nova.conf.temp"
+      - nova_conf: "/etc/nova/nova.conf"
+  tasks:
+      - name: glance | set config vars
+        set_fact:
+            storage_type: 'image'
+            storage_daemon: 'glance'
+        when: storage.image.config.glance is defined
+
+      - name: glance | service | is configured
+        sudo: yes
+        template: src=templates/config.j2 dest={{ glance_conf_temp }}
+        when: storage.image.config.glance is defined
+
+      - name: glance | crudini | merge config files
+        sudo: yes
+        shell: crudini --merge {{ glance_conf }} < {{ glance_conf_temp }}
+        when: storage.image.config.glance is defined
+
+      - name: nova | set config vars
+        set_fact:
+            storage_type: 'image'
+            storage_daemon: 'nova'
+        when: storage.image.config.nova is defined
+
+      - name: nova | service | is configured
+        sudo: yes
+        template: src=templates/config.j2 dest={{ nova_conf_temp }}
+        when: storage.image.config.nova is defined
+
+      - name: nova | crudini | merge config files
+        sudo: yes
+        shell: crudini --merge {{ nova_conf }} < {{ nova_conf_temp }}
+        when: storage.image.config.nova is defined
+
+      - name: cinder | set config vars
+        set_fact:
+            storage_type: 'image'
+            storage_daemon: 'cinder'
+        when: storage.image.config.cinder is defined
+
+      - name: cinder | service | is configured
+        sudo: yes
+        template: src=templates/config.j2 dest={{ cinder_conf_temp }}
+        when: storage.image.config.cinder is defined
+
+      - name: cinder | crudini | merge config files
+        sudo: yes
+        shell: crudini --merge {{ cinder_conf }} < {{ cinder_conf_temp }}
+        when: storage.image.config.cinder is defined
+
+

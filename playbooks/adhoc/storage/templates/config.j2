@@ -1,0 +1,8 @@
+# jinja configuration template
+
+{% for (key, value) in storage[storage_type].config[storage_daemon][product.full_version|string].iteritems() %}
+[{{ key }}]
+{% for (subkey, subvalue) in value.iteritems() %}
+{{ subkey }}={{ subvalue }}
+{% endfor %}
+{% endfor %}

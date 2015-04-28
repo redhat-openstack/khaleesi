@@ -1,0 +1,24 @@
+---
+- name: Configure storage compute for compute node
+  hosts: storagecompute
+  vars:
+      - nova_conf_temp: "/etc/nova/nova.conf.temp"
+      - nova_conf: "/etc/nova/nova.conf"
+  tasks:
+      - name: nova | set config vars
+        set_fact:
+            storage_type: 'compute'
+            storage_daemon: 'nova'
+        when: storage.compute.config.nova is defined
+
+      - name: nova | service | is configured
+        sudo: yes
+        template: src=templates/config.j2 dest={{ nova_conf_temp }}
+        when: storage.compute.config.nova is defined
+
+      - name: nova | crudini | merge config files
+        sudo: yes
+        shell: crudini --merge {{ nova_conf }} < {{ nova_conf_temp }}
+        when: storage.compute.config.nova is defined
+
+

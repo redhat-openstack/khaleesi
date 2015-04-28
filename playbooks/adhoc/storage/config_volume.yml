@@ -1,0 +1,48 @@
+---
+- name: Configure volume storage for controller
+  hosts: storagevolume
+  vars:
+      - cinder_conf_temp: "/etc/cinder/cinder.conf.temp"
+      - cinder_conf: "/etc/cinder/cinder.conf"
+      - cinder_emc_conf: "/etc/cinder/emc_iscsi.xml"
+  tasks:
+      - name: cinder | set config vars
+        set_fact:
+            storage_type: 'volume'
+            storage_daemon: 'cinder'
+        when: storage.volume.config.cinder is defined
+
+      - name: cinder | remove default LVM configuration
+        ini_file: dest={{ cinder_conf }} section=lvm state=absent
+        when: storage.volume.config.cinder is defined
+
+      - name: cinder | start tgtd service for thinlvm
+        service: name=tgt state=restarted
+        when: nodes.controller.packages.tgt is defined
+
+      - name: cinder | service | is configured
+        sudo: yes
+        template: src=templates/config.j2 dest={{ cinder_conf_temp }}
+        when: storage.volume.config.cinder is defined
+
+      - name: cinder | crudini | merge config files
+        sudo: yes
+        shell: crudini --merge {{ cinder_conf }} < {{ cinder_conf_temp }}
+        when: storage.volume.config.cinder is defined
+
+      - name: cinder | service | EMC configured
+        sudo: yes
+        template: src=templates/emc_iscsi.xml.j2 dest={{ cinder_emc_conf }}
+        when: storage.volume.config.cinder.emc is defined
+
+      - name: cinder | enable fuse for gluster
+        sudo: yes
+        seboolean: name=virt_use_fusefs state=yes persistent=yes
+        when: storage.volume.config.cinder is defined
+
+      - name: cinder | create shares file
+        sudo: yes
+        copy: content={{ storage.volume.variant.share }} dest={{ storage.volume.variant.shares_file }}
+        when: storage.volume.variant.share is defined
+
+

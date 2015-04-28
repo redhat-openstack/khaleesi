@@ -1,0 +1,76 @@
+---
+- name: Install storage additional packages
+  hosts: openstack_nodes
+  sudo: yes
+  tasks:
+    - name: Storage tools fact
+      set_fact:
+        storage_tools: []
+
+    - name: Get controller default storage tools list
+      set_fact:
+        storage_tools: "{{ nodes.controller.packages.default }}"
+      when: nodes.controller.packages.default is defined
+
+    - name: Get additional storage tools list
+      set_fact:
+        storage_tools: "{{ nodes.controller.packages }}[product.full_version]"
+      when: nodes.controller.packages.{{ product.full_version }} is defined
+
+    - name: Install controller storage tools
+      yum: name={{ item }} state=present
+      with_items: "{{ storage_tools }}"
+
+- name: Install support tools
+  hosts: openstack_nodes
+  sudo: yes
+  tasks:
+    - name: Install crudini tool
+      yum: name=crudini state=present
+
+
+- name: Download additional configuration for backend
+  hosts: controller
+  sudo: yes
+  tasks:
+    - name: Ceph backend configuration
+      get_url: url={{ storage.ceph_conf_repo }}{{ item }} dest=/etc/ceph/{{ item }} mode=0755
+      with_items: storage.ceph_conf_files
+      when: storage.ceph_conf_files is defined
+
+- name: Check for image storage
+  hosts: controller
+  tasks:
+    - group_by: key=storageimage
+      when: storage.image is defined
+
+- name: Check for volume storage
+  hosts: controller
+  tasks:
+    - group_by: key=storagevolume
+      when: storage.volume is defined
+
+- name: Check for object storage
+  hosts: controller
+  tasks:
+    - group_by: key=storageobject
+      when: storage.object is defined
+
+- name: Check for compute storage
+  hosts: compute
+  tasks:
+    - group_by: key=storagecompute
+      when: storage.compute is defined
+
+- include: config_image.yml
+- include: config_volume.yml
+- include: config_object.yml
+- include: config_compute.yml
+
+- name: Restart storage services
+  hosts: controller
+  sudo: yes
+  tasks:
+    - name: Restart services
+      shell: openstack-service restart {{ item }}
+      with_items: storage.services
