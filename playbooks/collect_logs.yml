@@ -27,10 +27,38 @@
             | xargs -r -n1 journalctl -u > /var/log/extra/services 2>&1
       ignore_errors: true
 
+    - name: collect network status info
+      shell: |
+        (ip a; ip r; iptables-save) &> /var/log/extra/network;
+        (for NS in $(ip netns list); do
+          echo "==== $NS ====";
+          ip netns exec $NS ip a;
+          ip netns exec $NS ip r;
+          ip netns exec $NS ip iptables-save;
+          PIDS="$(ip netns pids $NS)";
+          [[ ! -z "$PIDS" ]] && ps --no-headers -f --pids "$PIDS";
+          echo "";
+          done) &> /var/log/extra/network-netns
+      ignore_errors: true
+    - shell: "lsof -P &> /var/log/extra/lsof"
+    - shell: "pstree -p &> /var/log/extra/pstree"
+    - shell: "sysctl -a &> /var/log/extra/sysctl"
+    - shell: "netstat -lnp &> /var/log/extra/netstat"
+    - shell: "which openstack-status &> /dev/null && (. ~/keystonerc_admin; openstack-status &> /var/log/extra/openstack-status)"
+      when: "'controller' in inventory_hostname"
+      ignore_errors: true
+    - shell: "lsmod &> /var/log/extra/lsmod"
+    - shell: "lspci &> /var/log/extra/lspci"
+    - shell: "pip list &> /var/log/extra/pip"
+    - shell: "(vgs; pvs; lvs) &> /var/log/extra/lvm"
+    - name: generate human-readable SAR logs
+      shell: "[[ -f /usr/lib64/sa/sa2 ]] && /usr/lib64/sa/sa2 -A"
+      ignore_errors: true
+
     - name: collect logs
       shell: |
         mkdir -p /tmp/{{ inventory_hostname }};
-        for F in $(ls -d1 /var/log/rpm.list {{ job.archive|join(' ') }}); do
+        for F in $(ls -d1 /var/log/rpm.list /var/log/extra {{ job.archive|join(' ') }}); do
           cp -rpL --parents $F /tmp/{{ inventory_hostname }}
         done
         cd /tmp
