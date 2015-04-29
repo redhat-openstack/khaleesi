@@ -43,7 +43,9 @@
   gather_facts: no
   max_fail_percentage: 0
   tasks:
-    - include: "{{ lookup('env', 'PWD') }}/tasks/wait_for_ssh.yml"
+    - local_action:
+        module: wait_for_ssh host={{ hostvars[inventory_hostname].ansible_ssh_host }} user={{ hostvars[inventory_hostname].ansible_ssh_user }} key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
+      sudo: no
 
 - name: Update network interfaces on nodes - OpenStack
   hosts: openstack_nodes
@@ -63,7 +65,7 @@
             mode: 644
       with_dict:
           provisioner.nodes[inventory_hostname_short].network.interfaces
-      register: reboot_reason
+      register: update_ifcfgs
 
     #TODO(tkammer): write this better by fixing the upstream module to provide the private IP properly
     - name: update IP address of eth1 interface
@@ -71,6 +73,9 @@
           dest: /etc/sysconfig/network-scripts/ifcfg-eth1
           regexp: IPADDR=
           line: "IPADDR={{ hostvars[inventory_hostname].eth1_interface_ip }}"
+      register: update_ifcfg1
 
-    - include: "{{ lookup('env', 'PWD') }}/tasks/reboot.yml"
-      when: reboot_reason|changed
+    - local_action:
+        module: wait_for_ssh reboot_first=true host={{ hostvars[inventory_hostname].ansible_ssh_host }} user={{ hostvars[inventory_hostname].ansible_ssh_user }} key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
+      when: update_ifcfgs|changed or update_ifcfg1|changed
+      sudo: no

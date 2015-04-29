@@ -1,0 +1,224 @@
+#!/bin/bash
+
+if [[ "$#" = "0" || "$1" = "-h" || "$1" = "--help" ]]; then
+# FIXME: update after the transform-into-module is done
+    cat <<EOF
+usage:
+  wait_for_ssh <args_file>
+  wait_for_ssh [-v[v]] <ip> [<any-other-ssh-opts>, <like-user-etc>, ...]
+
+  *cli*| *var_in_file*
+  -v   | verbose=true       print progress info
+  -vv  | debug=true         print debug (xtrace, ssh debug) info, implies verbose
+  <ip> | host=<ip>          ip address/hostname of the machine we want to reach via ssh
+  <any-other-opts> | ssh_opts=<str>
+                            any other opts will be passed directly to the ssh command (aka -o XYZ)
+                            in case of args_file, following opts will be used from it too:
+       | user=<str>         username for ssh login
+       | key=<file>         private keyfile for ssh login
+       | reboot_first=true  reboot host + wait for ssh and boottime > one obtained before reboot
+       | timeout=<int>      maximum seconds after which we give up trying to reach the host
+       | delay=<int/float>  seconds for how long to wait between each ssh retry
+       | conntimeout=<int>  seconds after which single ssh attemp should timeout
+       | connkill=<int>     seconds after which single ssh attemp should be killed
+       | min_reached_count=<int>
+                            how many times the ssh has to succeed (also with 'delay' in between)
+                            before the host is ack-ed as reachable
+EOF
+    exit 0
+fi
+
+# values for exit or 'rc' field in json
+E_REACHED=0
+E_TIMEDOUT=1
+E_REBOOTFAILED=2
+E_MISCONF=3
+
+# first, grab the stdout/stderr for the rest of the script,
+# so we can have just nice json output at the end
+STD_LOG=$(mktemp --tmpdir tmp.w4s.out.XXXXXXX)
+ERR_LOG=$(mktemp --tmpdir tmp.w4s.err.XXXXXXX)
+trap "rm -f $STD_LOG $ERR_LOG" EXIT
+
+exec 3>&1
+exec 4>&2
+exec 1<>$STD_LOG
+exec 2<>$ERR_LOG
+
+# global flags
+MODULE_IFC=true  # will be flipped below, in case we detect direct execution (not via ansible)
+CHANGED="false"  # will be flipped to false after any single ssh command failure
+
+# helper functions (log_debug defined bellow based on verbosity level)
+safe_jstring() {
+    sed 's/\\/\\\\/g' |  # existing backslashes
+    sed 's/"/\\"/g' |    # double-quotes
+    sed 's/\r//g' |      # strip CR (CR+LF from ssh debug output)
+    sed ':a;N;$!ba;s/\n/\\n/g';  # join lines, escape the newline as literal '\n'
+}
+finish() {
+    code="${1:-0}"
+    if $MODULE_IFC; then
+        set +x
+        [[ "$code" != "$E_REACHED" ]] && CHANGED="true"
+        echo "{ \"changed\": $CHANGED, \"rc\": $code, \"stdout\": \"$(cat $STD_LOG|safe_jstring)\", \"stderr\": \"$(cat $ERR_LOG|safe_jstring)\" }" >&3
+        exit
+    else
+        cat "$STD_LOG" >&3
+        cat "$ERR_LOG" >&4
+        exit $code
+    fi
+}
+datefmt() { TZ=UTC date --date="@$1"; }
+
+# read the cli args or args_file
+host=""
+ssh_opts=""
+
+if [[ -f "$1" ]]; then
+    # assume the file is args_file for this module, provided by ansible
+    source "$1"
+else
+    MODULE_IFC=false
+    if [[ "$1" == "-v" ]]; then
+        verbose=true
+        shift
+    elif [[ "$1" == "-vv" ]]; then
+        verbose=true
+        debug=true
+        shift
+    fi
+    host="$1"
+    shift
+    ssh_opts="$@"
+fi
+
+# default values (unless obtained already above)
+verbose=${verbose:-false}
+debug=${debug:-false}
+reboot_first=${reboot_first:-false}
+timeout=${timeout:-300}       # how many seconds before this script fails if it couldn't already reach the machine before
+min_reached_count=${min_reached_count:-3}
+delay=${delay:-0.3}           # how long to wait between retrying ssh (low is better, though it means more traffic)
+conntimeout=${conntimeout:-7} # (soft) timeout for ssh connection
+connkill=${connkill:-10}       # hard timeout for ssh connection
+ssh_opts="${ssh_opts:-}"
+
+# basic sanity check of options
+[[ $connkill -gt $timeout ]] && connkill=$timeout
+[[ $conntimeout -ge $connkill ]] && conntimeout=$(( $connkill - 1 ))
+[[ $conntimeout -le 0 ]] && conntimeout=1
+
+if [[ -z "$host" ]]; then
+    echo "No host/ip provided!" >&2
+    finish $E_MISCONF
+fi
+
+[[ ! -z "$user" ]] && ssh_opts="$ssh_opts -o User=$user"
+if [[ ! -z "$key" ]]; then
+    if [[ ! -f "$key" ]]; then
+        echo "Unable to read keyfile $key!" >&2
+        finish $E_MISCONF
+    fi
+    ssh_opts="$ssh_opts -i $key"
+fi
+
+# define log_debug based on specified verbosity level
+log_debug() { :; }
+
+if $verbose || $debug; then
+  $debug && set -x
+  log_debug() {
+    if [[ "$#" -gt "0" ]]; then
+        echo "w4s_debug: $@" >&2
+    else
+        cat >&2
+    fi
+  }
+fi
+
+if $debug || ${KHALEESI_SSH_VERBOSE:-false} || [[ ! -z "${SSHDEBUG:-}" ]]; then
+    ssh_opts="$ssh_opts -vvvv"
+fi
+
+# construct ssh commandline
+ssh="$(which ssh)"
+ssh="$ssh $host $ssh_opts"
+ssh="$ssh -o ConnectTimeout=$conntimeout"
+ssh="$ssh -o PreferredAuthentications=publickey";
+ssh="$ssh -o StrictHostKeyChecking=no";
+ssh="$ssh -o UserKnownHostsFile=/dev/null";
+
+# snippets for commands used via ssh
+cmd_boottime="echo \"\$(( \$(date +%s) - \$(cat /proc/uptime | sed s/[.].*//) ))\""
+cmd_reboot="nohup bash -c '(sleep 3; shutdown -r now) &> /root/reboot.log' & exit 0"
+cmd_fakereboot="nohup bash -c '(sleep 3; date) &> /tmp/w4s_rebooted' & exit 0"
+
+
+
+# the action, first try reboot if requested, then go into wait-loop
+
+if $reboot_first; then
+    CHANGED="true"
+    echo "Rebooting host $host ..."
+    #TODO: debug code ...
+    #oldboottime="$(timeout -s KILL ${connkill}s $ssh  "$cmd_boottime; $cmd_fakereboot" 2> >(log_debug))"
+    #oldboottime="$(( $oldboottime - 100 ))"
+
+    # info about this construction see below
+    oldboottime=$(timeout -s KILL ${connkill}s $ssh  "$cmd_boottime; $cmd_reboot" 2> >(log_debug))
+    if [[ "$?" != "0" ]]; then
+        echo "Seems that rebooting failed!"
+        finish $E_REBOOTFAILED
+    fi
+
+    echo "Going to wait for reboot, which means boottime > $(datefmt $oldboottime)."
+    sleep 3  # we sleep here as the cmd_reboot does need sleep too, to close ssh connection before doing the reboot itself
+else
+    oldboottime=0
+fi
+
+# following numbers are just internal, not actually used as exit code/...
+last_rc=999
+not_rebooted_rc=998  # machine has same or lower boottime at the end of timeout than the one from the beginning
+cnt=0
+okCnt=0
+time_start=$(date "+%s")
+while true; do
+    cnt=$(( $cnt + 1 ))
+    time_now=$(date "+%s")
+    time_diff=$(( $time_now - $time_start ))
+    if [[ $time_diff -ge $timeout ]]; then
+        if [[ "$last_rc" = "$not_rebooted_rc" ]]; then
+            echo "Timed out after $cnt retries / ${time_diff}s while waiting for boottime > $(datefmt "$oldboottime") on host: $host"
+            finish $E_REBOOTFAILED
+        fi
+        echo "Timed out after $cnt retries / ${time_diff}s with exit code $last_rc while trying to reach: $host"
+        finish $E_TIMEDOUT
+    else
+        log_debug "Trying to reach $host. For $cnt times / $time_diff seconds in total so far."
+    fi
+
+    # try ssh connection, while:
+    # - be wrapped in killing-timeout (to not hang for any reason)
+    # - capture possible boottime output in variable
+    # - redirect any stderr content to log_debug function (whatever if it ignores or prints it out (-v arg used))
+    boottime="$(timeout -s KILL ${connkill}s $ssh  "$cmd_boottime" 2> >(log_debug))"
+    last_rc=$?
+
+    if [[ "$oldboottime" != "0" && "$boottime" -le "$oldboottime" ]]; then
+        last_rc=$not_rebooted_rc
+        log_debug "$host did not rebooted yet: boottime $(datefmt "$boottime") <= oldboottime $(datefmt "$oldboottime")"
+    fi
+
+    if [[ "$last_rc" = "0" ]]; then
+        okCnt=$(( $okCnt + 1 ))
+        echo "Reached $host, $okCnt-time(s) from $min_reached_count, after waiting for $cnt retries / ${time_diff}s, boottime: $(datefmt "$boottime")"
+        if [[ $okCnt -ge $min_reached_count ]]; then
+            finish $E_REACHED
+        fi
+    else
+        CHANGED="true"
+    fi
+    sleep $delay
+done
