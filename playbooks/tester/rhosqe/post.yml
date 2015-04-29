@@ -1,7 +1,7 @@
 ---
-- name: Fetch results
-  hosts: tester
+- name: "Collect test results xml"
+  hosts: controller
   gather_facts: no
+  sudo: yes
   tasks:
-    -  fetch: src={{ tempest.dir }}/tempest.xml
-              dest=tempest.xml flat=yes
+    - fetch: src=/root/nosetests.xml dest=nosetests.xml flat=yes
