@@ -3,7 +3,7 @@
 - name: Setup openstack repos
   hosts:
       - controller
-      - networker
+      - network
       - compute
   gather_facts: yes
   sudo: yes
@@ -15,7 +15,7 @@
         failed_when: "shell_result.rc > 2"
 
       - name: Install release tool on machines
-        command: yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/rhos-release-latest.noarch.rpm
+        command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/{{ product.name }}-release-latest.noarch.rpm"
 
       - name: Execute the release tool
         shell: "{{ product.name }}-release {{ product.version|int }}"
