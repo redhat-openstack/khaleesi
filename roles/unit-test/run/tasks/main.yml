@@ -21,8 +21,11 @@
     env_init: 'true',
   }
 
-- set_fact: venv_passed={{test_run|success}}
+- set_fact: venv_passed={{pep8_test|success}}
+  when: pep8_test.skipped is not defined
 
+- set_fact: venv_passed={{unit_test|success}}
+  when: unit_test.skipped is not defined
 
 ### print result of original testrun ###
 
