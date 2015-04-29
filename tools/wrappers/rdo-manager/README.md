@@ -17,21 +17,22 @@ RDO-Manager on the bare metal hardare specified in the rdo-manager-settings.sh
 ## Setup
 
 Copy the rdo-manager*  files to an empty directory.
-```sh
-mkdir /tmp/empty_dir
-cp rdo-manager* /tmp/empty_dir
-```
 
 Open the rdo-manager-settings.sh file read the instructions and update the
 settings appropriately.
-
+```sh
+mkdir /tmp/<dir>
+cp rdo-manager* /tmp/<dir>
+vi /tmp/<dir>/rdo-manager-settings.sh
+```
 
 ## Usage
 
 Once the settings are updated, simply execute the rdo-manager-test.sh script
 
 ```sh
-bash -x rdo-manager-test.sh
+chmod +x rdo-manager-test.sh
+./rdo-manager-test.sh
 ```
 
 
