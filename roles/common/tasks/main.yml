@@ -1,4 +1,6 @@
 ---
+#to-do this is inconsistently failing w/ perm denied
 - name: Set local time to UTC
   shell: unlink /etc/localtime; ln -s /usr/share/zoneinfo/UTC /etc/localtime
   sudo: yes
+  ignore_errors: yes
