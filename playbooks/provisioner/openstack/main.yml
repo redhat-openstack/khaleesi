@@ -25,8 +25,6 @@
       with_dict: provisioner.nodes
       register: created_nodes
 
-    - debug: var={{ created_nodes.results }}
-
     - name: Add created hosts to host list
       add_host:
         name="{{ item.item.value.name }}"
@@ -36,7 +34,8 @@
         ansible_fqdn="{{ item.item.value.hostname }}"
         ansible_ssh_user="{{ item.item.value.remote_user }}"
         ansible_ssh_private_key_file="{{ provisioner.key_file }}"
-        ansible_ssh_host={%- if item.public_ip %}{{ item.public_ip }}{%- else %}{{ item.info.addresses[provisioner.network.nic.net_1.name][0].addr }}{% endif %}
+        ansible_ssh_host={%- if item.public_ip %}{{ item.public_ip }}{%- else %}{{ item.info.addresses[provisioner.network.network_list.management.name][0].addr }}{% endif %}
+        eth1_interface_ip="{{ item.info.addresses[provisioner.network.network_list.data.name][0].addr }}"
       with_items: created_nodes.results
 
 - name: wait for hosts to get reachable
@@ -65,6 +64,13 @@
       with_dict:
           provisioner.nodes[inventory_hostname_short].network.interfaces
       register: reboot_reason
+
+    #TODO(tkammer): write this better by fixing the upstream module to provide the private IP properly
+    - name: update IP address of eth1 interface
+      lineinfile:
+          dest: /etc/sysconfig/network-scripts/ifcfg-eth1
+          regexp: IPADDR=
+          line: "IPADDR={{ hostvars[inventory_hostname].eth1_interface_ip }}"
 
     - include: "{{ lookup('env', 'PWD') }}/tasks/reboot.yml"
       when: reboot_reason|changed
