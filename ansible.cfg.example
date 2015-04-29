@@ -10,7 +10,14 @@ roles_path = roles
 
 library = library:$VIRTUAL_ENV/lib/python2.7/site-packages/ansible/modules
 
-lookup_plugins = lookups
+pipelining = True
+timeout = 30
+force_color = 1
+
+lookup_plugins = ./plugins/lookups
 callback_plugins = ./plugins/callbacks
 filter_plugins = ./plugins/filters
+
+[ssh_connection]
+control_path = %(directory)s/%%h-%%r
 
