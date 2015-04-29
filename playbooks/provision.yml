@@ -1,5 +1,11 @@
 ---
+- name: clean old inventory file
+  hosts: localhost
+  tasks:
+    - file: dest={{ working_dir }}/hosts state=absent
+
 - include: provisioner/{{ provisioner.type }}/main.yml
+
 - name: generate inventory file
   hosts: localhost
   tasks:
