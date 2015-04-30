@@ -30,7 +30,7 @@
   hosts: undercloud
   sudo: yes
   tasks:
-    yum: name=python-six state=present
+   - yum: name=python-six state=present
 
 - name: install instack undercloud
   hosts: undercloud
