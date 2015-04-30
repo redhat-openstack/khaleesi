@@ -38,6 +38,7 @@ E_MISCONF=3
 STD_LOG=$(mktemp --tmpdir tmp.w4s.out.XXXXXXX)
 ERR_LOG=$(mktemp --tmpdir tmp.w4s.err.XXXXXXX)
 trap "rm -f $STD_LOG $ERR_LOG" EXIT
+trap 'finish 1' INT
 
 exec 3>&1
 exec 4>&2
@@ -95,7 +96,11 @@ log_known_rc() {
             ;;
     esac
 }
+parseboot() {
+    sed -nr 's/^boottime=([0-9]+)$/\1/p' <<<"$1"
+}
 datefmt() { TZ=UTC date --date="@$1"; }
+
 
 # read the cli args or args_file
 host=""
@@ -155,9 +160,8 @@ ssh="$ssh -o StrictHostKeyChecking=no";
 ssh="$ssh -o UserKnownHostsFile=/dev/null";
 
 # snippets for commands used via ssh
-cmd_boottime="echo \"\$(( \$(date +%s) - \$(cat /proc/uptime | sed s/[.].*//) ))\""
-cmd_reboot="nohup bash -c '(sleep 3; shutdown -r now) &> /root/reboot.log' & exit 0"
-cmd_fakereboot="nohup bash -c '(sleep 3; date) &> /tmp/w4s_rebooted' & exit 0"
+cmd_boottime="cat /proc/uptime; echo \"boottime=\$(( \$(date +%s) - \$(cat /proc/uptime | sed s/[.].*//) ))\""
+cmd_reboot="sudo shutdown -r now"
 
 
 
@@ -166,22 +170,19 @@ cmd_fakereboot="nohup bash -c '(sleep 3; date) &> /tmp/w4s_rebooted' & exit 0"
 if $reboot_first; then
     CHANGED="true"
     echo "Rebooting host $host ..."
-    #TODO: debug code ...
-    #oldboottime="$(timeout -s KILL ${connkill}s $ssh  "$cmd_boottime; $cmd_fakereboot" 2> >(log_debug))"
-    #oldboottime="$(( $oldboottime - 100 ))"
 
     # info about this construction see below
-    oldboottime=$(timeout -s KILL ${connkill}s $ssh  "$cmd_boottime; $cmd_reboot" 2> >(log_debug))
+    output=$(timeout -s KILL ${connkill}s $ssh  "$cmd_boottime; $cmd_reboot" 2> >(log_debug))
     last_rc=$?
-    log_debug "sshout: $oldboottime"
+    log_debug "sshout: $output"
     log_known_rc $last_rc
-    if [[ "$last_rc" != "0" ]]; then
-        echo "Seems that rebooting failed!"
+    oldboottime="$(parseboot "$output")"
+    if [[ -z "$oldboottime" ]]; then
+        echo "Seems ssh for rebooting failed!"
         finish $E_REBOOTFAILED
     fi
 
     echo "Going to wait for reboot, which means boottime > $(datefmt $oldboottime)."
-    sleep 3  # we sleep here as the cmd_reboot does need sleep too, to close ssh connection before doing the reboot itself
 else
     oldboottime=0
 fi
@@ -211,10 +212,11 @@ while true; do
     # - be wrapped in killing-timeout (to not hang for any reason)
     # - capture possible boottime output in variable
     # - redirect any stderr content to log_debug function (whatever if it ignores or prints it out (-v arg used))
-    boottime="$(timeout -s KILL ${connkill}s $ssh  "$cmd_boottime" 2> >(log_debug))"
+    output="$(timeout -s KILL ${connkill}s $ssh  "$cmd_boottime" 2> >(log_debug))"
     last_rc=$?
     log_debug "sshout: $boottime"
     log_known_rc $last_rc
+    boottime="$(parseboot "$output")"
 
     if [[ "$oldboottime" != "0" && "$boottime" -le "$oldboottime" ]]; then
         last_rc=$not_rebooted_rc
