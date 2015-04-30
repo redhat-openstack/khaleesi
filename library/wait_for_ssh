@@ -129,7 +129,7 @@ delay=${delay:-0.3}           # how long to wait between retrying ssh (low is be
 conntimeout=${conntimeout:-7} # (soft) timeout for ssh connection
 connkill=${connkill:-10}       # hard timeout for ssh connection
 ssh_opts="${ssh_opts:-}"
-ssh_opts="$ssh_opts -vvvv"
+ssh_opts="$ssh_opts -vvvv -tt"
 
 # basic sanity check of options
 [[ $connkill -gt $timeout ]] && connkill=$timeout
