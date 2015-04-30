@@ -7,7 +7,7 @@
     - tripleo/instack_user
 
 - name: copy json file
-  hosts: localhost
+  hosts: undercloud
   vars:
     - ansible_ssh_user: root
   roles:
