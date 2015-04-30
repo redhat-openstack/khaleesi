@@ -2,7 +2,7 @@
 - name: clean old inventory file
   hosts: localhost
   tasks:
-    - file: dest={{ working_dir }}/hosts state=absent
+    - file: dest="{{ lookup('env', 'PWD') }}/hosts" state=absent
 
 - include: provisioner/{{ provisioner.type }}/main.yml
 
