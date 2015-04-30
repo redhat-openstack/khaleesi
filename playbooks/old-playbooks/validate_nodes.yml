@@ -1,6 +1,0 @@
-- name: test controller ssh connection
-  hosts: all:!localhost
-  tags: provision
-  sudo: yes
-  roles:
-    - { role: validate_nodes/test_ssh }

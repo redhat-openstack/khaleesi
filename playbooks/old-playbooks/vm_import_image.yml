@@ -1,5 +1,0 @@
----
-- name: Create vm with imported image
-  hosts: instack-virt-host
-  roles:
-    - { role: create_vm_import_image/create_start_vm }

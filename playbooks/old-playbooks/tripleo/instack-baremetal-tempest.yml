@@ -1,8 +1,0 @@
----
-
-- name: set up environment
-  hosts: local
-  roles:
-    - { role: tripleo/instack/setup-env/baremetal-setup-tempest }
-
-- include: ../tempest.yml

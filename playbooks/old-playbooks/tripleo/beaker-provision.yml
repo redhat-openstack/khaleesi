@@ -1,6 +1,0 @@
----
-
-- name: provision beaker machine
-  hosts: local:!skip_provision
-  roles:
-    - { role: tripleo/instack/setup-env/beaker-provision }
