@@ -8,8 +8,7 @@ usage:
   wait_for_ssh [-v[v]] <ip> [<any-other-ssh-opts>, <like-user-etc>, ...]
 
   *cli*| *var_in_file*
-  -v   | verbose=true       print progress info
-  -vv  | debug=true         print debug (xtrace, ssh debug) info, implies verbose
+  -v   | verbose=true       print progress and debug (xtrace, ssh debug) info, implies verbose
   <ip> | host=<ip>          ip address/hostname of the machine we want to reach via ssh
   <any-other-opts> | ssh_opts=<str>
                             any other opts will be passed directly to the ssh command (aka -o XYZ)
@@ -45,11 +44,13 @@ exec 4>&2
 exec 1<>$STD_LOG
 exec 2<>$ERR_LOG
 
+set -x
+
 # global flags
 MODULE_IFC=true  # will be flipped below, in case we detect direct execution (not via ansible)
 CHANGED="false"  # will be flipped to false after any single ssh command failure
 
-# helper functions (log_debug defined bellow based on verbosity level)
+# helper functions
 safe_jstring() {
     sed 's/\\/\\\\/g' |  # existing backslashes
     sed 's/"/\\"/g' |    # double-quotes
@@ -57,17 +58,42 @@ safe_jstring() {
     sed ':a;N;$!ba;s/\n/\\n/g';  # join lines, escape the newline as literal '\n'
 }
 finish() {
+    set +x
     code="${1:-0}"
+
+    be_verbose=false
+    [[ "$code" != "0" || "$verbose" = "true" ]] && be_verbose=true
+
     if $MODULE_IFC; then
-        set +x
+        err_output=""
+        $be_verbose && err_output="$(cat $ERR_LOG|safe_jstring)"
         [[ "$code" != "$E_REACHED" ]] && CHANGED="true"
-        echo "{ \"changed\": $CHANGED, \"rc\": $code, \"stdout\": \"$(cat $STD_LOG|safe_jstring)\", \"stderr\": \"$(cat $ERR_LOG|safe_jstring)\" }" >&3
+        echo "{ \"changed\": $CHANGED, \"rc\": $code, \"stdout\": \"$(cat $STD_LOG|safe_jstring)\", \"stderr\": \"$err_output\" }" >&3
         exit
     else
         cat "$STD_LOG" >&3
-        cat "$ERR_LOG" >&4
+        $be_verbose && cat "$ERR_LOG" >&4
         exit $code
     fi
+}
+log_debug() {
+    if [[ "$#" -gt "0" ]]; then
+        echo "w4s_debug: $@" >&2
+    else
+        cat >&2
+    fi
+}
+log_known_rc() {
+    case "$1" in
+        126) log_debug "rc: Permission issue or command not executable.";;
+        127) log_debug "rc: command not found";;
+        *)
+            local num=$(( $1 - 128 ))
+            if [[ $num -ge 1 && $num -le 64 ]]; then
+                log_debug "rc: $(kill -l $num)"
+            fi
+            ;;
+    esac
 }
 datefmt() { TZ=UTC date --date="@$1"; }
 
@@ -83,10 +109,6 @@ else
     if [[ "$1" == "-v" ]]; then
         verbose=true
         shift
-    elif [[ "$1" == "-vv" ]]; then
-        verbose=true
-        debug=true
-        shift
     fi
     host="$1"
     shift
@@ -95,7 +117,6 @@ fi
 
 # default values (unless obtained already above)
 verbose=${verbose:-false}
-debug=${debug:-false}
 reboot_first=${reboot_first:-false}
 timeout=${timeout:-300}       # how many seconds before this script fails if it couldn't already reach the machine before
 min_reached_count=${min_reached_count:-3}
@@ -103,6 +124,7 @@ delay=${delay:-0.3}           # how long to wait between retrying ssh (low is be
 conntimeout=${conntimeout:-7} # (soft) timeout for ssh connection
 connkill=${connkill:-10}       # hard timeout for ssh connection
 ssh_opts="${ssh_opts:-}"
+ssh_opts="$ssh_opts -vvvv"
 
 # basic sanity check of options
 [[ $connkill -gt $timeout ]] && connkill=$timeout
@@ -123,23 +145,6 @@ if [[ ! -z "$key" ]]; then
     ssh_opts="$ssh_opts -i $key"
 fi
 
-# define log_debug based on specified verbosity level
-log_debug() { :; }
-
-if $verbose || $debug; then
-  $debug && set -x
-  log_debug() {
-    if [[ "$#" -gt "0" ]]; then
-        echo "w4s_debug: $@" >&2
-    else
-        cat >&2
-    fi
-  }
-fi
-
-if $debug || ${KHALEESI_SSH_VERBOSE:-false} || [[ ! -z "${SSHDEBUG:-}" ]]; then
-    ssh_opts="$ssh_opts -vvvv"
-fi
 
 # construct ssh commandline
 ssh="$(which ssh)"
@@ -167,7 +172,10 @@ if $reboot_first; then
 
     # info about this construction see below
     oldboottime=$(timeout -s KILL ${connkill}s $ssh  "$cmd_boottime; $cmd_reboot" 2> >(log_debug))
-    if [[ "$?" != "0" ]]; then
+    last_rc=$?
+    log_debug "sshout: $oldboottime"
+    log_known_rc $last_rc
+    if [[ "$last_rc" != "0" ]]; then
         echo "Seems that rebooting failed!"
         finish $E_REBOOTFAILED
     fi
@@ -205,6 +213,8 @@ while true; do
     # - redirect any stderr content to log_debug function (whatever if it ignores or prints it out (-v arg used))
     boottime="$(timeout -s KILL ${connkill}s $ssh  "$cmd_boottime" 2> >(log_debug))"
     last_rc=$?
+    log_debug "sshout: $boottime"
+    log_known_rc $last_rc
 
     if [[ "$oldboottime" != "0" && "$boottime" -le "$oldboottime" ]]; then
         last_rc=$not_rebooted_rc
