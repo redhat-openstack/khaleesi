@@ -11,6 +11,7 @@
     - libselinux-python
     - psmisc
     - redhat-lsb-core
+    - rsync
 
 - name: disable NetworkManager
   service: name=NetworkManager state=stopped enabled=no
