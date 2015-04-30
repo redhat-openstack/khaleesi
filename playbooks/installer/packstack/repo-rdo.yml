@@ -1,0 +1,41 @@
+---
+- include: ../../group_by.yml
+
+# setup packstack prerequisites
+- name: Setup openstack repos
+  hosts: openstack_nodes
+  gather_facts: yes
+  sudo: yes
+  tasks:
+      - name: clean release rpms
+        command: yum remove -y {{ item }}
+        with_items:
+          - rdo-release*
+          - epel-release
+      - name: Install release tool on machines
+        command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}"
+
+      - name: Install epel release
+        command: "yum localinstall -y {{ distro.epel_release }}"
+
+- name: RHEL RDO prep
+  hosts: all:!localhost:&RedHat
+  sudo: yes
+  roles:
+    - { role: linux/rhel/rdo }
+    - { role: product/rdo/rhel }
+
+- name: CentOS RDO prep
+  hosts: all:!localhost:&CentOS
+  sudo: yes
+  roles:
+    - { role: linux/centos }
+    - { role: product/rdo/rhel }
+
+- name: Fedora RDO prep
+  hosts: all:!localhost:&Fedora
+  sudo: yes
+  roles:
+    - { role: linux/fedora }
+    - { role: product/rdo/fedora }
+

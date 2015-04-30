@@ -1,0 +1,27 @@
+---
+- name: Group by distribution for workarounds-prep
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ ansible_distribution }}
+
+- name: Group by distribution-version for workarounds-prep
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ ansible_distribution }}-{{ ansible_distribution_major_version|int }}
+
+- name: Group hosts by product rdo,rhos
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ product.name }}
+      when: product is defined
+  tags:
+    - prep
+
+- name: Group hosts by product version for juno, icehouse, havana
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ product.version }}
+      when: product.version is defined
+  tags:
+    - prep
+

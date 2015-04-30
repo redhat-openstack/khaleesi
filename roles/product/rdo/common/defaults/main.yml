@@ -1,5 +1,0 @@
----
-repos_to_remove: ['rdo-release.repo', 'puppetlabs.repo', 'foreman.repo']
-
-repo_production: "{{ product.repo.production[ansible_distribution][ansible_distribution_version] }}"
-repo_current: "{{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"

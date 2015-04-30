@@ -1,7 +1,5 @@
 ---
-- include: installer/{{ installer.type }}/pre.yml
-- include: installer/{{ installer.type }}/run.yml
-- include: installer/{{ installer.type }}/post.yml
+- include: installer/{{ installer.type }}/main.yml
 
 - name: Global post install
   hosts: controller

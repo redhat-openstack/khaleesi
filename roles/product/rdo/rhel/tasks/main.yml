@@ -1,21 +1,4 @@
 ---
-- name: yum install rdo-release for EL environment
-  yum: name="{{ product.rpm[ ansible_distribution ] }}" state=present     #"
-  when: ansible_distribution == 'RedHat' or ansible_distribution == 'CentOS'
-  retries: 3
-  delay: 30
-  register: rdo_release_install_result
-  until: rdo_release_install_result.rc == 0
-
-- name: check for foreman.repo file
-  stat: path=/etc/yum.repos.d/foreman.repo
-  register: foreman_repo_file
-
-- name: disable foreman repo
-  command: |
-       sed -i -e "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/foreman.repo
-  when: foreman_repo_file.stat.exists
-
 - name: disable gpgcheck for rdo for every non production repo
   lineinfile:
     dest=/etc/yum.repos.d/rdo-release.repo
@@ -23,17 +6,8 @@
     line=gpgcheck=0
   when: product.repo_type != 'production'
 
-- name: set baseurl for rdo for EL environment
-  lineinfile:
-    dest=/etc/yum.repos.d/rdo-release.repo
-    regexp=^baseurl=
-    line="baseurl={{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"
-  when: product.repo_type not in ['delorean', 'delorean_mgt']
-  notify:
-    - Yum clean all
-
 - name: Create the upstream delorean repositories for EPEL RDO
-  get_url: url="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}"/current/delorean.repo 
+  get_url: url="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}"current/delorean.repo 
             dest=/etc/yum.repos.d/rdo-trunk-release.repo
             mode=0644
   notify:
@@ -49,7 +23,7 @@
   when: product.repo_type in ['delorean', 'delorean_mgt'] and product.repo.delorean_pin_version is defined
 
 - name: Create the upstream delorean mgt repositories for EPEL RDO
-  get_url: url="{{ product.repo['delorean_mgt'][ansible_distribution][ansible_distribution_version] }}"/current/delorean-rdo-management.repo
+  get_url: url="{{ product.repo['delorean_mgt'][ansible_distribution][ansible_distribution_version] }}"current/delorean-rdo-management.repo
             dest=/etc/yum.repos.d/rdo-mgt-trunk-release.repo
             mode=0644
   notify:
