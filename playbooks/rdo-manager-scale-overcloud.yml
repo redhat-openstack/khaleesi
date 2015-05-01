@@ -1,0 +1,5 @@
+---
+- name: scale overcloud nodes
+  hosts: undercloud
+  roles:
+   - rdo-manager/scale-nodes
