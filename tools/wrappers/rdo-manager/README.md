@@ -5,7 +5,7 @@ purpose of installing RDO-Manager on a single bare metal machine.
 
 ## Support
 ### Development Machine / Slave
-Requires Fedora 20+
+Requires Fedora 20+  
 RHEL and CentOS development and slaves machines will not work due to [1]
 ### RDO-Manager Bare Metal Machine
 https://repos.fedorapeople.org/repos/openstack-m/instack-undercloud/html/virt-setup.html#minimum-system-requirements
