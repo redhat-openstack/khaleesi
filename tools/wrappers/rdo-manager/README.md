@@ -4,8 +4,9 @@ This is a quick and dirty wrapper script to setup ansible, khaleesi for the
 purpose of installing RDO-Manager on a single bare metal machine.
 
 ## Support
-### Development Machine
-Requires python 2.7
+### Development Machine / Slave
+Requires Fedora 20+
+RHEL and CentOS development and slaves machines will not work due to [1]
 ### RDO-Manager Bare Metal Machine
 https://repos.fedorapeople.org/repos/openstack-m/instack-undercloud/html/virt-setup.html#minimum-system-requirements
 
@@ -34,5 +35,8 @@ Once the settings are updated, simply execute the rdo-manager-test.sh script
 chmod +x rdo-manager-test.sh
 ./rdo-manager-test.sh
 ```
+
+## Known Issues
+[1] https://github.com/ansible/ansible/issues/5595 RHEL and CentOS
 
 
