@@ -3,48 +3,48 @@
   hosts: tester
   tasks:
     - name: Create Output Directory
-      file: path={{ rally.outputdir }} state=directory
+      file: path={{ tester.rally.outputdir }} state=directory
 
 # TODO(yfried): fix relative link in index so they point to the right path and don't use gz files
 #    - name: Create nice index
-#      shell: "{{ rally.path }}/python rally/ui/utils.py render tests/ci/rally-gate/index.mako >  {{ rally.outputdir }}/index.html"
+#      shell: "{{ tester.rally.path }}/python rally/ui/utils.py render tests/ci/rally-gate/index.mako >  {{ tester.rally.outputdir }}/index.html"
 #      args:
-#        creates: "{{ rally.outputdir }}/index.html"
-#        chdir: "{{ rally.dir }}"
+#        creates: "{{ tester.rally.outputdir }}/index.html"
+#        chdir: "{{ tester.rally.dir }}"
 
     - name: Create Report
-      command: "{{ rally.path }}/rally task report --out {{ rally.outputdir }}/results.html"
+      command: "{{ tester.rally.path }}/rally task report --out {{ tester.rally.outputdir }}/results.html"
       args:
-        creates: "{{ rally.outputdir }}/results.html"
-        chdir: "{{ rally.dir }}"
+        creates: "{{ tester.rally.outputdir }}/results.html"
+        chdir: "{{ tester.rally.dir }}"
 
     - name: JSON results
-      shell: "{{ rally.path }}/rally task results | {{ rally.path }}/python -m json.tool > {{ rally.outputdir }}/results.json"
+      shell: "{{ tester.rally.path }}/rally task results | {{ tester.rally.path }}/python -m json.tool > {{ tester.rally.outputdir }}/results.json"
       args:
-        creates: "{{ rally.outputdir }}/results.json"
-        chdir: "{{ rally.dir }}"
+        creates: "{{ tester.rally.outputdir }}/results.json"
+        chdir: "{{ tester.rally.dir }}"
 
     - name: Iteration Data
-      shell: "{{ rally.path }}/rally task detailed > {{ rally.outputdir }}/detailed.txt"
+      shell: "{{ tester.rally.path }}/rally task detailed > {{ tester.rally.outputdir }}/detailed.txt"
       args:
-        creates: "{{ rally.outputdir }}/detailed.txt"
+        creates: "{{ tester.rally.outputdir }}/detailed.txt"
 
     - name: Detatiled Iteration Data
-      shell: "{{ rally.path }}/rally task detailed --iterations-data > {{ rally.outputdir }}/detailed_with_iterations.txt"
+      shell: "{{ tester.rally.path }}/rally task detailed --iterations-data > {{ tester.rally.outputdir }}/detailed_with_iterations.txt"
       args:
-        creates: "{{ rally.outputdir }}/detailed_with_iterations.txt"
+        creates: "{{ tester.rally.outputdir }}/detailed_with_iterations.txt"
 
     - name: SLA Check
-      shell: "{{ rally.path }}/rally task sla_check > {{ rally.outputdir }}/sla.txt"
+      shell: "{{ tester.rally.path }}/rally task sla_check > {{ tester.rally.outputdir }}/sla.txt"
       args:
-        creates: "{{ rally.outputdir }}/sla.txt"
+        creates: "{{ tester.rally.outputdir }}/sla.txt"
 #      register: sla_check
       ignore_errors: True
 
     - name: SLA Check JSON
-      shell: "{{ rally.path }}/rally task sla_check --json > {{ rally.outputdir }}/sla.json"
+      shell: "{{ tester.rally.path }}/rally task sla_check --json > {{ tester.rally.outputdir }}/sla.json"
       args:
-        creates: "{{ rally.outputdir }}/sla.json"
+        creates: "{{ tester.rally.outputdir }}/sla.json"
 #      register: sla_check
       ignore_errors: True
 
@@ -54,12 +54,12 @@
     # Assumes env has $WORKSPACE defined like in Jenkins
       fetch: src={{ item }} dest="{{ lookup('env','WORKSPACE') }}/rally_results/" fail_on_missing=yes flat=yes
       with_items:
-#        - "{{ rally.outputdir }}/index.html"
-        - "{{ rally.outputdir }}/results.html"
-        - "{{ rally.outputdir }}/detailed.txt"
-        - "{{ rally.outputdir }}/detailed_with_iterations.txt"
-        - "{{ rally.outputdir }}/sla.txt"
-        - "{{ rally.outputdir }}/sla.json"
+#        - "{{ tester.rally.outputdir }}/index.html"
+        - "{{ tester.rally.outputdir }}/results.html"
+        - "{{ tester.rally.outputdir }}/detailed.txt"
+        - "{{ tester.rally.outputdir }}/detailed_with_iterations.txt"
+        - "{{ tester.rally.outputdir }}/sla.txt"
+        - "{{ tester.rally.outputdir }}/sla.json"
 
     - name: Convert SLA to JUnit
       delegate_to: localhost

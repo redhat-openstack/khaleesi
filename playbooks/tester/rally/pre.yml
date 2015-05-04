@@ -14,25 +14,21 @@
   sudo: yes
   tasks:
     - name: Clone Rally from git repo
-      git: repo={{ rally.git.repo }} version={{ rally.git.revision }}
-           dest={{ rally.dir }}
+      git: repo={{ tester.git.repo }} version={{ tester.git.revision }}
+           dest={{ tester.rally.dir }}
 
       # This URL should be in the config file (khaleesi settings)
     - name: Download cirros image
-      get_url: url=http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-disk.img dest={{ rally.dir }}/etc/{{ rally.cirros_image_file }} mode=0440
+      get_url: url=http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-disk.img dest={{ tester.rally.dir }}/etc/{{ tester.rally.cirros_image_file }} mode=0440
 
     - name: Run Rally installation script
-      shell: "{{ rally.dir }}/install_rally.sh -v"
+      shell: "{{ tester.rally.dir }}/install_rally.sh -v"
       args:
-        creates: "{{ rally.path }}/rally"
+        creates: "{{ tester.rally.path }}/rally"
 
 - name: Prepare Openstack
   hosts: controller
   tasks:
-    - name: Create keystonerc_admin
-      template: src=../templates/keystonerc_admin.j2 dest=/root/keystonerc_admin
-      sudo: yes
-
     - name: Create nano falvor
       shell: "source /root/keystonerc_admin && nova flavor-create m1.nano 42 64 0 1"
       sudo: yes
@@ -42,7 +38,7 @@
     - name: Create Glance Image
       glance_image:
         login_username: admin
-        login_password: "{{ hostvars[nodes.controller.name].admin_password | default('redhat') }}"
+        login_password: "{{ hostvars[provisioner.nodes.controller.name].admin_password | default('redhat') }}"
         login_tenant_name: admin
         name: cirros-0.3.3-x86_64-uec
 #        disk_format: ami
