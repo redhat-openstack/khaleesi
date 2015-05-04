@@ -16,6 +16,7 @@
 
 - name: scale overcloud nodes
   shell: >
+    source {{ instack_user_home }}/stackrc;
     source {{ instack_user_home }}/scale-setup-env;
     openstack overcloud scale stack overcloud overcloud -r $NODE_TO_SCALE_TYPE -n $NODE_SCALE_CHANGE
   when: node_to_scale is defined
