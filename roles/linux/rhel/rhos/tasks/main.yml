@@ -9,9 +9,6 @@
 
 - name: Execute rhos-release {{ product.version|int }}
   command: "rhos-release {{ product.version|int }}"
-  notify:
-    - Yum clean all
-    - yum -y update to latest packages
   when: product.repo_type_override is not defined
 
 #hack for the multiple products involved in setting up rdo-manager
@@ -25,16 +22,10 @@
 
 - name: Execute rhos-release for rdo-manager {{ product_override_version|int }}
   command: "rhos-release {{ product_override_version|int }}"
-  notify:
-    - Yum clean all
-    - yum -y update to latest packages
   when: product_override_version is defined and product.repo_type_override == 'rhos-release'
 
 - name: Execute rhos-release {{ product.version|int }}{{ installer_host_repo | default('')}}
   command: "rhos-release {{ product.version|int }}{{ installer_host_repo | default('')}}"
-  notify:
-    - Yum clean all
-    - yum -y update to latest packages
   when: installer is defined and installer.name == "foreman" and installer_host_repo | default('') != ''
 
 - name: Change server location for repos in  rhos-release

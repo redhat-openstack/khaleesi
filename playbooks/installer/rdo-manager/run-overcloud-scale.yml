@@ -1,0 +1,57 @@
+---
+- name: scale overcloud nodes
+  hosts: undercloud
+  tasks:
+    - name: set fact stack user home
+      set_fact: instack_user_home=/home/{{ installer.user.stack.name }}
+
+    - name: set node type to scale
+      set_fact: node_to_scale={{item}}
+      when: installer.node.{{item}}.scale_change is defined
+      with_items:
+        - compute
+        - cephstorage
+        - blockstorage
+        - swiftstorage
+
+    - name: setup vars
+      template: src=templates/scale-setup-env.j2 dest=~/scale-setup-env mode=0755
+      when: node_to_scale is defined
+
+    - name: scale overcloud nodes
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        source {{ instack_user_home }}/scale-setup-env;
+        openstack overcloud scale stack overcloud overcloud -r $NODE_TO_SCALE_TYPE -n $NODE_SCALE_CHANGE
+      when: node_to_scale is defined
+
+    - name: poll for heat stack-list to go to COMPLETE
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        heat stack-list
+      register: heat_stack_list_result
+      until: heat_stack_list_result.stdout.find("COMPLETE") != -1
+      retries: 10
+      delay: 180
+      when: node_to_scale is defined
+
+    - name: get the number of nodes
+      shell:
+        source {{ instack_user_home }}/stackrc;
+        source {{ instack_user_home }}/scale-setup-env;
+        nova list | grep $NODE_TO_SCALE_TYPE | cut -f2- -d':' | wc -l
+      register: nova_list_output
+      when: node_to_scale is defined
+
+    - name: get value for scale_change
+      shell:
+        source {{ instack_user_home }}/stackrc;
+        source {{ instack_user_home }}/scale-setup-env;
+        echo $NODE_SCALE_CHANGE
+      register: scale_change_value
+      when: node_to_scale is defined
+
+    - name: check the number of nodes match the scaled values
+      fail: msg="Overcloud nodes were not scaled correctly."
+      when: (node_to_scale is defined) and (scale_change_value.stdout != nova_list_output.stdout)
+

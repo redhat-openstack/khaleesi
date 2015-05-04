@@ -1,0 +1,61 @@
+---
+- name: install the undercloud packages and get the guest image
+  hosts: undercloud
+  tasks:
+    - name: get the guest-image
+      shell: >
+        curl -o /home/stack/{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }} \
+        "{{ distro.images[distro.name][ansible_distribution_version].remote_file_server }}{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}"
+
+    - name: install python-rdomanager-oscplugin
+      yum: name=python-rdomanager-oscplugin state=present
+      sudo: yes
+
+- name: Customize the answer file for baremetal deployment
+  hosts: undercloud:&baremetal
+  tasks:
+    - name: check answers file exists
+      stat: path="/usr/share/instack-undercloud/instack.answers.sample"
+      register: answers_file_present
+      failed_when: answers_file_present.stat.exists == False
+
+    - name: copy baremetal answers file
+      shell: cp /usr/share/instack-undercloud/instack.answers.sample {{ instack_user_home }}/instack.answers
+
+    - name: edit instack.answers file - local_interface
+      lineinfile: dest={{ instack_user_home }}/instack.answers regexp=^LOCAL_INTERFACE line=LOCAL_INTERFACE={{ hw_env.answers_local_interface }}
+
+    - name: edit instack.answers file - network
+      replace: dest={{ instack_user_home }}/instack.answers regexp='192.0.2' replace={{ hw_env.network }}
+      when: hw_env.network is defined
+
+    - name: edit instack.answers file - network gateway
+      lineinfile: dest={{ instack_user_home }}/instack.answers regexp=^NETWORK_GATEWAY line=NETWORK_GATEWAY={{ hw_env.network_gateway }}
+
+    - name: installing python-six (workaround)
+      yum: name=python-six state=present
+      sudo: yes
+
+- name: install the undercloud
+  hosts: undercloud
+  tasks:
+    - name: update hosts file for localhost.localhost (workaround for puppet, discovered on centos7)
+      lineinfile: dest=/etc/hosts line="127.0.0.1   localhost localhost.localhost"
+      sudo: yes
+
+    - name: install the undercloud
+      command: openstack undercloud install
+
+    - name: copy files to home
+      sudo: yes
+      command: cp /root/{{ item }} {{ instack_user_home }}/{{ item }}
+      with_items:
+        - tripleo-undercloud-passwords
+        - stackrc
+
+    - name: chown files for stack user
+      sudo: yes
+      command: chown stack:stack {{ instack_user_home }}/{{ item }}
+      with_items:
+        - tripleo-undercloud-passwords
+        - stackrc

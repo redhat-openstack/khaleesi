@@ -1,0 +1,81 @@
+---
+- name: Group hosts by provisioner
+  hosts: localhost
+  sudo: no
+  tasks:
+    - group_by: key={{ provisioner.type }}
+
+- name: provisioner skip the provisioning step
+  hosts: localhost
+  sudo: no
+  tasks:
+    - group_by: key={{ provisioner.skip }}
+
+- name: check if beakerCheckOut.sh script exists
+  hosts: localhost:!skip_provision
+  tasks:
+    - stat: path="{{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh"
+      register: beakerCheckOut_present
+
+- name: remove beakerCheckOut.sh script if it exists
+  hosts: localhost:!skip_provision
+  tasks:
+    - command: rm -rf {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh
+      when: beakerCheckOut_present.stat.exists == True
+
+- name: get beakerCheckOut.sh file from khaleesi-settings
+  hosts: localhost:!skip_provision
+  tasks:
+    shell: >
+      chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+      cp {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ provisioner.beaker_checkout_script }} .
+
+- name: check if beakerCheckOut.sh script exists
+  hosts: localhost:!skip_provision
+  tasks:
+    - stat: path="{{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh"
+      register: beakerCheckOut_downloaded
+
+- name: Fail when can't get checkout script
+  hosts: localhost:!skip_provision
+  tasks:
+    - fail: msg="Cannot get {{ provisioner.beaker_checkout_script }}. Exiting with failure."
+      when: beakerCheckOut_downloaded.stat.exists == False
+
+- name: chmod if file exists
+  hosts: localhost:!skip_provision
+  tasks:
+    - shell: >
+        chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+        chmod +x beakerCheckOut.sh
+      when: beakerCheckOut_downloaded.stat.exists == True
+
+- name: return the Beaker machine if it is checked out
+  hosts: localhost:!skip_provision
+  tasks:
+    - shell: ssh -o 'StrictHostKeyChecking=no' root@{{ job.host }} "return2beaker.sh"
+      ignore_errors: yes
+      async: 60
+
+- name: provision Beaker machine with password
+  hosts: localhost:!skip_provision
+  tasks:
+    - shell: >
+        chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+        {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh --arch={{ provisioner.beaker_arch }} --family={{ provisioner.beaker_family }} --distro={{ provisioner.beaker_distro }} --variant={{ provisioner.beaker_variant }} --hostrequire=hostlabcontroller={{ provisioner.host_lab_controller }} --username={{ provisioner.beaker_user_name }} --password=$BEAKER_PASSWORD --task=/CoreOS/rhsm/Install/automatjon-keys --keyvalue=HVM=1  --ks_meta="ksdevice=link" --whiteboard={{ provisioner.whiteboard_message }} --job-group={{ provisioner.beaker_group }} --machine={{ job.host }} --timeout=720 >/dev/null 2>&1
+      register: beaker_job_status
+      async: 7200
+      poll: 180
+      no_log: true
+      when: provisioner.beaker_password is defined
+
+- name: provision Beaker machine with kerberos auth
+  hosts: localhost:!skip_provision
+  tasks:
+    - shell: >
+        chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+        {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh --arch={{ provisioner.beaker_arch }} --family={{ provisioner.beaker_family }} --distro={{ provisioner.beaker_distro }} --variant={{ provisioner.beaker_variant }} --hostrequire=hostlabcontroller={{ provisioner.host_lab_controller }} --task=/CoreOS/rhsm/Install/automatjon-keys --keyvalue=HVM=1 --ks_meta=ksdevice=link --whiteboard={{ provisioner.whiteboard_message }} --job-group={{ provisioner.beaker_group }} --machine={{ job.host }} --timeout=720;
+      register: beaker_job_status
+      async: 7200
+      poll: 180
+      when: provisioner.beaker_password is not defined

@@ -15,10 +15,4 @@
     line=gpgcheck=0
   when: product.repo_type not in ('production', 'distribution')
 
-- name: List available yum repositories
-  command: yum -d 7 repolist
-  register: result
-
-- name: Print repolist
-  debug: var=result.stdout_lines
 

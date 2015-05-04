@@ -4,6 +4,19 @@
   local_action:
         wait_for_ssh reboot_first=true host={{ hostvars[inventory_hostname].ansible_ssh_host }} user={{ hostvars[inventory_hostname].ansible_ssh_user }} key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
 
+- name: reboot_rdo_manager
+  sudo: no
+  local_action:
+        wait_for_ssh
+          reboot_first=true
+          ssh_opts="-F ../../../ssh.config.ansible"
+          host="{{ ansible_ssh_host }}"
+          user="root"
+          key="{{ ansible_ssh_private_key_file }}"
+          sudo=false
+  notify:
+    - Check instance uptime
+
 - name: Wait for libvirt guest to stop
   sudo: no
   wait_for: host={{hostvars[inventory_hostname].ansible_fqdn }} port=22
@@ -51,26 +64,6 @@
 - name: Yum repolist
   command: yum repolist
   ignore_errors: yes
-
-- name: yum -y update to latest packages
-  yum: name=* state=latest
-  notify:
-    - reboot
-    - Check instance uptime
-    - Print instance uptime
-    - Fix centos naming scheme
-    - Reload facts
-  when: yum_update | bool
-
-- name: yum -y update to latest packages
-  yum: name=* state=latest
-  notify:
-    - reboot
-    - Check instance uptime
-    - Print instance uptime
-    - Fix centos naming scheme
-    - Reload facts
-  when: yum_update | bool
 
 - name: restart network
   service: name=network state=restarted

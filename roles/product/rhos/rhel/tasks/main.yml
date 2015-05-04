@@ -3,9 +3,3 @@
 - name: Remove python-backports if installed
   yum: name=python-backports state=removed
 
-- name: List available yum repositories
-  command: yum -d 9 repolist
-  register: result
-
-- name: Print repolist
-  debug: var=result.stdout_lines

@@ -79,3 +79,14 @@
         module: wait_for_ssh reboot_first=true host={{ hostvars[inventory_hostname].ansible_ssh_host }} user={{ hostvars[inventory_hostname].ansible_ssh_user }} key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
       when: update_ifcfgs|changed or update_ifcfg1|changed
       sudo: no
+
+- name: generate inventory file
+  hosts: localhost
+  tasks:
+    - template:
+        dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+        src: provisioner/templates/inventory.j2
+    - file:
+        dest: "{{ lookup('env', 'PWD') }}/hosts"
+        state: link
+        src: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"

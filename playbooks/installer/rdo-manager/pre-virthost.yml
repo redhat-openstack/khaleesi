@@ -1,0 +1,260 @@
+---
+- include: cleanup-virthost.yml
+- include: repo-{{ product.name }}.yml repo_host=virthost
+
+- name: Create the stack user on the virthost
+  hosts: virthost
+  vars:
+    - ansible_ssh_user: root
+  tasks:
+    - name: create user
+      user: name="{{ installer.user.stack.name }}" state=present password=stack
+
+    - name: copy the .bash_profile file
+      command:  cp /root/.bash_profile /home/{{ installer.user.stack.name }}/
+
+    - name: create .ssh dir
+      file: path=/home/{{ installer.user.stack.name }}/.ssh mode=0700 owner=stack group=stack state=directory
+
+    - name: copy the authorized_keys file
+      command:  cp /root/.ssh/authorized_keys /home/{{ installer.user.stack.name }}/.ssh/
+
+    - name: set file permissions on authorized_hosts
+      file: path=/home/{{ installer.user.stack.name }}/.ssh/authorized_keys mode=0600 owner=stack group=stack
+
+    - name: add user to sudoers
+      lineinfile: dest=/etc/sudoers line="stack ALL=(root) NOPASSWD:ALL"
+
+    - name: set fact for the stack user home
+      set_fact: instack_user_home=/home/{{ installer.user.stack.name }}
+
+- name: Group all hosts in gate if we are gating
+  hosts: all
+  tasks:
+    - group_by: key=gate
+      when: "\"\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
+
+- name: Gating tasks
+  hosts: virthost:&gate
+  tasks:
+    - name: Set the build directory as a fact
+      set_fact:
+        build_dir: "/tmp/{{ lookup('env', 'BUILD_TAG') }}"
+
+    - name: Create build directory
+      file: path={{ build_dir }} state=directory
+
+    - name: Copy the instack-undercloud repo
+      synchronize: src=../../instack-undercloud/ dest={{ build_dir }}/instack-undercloud delete=yes recursive=yes
+
+    - name: remove instack-undercloud package
+      yum: name=instack-undercloud state=absent
+      sudo: yes
+
+    - name: yum install packages to build rpm
+      yum: name={{ item }} state=latest
+      with_items:
+        - git
+        - python-pbr
+        - rpm-build
+        - rsync
+      sudo: yes
+
+    - name: Clone instack-undercloud-packaging
+      command: creates={{ build_dir }}/instack-undercloud-packaging
+        chdir={{ build_dir }}
+        git clone https://github.com/rdo-management/instack-undercloud-packaging
+
+    - name: Remove the build tag if exists to get the proper version
+      shell: >
+        chdir={{ build_dir }}/instack-undercloud
+        git tag -d {{ lookup('env', 'BUILD_TAG') }} || /bin/true
+
+    - name: get version of package
+      shell: >
+        chdir={{ build_dir }}/instack-undercloud
+        python setup.py --version | tail -n 1
+      register: pkg_version
+
+    - name: create the content of the package
+      shell: >
+        chdir={{ build_dir }}/instack-undercloud
+        set +x;
+        rm -rf dist/;
+        python setup.py sdist;
+        cd dist;
+        for f in *.tar.gz; do
+            cp $f {{ pkg_version.stdout }}.tar.gz;
+        done;
+        cd ../..;
+        cp instack-undercloud-packaging/*.spec .;
+        sed -i "s/^Version.*/Version: {{ pkg_version.stdout }}/" *.spec;
+        sed -i "s/^Release.*/Release: 99999/" *.spec;
+        rpmbuild --define "_sourcedir {{ build_dir}}/instack-undercloud/dist" --define "upstream_version {{ pkg_version.stdout }}" -bb *.spec;
+        mv ~/rpmbuild/RPMS/noarch/instack-undercloud-{{ pkg_version.stdout }}-99999.noarch.rpm {{ build_dir }};
+
+    - name: install the generated rpm
+      yum: name={{ build_dir }}/instack-undercloud-{{ pkg_version.stdout }}-99999.noarch.rpm state=present
+      sudo: yes
+
+- name: setup the virt host
+  hosts: virthost
+  tasks:
+    - name: set fact stack user home
+      set_fact: instack_user_home=/home/{{ installer.user.stack.name }}
+
+    - name: get the guest-image
+      shell: >
+        curl -o /home/stack/{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }} \
+        "{{ distro.images[distro.name][ansible_distribution_version].remote_file_server }}{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}"
+
+    - name: install python-rdomanager-oscplugin
+      yum: name=python-rdomanager-oscplugin state=present
+      sudo: yes
+
+    - name: setup environment vars
+      template: src=templates/virt-setup-env.j2 dest=~/virt-setup-env mode=0755
+
+    - name: run instack-virt-setup
+      shell: >
+        source {{ instack_user_home }}/virt-setup-env;
+        instack-virt-setup;
+      register: instack_virt_setup_result
+      ignore_errors: yes
+
+    - name: update libvirtd unix_sock_group
+      lineinfile: dest=/etc/libvirt/libvirtd.conf
+                  regexp=^unix_sock_group
+                  line='unix_sock_group = "stack"'
+      sudo: yes
+
+    - name: restart libvirtd
+      service: name=libvirtd state=restarted
+      sudo: yes
+
+    - name: inspect virsh capabilities
+      command: 'virsh capabilities'
+      sudo: yes
+      # workaround for the SATA error RHBZ#1195882
+
+    - name: remove libvirt qemu capabilities cache
+      command: rm -Rf /var/cache/libvirt/qemu/capabilities/
+      sudo: yes
+      when: "instack_virt_setup_result.rc != 0"
+      # more workaround for the SATA error RHBZ#1195882
+
+    - name: restart libvirtd
+      service: name=libvirtd state=restarted
+      sudo: yes
+      when: "instack_virt_setup_result.rc != 0"
+
+    - name: inspect virsh capabilities
+      command: 'virsh capabilities'
+      when: "instack_virt_setup_result.rc != 0"
+
+    - name: destroy virbr0 network if present
+      command: brctl delbr virbr0
+      sudo: yes
+      ignore_errors: true
+
+    - name: retry run instack-virt-setup
+      shell: >
+        virsh undefine instack;
+        source {{ instack_user_home }}/virt-setup-env;
+        instack-virt-setup;
+      when: "instack_virt_setup_result.rc != 0"
+
+    - name: print out all the VMs
+      shell: >
+        sudo virsh list --all
+
+    - name: get undercloud vm ip address
+      shell: >
+        cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac instack) | awk '{print $3;}'
+      when: undercloud_ip is not defined
+      register: undercloud_vm_ip_result
+
+    - name: wait until ssh is available on undercloud node
+      wait_for: host={{ undercloud_vm_ip_result.stdout }}
+            state=started
+            port=22
+            delay=15
+            timeout=300
+      when: undercloud_ip is not defined
+
+    - name: add undercloud host
+      add_host: name=undercloud groups=undercloud ansible_ssh_host=undercloud
+      when: undercloud_ip is not defined
+
+    - name: set_fact for undercloud ip
+      set_fact: undercloud_ip={{undercloud_vm_ip_result.stdout}}
+      when: undercloud_ip is not defined
+
+    - name: test for undercloud hostvar for overcloud controller ip
+      debug: msg="{{ hostvars['undercloud']['controller_ip'] }}"
+      when: hostvars['undercloud']['controller_ip'] is defined
+
+    - name: set overcloud ip fact
+      set_fact: controller_ip={{ hostvars['undercloud']['controller_ip'] }}
+      when: hostvars['undercloud']['controller_ip'] is defined
+
+    - name: add controller host if defined
+      add_host: name=controller groups=controller ansible_ssh_host=controller
+      when: hostvars['undercloud']['controller_ip'] is defined
+
+    - name: add tempest host
+      add_host: name=tester groups=tester ansible_ssh_host=undercloud
+      when: hostvars['undercloud']['controller_ip'] is defined
+
+    - name: setup ssh config
+      template: src=templates/ssh_config.j2 dest=~/ssh.config.ansible mode=0755
+
+    - name: print PWD
+      debug: var=ansible_env.PWD
+
+    - name: copy ssh_config back to the slave
+      fetch: src=~/ssh.config.ansible dest=../../../ssh.config.ansible flat=yes
+
+    - name: copy id_rsa key back to the slave
+      fetch: src=~/.ssh/id_rsa dest=../../../id_rsa_virt_host flat=yes
+
+    - name: copy undercloud root user authorized_keys to stack user
+      shell: 'ssh -F ssh.config.ansible undercloud-from-virthost "cp /root/.ssh/authorized_keys /home/stack/.ssh/"'
+
+    - name: chown authorized_keys for stack user
+      shell: 'ssh -F ssh.config.ansible undercloud-from-virthost "chown stack:stack /home/stack/.ssh/authorized_keys"'
+
+- name: copy and install the gating rpm to the undercloud
+  hosts: virthost:&gate
+  tasks:
+    - name: copy instack-undercloud package
+      command: scp -F ssh.config.ansible {{ build_dir }}/instack-undercloud-{{ pkg_version.stdout }}-99999.noarch.rpm undercloud-from-virthost:{{ instack_user_home }}/
+
+    - name: copy the instack-setup-host script
+      command: scp -F ssh.config.ansible {{ build_dir }}/instack-undercloud/scripts/instack-setup-host undercloud-from-virthost:/usr/bin/
+
+- name: test host connection
+  hosts: all:!localhost
+  tasks:
+    - name: test ssh
+      command: hostname
+
+    - name: check distro
+      command: cat /etc/redhat-release
+
+    - name: set fact stack user home
+      set_fact: instack_user_home=/home/{{ installer.user.stack.name }}
+
+- include: repo-{{ product.name }}.yml repo_host=undercloud
+
+- name: Install the custom instack-undercloud rpm when gating
+  hosts: undercloud:&gate
+  sudo: yes
+  tasks:
+    - name: ensure install-undercloud is not installed
+      yum: name=instack-undercloud state=absent
+      # this removes the python-rdomanager-oscplugin
+      # we have to make sure it is installed back afterwards
+
+    - name: install the rpm we previously built
+      shell: yum -y install /home/stack/instack-undercloud-*
