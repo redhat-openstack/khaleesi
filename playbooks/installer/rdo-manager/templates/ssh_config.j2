@@ -1,0 +1,39 @@
+{% if undercloud_ip is defined %}
+Host tempest
+    ProxyCommand ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i ~/.ssh/id_rsa stack@{{ job.host }} -W {{ undercloud_ip }}:22
+    IdentityFile id_rsa_virt_host
+    User stack
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+
+Host undercloud-root
+    ProxyCommand ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i ~/.ssh/id_rsa stack@{{ job.host }} -W {{ undercloud_ip }}:22
+    IdentityFile id_rsa_virt_host
+    User root
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+
+Host undercloud
+    ProxyCommand ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i ~/.ssh/id_rsa stack@{{ job.host }} -W {{ undercloud_ip }}:22
+    IdentityFile id_rsa_virt_host
+    User stack
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+
+Host undercloud-from-virthost
+    Hostname {{ undercloud_ip }}
+    IdentityFile ~/.ssh/id_rsa
+    IdentitiesOnly yes
+    User root
+    StrictHostKeyChecking no
+{%endif %}
+
+{% if controller_ip is defined %}
+Host controller
+    ProxyCommand ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i ~/.ssh/id_rsa -F ssh.config.ansible undercloud -W {{ controller_ip }}:22
+    IdentityFile id_rsa_undercloud
+    IdentitiesOnly yes
+    User heat-admin
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+{%endif %}

@@ -14,6 +14,7 @@ usage:
                             any other opts will be passed directly to the ssh command (aka -o XYZ)
                             in case of args_file, following opts will be used from it too:
        | user=<str>         username for ssh login
+       | sudo=true          use sudo for reboot command, default is true [true,false]
        | key=<file>         private keyfile for ssh login
        | reboot_first=true  reboot host + wait for ssh and boottime > one obtained before reboot
        | timeout=<int>      maximum seconds after which we give up trying to reach the host
@@ -124,6 +125,7 @@ fi
 # default values (unless obtained already above)
 verbose=${verbose:-false}
 reboot_first=${reboot_first:-false}
+sudo=${sudo:-true}
 timeout=${timeout:-300}       # how many seconds before this script fails if it couldn't already reach the machine before
 min_reached_count=${min_reached_count:-3}
 delay=${delay:-0.3}           # how long to wait between retrying ssh (low is better, though it means more traffic)
@@ -131,6 +133,7 @@ conntimeout=${conntimeout:-7} # (soft) timeout for ssh connection
 connkill=${connkill:-10}       # hard timeout for ssh connection
 ssh_opts="${ssh_opts:-}"
 ssh_opts="$ssh_opts -vvvv -n"
+
 
 # basic sanity check of options
 [[ $connkill -gt $timeout ]] && connkill=$timeout
@@ -168,13 +171,15 @@ ssh="$ssh -o UserKnownHostsFile=/dev/null";
 cmd_boottime="cat /proc/uptime; echo \"boottime=\$(( \$(date +%s) - \$(cat /proc/uptime | sed s/[.].*//) ))\""
 cmd_reboot="sudo nohup bash -c 'sleep 1; shutdown -r now' < /dev/null &>> /tmp/w4s.log"
 
-
+if ! $sudo; then
+    cmd_reboot="nohup bash -c 'sleep 1; shutdown -r now' < /dev/null &>> /tmp/w4s.log"
+fi
 
 # the action, first try reboot if requested, then go into wait-loop
 
 if $reboot_first; then
     CHANGED="true"
-    echo "Rebooting host $host ..."
+    echo "Rebooting host $host with ${cmd_reboot}..."
 
     # fetch the boottime first
     output=$(timeout -s KILL ${connkill}s $ssh  "$cmd_boottime" 2> >(log_debug) < /dev/null)

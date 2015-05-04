@@ -1,0 +1,90 @@
+---
+- include: repo-{{ product.name }}.yml repo_host=undercloud
+
+- name: Update packages on the host
+  hosts: undercloud
+  vars:
+    - ansible_ssh_user: root
+    - ansible_ssh_private_key_file: "{{ lookup('env','HOME')}}/.ssh/id_rsa"
+  tasks:
+    - name: repolist
+      command: yum -d 7 repolist
+
+    - name: update all packages
+      yum: name=* state=latest
+      when: yum_update | bool
+
+    - name: reboot host
+      sudo: no
+      local_action:
+        wait_for_ssh
+          reboot_first=true
+          ssh_opts="-F ../../../ssh.config.ansible"
+          host="{{ ansible_ssh_host }}"
+          user="{{ ansible_ssh_user }}"
+          key="{{ ansible_ssh_private_key_file }}"
+          sudo=false
+
+- name: Create the stack user on the undercloud
+  hosts: undercloud
+  vars:
+    - ansible_ssh_user: root
+  tasks:
+    - name: create user
+      user: name="{{ installer.user.stack.name }}" state=present password=stack
+
+    - name: copy the .bash_profile file
+      command:  cp /root/.bash_profile /home/{{ installer.user.stack.name }}/
+
+    - name: create .ssh dir
+      file: path=/home/{{ installer.user.stack.name }}/.ssh mode=0700 owner=stack group=stack state=directory
+
+    - name: copy the authorized_keys file
+      command:  cp /root/.ssh/authorized_keys /home/{{ installer.user.stack.name }}/.ssh/
+
+    - name: set file permissions on authorized_hosts
+      file: path=/home/{{ installer.user.stack.name }}/.ssh/authorized_keys mode=0600 owner=stack group=stack
+
+    - name: add user to sudoers
+      lineinfile: dest=/etc/sudoers line="stack ALL=(root) NOPASSWD:ALL"
+
+    - name: set fact for the stack user home
+      set_fact: instack_user_home=/home/{{ installer.user.stack.name }}
+
+- name: Configure the baremetal undercloud
+  hosts: undercloud
+  tasks:
+    - name: get instackenv.json
+      synchronize: src={{ jenkins.workspace }}/khaleesi-settings/settings/installer/rdo_manager/env/{{installer.env.model}}-env.json dest={{ instack_user_home }}/instackenv.json
+
+    - name: chown instackenv.json
+      file: path={{ instack_user_home }}/instackenv.json owner=stack group=stack
+      sudo_user: root
+      sudo: yes
+
+    - name: install ipmitool
+      yum: name={{ item }} state=latest
+      with_items:
+        - OpenIPMI
+        - OpenIPMI-tools
+      sudo_user: root
+      sudo: yes
+
+    - name: start IMPI service
+      shell: >
+        sudo chkconfig ipmi on;
+        sudo service ipmi start
+
+    - name: get number of overcloud nodes
+      shell: >
+        export IP_LENGTH=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | wc -l`);
+        echo $(($IP_LENGTH))
+      register: node_length
+
+    - name: power off node boxes
+      shell: >
+        export IP=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | sed 's/\"//g'`);
+        export USER=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_user.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
+        export PASSWORD=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_password.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
+        ipmitool -I lanplus -H ${IP[item]} -U ${USER[item]} -P ${PASSWORD[item]} power off
+      with_sequence: count="{{ node_length.stdout }}"

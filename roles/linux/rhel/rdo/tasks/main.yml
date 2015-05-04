@@ -5,14 +5,11 @@
 
 - name: Create the RHEL Repositories
   template: src=rhel.repo.j2 dest=/etc/yum.repos.d/rhel_ci.repo
-  notify:
-    - Yum clean all
-    - yum -y update to latest packages
+
 
 - name: Create the EPEL Repository
   template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
-  notify:
-    - Yum clean all
+
 
 #WORKAROUND
 - name: Ensure /etc/sysconfig/iptables-services

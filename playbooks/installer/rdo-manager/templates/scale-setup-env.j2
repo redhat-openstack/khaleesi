@@ -1,0 +1,17 @@
+{% if nodes.compute.scale_change is defined %}
+export NODE_TO_SCALE_TYPE={{nodes.compute.type}}-{{nodes.compute.type_number | default('1')}}
+export NODE_SCALE_CHANGE={{nodes.compute.scale_change}}
+{%endif %}
+{% if nodes.blockstorage.scale_change is defined %}
+export NODE_TO_SCALE_TYPE={{nodes.blockstorage.type}}-{{nodes.blockstorage.type_number | default('1')}}
+export NODE_SCALE_CHANGE={{nodes.blockstorage.scale_change}}
+{%endif %}
+{% if nodes.swiftstorage.scale_change is defined %}
+export NODE_TO_SCALE_TYPE={{nodes.swiftstorage.type}}-{{nodes.swiftstorage.type_number | default('1')}}
+export NODE_SCALE_CHANGE={{nodes.swiftstorage.scale_change}}
+{%endif %}
+{% if nodes.cephstorage.scale_change is defined %}
+export NODE_TO_SCALE_TYPE={{nodes.cephstorage.type}}-{{nodes.cephstorage.type_number | default('1')}}
+export NODE_SCALE_CHANGE={{nodes.cephstorage.scale_change}}
+{%endif %}
+

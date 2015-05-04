@@ -1,0 +1,116 @@
+---
+- name: test host connection
+  hosts: all:!localhost
+  tasks:
+    - name: test ssh
+      command: hostname
+
+    - name: check distro
+      command: cat /etc/redhat-release
+
+    - name: set fact stack user home
+      set_fact: instack_user_home=/home/{{ installer.user.stack.name }}
+
+- name: build images
+  hosts: undercloud
+  tasks:
+    - name: setup environment vars
+      template: src=templates/build-img-env.j2 dest=~/build-img-env mode=0755
+
+    - name: ensure /tmp/svc-map-services is absent
+      file: path=/tmp/svc-map-services state=absent
+      sudo: yes
+
+    - name: build all the images
+      shell: >
+          source {{ instack_user_home }}/build-img-env;
+          instack-build-images
+
+    - name: prepare for overcloud by loading the images into glance
+      command: instack-prepare-for-overcloud
+
+- name: register and discover nodes
+  hosts: undercloud
+  tasks:
+    - name: register bm nodes with ironic
+      register: result
+      retries: 10
+      delay: 10
+      until: result.rc == 0
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          instack-ironic-deployment --nodes-json instackenv.json --register-nodes;
+
+    - name: discover nodes
+      register: result
+      retries: 5
+      delay: 10
+      until: result.stdout.find('DISCOVERED.') != -1
+      failed_when: "'ERROR:' in result.stdout"
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          instack-ironic-deployment  --discover-nodes;
+
+    - name: show profile
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          instack-ironic-deployment  --show-profile;
+
+    - name: setup flavors
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          instack-ironic-deployment --setup-flavors
+
+- name: deploy the overcloud
+  hosts: undercloud
+  tasks:
+    - name: instack-deploy-overcloud
+      register: result
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then source {{ instack_user_home }}/deploy-overcloudrc; fi;
+          export CEPHSTORAGESCALE={{ installer.node.cephstorage.scale | default ('0') }};
+          instack-deploy-overcloud --tuskar
+
+    - name: print result of instack-deploy-overcloud install
+      debug: var=result.stdout_lines
+      when: result.rc == 0
+
+    - name: debug instack-deploy-overcloud failure
+      when: result.rc != 0
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          heat stack-list;
+          heat resource-list overcloud;
+          heat event-list overcloud;
+          nova list;
+
+    - name: debug instack-deploy-overcloud failure
+      when: result.rc != 0
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          heat resource-show overcloud ControllerNodesPostDeployment;
+
+    - name: grep for errors in heat-engine.log
+      when: result.rc != 0
+      sudo: yes
+      command: "grep ERROR /var/log/heat/heat-engine.log"
+
+    - name: show ironic nodes create template
+      when: result.rc != 0
+      template: src=templates/show_nodes.sh dest={{ instack_user_home }}/show_nodes.sh mode=0755
+
+    - name: show ironic nodes
+      when: result.rc != 0
+      shell: "{{ instack_user_home }}/show_nodes.sh"
+
+    - name: cat "/etc/edeploy"
+      when: result.rc != 0
+      sudo: yes
+      shell: "for i in `ls /etc/edeploy/`;do echo $i; cat /etc/edeploy/$i;done"
+
+    - name: fail playbook when instack-deploy-overcloud fails
+      command: echo "instack-deploy-overcloud failed, see the above debug information"
+      failed_when: result.rc != 0

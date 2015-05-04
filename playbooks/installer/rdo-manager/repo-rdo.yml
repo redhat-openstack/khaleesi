@@ -1,0 +1,82 @@
+---
+- include: ../../group_by.yml ansible_ssh_user=root
+
+- name: Setup openstack repos
+  hosts: "{{ repo_host }}"
+  vars:
+    - ansible_ssh_user: root
+    - product_override_version: 6
+  gather_facts: yes
+  tasks:
+      - name: clean release rpms
+        yum: name={{ item }} state=absent
+        with_items:
+          - rdo-release*
+          - epel-release
+          - rhos-release
+
+      - name: Install release tool on machine
+        command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}"
+
+        #remove this step when rdo and rhos diverge
+      - name: Install extra release tool on machine
+        command: "yum localinstall -y {{ product.rpmrepo_override[ansible_distribution] }}"
+        when: product_override_version is defined and product.repo_type_override == 'rhos-release'
+
+        #remove this step when rdo and rhos diverge
+      - name: Execute rhos-release for rdo-manager
+        command: "rhos-release {{ product_override_version }}"
+        when: product_override_version is defined and product.repo_type_override == 'rhos-release'
+
+      - name: Install epel release
+        command: "yum localinstall -y {{ distro.epel_release }}"
+
+- name: RHEL RDO prep
+  hosts: "{{ repo_host }}:&RedHat"
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    # enable this role when rdo and rhos officially diverge
+    #- { role: linux/rhel/rdo }
+    - { role: product/rdo/rhel }
+
+- name: CentOS RDO prep
+  hosts: "{{ repo_host }}:&CentOS"
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    - { role: linux/centos }
+    - { role: product/rdo/rhel }
+
+- name: Linux common prep (Collect performance data, etc.)
+  hosts: "{{ repo_host }}"
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    - { role: linux-common }
+
+- name: Update packages on the host
+  hosts: "{{ repo_host }}"
+  vars:
+    - ansible_ssh_user: root
+    - ansible_ssh_private_key_file: "{{ lookup('env','HOME')}}/.ssh/id_rsa"
+  tasks:
+    - name: repolist
+      command: yum -d 7 repolist
+
+    - name: update all packages
+      yum: name=* state=latest
+      when: yum_update | bool
+
+    - name: reboot host
+      sudo: no
+      local_action:
+        wait_for_ssh
+          reboot_first=true
+          host="{{ ansible_ssh_host }}"
+          user="root"
+          ssh_opts="-F ../../../ssh.config.ansible"
+          key="{{ ansible_ssh_private_key_file }}"
+          timeout=900
+          sudo=false
+      when: "'{{ repo_host }}' == 'virthost'"

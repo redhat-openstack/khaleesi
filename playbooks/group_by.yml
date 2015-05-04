@@ -14,14 +14,16 @@
   tasks:
     - group_by: key={{ product.name }}
       when: product is defined
-  tags:
-    - prep
 
 - name: Group hosts by product version for juno, icehouse, havana
   hosts: all:!localhost
   tasks:
     - group_by: key={{ product.version }}
       when: product.version is defined
-  tags:
-    - prep
+
+- name: Group hosts by virthost and baremetal environments
+  hosts: all:!localhost
+  tasks:
+    - group_by: key={{ installer.env.type }}
+      when: installer.env.type is defined
 

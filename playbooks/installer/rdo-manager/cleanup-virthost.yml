@@ -1,0 +1,117 @@
+---
+- name: Clean up the virthost after a previous run
+  hosts: virthost
+  vars:
+    - ansible_ssh_user: root
+    - ansible_ssh_private_key_file: "{{ lookup('env','HOME')}}/.ssh/id_rsa"
+  tasks:
+    - name: remove sudoers requiretty
+      lineinfile: dest=/etc/sudoers state=absent regexp="Defaults    requiretty"
+
+    - name: ensure libvirt-python is installed
+      yum: name=libvirt-python state=present
+      ignore_errors: true
+
+    - name: get list of running libvirt guests
+      virt: command=list_vms
+      register: vms
+      ignore_errors: true
+
+    - name: display list of vms
+      debug: var=vms.list_vms
+      ignore_errors: true
+
+    - name: undefine vms
+      virt: command=undefine name={{ item }}
+      with_items: vms.list_vms
+      ignore_errors: true
+
+    - name: destroy any remaining vms
+      virt : command=destroy name={{ item }}
+      with_items: vms.list_vms
+      ignore_errors: true
+
+    - name: remove images from /var/lib/libvirt/images
+      shell: rm -Rf /var/lib/libvirt/images/*.qcow2
+
+    - name: destroy brbm network
+      command: virsh net-destroy brbm
+      ignore_errors: true
+
+    - name: destroy default network
+      command: virsh net-destroy default
+      ignore_errors: true
+
+    - name: destroy virbr0 network if present
+      command: brctl delbr virbr0
+      ignore_errors: true
+
+    - name: stop libvirtd
+      service: name=libvirtd state=stopped
+      ignore_errors: true
+
+    - name: remove remaining libvirt config
+      command: rm -Rf /etc/libvirt
+
+    - name: ensure yum repos metadata and cache are clean
+      shell: >
+        yum clean all;
+        rm -Rfv /var/cache/yum;
+        rm -Rfv /etc/yum.repos.d/*.repo
+
+    - name: remove any openvswitch bridge networks
+      openvswitch_bridge: bridge=brbm state=absent
+      ignore_errors: true
+
+    - name: stop openvswitch
+      service: name=openvswitch state=stopped
+      ignore_errors: true
+
+    - name: kill all processes owned by stack
+      command: killall -u stack
+      ignore_errors: true
+
+    - name: destroy the stack user
+      command: userdel -rf stack
+      ignore_errors: true
+
+    - name: remove stack home dir
+      shell: rm -Rf {{ item }}
+      ignore_errors: true
+      with_items:
+        - /home/stack
+        - /var/spool/mail/stack
+
+    - name: remove files automation files from /root
+      file: name={{item}} state=absent
+      with_items:
+        - /root/KEYS
+        - /root/fedora-prep
+        - /root/.ssh/known_hosts
+        - /root/.ssh/id_rsa_virt_power
+
+    - name: kill all the network managers processes
+      shell: kill -9 $(ps aux | grep NetworkManager | awk '{print $2}')
+      ignore_errors: yes    # When no NM running, killall exits with 1
+
+    - name: ensure the network service is enabled
+      service: name=network enabled=yes
+
+    - name: remove files automation files from /root
+      file: name={{item}} state=absent
+      with_items:
+        - /usr/share/instack-undercloud
+        - /usr/bin/instack-setup-host
+
+    - name: remove any instack rpms from the host
+      yum: name={{item}} state=absent
+      with_items:
+        - instack-undercloud
+        - rdo-release
+        - rhos-release
+        - libvirt
+        - libvirt-daemon
+        - openvswitch
+        - NetworkManager
+        - qemu-*
+        - openstack-*

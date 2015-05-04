@@ -1,0 +1,26 @@
+{% if product.repo_type in ["poodle", "puddle"] %}
+export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }};
+export NODE_DIST=rhel7
+export RUN_RHOS_RELEASE=1;
+{%endif %}
+
+{% if product.name == "rdo" and distro.name == "rhel" and product.repo_type_override == 'rhos-release' %}
+export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
+export NODE_DIST=rhel7
+export RUN_RHOS_RELEASE=1
+{%endif %}
+
+{% if product.repo_type_override is defined and product.repo_type_override == 'rhsm' %}
+export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
+export REG_METHOD=portal
+export REG_USER="{{ distro.rhel.subscription.username }}"
+export REG_PASSWORD="{{ distro.rhel.subscription.password }}"
+export REG_POOL_ID="{{ distro.rhel.subscription.pool }}"
+export REG_REPOS="rhel-7-server-rpms rhel-7-server-extras-rpms rhel-ha-for-rhel-7-server-rpms rhel-7-server-optional-rpms rhel-7-server-openstack-6.0-rpms"
+export NODE_DIST=rhel7
+{%endif %}
+
+{% if product.name == "rdo" and distro.name == "centos" %}
+export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
+export NODE_DIST=centos7
+{%endif %}

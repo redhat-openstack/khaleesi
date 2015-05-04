@@ -12,7 +12,6 @@
   template: src=fedora.repo.j2 dest=/etc/yum.repos.d/fedora.repo
   notify:
     - Yum clean all
-    - yum -y update to latest packages
 
 - name: WORKAROUND | BZ | Ensure iptables-services
   yum: name=iptables-services state=present
