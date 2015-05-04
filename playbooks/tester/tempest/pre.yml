@@ -1,30 +1,37 @@
 ---
 - include: pre-{{ tester.setup }}.yml
 
+- name: collect controller facts for tempest configuration
+  hosts: controller
+  gather_facts: yes
+
 - name: Configure tempest
   hosts: tester
-  sudo: yes
+  gather_facts: no
+  sudo: no
   tasks:
-    - name: Create a command to use tempest with venv
+    - name: Create a command to use tempest with our venv if needed
       copy:
-        dest: "/home/{{ hostvars[inventory_hostname].ansible_ssh_user }}/{{ tester.dir }}/with_venv"
+        dest: "{{ tester.dir }}/with_venv"
         mode: 0755
         content: |
           #!/bin/bash
-          [[ -d $(dirname $0)/.venv ]] && source $(dirname $0)/.venv/bin/activate
+          cd "$(dirname $0)"
+          [[ -d .venv ]] && source .venv/bin/activate
           exec "$@"
-    # FIXME: use non-root user (and HOME path) for configure-tempest.sh,
-    #        after tempest.rpm ships and reads /etc/tempest or ~/tempest.conf (or something in that style)
-    - template: dest=/root/configure-tempest.sh src=../templates/configure-tempest.j2 owner=root group=root mode=0755
+
+    - template: dest={{ tester.dir }}/configure-tempest.sh src=../templates/configure-tempest.j2 mode=0755
       register: config_script
 
-    - name: Configure tempest
-      command: "/root/configure-tempest.sh"
+    - file: name={{ tester.dir }}/etc/tempest.conf state=absent
       when: config_script|changed
 
-    - name: Run testr init
-      command: "./with_venv testr init"
+    - name: Configure tempest
+      command: "{{ tester.dir }}/with_venv ./configure-tempest.sh"
       args:
-        chdir: "/home/{{ hostvars[inventory_hostname].ansible_ssh_user }}/{{ tester.dir }}"
-        creates: .testrepository
+        creates: "~/{{ tester.dir }}/etc/tempest.conf"
 
+    - name: Run testr init
+      command: "{{ tester.dir }}/with_venv testr init"
+      args:
+        creates: "{{ tester.dir }}/.testrepository"

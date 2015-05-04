@@ -1,6 +1,5 @@
 #!/bin/bash
 
-cd "/home/{{ hostvars[inventory_hostname].ansible_ssh_user }}/{{ tester.dir }}"
 python tools/config_tempest.py \
   --out etc/tempest.conf \
   --debug  \

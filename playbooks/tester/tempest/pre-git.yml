@@ -1,6 +1,7 @@
 ---
 - name: Install rpm deps for source-based tempest
   hosts: tester
+  gather_facts: no
   sudo: yes
   tasks:
     - name: Install release tool rpm for dependencies (python-ironicclient)
@@ -26,6 +27,7 @@
 
 - name: Install tempest from source
   hosts: tester
+  gather_facts: no
   tasks:
     - git: repo={{ tester.git.repo }} version={{ tester.git.revision }}
            dest={{ tester.dir }}
@@ -53,15 +55,6 @@
           python-ceilometerclient==1.0.10 # fix: tempest failure
       register: extra_reqs
 
-    - name: Get working directory
-      shell: echo $PWD
-      register: home_dir
-
-    - name: pip install requirements
-      pip: requirements="{{ home_dir.stdout }}/{{ tester.dir }}/{{ item }}" state=present virtualenv="{{ home_dir.stdout }}/{{ tester.dir }}/.venv"
-      with_items:
-        - requirements.txt
-        - test-requirements.txt
-        - extra-requirements.txt
+    - name: pip install extra requirements
+      pip: requirements="~/{{ tester.dir }}/extra-requirements.txt" state=present virtualenv="~/{{ tester.dir }}/.venv"
       when: tempest_repo|changed or extra_reqs|changed
-
