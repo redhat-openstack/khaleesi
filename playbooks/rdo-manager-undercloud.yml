@@ -16,6 +16,7 @@
     - { role: rdo-manager/gate-instack-undercloud,
         when: "\"\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }
     - rdo-manager/virt-setup
+    - rdo-manager/virt-conf-setup
     - tripleo/define-env/add-tripleo-hosts
     - { role: rdo-manager/copy-instack-undercloud-rpm,
         when: "\"\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\"" }

@@ -1,0 +1,7 @@
+#!/bin/bash
+export NEUTRON_NETWORK_TYPE={{ installer.network.variant.short_name }}
+export NEUTRON_TUNNEL_TYPES={{ installer.network.variant.short_name }}
+export COMPUTESCALE={{ nodes.compute.scale | default('1') }}
+export BLOCKSTORAGESCALE={{ nodes.blockstorage.scale | default('0') }}
+export SWIFTSTORAGESCALE={{ nodes.swiftstorage.scale | default ('0') }}
+export CEPHSTORAGESCALE={{ nodes.cephstorage.scale | default ('0') }}
