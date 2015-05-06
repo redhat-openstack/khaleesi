@@ -12,4 +12,4 @@
            login_tenant_name: "{{ provisioner.tenant_name }}"
            name: "{{ item.value.name }}"
       retries: 4
-      with_dict: nodes
+      with_dict: provisioner.nodes
