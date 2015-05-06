@@ -5,7 +5,7 @@
   tasks:
     - name: Delete created nodes
       nova_compute:
-           auth_url: "{{ provisioner.url }}"
+           auth_url: "{{ provisioner.auth_url }}"
            state: absent
            login_username: "{{ provisioner.username }}"
            login_password: "{{ provisioner.password }}"
