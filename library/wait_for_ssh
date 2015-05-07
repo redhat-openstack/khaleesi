@@ -32,6 +32,7 @@ E_REACHED=0
 E_TIMEDOUT=1
 E_REBOOTFAILED=2
 E_MISCONF=3
+E_NOSSHCMD=4
 
 # first, grab the stdout/stderr for the rest of the script,
 # so we can have just nice json output at the end
@@ -152,7 +153,11 @@ fi
 
 
 # construct ssh commandline
-ssh="$(which ssh)"
+ssh="$(command -v ssh)"
+if [[ -z "$ssh" ]]; then
+    echo "Failed to find ssh command!"
+    finish $E_NOSSHCMD
+fi
 ssh="$ssh $host $ssh_opts"
 ssh="$ssh -o ConnectTimeout=$conntimeout"
 ssh="$ssh -o PreferredAuthentications=publickey";
