@@ -8,19 +8,15 @@
 - name: copy instackenv.json to nodes.json
   shell: cp {{ instack_user_home }}/instackenv.json {{ instack_user_home }}/nodes.json
 
-- name: find vendor-specific setup file if it exists
-  stat: path=../../khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup
-  register: vendor_specific_file
-
 - name: copy vendor-specific setup file
-  synchronize: src=../../khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
-  when: vendor_specific_file.stat.exists == True
+  synchronize: >
+    src=../../khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
+    delegate_to: local
 
 - name: execute vendor-specific setup
   shell: >
     chmod 755 {{ instack_user_home }}/vendor_specific_setup;
     {{ instack_user_home }}/vendor_specific_setup
-  when: vendor_specific_file.stat.exists == True
 
 
 
