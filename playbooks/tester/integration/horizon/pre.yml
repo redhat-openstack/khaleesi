@@ -1,0 +1,92 @@
+---
+- name: ensure get facts from controller
+  hosts: controller
+  gather_facts: yes
+
+- name: Install required packages
+  hosts: tester
+  gather_facts: yes
+  sudo: yes
+  tasks:
+    - yum: name={{item}} state=present
+      with_items: tester.packages
+
+- name: Setup epel repos
+  hosts: tester
+  gather_facts: yes
+  sudo: yes
+  tasks:
+    - name: Install epel release
+      command: "yum localinstall -y {{ distro.epel_release }}"
+
+- name: Prepare env for horizon int. testing
+  hosts: tester
+  sudo: yes
+  gather_facts: no
+  vars:
+      controller_name: "{{ provisioner.nodes.controller.name }}"
+      tmp_controller_host: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"
+      demo_password: "{{ hostvars[controller_name].demo_password | default('redhat') }}"
+  tasks:
+    - keystone_user:
+        tenant=demo
+        login_user=admin
+        login_password={{ hostvars[controller_name].admin_password | default('redhat') }}
+        login_tenant_name=admin
+        endpoint=http://{{ tmp_controller_host }}:35357/v2.0/
+        state=present
+    - keystone_user:
+        user=demo
+        password={{ demo_password }}
+        tenant=demo
+        login_user=admin
+        login_password={{ hostvars[controller_name].admin_password | default('redhat') }}
+        login_tenant_name=admin
+        endpoint=http://{{ tmp_controller_host }}:35357/v2.0/
+        state=present
+
+- name: Allow access to horizon from floating IP
+  hosts: controller
+  sudo: yes
+  gather_facts: no
+  vars:
+      horizon_hosts_conf: /etc/httpd/conf.d/15-horizon_vhost.conf
+  tasks:
+      - lineinfile: dest={{ horizon_hosts_conf }} insertafter="ServerAlias" line="  ServerAlias {{ ansible_ssh_host }}" state=present
+      - service: name=httpd state=restarted
+
+
+- name: Prepare repository with tests
+  hosts: tester
+  sudo: no
+  gather_facts: no
+  vars:
+      controller_name: "{{ provisioner.nodes.controller.name }}"
+      horizon_tests:
+          branch: "{{ product.name }}-{{ product.version }}"
+          admin_password: "{{ hostvars[controller_name].admin_password | default('redhat') }}"
+          demo_password: "{{ hostvars[controller_name].demo_password | default('redhat') }}"
+      tmp_controller_host: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"
+  tasks:
+      - name: Clone repo with integration tests
+        git:
+            repo={{ tester.git.repo }}
+            accept_hostkey=true
+            version={{ horizon_tests.branch }}
+            dest=~/{{ tester.dir }}
+      - name: Install pip test requirements
+        pip: name={{item}} virtualenv=~/{{ tester.venv_dir }} virtualenv_site_packages=yes
+        with_items: tester.pip_packages
+      - name: Patch horizon.conf (test configuration)
+        ini_file:
+            dest=~/{{ tester.dir }}/openstack_dashboard/test/integration_tests/horizon.conf
+            section={{item.section}}
+            option={{item.key}}
+            value={{item.value}}
+        with_items:
+            - { section: 'identity', key: 'password', value: "{{ horizon_tests.demo_password }}"}
+            - { section: 'identity', key: 'admin_password', value: "{{ horizon_tests.admin_password }}"}
+            - { section: 'dashboard', key: 'login_url', value: "http://{{ tmp_controller_host }}/dashboard"}
+            - { section: 'dashboard', key: 'dashboard_url', value: "http://{{ tmp_controller_host }}"}
+            - { section: 'dashboard', key: 'help_url', value: "{{ tester.integration.horizon.help_url }}"}
+            - { section: 'service_available', key: 'sahara', value: "False"}
