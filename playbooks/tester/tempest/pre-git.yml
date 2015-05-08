@@ -4,12 +4,6 @@
   gather_facts: no
   sudo: yes
   tasks:
-    - name: Install release tool rpm for dependencies (python-ironicclient)
-      shell: yum localinstall -y {{ tempest.rdo.rpm }}
-
-    - name: Install tempest-rpm to pull in tempest deps via rpms
-      yum: name=openstack-tempest-{{ tempest.rdo.version }}-{{ tempest.rpm.version }} state=present
-
       #TODO(tkammer): move the list of packages to khaleesi-settings
     - name: Install support packages for pip-based deps building
       yum: name={{ item }} state=present
