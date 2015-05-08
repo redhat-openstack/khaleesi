@@ -22,4 +22,5 @@
     changed_when: True
     notify:
     - reboot
-
+    - Wait for host to stop
+    - Wait for host to come back

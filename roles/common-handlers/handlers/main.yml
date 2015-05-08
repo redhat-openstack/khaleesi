@@ -1,15 +1,6 @@
 ---
+#reboot for fedora requires --no-wall or reboot will fail
 - name: reboot
-  sudo: no
-  local_action:
-        wait_for_ssh reboot_first=true host={{ hostvars[inventory_hostname].ansible_ssh_host }}
-          user={{ hostvars[inventory_hostname].ansible_ssh_user }}
-          key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
-  notify:
-    - Check instance uptime
-    - Print instance uptime
-
-- name: reboot_libvirt
   sudo: yes
   script: reboot.sh
 
@@ -25,7 +16,6 @@
     - Check instance uptime
     - Print instance uptime
 
-
 - name: Wait for libvirt guest to stop
   sudo: no
   wait_for: host={{hostvars[inventory_hostname].ansible_fqdn }} port=22
@@ -40,6 +30,12 @@
 
 - name: print host stopped register
   debug: var=host_stopped
+
+- name: Wait for host to come back
+  sudo: no
+  local_action:
+        wait_for host={{ hostvars[inventory_hostname].ansible_ssh_host }}
+                 port=22 state=started delay=10 timeout=600
 
 - name: Wait for libvirt guest to come back
   sudo: no
@@ -74,10 +70,14 @@
   command: yum repolist
   ignore_errors: yes
 
+
 - name: yum -y update to latest packages
   yum: name=* state=latest
   notify:
     - reboot
+    - Wait for host to stop
+    - Wait for host to come back
+    - Wait after ssh service is back
     - Check instance uptime
     - Print instance uptime
     - Fix centos naming scheme
@@ -88,6 +88,9 @@
   yum: name=* state=latest
   notify:
     - reboot
+    - Wait for libvirt guest to stop
+    - Wait for libvirt guest to come back
+    - Wait after ssh service is back
     - Check instance uptime
     - Print instance uptime
     - Fix centos naming scheme
