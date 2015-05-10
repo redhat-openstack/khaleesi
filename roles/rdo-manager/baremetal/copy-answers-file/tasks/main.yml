@@ -22,9 +22,13 @@
   shell: "hostname -s"
   register: short_hostname
 
+- name: register full hostname
+  shell: "hostname --fqdn"
+  register: full_hostname
+
 - name: Set /etc/hostname for those that need it
   lineinfile: >
     dest=/etc/hosts
-    line="127.0.1.1 {{ short_hostname.stdout }} {{ hostvars[inventory_hostname].fqdn }}"
-
+    line="127.0.1.1 {{ short_hostname.stdout }} {{ full_hostname.stdout }}"
+  sudo: yes
 
