@@ -1,7 +1,0 @@
-[bugzilla]
-url=https://bugzilla.example.com/xmlrpc.cgi
-username=myusername
-password=mypassword
-open_statuses=NEW,ASSIGNED,ON_DEV
-
-
