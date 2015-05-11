@@ -40,17 +40,35 @@
           echo "";
           done) &> /var/log/extra/network-netns
       ignore_errors: true
+
     - shell: "lsof -P &> /var/log/extra/lsof"
+      ignore_errors: true
+
     - shell: "pstree -p &> /var/log/extra/pstree"
+      ignore_errors: true
+
     - shell: "sysctl -a &> /var/log/extra/sysctl"
+      ignore_errors: true
+
     - shell: "netstat -lnp &> /var/log/extra/netstat"
+      ignore_errors: true
+
     - shell: "which openstack-status &> /dev/null && (. ~/keystonerc_admin; openstack-status &> /var/log/extra/openstack-status)"
       when: "'controller' in inventory_hostname"
       ignore_errors: true
+
     - shell: "lsmod &> /var/log/extra/lsmod"
+      ignore_errors: true
+
     - shell: "lspci &> /var/log/extra/lspci"
+      ignore_errors: true
+
     - shell: "pip list &> /var/log/extra/pip"
+      ignore_errors: true
+
     - shell: "(vgs; pvs; lvs) &> /var/log/extra/lvm"
+      ignore_errors: true
+
     - name: generate human-readable SAR logs
       shell: "[[ -f /usr/lib64/sa/sa2 ]] && /usr/lib64/sa/sa2 -A"
       ignore_errors: true
