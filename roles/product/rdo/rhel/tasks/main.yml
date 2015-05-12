@@ -7,7 +7,7 @@
   when: product.repo_type != 'production'
 
 - name: Create the upstream delorean repositories for EPEL RDO
-  get_url: url="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}"current/delorean.repo 
+  get_url: url="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}/current/{{ product.repo.delorean.repo_file }}"
             dest=/etc/yum.repos.d/rdo-trunk-release.repo
             mode=0644
   notify:
@@ -15,7 +15,7 @@
   when: product.repo_type in ['delorean', 'delorean_mgt'] and product.repo.delorean_pin_version is not defined
 
 - name: Create the pinned upstream delorean repositories for EPEL RDO
-  get_url: url="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}"/"{{product.repo.delorean_pin_version}}"/delorean.repo
+  get_url: url="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}/{{product.repo.delorean_pin_version}}/{{ product.repo.delorean.repo_file }}"
             dest=/etc/yum.repos.d/rdo-trunk-release.repo
             mode=0644
   notify:
@@ -23,17 +23,12 @@
   when: product.repo_type in ['delorean', 'delorean_mgt'] and product.repo.delorean_pin_version is defined
 
 - name: Create the upstream delorean mgt repositories for EPEL RDO
-  get_url: url="{{ product.repo['delorean_mgt'][ansible_distribution][ansible_distribution_version] }}"current/delorean-rdo-management.repo
+  get_url: url="{{ product.repo['delorean_mgt'][ansible_distribution][ansible_distribution_version] }}/current/delorean-rdo-management.repo"
             dest=/etc/yum.repos.d/rdo-mgt-trunk-release.repo
             mode=0644
   notify:
     - Yum clean all
-  when: product.repo_type in ['delorean_mgt']
-
-- name: update yum priority of rdo trunk repo
-  shell: "sed -i 's/priority=1/priority=10/' /etc/yum.repos.d/rdo-trunk-release.repo"
-  sudo: yes
-  when: product.repo_type in ['delorean', 'delorean_mgt']
+  when: product.repo_type in ['delorean_mgt'] and product.repo.delorean_mgt_pin_version is not defined
 
 - name: Create the pinned upstream delorean mgt repositories for EPEL RDO
   get_url: url="{{ product.repo['delorean_mgt'][ansible_distribution][ansible_distribution_version] }}"/"{{product.repo.delorean_mgt_pin_version}}"/delorean-rdo-management.repo
@@ -42,6 +37,11 @@
   notify:
     - Yum clean all
   when: product.repo_type in ['delorean_mgt'] and product.repo.delorean_mgt_pin_version is defined
+
+- name: update yum priority of rdo trunk repo
+  shell: "sed -i 's/priority=1/priority=10/' /etc/yum.repos.d/rdo-trunk-release.repo"
+  sudo: yes
+  when: product.repo_type in ['delorean', 'delorean_mgt']
 
 - name: List available yum repositories
   command: yum -d 9 repolist

@@ -96,16 +96,6 @@
   when: (product_repo_type_override is defined and product_repo_type_override == 'rhsm' and ansible_distribution_version|int == 7)
 
 
-- name: ensure yum-utils
-  yum: name={{ item }} state=present
-  with_items:
-    - yum-utils
-    - yum-plugin-priorities
-
-- name: Disable default foreman puddle rhelosp repo when using poodle
-  shell: /usr/bin/yum-config-manager --disable 'rhelosp-*-OS-Foreman'
-  when: product.repo_type == 'poodle'
-
 # new advanced repos
 - name: Create the RHOS Advanced repository
   shell: "rhos-release  -x {{ product.version|int }};  rhos-release {{ product.version|int }}a"
@@ -122,7 +112,7 @@
 
 - name: Create the COPR repos required for component tests
   template: src=apevec-copr-repo.j2 dest=/etc/yum.repos.d/apevec-copr.repo
-  when: (test.type.name is defined and test.type.name == 'unit-test' and ansible_distribution_version|int >= 7)
+  when: (test.type.name is defined and (test.type.name == 'unit-test' or test.type.name == 'pep8-test') and ansible_distribution_version|int >= 7)
 
 - name: Change poodle version for repos in rhos-release
   shell: "rhos-release  -x {{ product.version|int }}; rhos-release  {{ product.version|int }} -d -p {{ product.repo.poodle_pin_version }}"
@@ -149,6 +139,16 @@
 - name: print rdo_repo_output
   debug: var=rdo_repo_output.stdout
   when: product.repo.copr is defined
+
+- name: ensure yum-utils
+  yum: name={{ item }} state=present
+  with_items:
+    - yum-utils
+    - yum-plugin-priorities
+
+- name: Disable default foreman puddle rhelosp repo when using poodle
+  shell: /usr/bin/yum-config-manager --disable 'rhelosp-*-OS-Foreman'
+  when: product.repo_type == 'poodle'
 
 # custom repos
 - name: enable a custom repository

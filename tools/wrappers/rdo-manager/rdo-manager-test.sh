@@ -14,7 +14,7 @@ function ensure_khaleesi() {
 }
 
 function ensure_rpm_prereqs() {
-    sudo yum install -y rsync python-pip python-virtualenv gcc
+    sudo yum install -y git rsync python-pip python-virtualenv gcc
 }
 
 function ensure_component() {
@@ -28,7 +28,7 @@ function ensure_ansible() {
     virtualenv ansible_venv
     fi
     source ansible_venv/bin/activate
-    pip install -U ansible
+    pip install -U ansible==1.8.2
     pip install markupsafe
 }
 
@@ -45,23 +45,23 @@ function ensure_ksgen() {
     --rules-file=$CONFIG_BASE/rules/instack-virt-rdo.yml \
     --provisioner=beaker \
     --provisioner-site=bkr \
-    --provisioner-distro=rhel \
-    --provisioner-distro-version=7.1 \
+    --provisioner-distro=$DISTRO \
+    --provisioner-distro-version=$DISTRO_VERSION \
     --provisioner-site-user=rdoci-jenkins \
     --provisioner-options=skip_provision \
     --product-version=kilo \
     --product-version-build=last_known_good \
     --product-version-repo=delorean_mgt \
-    --product-version-workaround=rhel-7.1 \
-    --workarounds=enabled \
-    --distro=rhel-7.1 \
+    --product-version-workaround=$DISTRO-$DISTRO_VERSION \
+    --workarounds=disabled \
+    --distro=$DISTRO-$DISTRO_VERSION \
     --installer-network=neutron \
     --installer-network-variant=gre \
     --installer-messaging=rabbitmq \
     --tester=tempest \
     --tester-setup=rpm \
     --tester-tests=minimal \
-    --extra-vars product.repo_type_override=rhos-release \
+    --extra-vars product.repo_type_override=$YUM_REPO_OVERRIDE \
     ksgen_settings.yml
     popd
 }

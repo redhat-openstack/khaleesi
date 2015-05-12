@@ -11,13 +11,14 @@
     - libselinux-python
     - psmisc
     - redhat-lsb-core
+    - rsync
 
 - name: disable NetworkManager
   service: name=NetworkManager state=stopped enabled=no
   ignore_errors: yes
 
 - name: kill all the network managers
-  shell: pkill -e -9 NetworkManager
+  shell: pkill -9 NetworkManager
   ignore_errors: yes    # When no NM running, killall exits with 1
 
 - name: restart the network
