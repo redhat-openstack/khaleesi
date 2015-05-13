@@ -28,7 +28,7 @@
     dest=/etc/yum.repos.d/rdo-release.repo
     regexp=^baseurl=
     line="baseurl={{ product.repo[product.repo_type][ansible_distribution][ansible_distribution_version] }}"
-  when: product.repo_type not in ['delorean', 'delorean_mgt']
+  when: product.repo_type not in ['delorean', 'delorean_mgt', 'test_day', 'production']
   notify:
     - Yum clean all
 
