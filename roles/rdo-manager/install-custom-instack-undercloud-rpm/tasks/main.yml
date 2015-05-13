@@ -2,7 +2,13 @@
 - name: ensure install-undercloud is not installed
   yum: name=instack-undercloud state=absent
   sudo: yes
+# this removes the python-rdomanager-oscplugin
+# we have to make sure it is installed back afterwards
 
 - name: install the rpm we previously built
   shell: yum -y install /home/stack/instack-undercloud-*
+  sudo: yes
+
+- name: ensure rdomanager-oscplugin is installed
+  yum: name=python-rdomanager-oscplugin state=present
   sudo: yes

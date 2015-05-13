@@ -10,21 +10,7 @@
   ignore_errors: True
   failed_when: result.rc != 0
 
-- name: getenforce
-  command: getenforce
-  register: result
 
-- debug: msg="Setting SELINUX to {{distro.config.selinux}}"   #"
-  when: result.stdout|capitalize != distro.config.selinux|capitalize
-
-- selinux: policy=targeted state={{distro.config.selinux}}
-  when: result.stdout|capitalize != distro.config.selinux|capitalize
-
-- name: getenforce
-  command: getenforce
-  register: result
-
-- debug: msg="SELINUX currently set to {{ result.stdout }}"  #"
 
 
 

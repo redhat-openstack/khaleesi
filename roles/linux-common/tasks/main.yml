@@ -11,13 +11,19 @@
     - libselinux-python
     - psmisc
     - redhat-lsb-core
+    - rsync
+
+- name: restart the network on baremetal
+  service: name=network state=restarted
+  ignore_errors: yes
+  when: (hw_env.env_type is defined and hw_env.env_type == 'dell_stamp13')
 
 - name: disable NetworkManager
   service: name=NetworkManager state=stopped enabled=no
   ignore_errors: yes
 
 - name: kill all the network managers
-  shell: pkill -e -9 NetworkManager
+  shell: pkill -9 NetworkManager
   ignore_errors: yes    # When no NM running, killall exits with 1
 
 - name: restart the network

@@ -9,8 +9,26 @@
   shell: cp /usr/share/instack-undercloud/instack.answers.sample {{ instack_user_home }}/instack.answers
 
 - name: edit instack.answers file - local_interface
-  lineinfile: dest={{ instack_user_home }}/instack.answers regexp=^LOCAL_INTERFACE line=LOCAL_INTERFACE={{ hw_env.local_interface }}
+  lineinfile: dest={{ instack_user_home }}/instack.answers regexp=^LOCAL_INTERFACE line=LOCAL_INTERFACE={{ hw_env.answers_local_interface }}
 
 - name: edit instack.answers file - network
   replace: dest={{ instack_user_home }}/instack.answers regexp='192.0.2' replace={{ hw_env.network }}
   when: hw_env.network is defined
+
+- name: edit instack.answers file - network gateway
+  lineinfile: dest={{ instack_user_home }}/instack.answers regexp=^NETWORK_GATEWAY line=NETWORK_GATEWAY={{ hw_env.network_gateway }}
+
+- name: register short hostname
+  shell: "hostname -s"
+  register: short_hostname
+
+- name: register full hostname
+  shell: "hostname --fqdn"
+  register: full_hostname
+
+- name: Set /etc/hostname for those that need it
+  lineinfile: >
+    dest=/etc/hosts
+    line="127.0.1.1 {{ short_hostname.stdout }} {{ full_hostname.stdout }}"
+  sudo: yes
+

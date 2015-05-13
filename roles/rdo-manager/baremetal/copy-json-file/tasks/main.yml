@@ -3,4 +3,4 @@
   set_fact: instack_user_home="/home/stack"
 
 - name: get instackenv.json
-  synchronize: src=../../khaleesi-settings/hardware_environments/{{hw_env.env_type}}/instackenv.json dest=root@{{ job_var.instack_virt_host }}:/{{ instack_user_home }}/instackenv.json
+  synchronize: src=../../khaleesi-settings/hardware_environments/{{hw_env.env_type}}/instackenv.json dest={{ instack_user_home }}/instackenv.json

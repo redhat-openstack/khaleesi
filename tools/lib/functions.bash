@@ -97,7 +97,7 @@ init.print_result() {
 
 cat_file() {
     echo -e "$BOLD$BLUE----[ $1 ]---------------------------------------$NORMAL"
-    execute cat $1 | sed -e "s/\(.*\)\(password\|pass\|passwd\)\(.*\)/\1\2 <rest of the line is hidden>/"
+    execute cat $1 | sed -e "s/\(.*\)\(password\|pass\|passwd\)\(.*\)/\1\2 <rest of the line is hidden>/i"
     echo -e "$BLUE---------------------------------------------------$NORMAL"
     return 0
 }
