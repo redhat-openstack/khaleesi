@@ -1,0 +1,5 @@
+---
+- include: provision.yml
+- include: install.yml
+- include: adhoc/sahara/main.yml
+- include: test.yml
