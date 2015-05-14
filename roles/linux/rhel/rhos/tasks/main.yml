@@ -1,18 +1,25 @@
 ---
 - name: Create the RHOS Release Repository
   template: src=rhos-release.repo.j2 dest=/etc/yum.repos.d/rhos-release.repo
-  when: product.repo_type_override is not defined
+  when: product.repo_type in ['poodle', 'puddle']
 
 - name: install rhos-release
   yum: name=rhos-release state=latest
-  when: product.repo_type_override is not defined
+  when: product.repo_type in ['poodle', 'puddle']
 
-- name: Execute rhos-release {{ product.version|int }}
+- name: Execute rhos-release {{ product.version }}
   command: "rhos-release {{ product.version|int }}"
   notify:
     - Yum clean all
     - yum -y update to latest packages
-  when: product.repo_type_override is not defined
+  when: (product.repo_type in ['puddle'] and installer.name not in ['instack', 'rdo-manager'])
+
+- name: Execute rhos-release for OSP-Director {{ product.version }}
+  command: "rhos-release {{ product.version }}"
+  notify:
+    - Yum clean all
+    - yum -y update to latest packages
+  when: (product.repo_type in ['puddle'] and installer.name in ['instack', 'rdo-manager'])
 
 #hack for the multiple products involved in setting up rdo-manager
 - name: Create the RHOS Release Repository for rdo-manager
@@ -104,10 +111,14 @@
 # poodle repos
 - name: Create the RHOS poodle repository
   shell: "rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.version|int }}{{ installer_host_repo | default('')}}"
-  when: product.repo_type == 'poodle'
+  when: (product.repo_type in ['poodle'] and installer.name not in ['instack', 'rdo-manager'])
+
+- name: Create the OSP-Director poodle repository
+  shell: "rhos-release  -x {{ product.version }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.version }}{{ installer_host_repo | default('')}}"
+  when: (product.repo_type in ['poodle'] and installer.name in ['instack', 'rdo-manager'])
 
 - name: Create the RHOS Advanced  poodle repository
-  shell: "rhos-release  -x {{ product.version|int }};  rhos-release  -d {{ product.version|int }}a"
+  shell: "rhos-release  -x {{ product.version }};  rhos-release  -d {{ product.version }}a"
   when: product.repo_type == 'poodle_advanced'
 
 - name: Create the COPR repos required for component tests
@@ -164,3 +175,6 @@
   file: path=/etc/yum.repos.d/rhel_ci.repo state=absent
   notify:
     - Yum clean all
+
+- name: List available yum repositories
+  command: yum -d 9 repolist

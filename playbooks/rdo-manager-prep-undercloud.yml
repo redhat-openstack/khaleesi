@@ -3,7 +3,7 @@
 
 # Provides CentOS repos if absent
 - name: CentOS RDO prep
-  hosts: undercloud:&CentOS
+  hosts: undercloud:&CentOS:&rdo
   vars:
     - ansible_ssh_user: root
   roles:
@@ -11,7 +11,7 @@
 
 # Provides EPEL
 - name: RHEL RDO prep
-  hosts: undercloud:&RedHat
+  hosts: undercloud:&RedHat:&rdo
   vars:
     - ansible_ssh_user: root
   roles:
@@ -19,7 +19,7 @@
 
 # Provides rhos-release
 - name: RHEL RHOS prep
-  hosts: undercloud:&RedHat
+  hosts: undercloud:&RedHat:&rdo
   vars:
     - ansible_ssh_user: root
   roles:
@@ -28,12 +28,19 @@
 
 # Provides rhsm repos
 - name: RHEL RHOS prep
-  hosts: undercloud:&RedHat
+  hosts: undercloud:&RedHat:&rdo
   vars:
     - ansible_ssh_user: root
   roles:
     - { role: linux/rhel/rhos, product_override_version: 6.0, product_repo_type_override: "rhsm", yum_update: false,
           when: product.repo_type_override is defined and product.repo_type_override == 'rhsm'}
+
+- name: RHEL RHOS prep
+  hosts: undercloud:&rhos
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    - { role: linux/rhel/rhos, yum_update: false }
 
 # Collect performance data, etc.
 - name: Linux common prep
@@ -45,7 +52,7 @@
 
 # Provides rdo and delorean repos
 - name: Setup dependencies on nodes (rdo)
-  hosts: undercloud
+  hosts: undercloud:&rdo
   vars:
     - ansible_ssh_user: root
   roles:
