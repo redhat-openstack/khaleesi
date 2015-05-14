@@ -1,0 +1,111 @@
+---
+- name: sahara | service | is installed
+  sudo: yes
+  yum: name=openstack-sahara state=installed
+  tags: sahara
+
+- name: sahara | service | is configued
+  sudo: yes
+  template: src=sahara.conf.j2 dest=/etc/sahara/sahara.conf
+  tags: sahara
+
+- name: sahara | service | create database
+  mysql_db: login_host={{database_host}} login_user=root login_password={{database_password}}
+            name=sahara state=present encoding=utf8
+  tags: sahara
+
+- name: sahara | service | database, user creation
+  mysql_user: login_host={{database_host}} login_user=root login_password={{database_password}}
+              name=sahara password=saharadb priv=sahara.*:ALL state=present
+  tags: sahara
+
+- name: sahara | service | configure database
+  sudo: yes
+  command: sahara-db-manage
+            --config-file /etc/sahara/sahara.conf
+              upgrade head
+  tags: sahara
+
+- name: sahara | service | create user
+  keystone_user:
+        user={{ sahara_username }}
+        password={{ sahara_password }}
+        tenant={{ sahara_tenant_name }}
+        login_user={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        endpoint=http://{{ controller_ip }}:5000/v2.0/
+        state=present
+  tags: sahara
+
+- name: sahara | service | add role admin / project service to the user
+  keystone_user:
+        user={{ sahara_username }}
+        password={{ sahara_password }}
+        tenant={{ sahara_tenant_name }}
+        login_user={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        endpoint=http://{{ controller_ip }}:5000/v2.0/
+        state=present
+        role=admin
+  tags: sahara
+
+- name: sahara | service | add role admin / project admin to the user (workaround lp1314124)
+  keystone_user:
+        user={{ sahara_username }}
+        password={{ sahara_password }}
+        tenant={{ admin_tenant_name }}
+        login_user={{ admin_username }}
+        login_password={{ admin_password }}
+        login_tenant_name={{ admin_tenant_name }}
+        endpoint=http://{{ controller_ip }}:5000/v2.0/
+        state=present
+        role=admin
+  tags: sahara
+
+#- name: sahara | service | add service and endpoint
+#  keystone_service:
+#        login_user={{ admin_username }}
+#        login_password={{ admin_password }}
+#        endpoint=http://{{ controller_ip }}:5000/v3.0/
+#        name=sahara type=data_processing description="Sahara Data Processing"
+#        region=RegionOne
+#        public_url="http://{{ ansible_default_ipv4.address }}:8386/v1.1/$(tenant_id)s"
+#        admin_url="http://{{ ansible_default_ipv4.address }}:8386/v1.1/$(tenant_id)s"
+#        internal_url="http://{{ ansible_default_ipv4.address }}:8386/v1.1/$(tenant_id)s"
+#  tags: sahara
+
+- name: sahara | service | add service
+  command: keystone --os-username={{ admin_username }} --os-password={{ admin_password }}
+            --os-tenant-name={{ admin_tenant_name }} --os-auth-url=http://{{ controller_ip }}:5000/v2.0/
+            service-create --name sahara
+            --type=data_processing --description="Sahara Data Processing"
+  tags: sahara
+
+- name: sahara | service | add endpoint
+  shell: keystone --os-username={{ admin_username }} --os-password={{ admin_password }}
+            --os-tenant-name={{ admin_tenant_name }} --os-auth-url=http://{{ controller_ip }}:5000/v2.0/
+            endpoint-create --service sahara
+            --region RegionOne
+            --publicurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/%(tenant_id)s'
+            --adminurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/%(tenant_id)s'
+            --internalurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/%(tenant_id)s'
+
+  tags: sahara
+
+- set_fact: sahara_service_name="openstack-sahara-api"
+  tags: sahara
+  when: (product.name == "rhos" and product.version|string == "5.0")
+         or (product.name == "rdo" and product.version|string == "icehouse")
+
+- set_fact: sahara_service_name="openstack-sahara-all"
+  tags: sahara
+  when: not (product.name == "rhos" and product.version|string == "5.0")
+         and not (product.name == "rdo" and product.version|string == "icehouse")
+
+- name: sahara | service | openstack-sahara service is running
+  sudo: yes
+  service: name={{ sahara_service_name }} state=running enabled=yes
+  tags: sahara
+
