@@ -1,0 +1,31 @@
+# This file is an example of a hosts (inventory) file that ansible[1] knows how to use
+# in order to connect to a set of machines
+# [1] - http://docs.ansible.com/intro_inventory.html
+
+# Here you define the names of your hosts and the methods to connect to them
+# In case you use a password to connect
+#<hostname> ansible_ssh_host=<IP to connect to> ansible_ssh_user=<ssh user> ansible_ssh_pass=<ssh password>
+
+# In case you use a key file
+#<hostname> ansible_ssh_host=<IP to connect to> ansible_ssh_user=<ssh user> ansible_ssh_private_key_file=<path to private key>
+
+# If you use your local machine to run commands, uncomment the below line
+#localhost ansible_connection=local
+
+# In order to create a "group" / "label" that defines several machines, we use the following syntax
+# [<group name>]
+# <list of hosts that belongs to this group
+
+# Example
+#[local]
+#localhost
+#
+#[controller]
+#controller.example.com
+#
+#[network]
+#network.example.com
+#
+#[compute]
+#compute1.example.com
+#compute2.example.com
