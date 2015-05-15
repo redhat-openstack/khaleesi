@@ -9,11 +9,15 @@ gpgcheck=0
 skip_if_unavailable=False
 {% endif %}
 
-[delorean-core]
-name=Delorean core
-baseurl=http://trunk.rdoproject.org/f21/current/
-enabled=1
-gpgcheck=0
-metadata_expire=1d
-skip_if_unavailable=False
-failovermethod=priority
+# to be used later when tempest is there,
+# though it could be better to deploy it in installer/repos.yml
+# in case we will want also full-trunk-rpm jobs
+
+## [delorean-core]
+## name=Delorean core
+## baseurl=http://trunk.rdoproject.org/f21/current/
+## enabled=1
+## gpgcheck=0
+## metadata_expire=1d
+## skip_if_unavailable=False
+## failovermethod=priority
