@@ -29,4 +29,11 @@ export NODE_DIST=centos7
 export NODE_COUNT={{ nodes.node_count | default('2') }}
 {%endif %}
 
+{% if nodes.node_mem is defined %}
+export NODE_MEM={{ nodes.node_mem | default('4096') }}
+{%endif %}
+
+{% if nodes.undercloud_node_mem is defined %}
+export UNDERCLOUD_NODE_MEM={{ nodes.undercloud_node_mem | default('4096') }}
+{%endif %}
 
