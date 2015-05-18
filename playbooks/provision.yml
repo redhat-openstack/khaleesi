@@ -2,7 +2,10 @@
 - name: clean old inventory file
   hosts: localhost
   tasks:
-    - file: dest="{{ lookup('env', 'PWD') }}/hosts" state=absent
+    - file:
+        dest: "{{ lookup('env', 'PWD') }}/hosts"
+        state: link
+        src: "{{ lookup('env', 'PWD') }}/local_hosts"
 
 - include: provisioner/{{ provisioner.type }}/main.yml
 
@@ -10,9 +13,9 @@
   hosts: localhost
   tasks:
     - template:
-        dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+        dest: "{{ lookup('env', 'PWD') }}/hosts-{{ tmp.node_prefix }}"
         src: provisioner/templates/inventory.j2
     - file:
         dest: "{{ lookup('env', 'PWD') }}/hosts"
         state: link
-        src: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+        src: "{{ lookup('env', 'PWD') }}/hosts-{{ tmp.node_prefix }}"

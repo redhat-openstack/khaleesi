@@ -7,7 +7,7 @@ settings.yml
 repo_settings.yml
 job_settings.yml
 nodes.yml
-#*hosts
+/hosts-*
 *.py[co]
 inventory*
 # Sublime projects
