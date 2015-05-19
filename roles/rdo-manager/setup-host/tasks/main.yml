@@ -1,8 +1,8 @@
 ---
 - name: get the guest-image
-  shell: >
-    curl -o /home/stack/{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }} \
-    "{{ distro.images[distro.name][ansible_distribution_version].remote_file_server }}{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}"
+  get_url: url={{ distro.images[distro.name][ansible_distribution_version].remote_file_server }}{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
+                dest={{ instack_user_home }}
+                force=no
 
 - name: python-rdomanager-oscplugin
   yum: name=python-rdomanager-oscplugin state=present
