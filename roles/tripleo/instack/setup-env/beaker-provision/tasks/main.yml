@@ -30,6 +30,10 @@
   ignore_errors: yes
   async: 60
 
+- name: reboot machine if return2beaker hangs
+  shell: ssh -o 'StrictHostKeyChecking=no' root@{{ job_var.instack_virt_host }} "reboot"
+  ignore_errors: yes
+
 - name: provision Beaker machine with password
   shell: >
     chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
