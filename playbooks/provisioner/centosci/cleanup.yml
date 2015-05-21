@@ -1,0 +1,16 @@
+---
+
+- name: Cleanup
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Retrieve the SSID
+      shell: >
+          cat {{ lookup('env', 'PWD') }}/centosci_ssid
+      register: centosci_ssid
+    - name: Return nodes
+      centosci:
+           request="done"
+           url="{{ provisioner.url }}"
+           key="{{ provisioner.key }}"
+           ssid="{{ centosci_ssid.stdout }}"

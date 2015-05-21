@@ -80,12 +80,9 @@
           cp -rpL --parents $F /tmp/{{ inventory_hostname }}
         done
         cd /tmp
-        tar czf {{ inventory_hostname }}.tar.gzip {{ inventory_hostname }}
+        tar czf {{ inventory_hostname }}.tar.gz {{ inventory_hostname }}
       ignore_errors: true
 
     - name: fetch log archive (gzip)
-      fetch: src=/tmp/{{ inventory_hostname }}.tar.gzip flat=yes dest=../collected_files/{{ inventory_hostname }}.tar.gzip
+      fetch: src=/tmp/{{ inventory_hostname }}.tar.gz flat=yes dest=../collected_files/{{ inventory_hostname }}.tar.gzip
       ignore_errors: true
-
-
-

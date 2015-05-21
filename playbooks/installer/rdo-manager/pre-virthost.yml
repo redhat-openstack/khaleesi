@@ -5,7 +5,7 @@
     - ansible_ssh_user: root
   tasks:
     - group_by: key=virthost
-      when: "'{{ provisioner.type }}' == 'beaker'"
+      when: "'{{ provisioner.type }}' == 'centosci' or '{{ provisioner.type }}' == 'beaker'"
 
 - include: cleanup-virthost.yml
 - include: repo-{{ product.name }}.yml repo_host=virthost
@@ -160,8 +160,18 @@
       command: 'virsh capabilities'
       when: "instack_virt_setup_result.rc != 0"
 
-    - name: destroy virbr0 network if present
+    - name: stop virbr0
+      command: ip link set virbr0 down
+      sudo: yes
+      ignore_errors: true
+
+    - name: delete libvirt bridge virbr0
       command: brctl delbr virbr0
+      sudo: yes
+      ignore_errors: true
+
+    - name: start default libvirt network
+      command: virsh net-start default
       sudo: yes
       ignore_errors: true
 
@@ -191,7 +201,13 @@
       when: undercloud_ip is not defined
 
     - name: add undercloud host
-      add_host: name=undercloud groups=undercloud ansible_ssh_host=undercloud
+      add_host:
+        name=undercloud
+        groups=undercloud
+        ansible_ssh_host=undercloud
+        ansible_fqdn=undercloud
+        ansible_ssh_user="{{ provisioner.remote_user }}"
+        ansible_ssh_private_key_file="{{ provisioner.key_file }}"
       when: undercloud_ip is not defined
 
     - name: set_fact for undercloud ip
@@ -207,11 +223,17 @@
       when: hostvars['undercloud']['controller_ip'] is defined
 
     - name: add controller host if defined
-      add_host: name=controller groups=controller ansible_ssh_host=controller
+      add_host:
+        name=controller
+        groups=controller
+        ansible_ssh_host=controller
       when: hostvars['undercloud']['controller_ip'] is defined
 
     - name: add tempest host
-      add_host: name=tester groups=tester ansible_ssh_host=undercloud
+      add_host:
+        name=tester
+        groups=tester
+        ansible_ssh_host=undercloud
       when: hostvars['undercloud']['controller_ip'] is defined
 
     - name: setup ssh config
@@ -231,6 +253,19 @@
 
     - name: chown authorized_keys for stack user
       shell: 'ssh -F ssh.config.ansible undercloud-from-virthost "chown stack:stack /home/stack/.ssh/authorized_keys"'
+
+- name: regenerate the inventory file after adding hosts
+  hosts: localhost
+  tasks:
+    - name: create inventory from template
+      template:
+        dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+        src: ../../provisioner/templates/inventory.j2
+    - name: symlink inventory to a static name
+      file:
+        dest: "{{ lookup('env', 'PWD') }}/hosts"
+        state: link
+        src: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
 
 - name: copy and install the gating rpm to the undercloud
   hosts: virthost:&gate

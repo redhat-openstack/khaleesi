@@ -1,20 +1,20 @@
 {% if undercloud_ip is defined %}
 Host tempest
-    ProxyCommand ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i ~/.ssh/id_rsa stack@{{ job.host }} -W {{ undercloud_ip }}:22
+    ProxyCommand ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i ~/.ssh/id_rsa stack@{{ hostvars[groups['virthost'][0]].ansible_ssh_host }} -W {{ undercloud_ip }}:22
     IdentityFile id_rsa_virt_host
     User stack
     StrictHostKeyChecking no
     UserKnownHostsFile=/dev/null
 
 Host undercloud-root
-    ProxyCommand ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i ~/.ssh/id_rsa stack@{{ job.host }} -W {{ undercloud_ip }}:22
+    ProxyCommand ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i ~/.ssh/id_rsa stack@{{ hostvars[groups['virthost'][0]].ansible_ssh_host }} -W {{ undercloud_ip }}:22
     IdentityFile id_rsa_virt_host
     User root
     StrictHostKeyChecking no
     UserKnownHostsFile=/dev/null
 
 Host undercloud
-    ProxyCommand ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i ~/.ssh/id_rsa stack@{{ job.host }} -W {{ undercloud_ip }}:22
+    ProxyCommand ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i ~/.ssh/id_rsa stack@{{ hostvars[groups['virthost'][0]].ansible_ssh_host }} -W {{ undercloud_ip }}:22
     IdentityFile id_rsa_virt_host
     User stack
     StrictHostKeyChecking no
