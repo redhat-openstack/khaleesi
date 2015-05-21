@@ -8,5 +8,5 @@
     - git: repo={{ tester.git.repo }} version={{ tester.git.revision }}
            recursive=yes
            track_submodules=yes
-           dest={{ tester.dir }}
+           dest=~/{{ tester.dir }}
 
