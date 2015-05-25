@@ -1,3 +1,12 @@
 ---
-- name: Post install steps
-  hosts: all
+# There is a necessary step to add in nova.conf for encrypted volumes
+- name: Update the encrypted key on compute nodes
+  hosts: compute
+  gather_facts: no
+  sudo: yes
+  tasks:
+    - name: Setup fixed key for encrypted volumes
+      shell: openstack-config --set /etc/nova/nova.conf keymgr fixed_key `hexdump -n 32 -v -e '/1 "%02x"' /dev/urandom`
+
+    - name: restart nova compute service to apply changes in nova.conf
+      shell: openstack-service restart nova-compute
