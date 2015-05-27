@@ -1,5 +1,0 @@
----
-- include: pre-{{ installer.env.type }}.yml
-- include: run-undercloud.yml
-- include: run-overcloud.yml
-- include: post.yml
