@@ -18,7 +18,7 @@ LOCAL_HOSTS = "local_hosts"
 KSGEN_SETTINGS_YML = "ksgen_settings.yml"
 
 PROVISION = "provision"
-PLAYBOOKS = [PROVISION, "install", "test"]
+PLAYBOOKS = [PROVISION, "install", "test", "cleanup"]
 
 def file_exists(parser, filename):
     if not os.path.exists(filename):
@@ -49,6 +49,10 @@ def parser_init():
     parser.add_argument("--test", action="store_true",
                         # default=False,
                         help="execute tests")
+    parser.add_argument("--cleanup", action="store_true",
+                        # default=False,
+                        help="cleanup nodes")
+
 
     args = parser.parse_args()
 
