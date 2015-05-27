@@ -9,10 +9,11 @@ from ansible import color as ansible_color
 from ansible import inventory
 from ansible import utils
 
-# ansible-playbook https://github.com/ansible/ansible/blob/devel/bin/ansible-playbook
+# ansible-playbook
+# https://github.com/ansible/ansible/blob/devel/bin/ansible-playbook
 
 PATH_TO_PLAYBOOKS = os.path.join(os.getcwd(), "playbooks")
-VERBOSITY = 2
+VERBOSITY = 0
 HOSTS_FILE = "hosts"
 LOCAL_HOSTS = "local_hosts"
 KSGEN_SETTINGS_YML = "ksgen_settings.yml"
@@ -28,6 +29,9 @@ def file_exists(parser, filename):
 
 def parser_init():
     parser = argparse.ArgumentParser()
+    parser.add_argument('-v', '--verbose', default=VERBOSITY, action="count",
+                        help="verbose mode (-vvv for more,"
+                             " -vvvv to enable connection debugging)")
     parser.add_argument('-i', '--inventory',
                         default=None,
                         type=lambda x: file_exists(parser, x),
@@ -85,6 +89,7 @@ def hostcolor(host, stats, color=True):
 
 
 def execute_ansible(playbook, args):
+    utils.VERBOSITY = args.verbose
     hosts = args.inventory or (LOCAL_HOSTS if playbook == PROVISION
                                else HOSTS_FILE)
     playbook += ".yml"
@@ -92,7 +97,7 @@ def execute_ansible(playbook, args):
 
     # From ansible-playbook:
     stats = ansible.callbacks.AggregateStats()
-    playbook_cb = callbacks.PlaybookCallbacks(verbose=VERBOSITY)
+    playbook_cb = callbacks.PlaybookCallbacks(verbose=utils.VERBOSITY)
     # if options.step:
     # # execute step by step
     #     playbook_cb.step = options.step
