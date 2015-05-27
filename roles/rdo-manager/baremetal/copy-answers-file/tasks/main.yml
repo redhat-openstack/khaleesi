@@ -1,22 +1,24 @@
 ---
 
-- name: check answers file exists
-  stat: path="/usr/share/instack-undercloud/instack.answers.sample"
-  register: answers_file_present
-  failed_when: answers_file_present.stat.exists == False
+- name: check conf file exists
+  stat: path="/usr/share/instack-undercloud/undercloud.conf.sample"
+  register: conf_file_present
+  failed_when: conf_file_present.stat.exists == False
 
-- name: copy baremetal answers file
-  shell: cp /usr/share/instack-undercloud/instack.answers.sample {{ instack_user_home }}/instack.answers
+- name: copy baremetal conf file
+  shell: cp /usr/share/instack-undercloud/undercloud.conf.sample {{ instack_user_home }}/undercloud.conf
 
-- name: edit instack.answers file - local_interface
-  lineinfile: dest={{ instack_user_home }}/instack.answers regexp=^LOCAL_INTERFACE line=LOCAL_INTERFACE={{ hw_env.answers_local_interface }}
+- name: edit undercloud.conf file - local_interface
+  lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#local_interface line=local_interface={{ hw_env.answers_local_interface }}
 
-- name: edit instack.answers file - network
-  replace: dest={{ instack_user_home }}/instack.answers regexp='192.0.2' replace={{ hw_env.network }}
+- name: edit undercloud.conf file - network
+  shell: >
+    sed -i 's/192.0.2/{{ hw_env.network }}/g' {{ instack_user_home }}/undercloud.conf;
+    sed -i '/{{ hw_env.network }}/s/#//g' {{ instack_user_home }}/undercloud.conf
   when: hw_env.network is defined
 
-- name: edit instack.answers file - network gateway
-  lineinfile: dest={{ instack_user_home }}/instack.answers regexp=^NETWORK_GATEWAY line=NETWORK_GATEWAY={{ hw_env.network_gateway }}
+- name: edit undercloud.conf file - network gateway
+  lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#network_gateway line=network_gateway={{ hw_env.network_gateway }}
 
 - name: register short hostname
   shell: "hostname -s"
