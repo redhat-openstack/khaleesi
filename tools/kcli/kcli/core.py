@@ -42,7 +42,13 @@ def parser_init():
     parser.add_argument("--test", action="store_true",
                         # default=False,
                         help="execute tests")
-    return parser.parse_args()
+
+    args = parser.parse_args()
+
+    playbooks = [p for p in PLAYBOOKS if getattr(args, p)]
+    if not playbooks:
+        parser.error("No playbook to execute (%s)" % PLAYBOOKS)
+    return args
 
 
 # From ansible-playbook
@@ -152,9 +158,6 @@ def execute_ansible(playbook, settings):
 def main():
     args = parser_init()
     settings = args.settings
-    playbooks = [p for p in PLAYBOOKS if getattr(args, p)]
-    if not playbooks:
-        raise Exception("No playbook to execute (%s)" % PLAYBOOKS)
     for playbook in (p for p in PLAYBOOKS if getattr(args, p)):
         execute_ansible(playbook, settings)
 
