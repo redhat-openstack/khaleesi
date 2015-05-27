@@ -28,6 +28,13 @@ def file_exists(parser, filename):
 
 def parser_init():
     parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--inventory',
+                        default=None,
+                        type=lambda x: file_exists(parser, x),
+                        help="Inventory file to use. "
+                             "Default: {lcl}. "
+                             "NOTE: to reuse old environment use {host}".
+                        format(lcl=LOCAL_HOSTS, host=HOSTS_FILE))
     parser.add_argument("--settings",
                         default=KSGEN_SETTINGS_YML,
                         type=lambda x: file_exists(parser, x),
@@ -73,8 +80,9 @@ def hostcolor(host, stats, color=True):
     return "%-26s" % host
 
 
-def execute_ansible(playbook, settings):
-    hosts = LOCAL_HOSTS if playbook == PROVISION else HOSTS_FILE
+def execute_ansible(playbook, args):
+    hosts = args.inventory or (LOCAL_HOSTS if playbook == PROVISION
+                               else HOSTS_FILE)
     playbook += ".yml"
     path_to_playbook = os.path.join(PATH_TO_PLAYBOOKS, playbook)
 
@@ -90,13 +98,11 @@ def execute_ansible(playbook, settings):
     runner_cb = callbacks.PlaybookRunnerCallbacks(stats,
                                                   verbose=utils.VERBOSITY)
 
-
-
     pb = ansible.playbook.PlayBook(
         # From ansible-playbook:
         playbook=path_to_playbook,
         inventory=ansible.inventory.Inventory(hosts),
-        extra_vars=utils.parse_yaml_from_file(settings),
+        extra_vars=utils.parse_yaml_from_file(args.settings),
         callbacks=playbook_cb,
         runner_callbacks=runner_cb,
         stats=stats,
@@ -147,7 +153,6 @@ def execute_ansible(playbook, settings):
             log_only=True
         )
 
-
     print ""
     if len(failed_hosts) > 0:
         return 2
@@ -157,9 +162,8 @@ def execute_ansible(playbook, settings):
 
 def main():
     args = parser_init()
-    settings = args.settings
     for playbook in (p for p in PLAYBOOKS if getattr(args, p)):
-        execute_ansible(playbook, settings)
+        execute_ansible(playbook, args)
 
 if __name__ == '__main__':
     sys.exit(main())
