@@ -21,6 +21,7 @@ KSGEN_SETTINGS_YML = "ksgen_settings.yml"
 PROVISION = "provision"
 PLAYBOOKS = [PROVISION, "install", "test", "cleanup"]
 
+
 def file_exists(parser, filename):
     if not os.path.exists(filename):
         parser.error("The file %s does not exist!" % filename)
@@ -45,18 +46,13 @@ def parser_init():
                         help="settings file to use. default: %s"
                              % KSGEN_SETTINGS_YML)
     parser.add_argument("--provision", action="store_true",
-                        # default=False,
                         help="provision fresh nodes from server")
     parser.add_argument("--install", action="store_true",
-                        # default=False,
                         help="install Openstack on nodes")
     parser.add_argument("--test", action="store_true",
-                        # default=False,
                         help="execute tests")
     parser.add_argument("--cleanup", action="store_true",
-                        # default=False,
                         help="cleanup nodes")
-
 
     args = parser.parse_args()
 
