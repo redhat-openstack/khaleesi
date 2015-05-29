@@ -29,6 +29,7 @@ EXAMPLES = '''
 - centosci:
 '''
 
+import os
 import urllib2
 
 
@@ -73,9 +74,8 @@ def return_hosts(url, type_, key, ssid):
         urllib2.urlopen(''.join(url_elements))
     except urllib2.URLError, e:
         return {'failed': True,
-                "msg": "API call failed. " +
-                       "url: " + ''.join(url_elements) +
-                       "reason: " + str(e.reason)}
+                "msg": "API call failed. "
+                       "Reason: " + str(e.reason)}
     return {"changed": True}
 
 
@@ -84,7 +84,6 @@ def main():
         argument_spec=dict(
             request=dict(default='get', choices=['get', 'done', 'fail'], type='str'),
             url=dict(required=True, type='str'),
-            key=dict(required=True, type='str'),
             # following are options for get
             ver=dict(default="7", type='str'),
             arch=dict(default='x86_64', choices=['x86_64', 'i386']),
@@ -93,16 +92,19 @@ def main():
             ssid=dict(default=None, type='str')
         )
     )
+    key = os.environ.get('PROVISIONER_KEY')
+    if key is None:
+        module.fail_json(msg="Set the PROVISIONER_KEY environment variable.")
     if module.params["request"] == "get":
         result = get_hosts(module.params["url"],
-                           module.params["key"],
+                           key,
                            module.params["ver"],
                            module.params["arch"],
                            module.params["count"])
     else:
         result = return_hosts(module.params["url"],
                               module.params["request"],
-                              module.params["key"],
+                              key,
                               module.params["ssid"])
     module.exit_json(**result)
 

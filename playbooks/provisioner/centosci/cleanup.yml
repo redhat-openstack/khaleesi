@@ -12,5 +12,4 @@
       centosci:
            request="done"
            url="{{ provisioner.url }}"
-           key="{{ provisioner.key }}"
            ssid="{{ centosci_ssid.stdout }}"

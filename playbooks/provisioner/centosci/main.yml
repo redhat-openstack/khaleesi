@@ -7,7 +7,6 @@
       centosci:
            request="get"
            url="{{ provisioner.url }}"
-           key="{{ provisioner.key }}"
            ver="{{ provisioner.distro.version }}"
            arch="{{ provisioner.arch }}"
            count="{{ provisioner.node_count }}"
