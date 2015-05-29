@@ -1,4 +1,11 @@
 ---
+- name: Ensure yum presence
+  hosts: openstack_nodes
+  gather_facts: no
+  sudo: yes
+  tasks:
+    - shell: python -c 'import yum' || dnf install -y yum yum-utils
+
 - include: installer/{{ installer.type }}/main.yml
 
 - name: Global post install
