@@ -111,11 +111,11 @@
 # poodle repos
 - name: Create the RHOS poodle repository
   shell: "rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.version|int }}{{ installer_host_repo | default('')}}"
-  when: (product.repo_type in ['poodle'] and installer.name not in ['instack', 'rdo-manager'])
+  when: (product.repo_type in ['poodle'] and installer is defined and installer.name not in ['instack', 'rdo-manager'])
 
 - name: Create the OSP-Director poodle repository
   shell: "rhos-release  -x {{ product.version }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.version }}{{ installer_host_repo | default('')}}"
-  when: (product.repo_type in ['poodle'] and installer.name in ['instack', 'rdo-manager'])
+  when: (product.repo_type in ['poodle'] and installer is defined and installer.name in ['instack', 'rdo-manager'])
 
 - name: Create the RHOS Advanced  poodle repository
   shell: "rhos-release  -x {{ product.version }};  rhos-release  -d {{ product.version }}a"
