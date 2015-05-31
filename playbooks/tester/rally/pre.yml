@@ -8,23 +8,31 @@
       with_items:
         - git
         - which
+        - gcc
+        - libffi-devel
+        - python-devel
+        - openssl-devel
+        - gmp-devel
+        - libxml2-devel
+        - libxslt-devel
+        - postgresql-devel
+        - python-pip
 
 - name: Install Rally on the machine
   hosts: tester
-  sudo: yes
   tasks:
     - name: Clone Rally from git repo
       git: repo={{ tester.git.repo }} version={{ tester.git.revision }}
            dest={{ tester.rally.dir }}
 
-      # This URL should be in the config file (khaleesi settings)
-    - name: Download cirros image
-      get_url: url=http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-disk.img dest={{ tester.rally.dir }}/etc/{{ tester.rally.cirros_image_file }} mode=0440
+#      # This URL should be in the config file (khaleesi settings)
+#    - name: Download cirros image
+#      get_url: url=http://download.cirros-cloud.net/0.3.1/cirros-0.3.1-x86_64-disk.img dest={{ tester.rally.dir }}/etc/{{ tester.rally.cirros_image_file }} mode=0440
 
     - name: Run Rally installation script
-      shell: "{{ tester.rally.dir }}/install_rally.sh -v"
+      shell: "{{ tester.rally.dir }}/install_rally.sh -v -y -d {{ tester.rally.path }} | tee {{ tester.rally.dir }}/rally_install.log"
       args:
-        creates: "{{ tester.rally.path }}/rally"
+        creates: "{{ tester.rally.path }}/bin/rally"
 
 - name: Prepare Openstack
   hosts: controller

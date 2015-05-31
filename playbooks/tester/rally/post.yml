@@ -7,42 +7,42 @@
 
 # TODO(yfried): fix relative link in index so they point to the right path and don't use gz files
 #    - name: Create nice index
-#      shell: "{{ tester.rally.path }}/python rally/ui/utils.py render tests/ci/rally-gate/index.mako >  {{ tester.rally.outputdir }}/index.html"
+#      shell: "{{ tester.rally.path }}/bin/rally rally/ui/utils.py render tests/ci/rally-gate/index.mako >  {{ tester.rally.outputdir }}/index.html"
 #      args:
 #        creates: "{{ tester.rally.outputdir }}/index.html"
 #        chdir: "{{ tester.rally.dir }}"
 
     - name: Create Report
-      command: "{{ tester.rally.path }}/rally task report --out {{ tester.rally.outputdir }}/results.html"
+      command: "{{ tester.rally.path }}/bin/rally task report --out {{ tester.rally.outputdir }}/results.html"
       args:
         creates: "{{ tester.rally.outputdir }}/results.html"
         chdir: "{{ tester.rally.dir }}"
 
     - name: JSON results
-      shell: "{{ tester.rally.path }}/rally task results | {{ tester.rally.path }}/python -m json.tool > {{ tester.rally.outputdir }}/results.json"
+      shell: "{{ tester.rally.path }}/bin/rally task results | {{ tester.rally.path }}/bin/python -m json.tool > {{ tester.rally.outputdir }}/results.json"
       args:
         creates: "{{ tester.rally.outputdir }}/results.json"
         chdir: "{{ tester.rally.dir }}"
 
     - name: Iteration Data
-      shell: "{{ tester.rally.path }}/rally task detailed > {{ tester.rally.outputdir }}/detailed.txt"
+      shell: "{{ tester.rally.path }}/bin/rally task detailed > {{ tester.rally.outputdir }}/detailed.txt"
       args:
         creates: "{{ tester.rally.outputdir }}/detailed.txt"
 
     - name: Detatiled Iteration Data
-      shell: "{{ tester.rally.path }}/rally task detailed --iterations-data > {{ tester.rally.outputdir }}/detailed_with_iterations.txt"
+      shell: "{{ tester.rally.path }}/bin/rally task detailed --iterations-data > {{ tester.rally.outputdir }}/detailed_with_iterations.txt"
       args:
         creates: "{{ tester.rally.outputdir }}/detailed_with_iterations.txt"
 
     - name: SLA Check
-      shell: "{{ tester.rally.path }}/rally task sla_check > {{ tester.rally.outputdir }}/sla.txt"
+      shell: "{{ tester.rally.path }}/bin/rally task sla_check > {{ tester.rally.outputdir }}/sla.txt"
       args:
         creates: "{{ tester.rally.outputdir }}/sla.txt"
 #      register: sla_check
       ignore_errors: True
 
     - name: SLA Check JSON
-      shell: "{{ tester.rally.path }}/rally task sla_check --json > {{ tester.rally.outputdir }}/sla.json"
+      shell: "{{ tester.rally.path }}/bin/rally task sla_check --json > {{ tester.rally.outputdir }}/sla.json"
       args:
         creates: "{{ tester.rally.outputdir }}/sla.json"
 #      register: sla_check
