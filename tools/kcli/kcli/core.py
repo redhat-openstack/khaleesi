@@ -19,7 +19,7 @@ LOCAL_HOSTS = "local_hosts"
 KSGEN_SETTINGS_YML = "ksgen_settings.yml"
 
 PROVISION = "provision"
-PLAYBOOKS = [PROVISION, "install", "test", "cleanup"]
+PLAYBOOKS = [PROVISION, "install", "test", "collect-logs", "cleanup"]
 
 
 def file_exists(parser, filename):
@@ -51,12 +51,14 @@ def parser_init():
                         help="install Openstack on nodes")
     parser.add_argument("--test", action="store_true",
                         help="execute tests")
+    parser.add_argument("--collect-logs", action="store_true",
+                        help="Pull logs from nodes")
     parser.add_argument("--cleanup", action="store_true",
                         help="cleanup nodes")
 
     args = parser.parse_args()
 
-    playbooks = [p for p in PLAYBOOKS if getattr(args, p)]
+    playbooks = [p for p in PLAYBOOKS if getattr(args, p, False)]
     if not playbooks:
         parser.error("No playbook to execute (%s)" % PLAYBOOKS)
     return args
@@ -167,7 +169,7 @@ def execute_ansible(playbook, args):
 
 def main():
     args = parser_init()
-    for playbook in (p for p in PLAYBOOKS if getattr(args, p)):
+    for playbook in (p for p in PLAYBOOKS if getattr(args, p, False)):
         execute_ansible(playbook, args)
 
 if __name__ == '__main__':
