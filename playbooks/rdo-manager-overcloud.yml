@@ -7,7 +7,14 @@
 - name: build the openstack-images
   hosts: undercloud
   roles:
-   - rdo-manager/build-images
+   - { role: rdo-manager/build-images,
+        when: installer.overcloud_images | default('build') == "build" }
+
+- name: import the openstack-images
+  hosts: undercloud
+  roles:
+   - { role: rdo-manager/import-images,
+        when: installer.overcloud_images is defined and installer.overcloud_images == "import" }
 
 - name: deploy the nodes
   hosts: undercloud
