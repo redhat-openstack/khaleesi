@@ -53,7 +53,7 @@
       file: path={{ build_dir }} state=directory
 
     - name: Copy the instack-undercloud repo
-      synchronize: src=../../instack-undercloud/ dest={{ build_dir }}/instack-undercloud delete=yes recursive=yes
+      synchronize: src={{ lookup('env', 'PWD') }}/../instack-undercloud/ dest={{ build_dir }}/instack-undercloud delete=yes recursive=yes
 
     - name: remove instack-undercloud package
       yum: name=instack-undercloud state=absent
