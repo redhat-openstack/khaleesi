@@ -12,7 +12,7 @@
   notify:
     - Yum clean all
     - yum -y update to latest packages
-  when: product.repo_type in ['poodle', 'puddle']
+  when: (product.repo_type in ['puddle'] and installer.name not in ['instack', 'rdo-manager'])
 
 - name: Execute rhos-release for OSP-Director {{ product.version }}
   command: "rhos-release {{ product.version }}"
