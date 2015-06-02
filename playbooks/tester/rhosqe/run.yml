@@ -4,4 +4,4 @@
   gather_facts: no
   sudo: yes
   tasks:
-    - shell: '~/{{ tester.dir }}/runner.sh {{ tester.testset }} /root/nosetests.xml | tee "~/{{ tester.dir }}.log"'
+    - shell: '~/{{ tester.dir }}/runner.sh {{ tester.testset }} /root/nosetests.xml | tee ~/{{ tester.dir }}.log'
