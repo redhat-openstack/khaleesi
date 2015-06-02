@@ -6,6 +6,14 @@
   tasks:
     - shell: python -c 'import yum' || (dnf install -y yum yum-utils && ln -snf /usr/bin/yum-deprecated /usr/bin/yum)
 
+- name: Setup Firewall Rules
+  hosts: openstack_nodes:!tester
+  sudo: yes
+  tasks:
+    - name: Iptables - Reset Rules To Default Drop
+      command: "iptables {{ item }}"
+      with_items: installer.firewall.rules
+
 - include: installer/{{ installer.type }}/main.yml
 
 - name: Global post install
