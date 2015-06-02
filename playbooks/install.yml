@@ -4,7 +4,7 @@
   gather_facts: no
   sudo: yes
   tasks:
-    - shell: python -c 'import yum' || dnf install -y yum yum-utils
+    - shell: python -c 'import yum' || (dnf install -y yum yum-utils && ln -snf /usr/bin/yum-deprecated /usr/bin/yum)
 
 - include: installer/{{ installer.type }}/main.yml
 
