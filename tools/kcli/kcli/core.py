@@ -162,15 +162,19 @@ def execute_ansible(playbook, args):
 
     print ""
     if len(failed_hosts) > 0:
-        return 2
+        raise Exception(2)
     if len(unreachable_hosts) > 0:
-        return 3
+        raise Exception(3)
 
 
 def main():
     args = parser_init()
     for playbook in (p for p in PLAYBOOKS if getattr(args, p, False)):
-        execute_ansible(playbook, args)
+        print "Executing Playbook: %s" % playbook
+        try:
+            execute_ansible(playbook, args)
+        except Exception:
+            raise Exception("Playbook %s failed!" % playbook)
 
 if __name__ == '__main__':
     sys.exit(main())
