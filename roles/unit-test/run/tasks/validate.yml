@@ -1,9 +1,0 @@
-- name: validate that required variables are set
-  fail: msg="component_basename is undefined"
-  when: component_basename is not defined
-
-- name: validate that virtualenv needed to run test is created
-  file: path={{ansible_env.HOME}}/testbed/venv/bin/activate state=file
-  when:
-    test_env.setup | default(false) and test_env.setup.pip | default(false)
-    and test_env.setup.pip.override | default(false)

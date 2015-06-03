@@ -1,82 +1,40 @@
-- name: print component testbed path
-  debug: var=component_path
-
-- name: print the test config
-  debug: var=test_cfg
-
 - name: install test dependencies rpm needed to run test
   sudo: yes
-  yum: pkg={{item}} state=latest
+  yum: pkg={{ item }} state=latest
   with_items: test_cfg.setup.install
   when:
     test_cfg.setup | default(false) and test_cfg.setup.install | default(false)
 
 - name: remove unwanted rpms specified in test dependencies
   sudo: yes
-  yum: pkg={{item}} state=absent
+  yum: pkg={{ item }} state=absent
   with_items: test_cfg.setup.remove
   when:
     test_cfg.setup | default(false) and test_cfg.setup.remove | default(false)
-
-# - name: cleanup git repo prior to running tests
-#   command: git clean -qdffx
-#   args:
-#     chdir: "{{component_path}}"
 
 ### actual testrun starts here
 - name: print the test setup  command
   debug: var=test_cfg
 
-- name: Run pep8 test ...
+- name: Run test ...
   shell: >
-    {{test_cfg.run_pep8.replace('\n', '')}}
+    {{ test_cfg.run.replace('\n', '') }}
   args:
-    chdir: "{{component_path}}"
+    chdir: "{{ component_path }}"
     executable: /bin/bash
+  register: test_run
   ignore_errors: true
-  register: pep8_test
-  when: test.type.name == 'pep8-test'
 
-- name: Run unit test ...
-  shell: >
-    {{test_cfg.run.replace('\n', '')}}
-  args:
-    chdir: "{{component_path}}"
-    executable: /bin/bash
-  ignore_errors: true
-  register: unit_test
-  when: test.type.name == 'unit-test'
-
-- name: print out pep8 test run
-  debug: var=pep8_test
-  when: pep8_test is defined
-
-- name: print out unittest run
-  debug: var=unit_test
-  when: unit_test is defined
+- name: print out test_run
+  debug: var=test_run
 
 - name: copy test results to logs dir
-  fetch: src="{{component_path}}/{{item}}"
+  fetch: src="{{ component_path }}/{{ item }}"
          dest=../../logs/ flat=yes
   with_items: test_cfg.archive
 
 - name: pass or fail the test
   fail: msg="The test run failed"
-  when: ((pep8_test is defined and pep8_test.rc !=0) or (unit_test is defined and unit_test.rc !=0))
+  when: test_run.rc !=0
 
-# - name: print the test clean command
-#   debug:
-#     msg: "{{test_cfg.cleanup.replace('\n', '')}}"
-#   when: test_cfg.cleanup | default(false)
-
-# - name: Run test cleanup
-#   shell: >
-#     {{env_init.replace('\n', '')}};
-#     {{test_cfg.cleanup.replace('\n', '')}}
-#   args:
-#     chdir: "{{component_path}}"
-#     executable: /bin/bash
-#   register: test_run_cleanup
-#   ignore_errors: yes
-#   when: test_cfg.cleanup | default(false)
 

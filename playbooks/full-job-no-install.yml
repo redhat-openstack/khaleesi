@@ -1,0 +1,4 @@
+---
+- include: provision.yml
+- include: test.yml
+- include: collect_logs.yml

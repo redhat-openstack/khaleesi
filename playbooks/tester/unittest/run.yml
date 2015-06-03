@@ -1,0 +1,5 @@
+---
+- name: Run tests
+  hosts: tester
+  roles:
+    - unit-test/run

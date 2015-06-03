@@ -1,6 +1,0 @@
----
-dependencies:
-    - { role: common }
-    - { role: unit-test/prep/repos }
-    - { role: linux-common }
-    - { role: common-handlers }

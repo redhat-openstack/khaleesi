@@ -1,9 +1,0 @@
-{% for repo in distro.rhel[ansible_distribution_version].repos %}
-[{{repo.section}}]
-name={{repo.name}}
-baseurl={{repo.baseurl}}
-gpgcheck={{ repo.gpgcheck }}
-failovermethod=priority
-enabled=1
-
-{% endfor %}

@@ -1,4 +1,0 @@
-test_distro : "{{ ansible_distribution + '-' + ansible_distribution_version }}"
-test_env: "{{test_config[test.env_name][test_distro]}}"
-test_virt_env: "{{test_config.virt[test_distro]}}"
-

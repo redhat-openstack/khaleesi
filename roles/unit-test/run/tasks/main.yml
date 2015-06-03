@@ -1,39 +1,6 @@
 ---
-### validate ###
-- { include: validate.yml }
-
-- name: create logs dir
-  file: path={{ansible_env.HOME}}/testbed/logs/ state=absent
-- file: path={{ansible_env.HOME}}/testbed/logs/ state=directory
-
-# ### run tests ###
-# - { include: testrun.yml,
-#     test_cfg: '{{test_env}}',
-#     env_init: test -s  ~/testbed/venv/bin/activate &&
-#               source ~/testbed/venv/bin/activate
-#   }
-
-#- set_fact: test_env_passed={{test_run|success}} venv_passed=True
-
-### run tests in virtenv if actual run fails ###
 - { include: testrun.yml,
-    test_cfg: '{{test_virt_env}}',
+    test_cfg: '{{ test_env }}',
     env_init: 'true',
   }
-
-- set_fact: venv_passed={{pep8_test|success}}
-  when: pep8_test.skipped is not defined
-
-- set_fact: venv_passed={{unit_test|success}}
-  when: unit_test.skipped is not defined
-
-### print result of original testrun ###
-
-- debug:
-    msg: >
-        Test run fails
-  when: not (venv_passed|bool)
-
-- fail: msg="Test run fails in both venv and using packages"
-  when: not (venv_passed|bool)
 
