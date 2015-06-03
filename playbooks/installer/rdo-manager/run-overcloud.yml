@@ -9,7 +9,7 @@
       command: cat /etc/redhat-release
 
     - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ installer.user.stack.name }}
+      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
 
 - name: build images
   hosts: undercloud

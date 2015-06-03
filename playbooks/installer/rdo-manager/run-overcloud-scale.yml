@@ -3,7 +3,7 @@
   hosts: undercloud
   tasks:
     - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ installer.user.stack.name }}
+      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
 
     - name: set node type to scale
       set_fact: node_to_scale={{item}}

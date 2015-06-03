@@ -16,25 +16,25 @@
     - ansible_ssh_user: root
   tasks:
     - name: create user
-      user: name="{{ installer.user.stack.name }}" state=present password=stack
+      user: name="{{ provisioner.remote_user }}" state=present password=stack
 
     - name: copy the .bash_profile file
-      command:  cp /root/.bash_profile /home/{{ installer.user.stack.name }}/
+      command:  cp /root/.bash_profile /home/{{ provisioner.remote_user }}/
 
     - name: create .ssh dir
-      file: path=/home/{{ installer.user.stack.name }}/.ssh mode=0700 owner=stack group=stack state=directory
+      file: path=/home/{{ provisioner.remote_user }}/.ssh mode=0700 owner=stack group=stack state=directory
 
     - name: copy the authorized_keys file
-      command:  cp /root/.ssh/authorized_keys /home/{{ installer.user.stack.name }}/.ssh/
+      command:  cp /root/.ssh/authorized_keys /home/{{ provisioner.remote_user }}/.ssh/
 
     - name: set file permissions on authorized_hosts
-      file: path=/home/{{ installer.user.stack.name }}/.ssh/authorized_keys mode=0600 owner=stack group=stack
+      file: path=/home/{{ provisioner.remote_user }}/.ssh/authorized_keys mode=0600 owner=stack group=stack
 
     - name: add user to sudoers
       lineinfile: dest=/etc/sudoers line="stack ALL=(root) NOPASSWD:ALL"
 
     - name: set fact for the stack user home
-      set_fact: instack_user_home=/home/{{ installer.user.stack.name }}
+      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
 
 - name: Group all hosts in gate if we are gating
   hosts: all
@@ -109,7 +109,7 @@
   hosts: virthost
   tasks:
     - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ installer.user.stack.name }}
+      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
 
     - name: get the guest-image
       shell: >
@@ -273,9 +273,6 @@
     - name: copy instack-undercloud package
       command: scp -F ssh.config.ansible {{ build_dir }}/instack-undercloud-{{ pkg_version.stdout }}-99999.noarch.rpm undercloud-from-virthost:{{ instack_user_home }}/
 
-    - name: copy the instack-setup-host script
-      command: scp -F ssh.config.ansible {{ build_dir }}/instack-undercloud/scripts/instack-setup-host undercloud-from-virthost:/usr/bin/
-
 - name: test host connection
   hosts: all:!localhost
   tasks:
@@ -286,7 +283,7 @@
       command: cat /etc/redhat-release
 
     - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ installer.user.stack.name }}
+      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
 
 - include: repo-{{ product.name }}.yml repo_host=undercloud
 
@@ -296,8 +293,6 @@
   tasks:
     - name: ensure install-undercloud is not installed
       yum: name=instack-undercloud state=absent
-      # this removes the python-rdomanager-oscplugin
-      # we have to make sure it is installed back afterwards
 
     - name: install the rpm we previously built
       shell: yum -y install /home/stack/instack-undercloud-*

@@ -1,0 +1,5 @@
+---
+- name: fetch commit dependencies
+  roles:
+    - depends-on
+  hosts: localhost
