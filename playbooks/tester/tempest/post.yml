@@ -6,3 +6,10 @@
     -  fetch: src={{ tester.dir }}/tempest.xml
               dest={{ lookup('env', 'PWD') }}/nosetests.xml
               flat=yes
+    -  shell: |
+        find '{{ tester.dir }}/.testrepository/' -regex '.*/[0-9]+' \
+            | while read name; do cat "$name"; done \
+                > '{{ tester.dir }}/results.subunit'
+    -  fetch: src={{ tester.dir }}/results.subunit
+              dest={{ lookup('env', 'PWD') }}/results.subunit
+              flat=yes
