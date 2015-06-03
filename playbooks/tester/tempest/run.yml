@@ -3,7 +3,27 @@
   hosts: tester
   gather_facts: no
   tasks:
+      - name: Remove old test list
+        file:
+            state: absent
+            name: "{{ tester.dir }}/skipfile"
+
+      - name: Create Test List - Whitelist
+        lineinfile:
+            create: yes
+            dest: "{{ tester.dir }}/skipfile"
+            line: "+{{ item }}"
+            regexp: "^[-+]{{ item }}$"
+        with_items: tester.tempest.whitelist
+
+      - name: Create Test List - Whitelist
+        lineinfile:
+            create: yes
+            dest: "{{ tester.dir }}/skipfile"
+            line: "-{{ item }}"
+            regexp: "^[-+]{{ item }}$"
+        with_items: tester.tempest.blacklist
+
       - name: run tempest
-        shell: "{{ tester.dir }}/with_venv ./tools/run-tests.sh tempest"
+        shell: "{{ tester.dir }}/with_venv ./tools/run-tests.sh --skip-file ./skipfile {{ tester.tempest.test_regex }} | tee {{ tester.dir }}/mylog.log"
         ignore_errors: True
-        # TODO: apply the filters from settings, tempest.tests/skip/...
