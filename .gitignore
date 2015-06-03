@@ -27,3 +27,4 @@ tmp/
 ssh.config.ansible
 stackrc
 id_rsa*
+hosts

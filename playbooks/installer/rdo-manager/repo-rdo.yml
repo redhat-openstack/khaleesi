@@ -24,7 +24,7 @@
         when: product_override_version is defined and product.repo_type_override == 'rhos-release'
 
         #remove this step when rdo and rhos diverge
-      - name: Execute rhos-release for rdo-manager
+      - name: Execute rhos-release for rdo-manager (rdo)
         command: "rhos-release {{ product_override_version }}"
         when: product_override_version is defined and product.repo_type_override == 'rhos-release'
 
