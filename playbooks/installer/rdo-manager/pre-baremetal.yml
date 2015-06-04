@@ -69,11 +69,19 @@
         - OpenIPMI-tools
       sudo_user: root
       sudo: yes
+      when: hw_env.remote_mgmt == "ipmi"
+
+    - name: install sshpass - DRACS
+      yum: name=sshpass state=latest
+      sudo_user: root
+      sudo: yes
+      when: hw_env.remote_mgmt == "dracs"
 
     - name: start IMPI service
       shell: >
         sudo chkconfig ipmi on;
         sudo service ipmi start
+      when: hw_env.remote_mgmt == "ipmi"
 
     - name: get number of overcloud nodes
       shell: >
@@ -81,10 +89,20 @@
         echo $(($IP_LENGTH))
       register: node_length
 
-    - name: power off node boxes
+    - name: power off node boxes - IPMI
       shell: >
-        export IP=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | sed 's/\"//g'`);
-        export USER=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_user.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
-        export PASSWORD=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_password.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
-        ipmitool -I lanplus -H ${IP[item]} -U ${USER[item]} -P ${PASSWORD[item]} power off
-      with_sequence: count="{{ node_length.stdout }}"
+         export IP=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | sed 's/\"//g'`);
+         export USER=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_user.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
+         export PASSWORD=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_password.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
+         ipmitool -I lanplus -H ${IP[item]} -U ${USER[item]} -P ${PASSWORD[item]} power off
+      with_sequence: count="{{node_length.stdout}}"
+      when: hw_env.remote_mgmt == "ipmi"
+
+    - name: power off node boxes - DRACS
+      shell: >
+         export IP=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | sed 's/\"//g'`);
+         export USER=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_user.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
+         export PASSWORD=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_password.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
+         sshpass -p ${PASSWORD[item]} ssh -o "StrictHostKeyChecking=no" ${USER[item]}@${IP[item]} "racadm serveraction powerdown"
+      with_sequence: count="{{node_length.stdout}}"
+      when: hw_env.remote_mgmt == "dracs"
