@@ -74,6 +74,25 @@
         line="127.0.1.1 {{ short_hostname.stdout }} {{ full_hostname.stdout }}"
       sudo: yes
 
+    - name: copy template file with baremetal environment variables
+      template:
+        src=../templates/deploy-overcloudrc-baremetal.j2
+        dest={{ instack_user_home }}/deploy-overcloudrc
+        mode=0755
+
+    - name: copy instackenv.json to nodes.json
+      shell: cp {{ instack_user_home }}/instackenv.json {{ instack_user_home }}/nodes.json
+
+    - name: copy vendor-specific setup file
+      synchronize: >
+        src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
+        delegate_to: local
+
+    - name: execute vendor-specific setup
+      shell: >
+        chmod 755 {{ instack_user_home }}/vendor_specific_setup;
+        {{ instack_user_home }}/vendor_specific_setup
+
     - name: installing python-six (workaround)
       yum: name=python-six state=present
       sudo: yes
