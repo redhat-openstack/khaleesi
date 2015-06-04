@@ -24,6 +24,12 @@
             regexp: "^[-+]{{ item }}$"
         with_items: tester.tempest.blacklist
 
-      - name: run tempest
-        shell: "{{ tester.dir }}/with_venv ./tools/run-tests.sh --skip-file ./skipfile {{ tester.tempest.test_regex }} | tee {{ tester.dir }}/mylog.log"
+# TODO: enable execution of skipfile in case it exists
+#      - name: run tempest with skipfile
+#        shell: "{{ tester.dir }}/with_venv ./tools/run-tests.sh --skip-file ./skipfile {{ tester.tempest.test_regex }} | tee {{ tester.dir }}/mylog.log"
+#        ignore_errors: True
+#        when: tester.tempest.blacklist or tester.tempest.whitelist
+
+      - name: run tempest without skipfile
+        shell: "{{ tester.dir }}/with_venv ./tools/run-tests.sh {{ tester.tempest.test_regex }} | tee {{ tester.dir }}/mylog.log"
         ignore_errors: True
