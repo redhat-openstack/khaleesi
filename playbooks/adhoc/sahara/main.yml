@@ -1,0 +1,125 @@
+---
+- name: Install, configure and start Sahara service
+  hosts: controller:&sahara
+  vars:
+    - sahara_username: sahara
+    - sahara_password: saharauser
+    - sahara_tenant_name: services
+    - admin_username: admin
+    - admin_password: redhat
+    - admin_tenant_name: admin
+    - controller_name: "{{ provisioner.nodes.controller.name }}"
+    - controller_ip: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"
+    - database_host: localhost
+    - database_password: redhat
+  tasks:
+    - name: sahara | service | is installed
+      sudo: yes
+      yum: name=openstack-sahara state=installed
+
+    - name: sahara | service | is configued
+      sudo: yes
+      template: src=../templates/sahara.conf.j2 dest=/etc/sahara/sahara.conf
+
+    - name: sahara | service | create database
+      mysql_db: login_host={{database_host}} login_user=root login_password={{database_password}}
+                name=sahara state=present encoding=utf8
+
+    - name: sahara | service | database, user creation
+      mysql_user: login_host={{database_host}} login_user=root login_password={{database_password}}
+                  name=sahara password=saharadb priv=sahara.*:ALL state=present
+
+    - name: sahara | service | configure database
+      sudo: yes
+      command: sahara-db-manage
+                --config-file /etc/sahara/sahara.conf
+                  upgrade head
+
+    - name: sahara | service | create user
+      keystone_user:
+            user={{ sahara_username }}
+            password={{ sahara_password }}
+            tenant={{ sahara_tenant_name }}
+            login_user={{ admin_username }}
+            login_password={{ admin_password }}
+            login_tenant_name={{ admin_tenant_name }}
+            endpoint=http://{{ controller_ip }}:5000/v2.0/
+            state=present
+
+    - name: sahara | service | add role admin / project service to the user
+      keystone_user:
+            user={{ sahara_username }}
+            password={{ sahara_password }}
+            tenant={{ sahara_tenant_name }}
+            login_user={{ admin_username }}
+            login_password={{ admin_password }}
+            login_tenant_name={{ admin_tenant_name }}
+            endpoint=http://{{ controller_ip }}:5000/v2.0/
+            state=present
+            role=admin
+
+    - name: sahara | service | add service
+      command: keystone --os-username={{ admin_username }} --os-password={{ admin_password }}
+                --os-tenant-name={{ admin_tenant_name }} --os-auth-url=http://{{ controller_ip }}:5000/v2.0/
+                service-create --name sahara
+                --type=data_processing --description="Sahara Data Processing"
+
+    - name: sahara | service | add endpoint
+      shell: keystone --os-username={{ admin_username }} --os-password={{ admin_password }}
+                --os-tenant-name={{ admin_tenant_name }} --os-auth-url=http://{{ controller_ip }}:5000/v2.0/
+                endpoint-create --service sahara
+                --region RegionOne
+                --publicurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/%(tenant_id)s'
+                --adminurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/%(tenant_id)s'
+                --internalurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/%(tenant_id)s'
+
+
+    - set_fact: sahara_service_name="openstack-sahara-api"
+      when: (product.name == "rhos" and product.version|string == "5.0")
+             or (product.name == "rdo" and product.version|string == "icehouse")
+
+    - set_fact: sahara_service_name="openstack-sahara-all"
+      when: not (product.name == "rhos" and product.version|string == "5.0")
+             and not (product.name == "rdo" and product.version|string == "icehouse")
+
+    - name: sahara | service | openstack-sahara service is running
+      sudo: yes
+      service: name={{ sahara_service_name }} state=running enabled=yes
+
+- name: Find if the legacy dashboard is needed
+  hosts: all
+  tasks:
+    - group_by: key=legacysaharadashboard
+      when: (product.name == "rhos" and product.version|string == "5.0")
+            or (product.name == "rdo" and product.version|string == "icehouse")
+
+- name: Install the legacy dashboard
+  hosts: legacysaharadashboard
+  sudo: yes
+  tasks:
+    - name: sahara | dashboard | is installed
+      yum: name=python-django-sahara state=installed
+
+    - name: sahara | dashboard | is configured (settings, HORIZON_CONFIG)
+      lineinfile: dest=/usr/share/openstack-dashboard/openstack_dashboard/settings.py
+                  backrefs=yes regexp="^[ ]+('dashboards'.*)\),"
+                  line="\1 'sahara'),"
+
+    - name: sahara | dashboard | is configured (settings, INSTALLED_APPS)
+      lineinfile: dest=/usr/share/openstack-dashboard/openstack_dashboard/settings.py
+                  insertafter="^INSTALLED_APPS = \["
+                  line="    'saharadashboard',"
+
+    - name: sahara | dashboard | is configured (local_settings)
+      lineinfile: dest=/etc/openstack-dashboard/local_settings
+                  insertafter=EOF
+                  line="SAHARA_USE_NEUTRON = {{ installer.network.type == 'neutron' }}"
+
+    - name: sahara | dashboard | floating IP auto assignment (local_settings)
+      lineinfile: dest=/etc/openstack-dashboard/local_settings
+                  insertafter=EOF
+                  line="AUTO_ASSIGNMENT_ENABLED = False"
+      when: installer.network.auto_assign_floating_ip == False
+
+    - name: sahara | dashboard | is running (restarted)
+      service: name=httpd state=restarted

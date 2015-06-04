@@ -5,7 +5,7 @@ os_admin_tenant_name = {{ sahara_tenant_name }}
 os_auth_protocol = http
 os_auth_port = 5000
 os_auth_host = {{ controller_ip }}
-use_neutron = {{installer.network.plugin.name == "neutron"}}
+use_neutron = {{ installer.network.type == "neutron" }}
 log_dir = /var/log/sahara
 
 [database]
