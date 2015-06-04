@@ -5,6 +5,7 @@ from ksgen.yaml_utils import LookupDirective
 from docopt import docopt, DocoptExit
 import logging
 import os
+import re
 import yaml
 
 
@@ -70,6 +71,11 @@ Options:
         loader.load()
         self._merge_extra_vars(loader)
         all_settings = loader.settings()
+
+        # 'in-string' lookup workaround
+        for value in all_settings.values():
+            if isinstance(value, OrderedTree):
+                recursive_lookup(value, all_settings)
 
         logger.debug(yaml_utils.to_yaml("All Settings", all_settings))
         logger.info("Writing to file: %s", self.output_file)
@@ -361,3 +367,37 @@ def load_configuration(file_path, rel_dir=None):
                      os.path.relpath(file_path, rel_dir), e)
         raise
     return None
+
+
+def recursive_lookup(lookup_line, all_settings):
+    """
+    Search and replace 'in-string' lookups
+    """
+
+    for key, value in lookup_line.iteritems():
+        if isinstance(value, OrderedTree):
+            recursive_lookup(value, all_settings)
+        elif isinstance(value, str):
+            successful_search = re.search('\{\{\s*!lookup.*?\}\}', value)
+            if not successful_search:
+                continue
+            else:
+                lookup_key = re.search('\s+.* *?\}\}',
+                                       successful_search.group(0))
+                lookup_key = lookup_key.group(0).strip()[:-2].strip()
+                lookup_value = get_lookup_value(lookup_key, all_settings)
+                lookup_line[key] = re.sub(successful_search.group(0),
+                                          lookup_value, value)
+
+
+def get_lookup_value(lookup, settings):
+    """
+    A recursive function which returns the value of a given lookup sequence
+    from a given settings dictionary
+    """
+
+    if isinstance(lookup, str):
+        return get_lookup_value(lookup.split('.'), settings)
+    elif len(lookup) > 1:
+        return get_lookup_value(lookup[1:], settings[lookup[0]])
+    return settings[lookup[0]]
