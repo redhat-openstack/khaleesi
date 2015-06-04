@@ -12,18 +12,6 @@
 
     - name: update all packages
       yum: name=* state=latest
-      when: yum_update | bool
-
-    - name: reboot host
-      sudo: no
-      local_action:
-        wait_for_ssh
-          reboot_first=true
-          ssh_opts="-F ../../../ssh.config.ansible"
-          host="{{ ansible_ssh_host }}"
-          user="{{ ansible_ssh_user }}"
-          key="{{ ansible_ssh_private_key_file }}"
-          sudo=false
 
 - name: Create the stack user on the undercloud
   hosts: undercloud
