@@ -43,7 +43,7 @@
   hosts: undercloud
   tasks:
     - name: get instackenv.json
-      synchronize: src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/settings/installer/rdo_manager/env/{{installer.env.model}}-env.json dest={{ instack_user_home }}/instackenv.json
+      synchronize: src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/instackenv.json dest={{ instack_user_home }}/instackenv.json
 
     - name: chown instackenv.json
       file: path={{ instack_user_home }}/instackenv.json owner=stack group=stack
