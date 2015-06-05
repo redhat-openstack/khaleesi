@@ -11,7 +11,7 @@
     - name: set fact stack user home
       set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
 
-- name: build images
+- name: build or import images
   hosts: undercloud
   tasks:
     - name: setup environment vars
@@ -20,11 +20,31 @@
     - name: ensure /tmp/svc-map-services is absent
       file: path=/tmp/svc-map-services state=absent
       sudo: yes
+      when: installer.overcloud_images | default('build') == "build"
 
     - name: build all the images
       shell: >
           source {{ instack_user_home }}/build-img-env;
           instack-build-images
+      when: installer.overcloud_images | default('build') == "build"
+
+    - name: download the pre-built rdo-manager images
+      get_url: url="{{ installer.images[product.name][product.version][distro.name][distro.version]}}{{ item }}.tar"
+                    dest={{ instack_user_home }}
+                    force=no
+      with_items:
+        - deploy-ramdisk-ironic
+        - discovery-ramdisk
+        - overcloud-full
+      when: installer.overcloud_images is defined and installer.overcloud_images == "import"
+
+    - name: untar the overcloud images
+      shell: tar -xvf "{{ instack_user_home }}/{{ item }}.tar"
+      with_items:
+        - deploy-ramdisk-ironic
+        - discovery-ramdisk
+        - overcloud-full
+      when: installer.overcloud_images is defined and installer.overcloud_images == "import"
 
     - name: prepare for overcloud by loading the images into glance
       command: instack-prepare-for-overcloud
@@ -70,7 +90,7 @@
       shell: >
           source {{ instack_user_home }}/stackrc;
           if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then source {{ instack_user_home }}/deploy-overcloudrc; fi;
-          export CEPHSTORAGESCALE={{ installer.node.cephstorage.scale | default ('0') }};
+          export CEPHSTORAGESCALE={{ installer.nodes.cephstorage.scale | default ('0') }};
           instack-deploy-overcloud --tuskar
 
     - name: print result of instack-deploy-overcloud install

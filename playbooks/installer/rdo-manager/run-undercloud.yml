@@ -76,7 +76,7 @@
 
     - name: copy template file with baremetal environment variables
       template:
-        src=../templates/deploy-overcloudrc-baremetal.j2
+        src=templates/deploy-overcloudrc-baremetal.j2
         dest={{ instack_user_home }}/deploy-overcloudrc
         mode=0755
 

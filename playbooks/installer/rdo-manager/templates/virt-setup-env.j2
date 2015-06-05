@@ -27,6 +27,6 @@ export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_versio
 export NODE_DIST=centos7
 {%endif %}
 
-{% if installer.node.node_count is defined %}
-export NODE_COUNT={{ nodes.node_count | default('2') }}
+{% if installer.nodes.node_count is defined %}
+export NODE_COUNT={{ installer.nodes.node_count | default('2') }}
 {%endif %}

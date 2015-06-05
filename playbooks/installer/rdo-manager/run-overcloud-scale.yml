@@ -7,7 +7,7 @@
 
     - name: set node type to scale
       set_fact: node_to_scale={{item}}
-      when: installer.node.{{item}}.scale_change is defined
+      when: installer.nodes.{{item}}.scale_change is defined
       with_items:
         - compute
         - cephstorage
