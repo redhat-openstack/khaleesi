@@ -22,6 +22,10 @@
       sudo: yes
       when: installer.overcloud_images | default('build') == "build"
 
+    - name: Contents of build-img-env
+      shell: >
+          cat {{ instack_user_home }}/build-img-env
+
     - name: build all the images
       shell: >
           source {{ instack_user_home }}/build-img-env;

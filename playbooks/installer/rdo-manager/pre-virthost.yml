@@ -123,6 +123,10 @@
     - name: setup environment vars
       template: src=templates/virt-setup-env.j2 dest=~/virt-setup-env mode=0755
 
+    - name: Contents of virt-setup-env
+      shell: >
+        cat {{ instack_user_home }}/virt-setup-env
+
     - name: run instack-virt-setup
       shell: >
         source {{ instack_user_home }}/virt-setup-env;
