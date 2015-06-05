@@ -32,6 +32,17 @@
       chdir={{ build_dir }}/instack-undercloud
       git tag -d {{ lookup('env', 'BUILD_TAG') }} || /bin/true
 
+- name: Configure git user for tagging
+  shell: >
+      chdir={{ build_dir }}/instack-undercloud
+      git config user.name "Jenkins";
+      git config user.email "jenkins@redhat.com";
+
+- name: Add a high version tag to make sure the package will not get updated
+  shell: >
+      chdir={{ build_dir }}/instack-undercloud
+      git tag -a 999.9.9 -m "Tag for gating"
+
 - name: get version of package
   shell: >
       chdir={{ build_dir }}/instack-undercloud

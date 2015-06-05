@@ -104,7 +104,7 @@
 
 - name: remove any instack rpms from the host
   yum: name={{item}} state=absent
-  with_items:
+  with_flattened:
     - instack-undercloud
     - rdo-release
     - rhos-release
@@ -114,6 +114,16 @@
     - NetworkManager
     - qemu-*
     - openstack-*
+    - python-qpid-*
+    - pexpect
+    - python-pexpect
+    - python-tuskarclient*
+    - python-oslo*
+    - python-keystone*
+    - python-openstackclient
+    - python-qpid
+    - python-ironic*
+    - python-eventlet
   notify:
     - reboot
     - Wait for host to stop

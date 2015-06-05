@@ -1,0 +1,5 @@
+---
+- name: scale down overcloud nodes
+  hosts: undercloud
+  roles:
+   - rdo-manager/delete-nodes

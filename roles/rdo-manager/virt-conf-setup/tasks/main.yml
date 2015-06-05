@@ -1,0 +1,7 @@
+---
+- name: copy template file with virt environment variables
+  template:
+    src=deploy-overcloudrc-virt.j2
+    dest={{ instack_user_home }}/deploy-overcloudrc
+    mode=0755
+
