@@ -21,3 +21,9 @@
         shell: "{{ product.name }}-release {{ product.version|int }}"
         register: shell_result
         changed_when: "shell_result == 0"
+
+- name: Get build details
+  hosts: controller
+  sudo: no
+  roles:
+    - build_mark/build
