@@ -117,6 +117,13 @@
           source {{ instack_user_home }}/stackrc;
           heat resource-show overcloud ControllerNodesPostDeployment;
 
+    - name: debug all deployment failures
+      when: result.rc != 0
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          for failed_deployment in $(heat resource-list --nested-depth 5 overcloud | grep FAILED | grep 'StructuredDeployment ' | cut -d '|' -f3); do heat deployment-show $failed_deployment; done;
+
     - name: grep for errors in heat-engine.log
       when: result.rc != 0
       sudo: yes
