@@ -13,10 +13,10 @@
     - redhat-lsb-core
     - rsync
 
-- name: restart the network on baremetal
+- name: restart the network if env requires
   service: name=network state=restarted
   ignore_errors: yes
-  when: (hw_env.env_type is defined and hw_env.env_type == 'dell_stamp13')
+  when: installer.network_restart is defined and installer.network_restart == True
 
 - name: disable NetworkManager
   service: name=NetworkManager state=stopped enabled=no
@@ -44,4 +44,3 @@
 
 - name: collect performance data, vmstat
   command: vmstat
-

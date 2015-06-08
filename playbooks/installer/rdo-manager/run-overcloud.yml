@@ -94,7 +94,7 @@
       shell: >
           source {{ instack_user_home }}/stackrc;
           if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then source {{ instack_user_home }}/deploy-overcloudrc; fi;
-          export CEPHSTORAGESCALE={{ installer.nodes.cephstorage.scale | default ('0') }};
+          export CEPHSTORAGESCALE={{ installer.nodes.cephstorage.scale | default ('1') }};
           instack-deploy-overcloud --tuskar
 
     - name: print result of instack-deploy-overcloud install
