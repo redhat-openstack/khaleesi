@@ -83,16 +83,6 @@
     - name: copy instackenv.json to nodes.json
       shell: cp {{ instack_user_home }}/instackenv.json {{ instack_user_home }}/nodes.json
 
-    - name: copy vendor-specific setup file
-      synchronize: >
-        src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
-        delegate_to: local
-
-    - name: execute vendor-specific setup
-      shell: >
-        chmod 755 {{ instack_user_home }}/vendor_specific_setup;
-        {{ instack_user_home }}/vendor_specific_setup
-
     - name: installing python-six (workaround)
       yum: name=python-six state=present
       sudo: yes
@@ -120,3 +110,17 @@
       with_items:
         - tripleo-undercloud-passwords
         - stackrc
+
+- name: Execute vendor-specific setup for baremetal environment
+  hosts: undercloud:&baremetal
+  tasks:
+    - name: copy vendor-specific setup file
+      synchronize: >
+        src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
+        delegate_to: local
+
+    - name: execute vendor-specific setup
+      shell: >
+        chmod 755 {{ instack_user_home }}/vendor_specific_setup;
+        {{ instack_user_home }}/vendor_specific_setup
+
