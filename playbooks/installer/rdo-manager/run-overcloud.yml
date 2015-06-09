@@ -163,6 +163,49 @@
       sudo: yes
       shell: "for i in `ls /etc/edeploy/`;do echo $i; cat /etc/edeploy/$i;done"
 
-    - name: fail playbook when deploy-overcloud fails
-      command: echo "deploy-overcloud failed, see the above debug information"
+    - name: copy the undercloud id_rsa key back to the slave
+      fetch: src=~/.ssh/id_rsa dest=../../../id_rsa_undercloud flat=yes
+
+    - name: copy get-overcloud-nodes.py to undercloud
+      template: src=templates/get-overcloud-nodes.py.j2 dest={{ instack_user_home }}/get-overcloud-nodes.py mode=0755
+
+    - name: fetch overcloud node names and IPs
+      register: overcloud_nodes
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          python {{ instack_user_home }}/get-overcloud-nodes.py
+
+    - name: add each overcloud node to ansible
+      with_dict: overcloud_nodes.stdout
+      ignore_errors: yes
+      add_host:
+        name={{ item.key }}
+        groups=overcloud
+        ansible_ssh_host={{ item.value }}
+        ansible_fqdn={{ item.value }}
+        ansible_ssh_user="heat-admin"
+        ansible_ssh_private_key_file="{{ lookup('env', 'PWD') }}/id_rsa_undercloud"
+
+- name: regenerate the inventory file after adding hosts
+  hosts: localhost
+  tasks:
+    - name: create inventory from template
+      template:
+        dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+        src: ../../provisioner/templates/inventory.j2
+
+    - name: symlink inventory to a static name
+      file:
+        dest: "{{ lookup('env', 'PWD') }}/hosts"
+        state: link
+        src: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+
+    - name: regenerate ssh config
+      template: src=templates/ssh_config.j2 dest=../../../ssh.config.ansible mode=0755
+
+- name: fail playbook when instack-deploy-overcloud fails
+  hosts: undercloud
+  tasks:
+    - command: echo "instack-deploy-overcloud failed, see the above debug information"
       failed_when: result.rc != 0

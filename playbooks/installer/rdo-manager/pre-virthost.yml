@@ -200,13 +200,15 @@
       when: undercloud_ip is not defined
       register: undercloud_vm_ip_result
 
+    - name: set_fact for undercloud ip
+      set_fact: undercloud_ip={{ undercloud_vm_ip_result.stdout }}
+
     - name: wait until ssh is available on undercloud node
-      wait_for: host={{ undercloud_vm_ip_result.stdout }}
+      wait_for: host={{ undercloud_ip }}
             state=started
             port=22
             delay=15
             timeout=300
-      when: undercloud_ip is not defined
 
     - name: add undercloud host
       add_host:
@@ -216,33 +218,6 @@
         ansible_fqdn=undercloud
         ansible_ssh_user="{{ provisioner.remote_user }}"
         ansible_ssh_private_key_file="{{ provisioner.key_file }}"
-      when: undercloud_ip is not defined
-
-    - name: set_fact for undercloud ip
-      set_fact: undercloud_ip={{undercloud_vm_ip_result.stdout}}
-      when: undercloud_ip is not defined
-
-    - name: test for undercloud hostvar for overcloud controller ip
-      debug: msg="{{ hostvars['undercloud']['controller_ip'] }}"
-      when: hostvars['undercloud']['controller_ip'] is defined
-
-    - name: set overcloud ip fact
-      set_fact: controller_ip={{ hostvars['undercloud']['controller_ip'] }}
-      when: hostvars['undercloud']['controller_ip'] is defined
-
-    - name: add controller host if defined
-      add_host:
-        name=controller
-        groups=controller
-        ansible_ssh_host=controller
-      when: hostvars['undercloud']['controller_ip'] is defined
-
-    - name: add tempest host
-      add_host:
-        name=tester
-        groups=tester
-        ansible_ssh_host=undercloud
-      when: hostvars['undercloud']['controller_ip'] is defined
 
     - name: setup ssh config
       template: src=templates/ssh_config.j2 dest=~/ssh.config.ansible mode=0755
@@ -269,6 +244,7 @@
       template:
         dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
         src: ../../provisioner/templates/inventory.j2
+
     - name: symlink inventory to a static name
       file:
         dest: "{{ lookup('env', 'PWD') }}/hosts"
