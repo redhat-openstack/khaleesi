@@ -74,12 +74,6 @@
         line="127.0.1.1 {{ short_hostname.stdout }} {{ full_hostname.stdout }}"
       sudo: yes
 
-    - name: copy template file with baremetal environment variables
-      template:
-        src=templates/deploy-overcloudrc-baremetal.j2
-        dest={{ instack_user_home }}/deploy-overcloudrc
-        mode=0755
-
     - name: copy instackenv.json to nodes.json
       shell: cp {{ instack_user_home }}/instackenv.json {{ instack_user_home }}/nodes.json
 
@@ -110,6 +104,12 @@
       with_items:
         - tripleo-undercloud-passwords
         - stackrc
+
+    - name: copy template file with environment variables for overcloud deploy
+      template:
+        src=templates/deploy-overcloudrc-{{ installer.env.type }}.j2
+        dest={{ instack_user_home }}/deploy-overcloudrc
+        mode=0755
 
 - name: Execute vendor-specific setup for baremetal environment
   hosts: undercloud:&baremetal

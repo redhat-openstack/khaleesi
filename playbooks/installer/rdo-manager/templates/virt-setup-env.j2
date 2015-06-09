@@ -27,6 +27,13 @@ export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_versio
 export NODE_DIST=centos7
 {%endif %}
 
-{% if installer.nodes.node_count is defined %}
-export NODE_COUNT={{ installer.nodes.node_count | default('2') }}
+export NODE_COUNT={{ installer.nodes.node_count | default('3') }}
+
+{% if installer.nodes.node_mem is defined %}
+export NODE_MEM={{ installer.nodes.node_mem | default('4096') }}
 {%endif %}
+
+{% if installer.nodes.undercloud_node_mem is defined %}
+export UNDERCLOUD_NODE_MEM={{ installer.nodes.undercloud_node_mem | default('4096') }}
+{%endif %}
+

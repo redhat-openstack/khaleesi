@@ -105,7 +105,6 @@
           if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then
               source {{ instack_user_home }}/deploy-overcloudrc;
           fi;
-          export CEPHSTORAGESCALE={{ installer.nodes.cephstorage.scale | default ('1') }};
           openstack overcloud deploy --plan-uuid {{ overcloud_uuid.stdout }};
 
     - name: set overcloud controller ip
