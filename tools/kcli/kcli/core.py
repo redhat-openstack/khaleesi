@@ -94,7 +94,7 @@ def execute_ansible(playbook, args):
     utils.VERBOSITY = args.verbose
     hosts = args.inventory or (LOCAL_HOSTS if playbook == PROVISION
                                else HOSTS_FILE)
-    playbook += ".yml"
+    playbook = playbook.replace("-", "_") + ".yml"
     path_to_playbook = os.path.join(PATH_TO_PLAYBOOKS, playbook)
 
     # From ansible-playbook:
