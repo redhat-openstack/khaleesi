@@ -1,4 +1,26 @@
 ---
+- name: set required facts
+  hosts: tester
+  tasks:
+      - name: compute the directory basename
+        set_fact: component_basename={{ component.dir.split('/')|last }}
+
+      - name: find the test dependencies file used for the test-run
+        set_fact: test_deps_file="{{ component.dir + '/jenkins-config.yml' }}" #"
+
+- name: load test config
+  hosts: tester
+  tasks:
+      - name: load config
+        include_vars: "{{test_deps_file}}"
+        register: result
+
+      - name: set test_distro
+        set_fact: test_distro="{{ ansible_distribution + '-' + ansible_distribution_version }}" #"
+
+      - name: set test_env
+        set_fact: test_env="{{ test_config.virt[test_distro] }}" #"
+
 - name: Setup openstack repos
   hosts: all:!local
   gather_facts: yes
@@ -21,7 +43,11 @@
       - name: Create the COPR repos required for component tests
         template: src=templates/apevec-copr-repo.j2 dest=/etc/yum.repos.d/apevec-copr.repo
         sudo: yes
-        when: ansible_distribution_version|int >= 7
+        when: ansible_distribution_version|int >= 6
+
+      - name: Create the RHOS poodle repository
+        shell: "rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.version|int }}"
+        when: product.repo_type in ['poodle']
 
 - name: print out test env
   hosts: tester
@@ -35,27 +61,6 @@
 
       - name: test environment name
         debug: var=test.env_name
-
-- name: set required facts
-  hosts: tester
-  tasks:
-      - name: compute the directory basename
-        set_fact: component_basename={{ component.dir.split('/')|last }}
-
-      - name: find the test dependencies file used for the test-run
-        set_fact: test_deps_file="{{ component.dir + '/jenkins-config.yml' }}" #"
-
-- name: load test config
-  hosts: tester
-  tasks:
-      - name: load config
-        include_vars: "{{test_deps_file}}"
-
-      - name: set test_distro
-        set_fact: test_distro="{{ ansible_distribution + '-' + ansible_distribution_version }}" #"
-
-      - name: set test_env
-        set_fact: test_env="{{ test_config.virt[test_distro] }}" #"
 
 - name: rsync component git repo to tester
   hosts: tester
