@@ -1,0 +1,16 @@
+{% if installer.nodes.compute.scale_change is defined %}
+export NODE_TO_DELETE_TYPE={{installer.nodes.compute.nova_list_type}}
+{%endif %}
+
+{% if installer.nodes.blockstorage.scale_change is defined %}
+export NODE_TO_DELETE_TYPE={{installer.nodes.blockstorage.nova_list_type}}
+{%endif %}
+
+{% if installer.nodes.swiftstorage.scale_change is defined %}
+export NODE_TO_DELETE_TYPE={{installer.nodes.swiftstorage.nova_list_type}}
+{%endif %}
+
+{% if installer.nodes.cephstorage.scale_change is defined %}
+export NODE_TO_DELETE_TYPE={{installer.nodes.cephstorage.nova_list_type}}
+{%endif %}
+

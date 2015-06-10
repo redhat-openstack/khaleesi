@@ -7,7 +7,7 @@
 
     - name: set node type to scale
       set_fact: node_to_scale={{item}}
-      when: nodes.{{item}}.scale_change is defined
+      when: installer.nodes.{{item}}.scale_change is defined
       with_items:
         - compute
         - cephstorage
@@ -15,12 +15,13 @@
         - swiftstorage
 
     - name: setup vars
-      template: src=scale-setup-env.j2 dest=~/scale-setup-env mode=0755
+      template: src=templates/scale-setup-env.j2 dest=~/scale-setup-env mode=0755
       when: node_to_scale is defined
 
     - name: Contents of scale-setup-env
       shell: >
         cat {{ instack_user_home }}/scale-setup-env
+      when: node_to_scale is defined
 
     - name: scale overcloud nodes
       shell: >
