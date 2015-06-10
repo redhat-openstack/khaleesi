@@ -4,6 +4,11 @@ python tools/config_tempest.py \
   --out etc/tempest.conf \
   --debug  \
   --create \
+  {% if tester.tempest.config_options is defined %}
+    {% for opt in tester.tempest.config_options %}
+      {{ opt }} \
+    {% endfor %}
+  {% endif %}
   identity.uri http://{{ hostvars[provisioner.nodes.controller.name].ansible_default_ipv4.address }}:5000/v2.0/ \
   compute.allow_tenant_isolation true \
   object-storage.operator_role SwiftOperator \
