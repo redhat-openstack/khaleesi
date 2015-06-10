@@ -130,7 +130,7 @@ timeout=${timeout:-300}       # how many seconds before this script fails if it 
 min_reached_count=${min_reached_count:-3}
 delay=${delay:-0.3}           # how long to wait between retrying ssh (low is better, though it means more traffic)
 conntimeout=${conntimeout:-7} # (soft) timeout for ssh connection
-connkill=${connkill:-10}       # hard timeout for ssh connection
+connkill=${connkill:-20}       # hard timeout for ssh connection
 ssh_opts="${ssh_opts:-}"
 ssh_opts="$ssh_opts -vvvv -n"
 
@@ -179,9 +179,8 @@ fi
 
 if $reboot_first; then
     CHANGED="true"
-    echo "Rebooting host $host with ${cmd_reboot}..."
 
-    # fetch the boottime first
+    echo "Fetching original boottime of host $host with ${cmd_boottime}..."
     output=$(timeout -s KILL ${connkill}s $ssh  "$cmd_boottime" 2> >(log_debug) < /dev/null)
     last_rc=$?
     log_debug "sshout: $output"
@@ -192,6 +191,7 @@ if $reboot_first; then
         finish $E_REBOOTFAILED
     fi
 
+    echo "Rebooting host $host with ${cmd_reboot}..."
     output=$(timeout -s KILL ${connkill}s $ssh -tt "$cmd_reboot" 2> >(log_debug) < /dev/null)
     last_rc=$?
     log_debug "sshout: $output"
