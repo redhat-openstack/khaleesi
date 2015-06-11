@@ -29,7 +29,7 @@
     - name: build all the images
       shell: >
           source {{ instack_user_home }}/build-img-env;
-          instack-build-images
+          instack-build-images > {{ instack_user_home }}/instack-build-images.log
       when: installer.overcloud_images | default('build') == "build"
 
     - name: download the pre-built rdo-manager images
