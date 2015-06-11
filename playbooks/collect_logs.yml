@@ -84,5 +84,5 @@
       ignore_errors: true
 
     - name: fetch log archive (gzip)
-      fetch: src=/tmp/{{ inventory_hostname }}.tar.gz flat=yes dest=../collected_files/{{ inventory_hostname }}.tar.gzip
+      fetch: src=/tmp/{{ inventory_hostname }}.tar.gz flat=yes dest=../collected_files/{{ inventory_hostname }}.tar.gz
       ignore_errors: true
