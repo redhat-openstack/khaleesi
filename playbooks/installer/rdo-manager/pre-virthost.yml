@@ -147,6 +147,7 @@
     - name: inspect virsh capabilities
       command: 'virsh capabilities'
       sudo: yes
+      when: "instack_virt_setup_result.rc != 0"
       # workaround for the SATA error RHBZ#1195882
 
     - name: remove libvirt qemu capabilities cache
@@ -168,16 +169,19 @@
       command: ip link set virbr0 down
       sudo: yes
       ignore_errors: true
+      when: "instack_virt_setup_result.rc != 0"
 
     - name: delete libvirt bridge virbr0
       command: brctl delbr virbr0
       sudo: yes
       ignore_errors: true
+      when: "instack_virt_setup_result.rc != 0"
 
     - name: start default libvirt network
       command: virsh net-start default
       sudo: yes
       ignore_errors: true
+      when: "instack_virt_setup_result.rc != 0"
 
     - name: retry run instack-virt-setup
       shell: >
