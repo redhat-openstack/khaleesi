@@ -111,7 +111,7 @@
 
 - name: Create the COPR repos required for component tests
   template: src=apevec-copr-repo.j2 dest=/etc/yum.repos.d/apevec-copr.repo
-  when: (test.type.name is defined and (test.type.name == 'unit-test' or test.type.name == 'pep8-test') and ansible_distribution_version|int >= 7)
+  when: (test.type.name is defined and (test.type.name == 'unit-test' or test.type.name == 'pep8-test') and ansible_distribution_version|int >= 6)
 
 - name: Change poodle version for repos in rhos-release
   shell: "rhos-release  -x {{ product.version|int }}; rhos-release  {{ product.version|int }} -d -p {{ product.repo.poodle_pin_version }}"
