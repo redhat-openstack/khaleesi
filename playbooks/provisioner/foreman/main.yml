@@ -1,0 +1,53 @@
+---
+- name: Rebuild nodes - Foreman
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Rebuild nodes
+      foreman_provisioner:
+           auth_url: "{{ provisioner.foreman.auth_url }}"
+           username: "{{ provisioner.foreman.username }}"
+           password: "{{ provisioner.foreman.password }}"
+           host_id: "{{ item.value.hostname }}"
+           rebuild: "{{ item.value.rebuild|lower }}"
+           wait_for_host: "{{ provisioner.foreman.wait_for_host|lower }}"
+      retries: 4
+      with_dict: provisioner.nodes
+      register: created_nodes
+
+    - name: Add created hosts to host list
+      add_host:
+        name="{{ item.item.value.name }}"
+        groups="{{ item.item.value.groups
+            if item.item.value.groups is string
+            else item.item.value.groups| join(',') }}"
+        ansible_fqdn="{{ item.item.value.hostname }}"
+        ansible_ssh_user="{{ item.item.value.remote_user }}"
+        ansible_ssh_private_key_file="{{ provisioner.key_file }}"
+        ansible_ssh_host={%- if item.host.ip %}{{ item.host.ip }}{%- else %}{{ item.host.name }}{% endif %}
+      with_items: created_nodes.results
+
+- name: Update network interfaces on nodes - Foreman
+  hosts: openstack_nodes
+  gather_facts: yes
+  sudo: yes
+  tasks:
+      #TODO(tkammer): extract this section into "common" for provisioners
+    - name: updating host short name
+      set_fact: inventory_hostname_short="{{ inventory_hostname.split('-')|last }}"
+
+    - name: Setup networking (interfaces)
+      template:
+            src: ../templates/ifcfg-interface.j2
+            dest: /etc/sysconfig/network-scripts/ifcfg-{{ item.value.label }}
+            owner: root
+            group: root
+            mode: 644
+      with_dict:
+          provisioner.nodes[inventory_hostname_short].network.interfaces
+      register: update_ifcfgs
+
+    - local_action:
+        module: wait_for_ssh reboot_first=true host={{ hostvars[inventory_hostname].ansible_ssh_host }} user={{ hostvars[inventory_hostname].ansible_ssh_user }} key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
+      when: update_ifcfgs|changed
+      sudo: no
