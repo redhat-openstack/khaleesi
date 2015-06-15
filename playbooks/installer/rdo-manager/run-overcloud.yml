@@ -56,6 +56,16 @@
 - name: register and discover nodes
   hosts: undercloud
   tasks:
+    - name: register bm nodes with openstack cli
+      register: result
+      retries: 10
+      delay: 10
+      until: result.rc == 0
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          openstack baremetal import --json instackenv.json;
+
+
     - name: register bm nodes with ironic
       register: result
       retries: 10
@@ -63,17 +73,29 @@
       until: result.rc == 0
       shell: >
           source {{ instack_user_home }}/stackrc;
-          instack-ironic-deployment --nodes-json instackenv.json --register-nodes;
+          openstack baremetal configure boot
 
-    - name: discover nodes
-      register: result
-      retries: 5
-      delay: 10
-      until: result.stdout.find('DISCOVERED.') != -1
-      failed_when: "'ERROR:' in result.stdout"
+    - name: assign kernel and ramdisk to nodes
       shell: >
           source {{ instack_user_home }}/stackrc;
-          instack-ironic-deployment  --discover-nodes;
+          openstack baremetal configure boot;
+
+    - name: introspect nodes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          openstack baremetal introspection bulk start;
+
+    - name: check instrospections status
+      register: result
+      retries: 45
+      delay: 20
+      until: result.rc == 0
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          OUTPUT=$(openstack baremetal introspection bulk status)
+          TOTAL_NODES=$(echo "$OUTPUT" | grep -E '\w{8}-\w{4}' | wc -l)
+          INTROSPECTED_NODES=$(echo "$OUTPUT" | grep -E ' True *\| *None ' | wc -l)
+          [ "$TOTAL_NODES" == "$INTROSPECTED_NODES" ]
 
     - name: show profile
       shell: >
@@ -83,7 +105,8 @@
     - name: setup flavors
       shell: >
           source {{ instack_user_home }}/stackrc;
-          instack-ironic-deployment --setup-flavors
+          openstack flavor create --id auto --ram 4096 --disk 40 --vcpus 1 baremetal;
+          openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" baremetal;
 
 - name: deploy the overcloud
   hosts: undercloud
