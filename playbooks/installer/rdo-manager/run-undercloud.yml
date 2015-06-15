@@ -105,12 +105,6 @@
         - tripleo-undercloud-passwords
         - stackrc
 
-    - name: copy template file with environment variables for overcloud deploy
-      template:
-        src=templates/deploy-overcloudrc-{{ installer.env.type }}.j2
-        dest={{ instack_user_home }}/deploy-overcloudrc
-        mode=0755
-
 - name: Execute vendor-specific setup for baremetal environment
   hosts: undercloud:&baremetal
   tasks:

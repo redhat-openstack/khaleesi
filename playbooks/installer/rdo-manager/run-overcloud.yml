@@ -60,20 +60,20 @@
   hosts: undercloud
   tasks:
     - name: register bm nodes with openstack cli
-      register: result
+      register: register_nodes_result
       retries: 10
       delay: 10
-      until: result.rc == 0
+      until: register_nodes_result.rc == 0
       shell: >
           source {{ instack_user_home }}/stackrc;
           openstack baremetal import --json instackenv.json;
 
 
     - name: register bm nodes with ironic
-      register: result
+      register: register_nodes_result
       retries: 10
       delay: 10
-      until: result.rc == 0
+      until: register_nodes_result.rc == 0
       shell: >
           source {{ instack_user_home }}/stackrc;
           openstack baremetal configure boot
@@ -89,10 +89,10 @@
           openstack baremetal introspection bulk start;
 
     - name: check instrospections status
-      register: result
+      register: introspection_result
       retries: 45
       delay: 20
-      until: result.rc == 0
+      until: introspection_result.rc == 0
       shell: >
           source {{ instack_user_home }}/stackrc;
           OUTPUT=$(openstack baremetal introspection bulk status)
@@ -111,177 +111,75 @@
           openstack flavor create --id auto --ram 4096 --disk 40 --vcpus 1 baremetal;
           openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" baremetal;
 
+- name: Copy over and modify network config template
+  hosts: undercloud:&baremetal
+  tasks:
+    - name: check that network config file exists
+      stat: path="{{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.network_config_name  | replace('_', '-') }}/{{ installer.network.network_config_name  | replace('_', '-') }}.yaml"
+      register: network_config_file_present
+      when:  installer.network.network_config_name is defined
+
+    - name: copy over template file
+      synchronize: >
+        src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.network_config_name  | replace('_', '-') }}/{{ installer.network.network_config_name  | replace('_', '-') }}.yaml dest={{ instack_user_home }}/network_environment.yaml
+      when: installer.network.network_config_name is defined
+
+    - name: copy over nic-configs directory
+      synchronize: >
+        src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.network_config_name  | replace('_', '-') }}/nic-configs dest={{ instack_user_home }}/
+      when: installer.network.network_config_name is defined and installer.network.network_config_name != 'default'
+
+    - name: poll for files to exist
+      wait_for: path={{ instack_user_home }}/swift-storage.yaml
+      when: installer.network.network_config_name is defined and installer.network.network_config_name != 'default'
+
 - name: deploy the overcloud
   hosts: undercloud
   tasks:
     - name: get plan list
-      register: overcloud_uuid
+      register: overcloud_uuid_result
       shell: >
           source {{ instack_user_home }}/stackrc;
-          if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then
-              source {{ instack_user_home }}/deploy-overcloudrc;
-          fi;
           openstack management plan list | grep overcloud | cut -d " " -f2
+
+    - name: set fact for openstack management plan
+      set_fact:
+        overcloud_uuid: "{{ overcloud_uuid_result.stdout }}"
+
+    - name: copy template file with environment variables for overcloud deploy
+      template:
+        src=templates/deploy-overcloudrc.j2
+        dest={{ instack_user_home }}/deploy-overcloudrc
+        mode=0755
 
     - name: echo deploy command
       register: overcloud_deploy_command
       shell: >
           source {{ instack_user_home }}/stackrc;
-          if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then
-            source {{ instack_user_home }}/deploy-overcloudrc;
-          fi;
-          echo "openstack overcloud deploy --plan-uuid {{ overcloud_uuid.stdout }} --control-scale $CONTROLSCALE --compute-scale $COMPUTESCALE --ceph-storage-scale $CEPHSTORAGESCALE"
-
-    - name: run command
-      shell: echo {{ overcloud_deploy_command.stdout }}
+          source {{ instack_user_home }}/deploy-overcloudrc;
+          echo $DEPLOY_COMMAND
 
     - name: deploy-overcloud
-      register: result
+      register: overcloud_deployment_result
       ignore_errors: yes
       shell: >
           source {{ instack_user_home }}/stackrc;
-          if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then
-              source {{ instack_user_home }}/deploy-overcloudrc;
-          fi;
-          {{ overcloud_deploy_command.stdout }}
+          {{ overcloud_deploy_command.stdout }} &> overcloud_deployment_console.log
 
-    - name: does overcloud need post config
-      ignore_errors: yes
-      shell: >
-        source {{ instack_user_home }}/stackrc;
-        openstack --help | grep "overcloud postconfig";
-      register: needs_postconfig
+    - name: echo deploy-overcloud return code
+      debug: var=overcloud_deployment_result.rc
 
-    - name: set overcloud controller ip
-      when: needs_postconfig.rc == 0
-      shell: >
-        source {{ instack_user_home }}/stackrc;
-        heat output-show overcloud KeystoneURL | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}";
-      register: overcloud_controller_ip
-
-    - name: openstack post config
-      when: result.rc == 0 and needs_postconfig.rc == 0
-      shell: >
-          source {{ instack_user_home }}/overcloudrc;
-          openstack overcloud postconfig {{ overcloud_controller_ip.stdout }}
-
-    - name: print result of deploy-overcloud install
-      debug: var=result.stdout_lines
-      when: result.rc == 0
-
-    - name: See the overcloud deployment
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          heat stack-list;
-          nova list;
-          openstack baremetal list;
-          openstack server list;
-
-- name: Group hosts in gate if we are gating
-  hosts: all
-  tasks:
-    - group_by: key=gate
-
-      when: "\"\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
-
-- name: Run non gating tasks
-  hosts: undercloud:!gate
-  tasks:
-    - name: run overcloud tests
-      ignore_errors: yes
-      when: result.rc == 0
-      shell: >
-          source {{ instack_user_home }}/overcloudrc;
-          openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL --overcloud-admin-password "$OS_PASSWORD" --tempest-args {{ installer.tempest.test_regex }}
-
-    - name: fetch tempest result
-      fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes
-
-- name: Get debug infos
-  hosts: undercloud
-  tasks:
-    - name: debug deploy-overcloud failure
-      when: result.rc != 0
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          heat resource-list overcloud;
-          heat event-list overcloud;
-
-    - name: debug deploy-overcloud failure
-      when: result.rc != 0
+    - name: heat stack-list
       ignore_errors: yes
       shell: >
           source {{ instack_user_home }}/stackrc;
-          heat resource-show overcloud ControllerNodesPostDeployment;
+          heat stack-list
 
-    - name: debug all deployment failures
-      when: result.rc != 0
-      ignore_errors: yes
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          for failed_deployment in $(heat resource-list --nested-depth 5 overcloud | grep FAILED | grep 'StructuredDeployment ' | cut -d '|' -f3); do heat deployment-show $failed_deployment; done;
+    - name: overcloud deployment logs
+      debug: msg=" Please refer to the undercloud log file for detailed status. The deployment debug logs are stored under /home/stack"
 
-    - name: grep for errors in heat-engine.log
-      when: result.rc != 0
-      sudo: yes
-      command: "grep ERROR /var/log/heat/heat-engine.log"
+    - name: set fact overcloud_deployment_result
+      set_fact:
+        overcloud_deployment_result: "{{ overcloud_deployment_result.rc }}"
 
-    - name: show ironic nodes create template
-      when: result.rc != 0
-      template: src=templates/show_nodes.sh dest={{ instack_user_home }}/show_nodes.sh mode=0755
-
-    - name: show ironic nodes
-      when: result.rc != 0
-      shell: "{{ instack_user_home }}/show_nodes.sh"
-
-    - name: cat "/etc/edeploy"
-      when: result.rc != 0
-      sudo: yes
-      shell: "for i in `ls /etc/edeploy/`;do echo $i; cat /etc/edeploy/$i;done"
-
-    - name: copy the undercloud id_rsa key back to the slave
-      fetch: src=~/.ssh/id_rsa dest=../../../id_rsa_undercloud flat=yes
-
-    - name: copy get-overcloud-nodes.py to undercloud
-      template: src=templates/get-overcloud-nodes.py.j2 dest={{ instack_user_home }}/get-overcloud-nodes.py mode=0755
-
-    - name: fetch overcloud node names and IPs
-      register: overcloud_nodes
-      ignore_errors: yes
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          python {{ instack_user_home }}/get-overcloud-nodes.py
-
-    - name: add each overcloud node to ansible
-      with_dict: overcloud_nodes.stdout
-      ignore_errors: yes
-      add_host:
-        name={{ item.key }}
-        groups=overcloud
-        ansible_ssh_host={{ item.value }}
-        ansible_fqdn={{ item.value }}
-        ansible_ssh_user="heat-admin"
-        ansible_ssh_private_key_file="{{ lookup('env', 'PWD') }}/id_rsa_undercloud"
-
-- name: regenerate the inventory file after adding hosts
-  hosts: localhost
-  tasks:
-    - name: create inventory from template
-      template:
-        dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
-        src: ../../provisioner/templates/inventory.j2
-
-    - name: symlink inventory to a static name
-      file:
-        dest: "{{ lookup('env', 'PWD') }}/hosts"
-        state: link
-        src: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
-
-    - name: regenerate ssh config
-      template: src=templates/ssh_config.j2 dest=../../../ssh.config.ansible mode=0755
-
-- name: fail playbook when instack-deploy-overcloud fails
-  hosts: undercloud
-  tasks:
-    - command: echo "instack-deploy-overcloud failed, see the above debug information"
-      failed_when: result.rc != 0
+- include: run-overcloud-status.yml

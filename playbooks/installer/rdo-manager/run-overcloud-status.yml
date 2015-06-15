@@ -1,0 +1,131 @@
+---
+- name: test host connection
+  hosts: all:!localhost
+  tasks:
+    - name: set fact stack user home
+      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
+
+- name: Post deploy
+  hosts: undercloud
+  tasks:
+    - name: echo deploy-overcloud return code in status playbook
+      debug: var=overcloud_deployment_result
+
+    - name: print result of deploy-overcloud install
+      debug: var=overcloud_deployment_result.stdout_lines
+      when: overcloud_deployment_result == "0"
+
+    - name: See the overcloud deployment
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          heat stack-list;
+          nova list;
+          openstack baremetal list;
+          openstack server list;
+
+    - name: debug deploy-overcloud failure
+      when: overcloud_deployment_result != "0"
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          heat resource-list overcloud;
+          heat event-list overcloud;
+
+    - name: debug deploy-overcloud failure
+      when: overcloud_deployment_result != "0"
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          heat resource-show overcloud ControllerNodesPostDeployment;
+
+    - name: debug all deployment failures
+      when: overcloud_deployment_result != "0"
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          for failed_deployment in $(heat resource-list --nested-depth 5 overcloud | grep FAILED | grep 'StructuredDeployment ' | cut -d '|' -f3); do heat deployment-show $failed_deployment; done;
+
+    - name: grep for errors in heat-engine.log
+      when: overcloud_deployment_result != "0"
+      sudo: yes
+      command: "grep ERROR /var/log/heat/heat-engine.log"
+
+    - name: show ironic nodes create template
+      when: overcloud_deployment_result != "0"
+      template: src=templates/show_nodes.sh dest={{ instack_user_home }}/show_nodes.sh mode=0755
+
+    - name: show ironic nodes
+      when: overcloud_deployment_result != "0"
+      shell: "{{ instack_user_home }}/show_nodes.sh"
+
+    - name: cat "/etc/edeploy"
+      when: overcloud_deployment_result != "0"
+      sudo: yes
+      shell: "for i in `ls /etc/edeploy/`;do echo $i; cat /etc/edeploy/$i;done"
+
+    - name: copy the undercloud id_rsa key back to the slave
+      fetch: src=~/.ssh/id_rsa dest=../../../id_rsa_undercloud flat=yes
+
+    - name: copy get-overcloud-nodes.py to undercloud
+      template: src=templates/get-overcloud-nodes.py.j2 dest={{ instack_user_home }}/get-overcloud-nodes.py mode=0755
+
+    - name: fetch overcloud node names and IPs
+      register: overcloud_nodes
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          python {{ instack_user_home }}/get-overcloud-nodes.py
+
+    - name: add each overcloud node to ansible
+      with_dict: overcloud_nodes.stdout
+      ignore_errors: yes
+      add_host:
+        name={{ item.key }}
+        groups=overcloud
+        ansible_ssh_host={{ item.value }}
+        ansible_fqdn={{ item.value }}
+        ansible_ssh_user="heat-admin"
+        ansible_ssh_private_key_file="{{ lookup('env', 'PWD') }}/id_rsa_undercloud"
+
+- name: regenerate the inventory file after adding hosts
+  hosts: localhost
+  tasks:
+    - name: create inventory from template
+      template:
+        dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+        src: ../../provisioner/templates/inventory.j2
+
+    - name: symlink inventory to a static name
+      file:
+        dest: "{{ lookup('env', 'PWD') }}/hosts"
+        state: link
+        src: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+
+    - name: regenerate ssh config
+      template: src=templates/ssh_config.j2 dest=../../../ssh.config.ansible mode=0755
+
+- name: fail playbook when instack-deploy-overcloud fails
+  hosts: undercloud
+  tasks:
+    - command: echo "instack-deploy-overcloud failed, see the above debug information"
+      failed_when: overcloud_deployment_result != "0"
+
+#Execute Tempest
+- name: Group hosts in gate if we are gating
+  hosts: all
+  tasks:
+    - group_by: key=gate
+
+      when: "\"\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
+
+- name: Run non gating tasks
+  hosts: undercloud:!gate
+  tasks:
+    - name: run overcloud tests
+      ignore_errors: yes
+      when: result.rc == "0"
+      shell: >
+          source {{ instack_user_home }}/overcloudrc;
+          openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL --overcloud-admin-password "$OS_PASSWORD" --tempest-args {{ installer.tempest.test_regex }}
+
+    - name: fetch tempest result
+      fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes

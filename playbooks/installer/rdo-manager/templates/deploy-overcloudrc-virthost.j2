@@ -1,7 +1,0 @@
-#!/bin/bash
-export CONTROLSCALE={{ installer.nodes.controller.scale | default('1') }}
-export COMPUTESCALE={{ installer.nodes.compute.scale | default('1') }}
-export BLOCKSTORAGESCALE={{ installer.nodes.blockstorage.scale | default('0') }}
-export SWIFTSTORAGESCALE={{ installer.nodes.swiftstorage.scale | default ('0') }}
-export CEPHSTORAGESCALE={{ installer.nodes.cephstorage.scale | default ('1') }}
-export OVERCLOUD_PACEMAKER={{ installer.nodes.overcloud_pacemaker | default ('1') }}
