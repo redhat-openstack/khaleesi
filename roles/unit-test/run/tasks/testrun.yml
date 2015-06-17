@@ -30,7 +30,7 @@
 
 - name: copy test results to logs dir
   fetch: src="{{ component_path }}/{{ item }}"
-         dest=../../logs/ flat=yes
+         dest=../../../../logs/ flat=yes
   with_items: test_cfg.archive
 
 - name: pass or fail the test
