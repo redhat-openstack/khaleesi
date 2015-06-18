@@ -8,7 +8,6 @@
     - name: Install support packages for pip-based deps building
       yum: name={{ item }} state=present
       with_items:
-        - facter
         - gcc
         - git
         - libffi-devel
