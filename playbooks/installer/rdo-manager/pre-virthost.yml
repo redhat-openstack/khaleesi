@@ -73,10 +73,10 @@
         chdir={{ build_dir }}
         git clone https://github.com/rdo-management/instack-undercloud-packaging
 
-    - name: Remove the build tag if exists to get the proper version
+    - name: add a git tag to the instack-undercloud repo
       shell: >
         chdir={{ build_dir }}/instack-undercloud
-        git tag -d {{ lookup('env', 'BUILD_TAG') }} || /bin/true
+        git tag -a 999.9.9 -m "Tag for test build"
 
     - name: get version of package
       shell: >
