@@ -13,6 +13,7 @@
 
 - name: Write build information to file (puddle/poddle)
   sudo: yes
+  ignore_errors: yes
   copy:
     dest: /root/buildmark
     content: "{{ buildmark.msg }}"
