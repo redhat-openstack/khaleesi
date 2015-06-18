@@ -21,6 +21,15 @@ Host undercloud-from-virthost
     StrictHostKeyChecking no
 {%endif %}
 
+{% if groups["virthost"] is not defined %}
+Host {{ hostvars[groups['undercloud'][0]].ansible_ssh_host }}
+    Hostname {{ hostvars[groups['undercloud'][0]].ansible_ssh_host }}
+    IdentityFile ~/.ssh/id_rsa
+    IdentitiesOnly yes
+    User root
+    StrictHostKeyChecking no
+{%endif %}
+
 {% if groups["overcloud"] is defined %}
 {% for host in groups["overcloud"] %}
 Host {{ hostvars[host].ansible_ssh_host }}
