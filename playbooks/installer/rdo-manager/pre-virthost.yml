@@ -271,12 +271,21 @@
 
 - include: repo-{{ product.name }}.yml repo_host=undercloud
 
+- name: Group all hosts in gate if we are gating
+  hosts: all
+  tasks:
+    - set_fact:
+        gate_job: true
+      when: "\"\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
+
 - name: Install the custom instack-undercloud rpm when gating
-  hosts: undercloud:&gate
+  hosts: undercloud
   sudo: yes
   tasks:
     - name: ensure install-undercloud is not installed
       yum: name=instack-undercloud state=absent
+      when: gate_job is defined and gate_job == true
 
     - name: install the rpm we previously built
       shell: yum -y install /home/stack/instack-undercloud-*
+      when: gate_job is defined and gate_job == true
