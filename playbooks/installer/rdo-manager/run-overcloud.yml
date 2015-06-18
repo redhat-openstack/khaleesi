@@ -120,6 +120,18 @@
           fi;
           openstack management plan list | grep overcloud | cut -d " " -f2
 
+    - name: echo deploy command
+      register: overcloud_deploy_command
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then
+            source {{ instack_user_home }}/deploy-overcloudrc;
+          fi;
+          echo "openstack overcloud deploy --plan-uuid {{ overcloud_uuid.stdout }} --control-scale $CONTROLSCALE --compute-scale $COMPUTESCALE --ceph-storage-scale $CEPHSTORAGESCALE"
+
+    - name: run command
+      shell: echo {{ overcloud_deploy_command.stdout }}
+
     - name: deploy-overcloud
       register: result
       ignore_errors: yes
@@ -128,9 +140,8 @@
           if [ -f "{{ instack_user_home }}/deploy-overcloudrc" ]; then
               source {{ instack_user_home }}/deploy-overcloudrc;
           fi;
-          openstack overcloud deploy --plan-uuid {{ overcloud_uuid.stdout }} --control-scale $CONTROLSCALE --compute-scale $COMPUTESCALE --ceph-storage-scale $CEPHSTORAGESCALE 
-          #Both swift and blockstorage are not supported downstream right now
-          #--swift-storage-scale $SWIFTSTORAGESCALE #--block-storage-scale $BLOCKSTORAGESCALE;
+          {{ overcloud_deploy_command.stdout }}
+          
 
     - name: set overcloud controller ip
       shell: >
