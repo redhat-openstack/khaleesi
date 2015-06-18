@@ -16,8 +16,8 @@
         - libxslt-devel
         - mariadb-devel
         - openssl-devel
-        - python-pip
         - python-virtualenv
+    - command: easy_install pip
 
 - name: Install tempest from source
   hosts: tester
@@ -44,8 +44,6 @@
           junitxml
           unittest2
           nose
-          testtools==0.9.36 # Tempest needs at least 0.9.36 (assertIn problem)
-          python-subunit==0.0.15
           python-ceilometerclient==1.0.10 # fix: tempest failure
       register: extra_reqs
 

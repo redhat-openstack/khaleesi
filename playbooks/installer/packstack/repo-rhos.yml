@@ -1,10 +1,7 @@
 ---
 # setup packstack prerequisites
 - name: Setup openstack repos
-  hosts:
-      - controller
-      - network
-      - compute
+  hosts: openstack_nodes
   gather_facts: yes
   sudo: yes
   tasks:
