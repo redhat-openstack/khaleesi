@@ -101,8 +101,8 @@
 - name: fail playbook when instack-deploy-overcloud fails
   hosts: undercloud
   tasks:
-    - command: echo "instack-deploy-overcloud failed, see the above debug information"
-      failed_when: overcloud_deployment_result != "0"
+    - fail: msg="instack-deploy-overcloud failed, see the above debug information"
+      when: result.rc != 0
 
 - name: run instack test overcloud
   hosts: undercloud
