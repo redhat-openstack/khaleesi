@@ -1,0 +1,20 @@
+---
+- name: Activate coverage.py
+  hosts: controller
+  gather_facts: no
+  sudo: yes
+  tasks:
+    - name: install python-coverage
+      yum: name=python-coverage state=present
+
+    - file: path=/tmp/coverage-data state=touch mode="u=rwx,g=rwx,o=rwx"
+
+    - template:
+        owner: "{{ hostvars[inventory_hostname].ansible_ssh_user }}"
+        group: "{{ hostvars[inventory_hostname].ansible_ssh_user }}"
+        dest: "/home/{{ hostvars[inventory_hostname].ansible_ssh_user }}/.coveragerc"
+        src: ./templates/my.coveragerc.j2
+
+    - template:
+        dest: "/lib/python2.7/site-packages/sitecustomize.py" # TBD deal with python version
+        src: ./templates/sitecustomize.py.j2

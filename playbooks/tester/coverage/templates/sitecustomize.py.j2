@@ -1,0 +1,6 @@
+import os
+import coverage
+
+os.environ['COVERAGE_PROCESS_START']= "/home/{{ hostvars[inventory_hostname].ansible_ssh_user}}/.coveragerc"
+os.environ['COVERAGE_FILE'] = "/tmp/coverage-data"
+coverage.process_startup()
