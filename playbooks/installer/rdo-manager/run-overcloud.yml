@@ -141,16 +141,24 @@
               source {{ instack_user_home }}/deploy-overcloudrc;
           fi;
           {{ overcloud_deploy_command.stdout }}
-          
+
+    - name: does overcloud need post config
+      ignore_errors: yes
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        openstack --help | grep "overcloud postconfig";
+      register: needs_postconfig
+
 
     - name: set overcloud controller ip
+      when: needs_postconfig.rc == 0
       shell: >
         source {{ instack_user_home }}/stackrc;
         heat output-show overcloud KeystoneURL | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}";
       register: overcloud_controller_ip
 
     - name: openstack post config
-      when: result.rc == 0
+      when: result.rc == 0 and needs_postconfig.rc == 0
       shell: >
           source {{ instack_user_home }}/overcloudrc;
           openstack overcloud postconfig {{ overcloud_controller_ip.stdout }}
