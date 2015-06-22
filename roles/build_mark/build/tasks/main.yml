@@ -17,4 +17,4 @@
   copy:
     dest: /root/buildmark
     content: "{{ buildmark.msg }}"
-  when: buildmark is defined
+  when: buildmark is defined and buildmark.msg is defined
