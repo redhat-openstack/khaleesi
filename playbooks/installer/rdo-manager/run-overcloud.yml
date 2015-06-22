@@ -29,7 +29,8 @@
     - name: build all the images
       shell: >
           source {{ instack_user_home }}/build-img-env;
-          instack-build-images > {{ instack_user_home }}/instack-build-images.log
+          source {{ instack_user_home }}/stackrc;
+          openstack overcloud image build --all > {{ instack_user_home }}/openstack-build-images.log
       when: installer.overcloud_images | default('build') == "build"
 
     - name: download the pre-built rdo-manager images
@@ -51,7 +52,9 @@
       when: installer.overcloud_images is defined and installer.overcloud_images == "import"
 
     - name: prepare for overcloud by loading the images into glance
-      command: instack-prepare-for-overcloud
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          openstack overcloud image upload
 
 - name: register and discover nodes
   hosts: undercloud
@@ -148,7 +151,6 @@
         source {{ instack_user_home }}/stackrc;
         openstack --help | grep "overcloud postconfig";
       register: needs_postconfig
-
 
     - name: set overcloud controller ip
       when: needs_postconfig.rc == 0
