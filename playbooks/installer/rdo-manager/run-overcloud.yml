@@ -177,6 +177,29 @@
           openstack baremetal list;
           openstack server list;
 
+- name: Group hosts in gate if we are gating
+  hosts: all
+  tasks:
+    - group_by: key=gate
+
+      when: "\"\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
+
+- name: Run non gating tasks
+  hosts: undercloud:!gate
+  tasks:
+    - name: run overcloud tests
+      ignore_errors: yes
+      when: result.rc == 0
+      shell: >
+          source {{ instack_user_home }}/overcloudrc;
+          openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL --overcloud-admin-password "$OS_PASSWORD" --tempest-args {{ installer.tempest.test_regex }}
+
+    - name: fetch tempest result
+      fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes
+
+- name: Get debug infos
+  hosts: undercloud
+  tasks:
     - name: debug deploy-overcloud failure
       when: result.rc != 0
       shell: >
