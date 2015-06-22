@@ -23,11 +23,29 @@
         cat {{ instack_user_home }}/scale-setup-env
       when: node_to_scale is defined
 
+    - name: get plan list
+      register: overcloud_uuid
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        openstack management plan list | grep overcloud | cut -d " " -f2
+
+    - name: echo scale overcloud nodes
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        source {{ instack_user_home }}/scale-setup-env;
+        echo "openstack management plan set {{ overcloud_uuid.stdout }} -S $NODE_TO_SCALE_PLAN_TYPE=$NODE_SCALE_CHANGE"
+      register: overcloud_plan_set
+      when: node_to_scale is defined
+
+    - name: run command
+      shell: echo {{ overcloud_plan_set.stdout }}
+
     - name: scale overcloud nodes
       shell: >
         source {{ instack_user_home }}/stackrc;
         source {{ instack_user_home }}/scale-setup-env;
-        openstack overcloud scale stack overcloud overcloud -r $NODE_TO_SCALE_PLAN_TYPE -n $NODE_SCALE_CHANGE
+        {{ overcloud_plan_set.stdout }};
+        openstack overcloud deploy --plan-uuid {{ overcloud_uuid.stdout }}
       when: node_to_scale is defined
 
     - name: poll for heat stack-list to go to COMPLETE
