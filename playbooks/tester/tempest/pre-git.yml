@@ -25,6 +25,12 @@
     - git: repo={{ tester.git.repo }} version={{ tester.git.revision }}
            dest={{ tester.dir }}
       register: tempest_repo
+      when: tester.git.local_dir is not defined
+
+    - synchronize: dest={{ tester.dir }} src={{ tester.git.local_dir }}
+                   archive=no recursive=yes perms=yes links=yes
+      register: tempest_local_dir
+      when: tester.git.local_dir is defined
 
     - command: chdir={{ tester.dir }} git log -1 --pretty=format:%h
       register: tempest_repo_version
@@ -33,7 +39,7 @@
 
     - name: install virtualenv
       command: "python {{ tester.dir }}/tools/install_venv.py {{ tester.dir }}"
-      when: tempest_repo|changed
+      when: tempest_repo|changed or tempest_local_dir|changed
 
       #TODO(tkammer): move this to khaleesi-settings
     - name: prepare list of extra/specific pip pkgs to install
@@ -48,4 +54,4 @@
 
     - name: pip install extra requirements
       pip: requirements="~/{{ tester.dir }}/extra-requirements.txt" state=present virtualenv="~/{{ tester.dir }}/.venv"
-      when: tempest_repo|changed or extra_reqs|changed
+      when: tempest_repo|changed or tempest_local_dir|changed or extra_reqs|changed
