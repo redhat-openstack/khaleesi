@@ -28,6 +28,7 @@
       shell: >
         source {{ instack_user_home }}/stackrc;
         openstack management plan list | grep overcloud | cut -d " " -f2
+      when: node_to_scale is defined
 
     - name: echo scale overcloud nodes
       shell: >
@@ -39,6 +40,7 @@
 
     - name: run command
       shell: echo {{ overcloud_plan_set.stdout }}
+      when: node_to_scale is defined
 
     - name: scale overcloud nodes
       shell: >
