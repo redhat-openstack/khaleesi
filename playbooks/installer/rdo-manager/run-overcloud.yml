@@ -167,15 +167,20 @@
       debug: var=result.stdout_lines
       when: result.rc == 0
 
+    - name: See the overcloud deployment
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          heat stack-list;
+          nova list;
+          openstack baremetal list;
+          openstack server list;
 
     - name: debug deploy-overcloud failure
       when: result.rc != 0
       shell: >
           source {{ instack_user_home }}/stackrc;
-          heat stack-list;
           heat resource-list overcloud;
           heat event-list overcloud;
-          nova list;
 
     - name: debug deploy-overcloud failure
       when: result.rc != 0
