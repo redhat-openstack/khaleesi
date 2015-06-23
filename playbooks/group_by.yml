@@ -1,28 +1,33 @@
 ---
 - name: Group by distribution for workarounds-prep
   hosts: all:!localhost
+  gather_facts: yes
   tasks:
     - group_by: key={{ ansible_distribution }}
 
 - name: Group by distribution-version for workarounds-prep
   hosts: all:!localhost
+  gather_facts: no
   tasks:
     - group_by: key={{ ansible_distribution }}-{{ ansible_distribution_major_version|int }}
 
 - name: Group hosts by product rdo,rhos
   hosts: all:!localhost
+  gather_facts: no
   tasks:
     - group_by: key={{ product.name }}
       when: product is defined
 
 - name: Group hosts by product version for juno, icehouse, havana
   hosts: all:!localhost
+  gather_facts: no
   tasks:
     - group_by: key={{ product.version }}
       when: product.version is defined
 
 - name: Group hosts by virthost and baremetal environments
   hosts: all:!localhost
+  gather_facts: no
   tasks:
     - group_by: key={{ installer.env.type }}
       when: installer.env.type is defined
