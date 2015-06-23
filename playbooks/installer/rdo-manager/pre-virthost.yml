@@ -115,8 +115,8 @@
 
     - name: get the guest-image
       shell: >
-        curl -o {{ instack_user_home }}/{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }} \
-        "{{ distro.images[distro.name][ansible_distribution_version].remote_file_server }}{{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}"
+        curl -o {{ instack_user_home }}/{{ distro.images[distro.name][distro.version].guest_image_name }} \
+        "{{ distro.images[distro.name][distro.version].remote_file_server }}{{ distro.images[distro.name][distro.version].guest_image_name }}"
 
     - name: install python-rdomanager-oscplugin
       yum: name=python-rdomanager-oscplugin state=present
