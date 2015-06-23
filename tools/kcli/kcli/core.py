@@ -122,6 +122,14 @@ def execute_ansible(playbook, args):
     failed_hosts = []
     unreachable_hosts = []
 
+    if args.verbose:
+        ansible_cmd = ["ansible-playbook"]
+        ansible_cmd.append("-" + "v" * args.verbose)
+        ansible_cmd.append("-i " + hosts)
+        ansible_cmd.append("--extra-vars @" + args.settings)
+        ansible_cmd.append(path_to_playbook)
+        print "ANSIBLE COMMAND: " + " ".join(ansible_cmd)
+
     pb.run()
 
     hosts = sorted(pb.stats.processed.keys())
