@@ -12,7 +12,11 @@ from ansible import utils
 # ansible-playbook
 # https://github.com/ansible/ansible/blob/devel/bin/ansible-playbook
 
-PATH_TO_PLAYBOOKS = os.path.join(os.getcwd(), "playbooks")
+KHALEESI_DIR = os.path.abspath(os.path.join(os.path.dirname( __file__ ),
+                                            "..", "..", ".."))
+PATH_TO_PLAYBOOKS = os.path.join(KHALEESI_DIR, "playbooks")
+assert "playbooks" == os.path.basename(PATH_TO_PLAYBOOKS),\
+    "Bad path to playbooks"
 VERBOSITY = 0
 HOSTS_FILE = "hosts"
 LOCAL_HOSTS = "local_hosts"
