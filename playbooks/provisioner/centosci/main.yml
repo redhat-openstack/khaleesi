@@ -10,9 +10,10 @@
            ver="{{ provisioner.distro.version }}"
            arch="{{ provisioner.arch }}"
            count="{{ provisioner.node_count }}"
-      retries: 5
-      delay: 60
       register: provisioned_nodes
+      until: provisioned_nodes|success
+      retries: 5
+      delay: 120
 
     - name: Save SSID to file
       shell: >
