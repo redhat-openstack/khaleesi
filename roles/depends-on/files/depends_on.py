@@ -30,7 +30,7 @@ import sys
 import urlparse
 
 # we ignore any other host reference
-ALLOWED_HOSTS = ["", "codeng", "review.gerrithub.io"]
+ALLOWED_HOSTS = ["", "codeng", "review.gerrithub.io:29418"]
 
 def parse_commit_msg(msg=None):
     """Look for dependency links in the commit message."""
