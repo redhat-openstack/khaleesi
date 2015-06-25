@@ -85,7 +85,7 @@
       sudo: yes
 
     - name: install the undercloud
-      shell: openstack undercloud install &> {{ instack_user_home }}/undercloud_install_initial_install.log
+      shell: openstack undercloud install --debug &> {{ instack_user_home }}/undercloud_install_initial_install.log
 
     - name: increase stack_action_timeout to 4 hours (workaround for bz 1243365)
       command: openstack-config --set /etc/heat/heat.conf DEFAULT stack_action_timeout 14400
