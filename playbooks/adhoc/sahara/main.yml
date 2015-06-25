@@ -87,7 +87,7 @@
       service: name={{ sahara_service_name }} state=running enabled=yes
 
 - name: Find if the legacy dashboard is needed
-  hosts: all
+  hosts: controller:&sahara
   tasks:
     - group_by: key=legacysaharadashboard
       when: (product.name == "rhos" and product.version|string == "5.0")
