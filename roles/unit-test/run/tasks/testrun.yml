@@ -51,6 +51,5 @@
 
 - name: pass or fail the test
   fail: msg="The test run failed"
-  when: ((pep8_test_run is defined and pep8_test_run.rc !=0) or (unit_test_run is defined and unit_test_run.rc !=0))
-
+  when: ((pep8_test_run|changed) and pep8_test_run.rc != '0' ) or ( (unit_test_run|changed) and (unit_test_run.rc != 0 ))
 
