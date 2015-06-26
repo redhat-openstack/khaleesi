@@ -13,9 +13,27 @@
     - database_host: localhost
     - database_password: redhat
   tasks:
+    - set_fact: sahara_install_profile="legacy"
+      when: (product.name == "rhos" and product.version|string == "5.0")
+             or (product.name == "rdo" and product.version|string == "icehouse")
+
+    - set_fact: sahara_install_profile="unifiedold"
+      when: (product.name == "rhos" and product.version|string == "6.0")
+             or (product.name == "rdo" and product.version|string == "juno")
+
+    # packstack installs in unified mode for now
+    - set_fact: sahara_install_profile="unified"
+      when: ((product.name == "rhos" and product.version|string == "7.0")
+              or (product.name == "rdo" and product.version|string == "kilo"))
+            and installer.packstack.config.CONFIG_SAHARA_INSTALL | default('n') == 'y'
+
+    - set_fact: sahara_install_profile="split"
+      when: sahara_install_profile is not defined
+
     - name: sahara | service | is installed
       sudo: yes
-      yum: name=openstack-sahara state=installed
+      yum: name={{ item }} state=installed
+      with_items: installer.sahara.packages[sahara_install_profile]
 
     - name: sahara | service | is configued
       sudo: yes
@@ -62,7 +80,7 @@
       command: keystone --os-username={{ admin_username }} --os-password={{ admin_password }}
                 --os-tenant-name={{ admin_tenant_name }} --os-auth-url=http://{{ controller_ip }}:5000/v2.0/
                 service-create --name sahara
-                --type=data_processing --description="Sahara Data Processing"
+                --type={{ installer.sahara.endpoint[sahara_install_profile] }} --description="Sahara Data Processing"
 
     - name: sahara | service | add endpoint
       shell: keystone --os-username={{ admin_username }} --os-password={{ admin_password }}
@@ -74,17 +92,10 @@
                 --internalurl 'http://{{ ansible_default_ipv4.address }}:8386/v1.1/%(tenant_id)s'
 
 
-    - set_fact: sahara_service_name="openstack-sahara-api"
-      when: (product.name == "rhos" and product.version|string == "5.0")
-             or (product.name == "rdo" and product.version|string == "icehouse")
-
-    - set_fact: sahara_service_name="openstack-sahara-all"
-      when: not (product.name == "rhos" and product.version|string == "5.0")
-             and not (product.name == "rdo" and product.version|string == "icehouse")
-
     - name: sahara | service | openstack-sahara service is running
       sudo: yes
-      service: name={{ sahara_service_name }} state=running enabled=yes
+      service: name={{ item }} state=running enabled=yes
+      with_items: installer.sahara.services[sahara_install_profile]
 
 - name: Find if the legacy dashboard is needed
   hosts: controller:&sahara
