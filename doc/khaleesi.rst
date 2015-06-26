@@ -6,7 +6,9 @@ automation. In order to work, khaleesi need a configuration file which is
 provide by khaleesi-settings project. Khaleesi-settings provide the config
 file using ksgen tool, located into khaleesi project.
 
-    http://git.app.eng.bos.redhat.com/git/khaleesi-settings.git
+    https://github.com/redhat-openstack/khaleesi-settings
+    or
+    http://<redhat-internal-git-server>/git/khaleesi-settings.git
 
 .. _prereqs:
 
@@ -45,11 +47,12 @@ both repo and your virtual environment is in the same directory. Clone the
 repos::
 
     git clone https://github.com/redhat-openstack/khaleesi.git
+    or
     git clone https://github.com/redhat-openstack/khaleesi-settings.git
 
 read-only mirror::
 
-    git clone http://git.app.eng.bos.redhat.com/git/khaleesi-settings.git
+    git clone http://<redhat-internal-git-server>/git/khaleesi-settings.git
 
 Gerrit::
 
@@ -176,18 +179,21 @@ Generate the configuration with the following command::
     ksgen --config-dir=../khaleesi-settings/settings generate \
         --provisioner=beaker \
         --provisioner-site=bkr \
-        --provisioner-distro=rhel \
-        --provisioner-distro-version=7.1 \
-        --provisioner-site-user=rdoci-jenkins \
-        --product=rhos \
-        --product-version=7_director \
-        --product-version-build=latest \
-        --product-version-repo=poodle \
-        --distro=rhel-7.1 \
+        --provisioner-distro=centos \
+        --provisioner-distro-version=7 \
+        --provisioner-site-user=rdo \
+        --product=rdo \
+        --product-version=kilo \
+        --product-version-build=last_known_good \
+        --product-version-repo=delorean_mgt \
+        --distro=centos-7.0 \
         --installer=rdo_manager \
         --installer-env=virthost \
         --installer-images=build \
+        --installer-network=neutron \
+        --installer-network-variant=ml2-vxlan \
         --installer-topology=minimal \
+        --extra-vars product.repo_type_override=none \
         ksgen_settings.yml
 
 .. Note:: These run settings can get outdated. If you want to replicate a
@@ -278,17 +284,18 @@ Generate the configuration with the following command::
 
     ksgen --config-dir=../khaleesi-settings/settings generate \
         --provisioner=manual \
-        --product=rhos \
-        --product-version=7_director \
-        --product-version-build=latest \
-        --product-version-repo=poodle \
-        --product-version-workaround=rhel-7.1 \
-        --workarounds=enabled \
-        --distro=rhel-7.1 \
+        --product=rdo \
+        --product-version=kilo \
+        --product-version-build=last_known_good \
+        --product-version-repo=delorean_mgt \
+        --distro=centos-7.0 \
         --installer=rdo_manager \
         --installer-env=virthost \
         --installer-images=build \
+        --installer-network=neutron \
+        --installer-network-variant=ml2-vxlan \
         --installer-topology=minimal \
+        --extra-vars product.repo_type_override=none \
         ksgen_settings.yml
 
 You need to regenerate your inventory file or using another one ::
@@ -383,6 +390,7 @@ settings/provisioner/openstack/site/blue/user/user1.yml::
         password: mypassword
 
 From the khaleesi-settings directory run the following (Adjust as needed)::
+The following is a Red Hat internal only example.
 
     export TENANT=tenant1
     export USER=user1
