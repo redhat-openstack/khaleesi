@@ -16,33 +16,17 @@
 - name: print the test setup  command
   debug: var=test_cfg
 
-- name: Run unit test ...
+- name: Run tests ...
   shell: >
     {{ test_cfg.run.replace('\n', '') }}
   args:
     chdir: "{{ component_path }}"
     executable: /bin/bash
-  register: unit_test_run
+  register: test_run
   ignore_errors: true
-  when: tester.name == 'unittest'
 
-- name: Run pep8 test ...
-  shell: >
-    {{ test_cfg.run_pep8.replace('\n', '') }}
-  args:
-    chdir: "{{ component_path }}"
-    executable: /bin/bash
-  register: pep8_test_run
-  ignore_errors: true
-  when: tester.name == 'pep8'
-
-- name: print out pep8 test run
-  debug: var=pep8_test_run
-  when: pep8_test_run is defined
-
-- name: print out unit test run
-  debug: var=unit_test_run
-  when: unit_test_run is defined
+- name: print out test run
+  debug: var=test_run
 
 - name: copy test results to logs dir
   fetch: src="{{ component_path }}/{{ item }}"
@@ -51,5 +35,5 @@
 
 - name: pass or fail the test
   fail: msg="The test run failed"
-  when: ((pep8_test_run|changed) and pep8_test_run.rc != '0' ) or ( (unit_test_run|changed) and (unit_test_run.rc != 0 ))
+  when: test_run.rc != 0
 
