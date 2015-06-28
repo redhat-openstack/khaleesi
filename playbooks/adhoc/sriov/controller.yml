@@ -1,0 +1,46 @@
+---
+- name: Configure Controller
+  hosts: controller
+  sudo: yes
+  tasks:
+    - name: Configure ml2_conf.ini
+      ini_file:
+          dest=/etc/neutron/plugins/ml2/ml2_conf.ini
+          section=ml2
+          option="{{ item.key }}"
+          value="{{ item.value }}"
+      with_dict: "{{ installer.config.ml2_conf }}"
+
+    - name: Set supported_pci_vendor_devs
+      ini_file:
+          dest=/etc/neutron/plugins/ml2/ml2_conf_sriov.ini
+          section=ml2_sriov
+          option=supported_pci_vendor_devs
+          value=15b3:1004,8086:10c9,8086:10ca,8086:1520
+
+    - name: Set ovs_tunnel_types
+      ini_file:
+          dest=/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
+          section=ovs
+          option=tunnel_types
+          value=''
+
+    - name: Link ml2_conf_sriov to the Neutron configuration directory
+      file: src=/etc/neutron/plugins/ml2/ml2_conf_sriov.ini dest=/etc/neutron/conf.d/neutron-server/ml2_conf_sriov.conf state=link
+
+    - name: Set scheduler_default_filters
+      ini_file:
+          dest=/etc/nova/nova.conf
+          section=DEFAULT
+          option=scheduler_default_filters
+          value='RetryFilter,
+              RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,
+              CoreFilter,PciPassthroughFilter'
+
+    - name: nova service restart
+      sudo: yes
+      shell: openstack-service restart nova
+
+    - name: neutron service restart
+      sudo: yes
+      shell: openstack-service restart neutron

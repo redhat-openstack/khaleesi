@@ -1,0 +1,37 @@
+---
+- name: Configure compute nodes
+  hosts: compute
+  sudo: yes
+  tasks:
+    - name: Set grubby
+      shell: |
+           kernel_path=$(grubby --default-kernel);
+           grub_params="intel_iommu=on igb.max_vfs=7";
+           grubby --update-kernel=${kernel_path} --args="${grub_params}";
+
+    - name: set tunnel_types
+      ini_file:
+          dest=/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
+          section=ovs
+          option=tunnel_types
+          value=''
+
+    - name: set allow_unsafe_interrupts=1
+      shell: echo "options vfio_iommu_type1 allow_unsafe_interrupts=1" > /etc/modprobe.d/dist.conf
+
+    - name: disable neutron-openvswitch-agent
+      shell: systemctl disable neutron-openvswitch-agent
+
+    - name: Set Host Physical Function (pf) interface
+      set_fact: pf_name="{{ provisioner.nodes[inventory_hostname.split('-')|last ].network.interfaces.data.label }}"
+
+    - name: set pci_white_list
+      ini_file:
+          dest=/etc/nova/nova.conf
+          section=DEFAULT
+          option=pci_passthrough_whitelist
+          value='{"devname":"{{ pf_name }}", "physical_network":"{{ installer.network.internal.label }}"}'
+
+    - local_action:
+          module: wait_for_ssh reboot_first=true host={{ hostvars[inventory_hostname].ansible_ssh_host }} user={{ hostvars[inventory_hostname].ansible_ssh_user }} key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
+      sudo: no
