@@ -3,8 +3,8 @@ Using Khaleesi
 
 Khaleesi is an ansible based deployment tool Red Hat Openstack CI is using for
 automation. In order to work, khaleesi need a configuration file which is
-provide by khaleesi-settings project. Khaleesi-settings provide the config
-file using ksgen tool, located into khaleesi project.
+provided by khaleesi-settings project. Khaleesi-settings provide the config
+file using ksgen tool, located in khaleesi project.
 
     https://github.com/redhat-openstack/khaleesi-settings
     or
@@ -43,7 +43,7 @@ Installation
 ------------
 
 Create or enter a folder where you want to check out the repos. We assume that
-both repo and your virtual environment is in the same directory. Clone the
+both repo and your virtual environment are in the same directory. Clone the
 repos::
 
     git clone https://github.com/redhat-openstack/khaleesi.git
@@ -74,7 +74,7 @@ Create the appropriate ansible.cfg for khaleesi::
     cp ansible.cfg.example ansible.cfg
 
 If you don't have a key you need to create it and upload it to your remote host
-or your tenant in blue if your using the Openstack provisoner.
+or your tenant in blue if you are using the Openstack provisoner.
 
 Copy your private key file that you will use to access instances to
 ``khaleesi/``. We're going to use the common ``example.key.pem`` key.::
@@ -92,7 +92,7 @@ which provisioner.The provisioners corresponding to the remote machines which
 will host your environment.
 Khaleesi provide two installers: rdo-manager and packstack,
 and four provisioners: beaker, centosci, openstack and manual.
-For all of those, the settings are provide by khaleesi-settings through ksgen
+For all of those, the settings are provided by khaleesi-settings through ksgen
 tool.
 You will find configuration variable under the folder "settings":
 
@@ -121,8 +121,8 @@ settings::
     |   `-- rhos
     |-- distro
 
-The whole idea of the configuration repo is to break everything into small units
-Lets use the installer folder as an example to describe how the configuration
+The whole idea of the configuration repo is to break everything into small units.
+Let's use the installer folder as an example to describe how the configuration
 tree is built.
 When using ksgen with the following flags::
 
@@ -137,11 +137,11 @@ When the given --installer=packstack, ksgen is going to the folder called
 
 after that, it goes down the tree to the folder
 "packstack/topology/multi-node.yml" (because of the flag
---installer-topology=multi-node), "packstack/network/neutron.yml", etc  
-(according to the additional flags) and list all yml file it finds under those
+--installer-topology=multi-node), "packstack/network/neutron.yml", etc
+(according to the additional flags) and list all yml files it finds under those
 folders.
 
-Then ksgen starts merging all YAML files using the parent folders as base,
+Then ksgen starts merging all YAML files using the parent folders as a base,
 that means, that packstack.yml (which holds configuration that is common to
 packstack) will be used as base and be merged with
 "packstack/topology/multi-node.yml" and "packstack/network/neutron.yml"
@@ -169,8 +169,8 @@ Installing rdo-manager with Beaker provisioner
 
 Here, we will deploy an RHEL OSP director using Beaker environment.
 
-First we create the appropriate configuration file with ksgen. Make sure that
-you are in your virtual envirnment that you previously created. ::
+First, we create the appropriate configuration file with ksgen. Make sure that
+you are in your virtual environment that you previously created. ::
 
     source venv/bin/activate
 
@@ -340,7 +340,7 @@ Here you could play with your newly created Overcloud
 Installing Openstack All-in-one in Blue using your own tenant
 -------------------------------------------------------------
 
-.. Note:: In the below example we assume that the tenant we got in 'Blue'
+.. Note:: In the below example we assume that the tenant we got at 'Blue'
     environment is 'tenant1' and the user is 'user1'.
     Replace 'tenant1' with your tenant name and 'user1' with your user name in
     Blue. We also assume that the external IPs range we got here is
@@ -417,7 +417,7 @@ The following is a Red Hat internal only example.
 .. Note:: Tester: If you want to add a tester node you should add --tester=<tester type> to the ksgen command (e.g. --tester=tempest)
 
 The above command should create the file ksgen_settings.yml in the current
-directory. From Khaleesi directory run the following to provision the
+directory. From Khaleesi directory, run the following to provision the
 instance and install OpenStack:
 
     kcli --settings ksgen_settings.yml --provision --install
