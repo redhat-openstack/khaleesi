@@ -162,6 +162,27 @@ the options that ``generate`` can accept are as follows
 .. NOTE:: ksgen skips provisioner/trystack/tenant/common directory since
    there is no ``common.yml`` file under the ``tenant`` directory.
 
+Default settings
+----------------
+Default settings allow the user to supply only the minimal required flags
+in order to generate a valid output file. Defaults settings will be loaded
+from the given 'top-level' parameters settings files if they are defined in
+them. Defaults settings for any 'non top level' parameters that have been
+given will not been loaded.
+
+Example of defaults section in settings files::
+provisioner/openstack.yml:
+defaults:
+  site: openstack-site
+  topology: all-in-one
+
+provisioner/openstack/site/openstack-site.yml:
+defaults:
+  user: openstack-user
+
+Usage example::
+ksgen --config-dir=/settings/dir/path generate --provisioner=openstack settings.yml
+
 _`generate`: merges settings into a single file
 -----------------------------------------------
 

@@ -10,6 +10,7 @@ import yaml
 
 
 VALUES_KEY = '!value'
+DEFAULTS_TAG = 'defaults'
 logger = logging.getLogger(__name__)
 
 
@@ -62,6 +63,7 @@ Options:
         self._rules = None
         self.parsed = None
         self.extra_vars = None
+        self.defaults = []
 
     def run(self):
         if not self._parse():
@@ -71,6 +73,12 @@ Options:
         loader.load()
         self._merge_extra_vars(loader)
         all_settings = loader.settings()
+
+        try:
+            # remove defaults traces
+            del all_settings[DEFAULTS_TAG]
+        except KeyError:
+            logger.debug("No defaults have been found, nothing to delete...")
 
         # 'in-string' lookup workaround
         for value in all_settings.values():
@@ -84,6 +92,40 @@ Options:
                 all_settings, default_flow_style=False))
         return 0
 
+    def _prepare_defaults(self):
+        for arg in self.args:
+            if not arg.startswith('--'):
+                continue
+            arg = arg[2:].split('=')[0]
+            if '-' not in arg:
+                logging.debug("Preparing defaults for %s:" % arg)
+                self._load_defaults(self.config_dir + os.sep + arg,
+                                    self.parsed['--' + arg])
+
+        self._merge_defaults()
+        logger.info("Defaults \n%s", self.defaults)
+
+    def _load_defaults(self, path, value):
+        param = '-'.join(path[len(self.config_dir + os.sep):].split('/')[::2])
+        file_path = path + os.sep + str(value) + '.yml'
+        loaded_file = Configuration.from_file(file_path)
+        if not self.parsed['--' + param]:
+            logging.warning(
+                "\'--%s\' hasn't been provided, using \'%s\' as default" % (
+                    param, value))
+            self.defaults.append(''.join(['--', param, '=', str(value)]))
+
+        if loaded_file.get(DEFAULTS_TAG):
+            path += os.sep + str(value)
+            for sub_key, sub_value in loaded_file[DEFAULTS_TAG].iteritems():
+                self._load_defaults(path + os.sep + sub_key, sub_value)
+
+    def _merge_defaults(self):
+
+        for element in self.defaults:
+            (option, value) = element.split('=')
+            if not self.parsed[option]:
+                self.parsed[option] = value
 
     def _merge_rules_file_exports(self, loader):
         if not self._rules:
@@ -122,6 +164,8 @@ Options:
             return False
         logger.info("Parsed \n%s", self.parsed)
 
+        self._prepare_defaults()
+
         if not self._apply_rules():
             logger.error("Error while validating rules: check args %s",
                          '  \n'.join(self.args))
@@ -136,7 +180,7 @@ Options:
         self.extra_vars = utils.extract_value(self.parsed, '--extra-vars')
 
         # filter only options; [ --foo, fooz, --bar baz ] -> [--foo, --bar]
-        options = [x for x in self.args if x.startswith('--')]
+        options = [x for x in self.args + self.defaults if x.startswith('--')]
 
         settings = OrderedTree(delimiter='-')
         for option in options:   # iterate options to preserve order of args
