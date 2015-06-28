@@ -1,9 +1,11 @@
 ---
 - name: Install Rally dependencies on the machine
   hosts: tester
+  gather_facts: no
   sudo: yes
   tasks:
-    - name: Install needed packages on machine
+      #TODO(tkammer): move the list of packages to khaleesi-settings
+    - name: Install support packages for pip-based deps building
       yum: name={{ item }} state=present
       with_items:
         - git
@@ -11,16 +13,18 @@
         - which
         - gcc
         - libffi-devel
-        - python-devel
-        - openssl-devel
-        - gmp-devel
         - libxml2-devel
         - libxslt-devel
+        - openssl-devel
+        - python-virtualenv
         - postgresql-devel
-        - python-pip
+        - python-devel
+        - gmp-devel
+    - command: easy_install pip
 
 - name: Install Rally on the machine
   hosts: tester
+  gather_facts: no
   tasks:
     - name: Clone Rally from git repo
       git: repo={{ tester.git.repo }} version={{ tester.git.revision }}
