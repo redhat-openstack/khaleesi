@@ -4,12 +4,15 @@
 
  Usage:
     ksgen -h | --help
-    ksgen [options] --config-dir=<PATH> <command> [<args> ...]
+    ksgen [options] <command> [<args> ...]
 
  Options:
     --log-level=<log-level>     Log levels: debug, info, warning
                                             error, critical
                                 [default: warning]
+    --config-dir=<PATH>         Settings directory path.
+                                If given, overrides the 'KHALEESI_SETTINGS'
+                                environment variable.
 
  Commands:
      help
@@ -19,6 +22,8 @@
 from __future__ import print_function
 from ksgen import docstring, log_color, settings, yaml_utils
 from docopt import docopt
+from os import environ
+from os import path
 import logging
 import sys
 
@@ -40,6 +45,31 @@ def _setup_logging(level):
     logging.basicConfig(level=numeric_val, format=fmt)
 
 
+def get_config_dir(args):
+    """load the path for configuration tree.
+
+    search order:
+        1. args
+        2. environment variable KHALEESI_SETTINGS
+
+    :param args: module input arguments
+    :raises: ValueError if path is missing or doesn't exist.
+    :return: path to configuration tree
+    """
+
+    config_dir = args["--config-dir"] or environ.get('KHALEESI_SETTINGS')
+    if not config_dir:
+        raise ValueError("Missing path to configuration tree (settings dir)")
+
+    config_dir = path.abspath(config_dir)
+
+    if not path.exists(config_dir):
+        raise ValueError("Bad path to configuration tree (settings dir): %s"
+                         % config_dir)
+
+    return config_dir
+
+
 def main(args=None):
     args = args or sys.argv
     yaml_utils.register()
@@ -49,8 +79,10 @@ def main(args=None):
     _setup_logging(args['--log-level'])
 
     cmd = args['<command>']
-    from os.path import abspath
-    config_dir = abspath(args['--config-dir'])
+
+    config_dir = get_config_dir(args)
+
+    logging.debug("config_dir = %s" % config_dir)
 
     try:
         if cmd == 'help':
