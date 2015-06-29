@@ -27,9 +27,9 @@
             | xargs -r -n1 journalctl -u > /var/log/extra/services 2>&1
       ignore_errors: true
 
-    - name: collect network status info
+    - name: collect network status info 
       shell: |
-        (ip a; ip r; iptables-save) &> /var/log/extra/network;
+        (ip a; ip r; iptables-save;iptables -nL) &> /var/log/extra/network;
         (for NS in $(ip netns list); do
           echo "==== $NS ====";
           ip netns exec $NS ip a;
@@ -39,6 +39,12 @@
           [[ ! -z "$PIDS" ]] && ps --no-headers -f --pids "$PIDS";
           echo "";
           done) &> /var/log/extra/network-netns
+        (for NB in $(ovs-vsctl show | grep Bridge |awk '{print $2}'); do
+          echo "==== Bridge name - $NB ====";
+          ovs-ofctl show $NB
+          ovs-ofctl dump-flows $NB
+          echo "";
+          done;ovsdb-client dump) &> /var/log/extra/network-bridges
       ignore_errors: true
 
     - shell: "lsof -P &> /var/log/extra/lsof"
