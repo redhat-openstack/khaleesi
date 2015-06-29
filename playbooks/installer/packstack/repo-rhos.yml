@@ -14,10 +14,16 @@
       - name: Install release tool on machines
         command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/{{ product.name }}-release-latest.noarch.rpm"
 
-      - name: Execute the release tool
-        shell: "{{ product.name }}-release {{ product.version|int }}"
-        register: shell_result
-        changed_when: "shell_result == 0"
+      - name: Execute rhos-release for packstack puddle 
+        command: "rhos-release {{ product.version|int }}"
+        when: product.repo_type in ['puddle']
+
+      - name: Execute rhos-release for packstack poodle 
+        command: "rhos-release -d {{ product.version|int }}"
+        when: product.repo_type in ['poodle']
+
+      - name: repolist
+        command: yum -d 7 repolist
 
 - name: Get build details
   hosts: controller
