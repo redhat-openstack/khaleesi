@@ -39,11 +39,18 @@
 - name: Group all hosts in gate if we are gating
   hosts: all
   tasks:
-    - group_by: key=gate
+    - group_by: key=gate-instack-undercloud
       when: "\"{{ lookup('env', 'GERRIT_PROJECT') }}\" in ['instack-undercloud', 'rdo-management/instack-undercloud']"
 
-- name: Gating tasks
-  hosts: virthost:&gate
+    - group_by: key=gate-oscplugin
+      when: "\"{{ lookup('env', 'GERRIT_PROJECT') }}\" in ['python-rdomanager-oscplugin', 'rdo-management/python-rdomanager-oscplugin']"
+
+    - name: Set the gating_repo fact
+      set_fact: gating_repo="python-rdomanager-oscplugin"
+      when: "\"{{ lookup('env', 'GERRIT_PROJECT') }}\" in ['python-rdomanager-oscplugin', 'rdo-management/python-rdomanager-oscplugin']"
+
+- name: Gate instack-undercloud
+  hosts: virthost:&gate-instack-undercloud
   tasks:
     - name: Set the build directory as a fact
       set_fact:
@@ -64,6 +71,7 @@
       with_items:
         - git
         - python-pbr
+        - python2-devel
         - rpm-build
         - rsync
       sudo: yes
@@ -105,6 +113,75 @@
 
     - name: install the generated rpm
       yum: name={{ build_dir }}/instack-undercloud-{{ pkg_version.stdout }}-99999.noarch.rpm state=present
+      sudo: yes
+
+- name: Gate python-rdomanager-oscplugin
+  hosts: virthost:&gate-oscplugin
+  tasks:
+    - name: Set the build directory as a fact
+      set_fact:
+        gr_build_dir: "/tmp/gr_{{ lookup('env', 'BUILD_TAG') }}"
+
+    - name: Create build directory
+      file: path={{ gr_build_dir }} state=directory
+
+    - name: Copy the gating_repo
+      synchronize: src={{ lookup('env', 'PWD') }}/../{{gating_repo}}/ dest={{ gr_build_dir }}/{{gating_repo}} delete=yes recursive=yes
+
+    - name: remove gating_repo package
+      yum: name={{ gating_repo }} state=absent
+      sudo: yes
+
+    - name: yum install packages to build rpm
+      yum: name={{ item }} state=latest
+      with_items:
+        - git
+        - python-pbr
+        - python2-devel
+        - rpm-build
+        - rsync
+      sudo: yes
+
+    - name: Clone gating_repo packaging
+      command: creates={{ gr_build_dir }}/{{ gating_repo }}-packaging
+        chdir={{ gr_build_dir }}
+        git clone https://github.com/rdo-management/{{ gating_repo }}-packaging
+
+    - name: add a git tag to the gating_repo repo
+      shell: >
+        chdir={{ gr_build_dir }}/{{ gating_repo }}
+        git config user.email "rdo-ci@redhat.com";
+        git config user.name "rdo-ci";
+        git tag -a 999.9.9 -m "Tag for test build";
+
+    - name: get version of gating_repo package
+      shell: >
+        chdir={{ gr_build_dir }}/{{ gating_repo }}
+        python setup.py --version | tail -n 1
+      register: gr_pkg_version
+
+    - name: create the content of the gating_repo package
+      shell: >
+        chdir={{ gr_build_dir }}/{{ gating_repo }}
+        set +x;
+        rm -rf dist/;
+        python setup.py sdist;
+        cd dist;
+        for f in *.tar.gz; do
+            cp $f {{ gr_pkg_version.stdout }}.tar.gz;
+        done;
+        cd ../..;
+        cp {{ gating_repo }}-packaging/*.spec .;
+        sed -i "s/^Version.*/Version: {{ gr_pkg_version.stdout }}/" *.spec;
+        sed -i "s/^Release.*/Release: 99999/" *.spec;
+        if [ "{{ product.repo_type is defined and product.repo_type in ['poodle', 'puddle'] }}" == "True" ]; then
+            sed -i "s/tripleo-common/openstack-tripleo-common/" *.spec;
+        fi;
+        rpmbuild --define "_sourcedir {{ gr_build_dir}}/{{ gating_repo }}/dist" --define "upstream_version {{ gr_pkg_version.stdout }}" -bb *.spec;
+        mv ~/rpmbuild/RPMS/noarch/{{ gating_repo }}-{{ gr_pkg_version.stdout }}-99999.noarch.rpm {{ gr_build_dir }};
+
+    - name: install the generated rpm
+      yum: name={{ gr_build_dir }}/{{ gating_repo }}-{{ gr_pkg_version.stdout }}-99999.noarch.rpm state=present
       sudo: yes
 
 - name: setup the virt host
@@ -254,10 +331,16 @@
         src: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
 
 - name: copy and install the gating rpm to the undercloud
-  hosts: virthost:&gate
+  hosts: virthost:&gate-instack-undercloud
   tasks:
     - name: copy instack-undercloud package
       command: scp -F ssh.config.ansible {{ build_dir }}/instack-undercloud-{{ pkg_version.stdout }}-99999.noarch.rpm undercloud-from-virthost:{{ instack_user_home }}/
+
+- name: copy and install the gating rpm to the undercloud
+  hosts: virthost:&gate-oscplugin
+  tasks:
+    - name: copy gating_repo package
+      command: scp -F ssh.config.ansible {{ gr_build_dir }}/{{ gating_repo }}-{{ gr_pkg_version.stdout }}-99999.noarch.rpm undercloud-from-virthost:{{ instack_user_home }}/
 
 - name: test host connection
   hosts: all:!localhost
@@ -276,18 +359,32 @@
 - name: Group all hosts in gate if we are gating
   hosts: all
   tasks:
-    - set_fact:
-        gate_job: true
+    - group_by: key=gate-instack-undercloud
       when: "\"{{ lookup('env', 'GERRIT_PROJECT') }}\" in ['instack-undercloud', 'rdo-management/instack-undercloud']"
 
-- name: Install the custom instack-undercloud rpm when gating
-  hosts: undercloud
+    - group_by: key=gate-oscplugin
+      when: "\"{{ lookup('env', 'GERRIT_PROJECT') }}\" in ['python-rdomanager-oscplugin', 'rdo-management/python-rdomanager-oscplugin']"
+
+    - name: Set the gating_repo fact
+      set_fact: gating_repo="python-rdomanager-oscplugin"
+      when: "\"{{ lookup('env', 'GERRIT_PROJECT') }}\" in ['python-rdomanager-oscplugin', 'rdo-management/python-rdomanager-oscplugin']"
+
+- name: Install the custom instack-undercloud and gating_repo rpm when gating
+  hosts: undercloud:&gate-instack-undercloud
   sudo: yes
   tasks:
     - name: ensure install-undercloud is not installed
       yum: name=instack-undercloud state=absent
-      when: gate_job is defined and gate_job == true
 
     - name: install the rpm we previously built
       shell: yum -y install /home/stack/instack-undercloud-*
-      when: gate_job is defined and gate_job == true
+
+- name: Install the custom instack-undercloud and gating_repo rpm when gating
+  hosts: undercloud:&gate-oscplugin
+  sudo: yes
+  tasks:
+    - name: ensure gating_repo is not installed
+      yum: name={{ gating_repo }} state=absent
+
+    - name: install the gating_repo rpm we previously built
+      shell: yum -y install /home/stack/{{ gating_repo }}-*
