@@ -57,11 +57,6 @@
       when: overcloud_deployment_result != "0"
       shell: "{{ instack_user_home }}/show_nodes.sh"
 
-    - name: cat "/etc/edeploy"
-      when: overcloud_deployment_result != "0"
-      sudo: yes
-      shell: "for i in `ls /etc/edeploy/`;do echo $i; cat /etc/edeploy/$i;done"
-
     - name: copy the undercloud id_rsa key back to the slave
       fetch: src=~/.ssh/id_rsa dest=../../../id_rsa_undercloud flat=yes
 
