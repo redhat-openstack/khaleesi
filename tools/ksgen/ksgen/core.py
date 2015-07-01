@@ -71,11 +71,15 @@ def get_config_dir(args):
 
 
 def main(args=None):
-    args = args or sys.argv
+    """Generate config YAML for Khaleesi
+
+    :param args: list of arguments to replace sys.argv[1:]
+    :return: standard return-code - 0 for success, 1 for failure
+    """
     yaml_utils.register()
 
     # given a directory tree can you generate docstring?
-    args = docopt(__doc__, options_first=True)
+    args = docopt(__doc__, argv=args, options_first=True)
     _setup_logging(args['--log-level'])
 
     cmd = args['<command>']
@@ -97,4 +101,4 @@ def main(args=None):
     return 0
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    sys.exit(main())
