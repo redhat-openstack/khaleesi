@@ -122,10 +122,11 @@
   tasks:
     - name: run overcloud tests
       ignore_errors: yes
-      when: result.rc == "0"
+      when: overcloud_deployment_result == "0"
       shell: >
           source {{ instack_user_home }}/overcloudrc;
           openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL --overcloud-admin-password "$OS_PASSWORD" --tempest-args {{ installer.tempest.test_regex }}
 
     - name: fetch tempest result
       fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes
+      when: overcloud_deployment_result == "0"
