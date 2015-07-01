@@ -183,6 +183,22 @@ class ForemanManager(object):
         response = self.session.put(request_url, data=command, verify=False)
         #TODO(tkammer): add verification that the BMC command was issued
 
+    def _validate_bmc(self, host_id):
+        """
+        This method validate that there is at least one BMC on the given host
+        :param host_id: the id or name of the host as it is listed in foreman
+        """
+        request_url = '{0}/{1}/{2}/interfaces'.format(
+            self.url, self.default_uri, host_id)
+        response = self.session.get(request_url, verify=False)
+        body = response.json()
+        found_bmc = False
+        for interface in body['results']:
+            if "BMC" in interface['type']:
+                found_bmc = True
+                break
+        return found_bmc
+
     def provision(self, host_id, mgmt_strategy, mgmt_action,
                   wait_for_host=True):
         """
@@ -194,8 +210,12 @@ class ForemanManager(object):
         (e.g: cycle, reset, etc)
         :param wait_for_host: whether the function will wait until host has
         finished rebuilding before exiting.
-        :raises: Exception in case of machine could not be reached after rebuild
+        :raises: KeyError if BMC hasn't been found on the given host
+                 Exception in case of machine could not be reached after
+                 rebuild
         """
+        if not self._validate_bmc(host_id):
+            raise KeyError("BMC not found on {}".format(host_id))
         self.set_build_on_host(host_id, True)
         if mgmt_strategy == 'foreman':
             self.bmc(host_id, mgmt_action)
@@ -233,20 +253,26 @@ def main():
     foreman_client = ForemanManager(url=module.params['auth_url'],
                                     username=module.params['username'],
                                     password=module.params['password'])
+
     status_changed = False
 
     if module.boolean(module.params['rebuild']):
-        status_changed = True
-        foreman_client.provision(module.params['host_id'],
-                                 module.params['mgmt_strategy'],
-                                 module.params['mgmt_action'],
-                                 module.boolean(module.params['wait_for_host']))
+        try:
+            foreman_client.provision(module.params['host_id'],
+                                     module.params['mgmt_strategy'],
+                                     module.params['mgmt_action'],
+                                     module.boolean(
+                                         module.params['wait_for_host']))
+        except KeyError as e:
+            module.fail_json(msg=e.message)
+        else:
+            status_changed = True
 
     #TODO(tkammer): implement RESERVE and RELEASE
     host = foreman_client.get_host(module.params['host_id'])
     if host.has_key('error'):
         module.fail_json(msg=host['error'])
-        
+
     module.exit_json(changed=status_changed, host=host)
 
 
