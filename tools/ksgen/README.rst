@@ -17,10 +17,18 @@ Running ksgen
 **Assumes** that ksgen is installed, else follow Setup_.
 
 You can get general usage information with the ``--help`` option. After you
-built a proper settings directory structure, you can invoke ksgen like this to
-show you all your possible options::
+built a proper settings directory ("configuration tree") structure, you need to
+let ksgen know where it is. Invoke ksgen like this to show you all your
+possible options::
 
   ksgen --config-dir <dir> help
+
+If ``--config-dir`` is not provided, ksgen will look for the ``KHALEESI_DIR``
+environment variable, so it is a good practice to define this in your
+``.bashrc`` file::
+
+  export KHALEESI_DIR=<dir>
+  ksgen help
 
 This displays options you can pass to ksgen to generate_ the all-in-one
 settings file.
