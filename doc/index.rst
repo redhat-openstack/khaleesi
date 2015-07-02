@@ -16,6 +16,7 @@ Contents:
    ksgen
    jjb
    jenkins
+   cookbook
 
 
 Indices and tables
