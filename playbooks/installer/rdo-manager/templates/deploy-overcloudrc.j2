@@ -11,11 +11,11 @@ export DEPLOY_COMMAND="openstack overcloud deploy --debug --log-file overcloud_d
 {% if installer.env.type != "virthost" %}
 export NEUTRON_PUBLIC_INTERFACE={{ hw_env.neutron_public_interface }}
 export OVERCLOUD_LIBVIRT_TYPE={{ hw_env.libvirt_type }}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND --libvirt-type=$OVERCLOUD_LIBVIRT_TYPE --neturon-public-interface=$NEUTRON_PUBLIC_INTERFACE "
+export DEPLOY_COMMAND="$DEPLOY_COMMAND --libvirt-type=$OVERCLOUD_LIBVIRT_TYPE --neutron-public-interface=$NEUTRON_PUBLIC_INTERFACE --floating-ip-cidr {{ hw_env.floating_ip_cidr }} --floating-ip-start {{ hw_env.floating_ip_start }} --floating-ip-end {{ hw_env.floating_ip_end  }} --network-cidr {{ hw_env.network_cidr  }} --bm-network-gateway {{ hw_env.network_gateway }} "
 {% endif %}
 
 {% if  installer.network.network_config_name is defined and installer.env.type != "virthost" %}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND  --floating-ip-cidr {{ hw_env.floating_ip_cidr }} --floating-ip-start {{  hw_env.floating_ip_start }} --floating-ip-end {{ hw_env.floating_ip_end  }} --network-cidr {{ hw_env.network_cidr  }} --bm-network-gateway {{ hw_env.network_gateway }} -e ~/network-environment.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml "
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e ~/network-environment.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml "
 {% endif %}
 
 {% if  installer.network.network_config_name is defined and installer.env.type == "virthost" %}

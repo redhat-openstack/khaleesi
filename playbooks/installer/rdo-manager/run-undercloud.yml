@@ -57,7 +57,11 @@
       when: hw_env.network is defined and conf_file_present.stat.exists == True
 
     - name: edit undercloud.conf file - network gateway
-      lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#network_gateway line=network_gateway={{ hw_env.network_gateway }}
+      replace: dest={{ instack_user_home }}/undercloud.conf regexp='network_gateway = {{ hw_env.network }}.1' replace='network_gateway = {{ hw_env.network_gateway }}'
+      when: conf_file_present.stat.exists == True
+
+    - name: edit undercloud.conf file - network cidr
+      replace: dest={{ instack_user_home }}/undercloud.conf regexp='network_cidr = {{ hw_env.network }}.0/24' replace='network_cidr = {{ hw_env.network_cidr }}'
       when: conf_file_present.stat.exists == True
 
     - name: register short hostname

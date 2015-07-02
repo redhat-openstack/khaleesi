@@ -121,7 +121,7 @@
 
     - name: copy over template file
       synchronize: >
-        src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.network_config_name  | replace('_', '-') }}/{{ installer.network.network_config_name  | replace('_', '-') }}.yaml dest={{ instack_user_home }}/network_environment.yaml
+        src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.network_config_name  | replace('_', '-') }}/{{ installer.network.network_config_name  | replace('_', '-') }}.yaml dest={{ instack_user_home }}/network-environment.yaml
       when: installer.network.network_config_name is defined
 
     - name: copy over nic-configs directory
@@ -130,7 +130,7 @@
       when: installer.network.network_config_name is defined and installer.network.network_config_name != 'default'
 
     - name: poll for files to exist
-      wait_for: path={{ instack_user_home }}/swift-storage.yaml
+      wait_for: path={{ instack_user_home }}/nic-configs/swift-storage.yaml
       when: installer.network.network_config_name is defined and installer.network.network_config_name != 'default'
 
 - name: deploy the overcloud
