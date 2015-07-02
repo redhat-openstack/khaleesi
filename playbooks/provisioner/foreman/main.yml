@@ -1,6 +1,25 @@
 ---
-- name: Rebuild nodes - Foreman
+- name: Prepare nodes for rebulid - Foreman
   hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Add candidate hosts to host list
+      add_host:
+        name="{{ item.value.name }}"
+        groups="{{ item.value.groups
+            if item.value.groups is string
+            else item.value.groups| join(',') }}"
+        rebuild="{{ item.value.rebuild|lower}}"
+        ansible_fqdn="{{ item.value.hostname }}"
+        ansible_ssh_user="{{ item.value.remote_user }}"
+        ansible_ssh_private_key_file="{{ provisioner.key_file }}"
+        ansible_ssh_host="{{ item.value.hostname }}"
+        #TODO(aopincar): Add host.ip/host.name in foreman settings file and replace the next line with the previous line
+        #ansible_ssh_host={%- if item.host.ip %}{{ item.host.ip }}{%- else %}{{ item.host.name }}{% endif %}
+      with_dict: provisioner.nodes
+
+- name: Rebuild nodes - Foreman
+  hosts: openstack_nodes
   gather_facts: no
   tasks:
     - name: Rebuild nodes
@@ -8,24 +27,16 @@
            auth_url: "{{ provisioner.foreman.auth_url }}"
            username: "{{ provisioner.foreman.username }}"
            password: "{{ provisioner.foreman.password }}"
-           host_id: "{{ item.value.hostname }}"
-           rebuild: "{{ item.value.rebuild|lower }}"
+           host_id: "{{ inventory_hostname }}"
+           rebuild: "{{ hostvars[inventory_hostname].rebuild }}"
            wait_for_host: "{{ provisioner.foreman.wait_for_host|lower }}"
       retries: 4
-      with_dict: provisioner.nodes
+      delegate_to: localhost
       register: created_nodes
 
-    - name: Add created hosts to host list
-      add_host:
-        name="{{ item.item.value.name }}"
-        groups="{{ item.item.value.groups
-            if item.item.value.groups is string
-            else item.item.value.groups| join(',') }}"
-        ansible_fqdn="{{ item.item.value.hostname }}"
-        ansible_ssh_user="{{ item.item.value.remote_user }}"
-        ansible_ssh_private_key_file="{{ provisioner.key_file }}"
-        ansible_ssh_host={%- if item.host.ip %}{{ item.host.ip }}{%- else %}{{ item.host.name }}{% endif %}
-      with_items: created_nodes.results
+    - name: wait for hosts to get reachable after rebuild
+      local_action:
+          module: wait_for_ssh host={{ hostvars[inventory_hostname].ansible_ssh_host }} user={{ hostvars[inventory_hostname].ansible_ssh_user }} key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
 
 - name: Update network interfaces on nodes - Foreman
   hosts: openstack_nodes
