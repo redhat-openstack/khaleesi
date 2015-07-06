@@ -107,13 +107,16 @@ Options:
 
     def _load_defaults(self, path, value):
         param = '-'.join(path[len(self.config_dir + os.sep):].split('/')[::2])
-        file_path = path + os.sep + str(value) + '.yml'
-        loaded_file = Configuration.from_file(file_path)
         if not self.parsed['--' + param]:
             logging.warning(
                 "\'--%s\' hasn't been provided, using \'%s\' as default" % (
                     param, value))
             self.defaults.append(''.join(['--', param, '=', str(value)]))
+        else:
+            value = self.parsed['--' + param]
+
+        file_path = path + os.sep + str(value) + '.yml'
+        loaded_file = Configuration.from_file(file_path)
 
         if loaded_file.get(DEFAULTS_TAG):
             path += os.sep + str(value)
