@@ -56,6 +56,7 @@
 
     - name: list node to be deleted
       debug: var=node_name_to_delete.stdout
+      when: node_type_to_delete is defined
 
       #NOTE, once a node is deleted and additional ansible calls to the node will fail
     - name: delete the node by id

@@ -84,6 +84,7 @@
       shell: >
         source {{ instack_user_home }}/overcloudrc;
         nova service-list
+      when: node_to_scale is defined
 
     - name: get nova service-list for compute nodes
       shell: >
