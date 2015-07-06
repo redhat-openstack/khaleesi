@@ -1,4 +1,5 @@
 ---
+#Note, this playbook is limited to removing one node at a time atm
 - name: scale overcloud nodes
   hosts: undercloud
   tasks:
@@ -45,11 +46,23 @@
       register: node_id_to_delete
       when: node_type_to_delete is defined
 
+    - name: get name of node to be deleted
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        source {{ instack_user_home }}/delete-nodes-setup-env;
+        nova list | grep -m 1 $NODE_TO_DELETE_TYPE | sed -e 's/|//g' | awk '{print $2}'
+      register: node_name_to_delete
+      when: node_type_to_delete is defined
+
+    - name: list node to be deleted
+      debug: var=node_name_to_delete.stdout
+
+      #NOTE, once a node is deleted and additional ansible calls to the node will fail
     - name: delete the node by id
       shell: >
         source {{ instack_user_home }}/stackrc;
         source {{ instack_user_home }}/delete-nodes-setup-env;
-        openstack overcloud node delete {{ node_id_to_delete.stdout }} --plan overcloud --stack overcloud
+        openstack overcloud node delete {{ node_id_to_delete.stdout }} --debug --plan overcloud --stack overcloud &> overcloud_deployment_delete.log
       when: node_type_to_delete is defined
 
     - name: poll for heat stack-list to go to COMPLETE
@@ -99,3 +112,9 @@
         ceph -s
       register: ceph_s
       when: node_type_to_delete is defined and node_type_to_delete == 'cephstorage'
+
+    - name: delete the node from the ansible hosts file
+      delegate_to: localhost
+      lineinfile: dest="{{ lookup('env', 'PWD') }}/hosts" state=absent regexp="^{{ node_name_to_delete.stdout }}"
+      when: node_type_to_delete is defined
+

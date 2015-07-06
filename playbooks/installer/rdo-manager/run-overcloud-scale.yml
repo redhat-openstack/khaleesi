@@ -47,7 +47,7 @@
         source {{ instack_user_home }}/stackrc;
         source {{ instack_user_home }}/scale-setup-env;
         {{ overcloud_plan_set.stdout }};
-        openstack overcloud deploy --plan-uuid {{ overcloud_uuid.stdout }}
+        openstack overcloud deploy --debug --log-file overcloud_deployment_scale.log --plan-uuid {{ overcloud_uuid.stdout }} &> overcloud_deployment_scale_console.log
       when: node_to_scale is defined
 
     - name: poll for heat stack-list to go to COMPLETE
@@ -79,6 +79,11 @@
     - name: check the number of nodes match the scaled values
       fail: msg="Overcloud nodes were not scaled correctly."
       when: (node_to_scale is defined) and (scale_change_value.stdout != nova_list_output.stdout)
+
+    - name: print nova service-list
+      shell: >
+        source {{ instack_user_home }}/overcloudrc;
+        nova service-list
 
     - name: get nova service-list for compute nodes
       shell: >
