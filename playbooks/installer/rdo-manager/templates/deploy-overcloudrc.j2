@@ -15,9 +15,9 @@ export DEPLOY_COMMAND="$DEPLOY_COMMAND --libvirt-type=$OVERCLOUD_LIBVIRT_TYPE --
 {% endif %}
 
 {% if  installer.network.network_config_name is defined and installer.env.type != "virthost" %}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND -e ~/network-environment.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml "
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml -e ~/network-environment.yaml "
 {% endif %}
 
 {% if  installer.network.network_config_name is defined and installer.env.type == "virthost" %}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND -e  /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml "
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml -e ~/network-environment.yaml "
 {% endif %}

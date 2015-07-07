@@ -37,3 +37,6 @@ export NODE_MEM={{ installer.nodes.node_mem | default('4096') }}
 export UNDERCLOUD_NODE_MEM={{ installer.nodes.undercloud_node_mem | default('4096') }}
 {%endif %}
 
+{% if installer.network.network_config_name is defined %}
+export TESTENV_ARGS=" --baremetal-bridge-names 'brbm' --vlan-trunk-ids='10 20 30 40 50'"
+{%endif %}

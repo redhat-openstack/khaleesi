@@ -112,17 +112,21 @@
           openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" baremetal;
 
 - name: Copy over and modify network config template
-  hosts: undercloud:&baremetal
+  hosts: undercloud
   tasks:
     - name: check that network config file exists
       stat: path="{{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.network_config_name  | replace('_', '-') }}/{{ installer.network.network_config_name  | replace('_', '-') }}.yaml"
       register: network_config_file_present
       when:  installer.network.network_config_name is defined
 
-    - name: copy over template file
+    - name: copy over template file (baremetal)
       synchronize: >
         src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.network_config_name  | replace('_', '-') }}/{{ installer.network.network_config_name  | replace('_', '-') }}.yaml dest={{ instack_user_home }}/network-environment.yaml
-      when: installer.network.network_config_name is defined
+      when: installer.network.network_config_name is defined and installer.env.type != "virthost"
+
+    - name: copy over template file (virt)
+      local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F $PWD/../../../ssh.config.ansible -S none -o StrictHostKeyChecking=no" $PWD/../../../../khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.network_config_name  | replace('_', '-') }}/{{ installer.network.network_config_name  | replace('_', '-') }}.yaml undercloud:{{ instack_user_home }}/network-environment.yaml
+      when: installer.network.network_config_name is defined and installer.env.type == "virthost"
 
     - name: copy over nic-configs directory
       synchronize: >
@@ -157,6 +161,13 @@
         src=templates/deploy-overcloudrc.j2
         dest={{ instack_user_home }}/deploy-overcloudrc
         mode=0755
+
+    - name: workaround net-iso virt
+      when: (workarounds is defined and workarounds.enabled|bool and installer.network.network_config_name is defined)
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          sudo ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
+          sudo ip l set dev vlan10 up; sudo ip addr add 172.16.23.251/24 dev vlan10;
 
     - name: echo deploy command
       register: overcloud_deploy_command
