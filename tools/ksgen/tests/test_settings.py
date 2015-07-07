@@ -49,12 +49,12 @@ class TestGenerator(TestCase):
 
     def test__prepare_defaults(self):
         provisioner_defaults = {
-            "site": "qeos",
+            "site": "cloud1",
             "topology": "all-in-one"
         }
 
         site_defaults = {
-            "user": "rhos-jenkins"
+            "user": "user1"
         }
 
         self.obj.parsed = docopt.docopt(self.obj._doc_string,

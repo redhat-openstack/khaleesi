@@ -1,4 +1,4 @@
 provisioner:
       openstack:
           site:
-            user: cloud1-user1
+            user: cloud2-user1
