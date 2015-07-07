@@ -70,6 +70,7 @@ Configuration:
 ``````````````
 
 Create the appropriate ansible.cfg for khaleesi::
+
     pushd khaleesi
     cp ansible.cfg.example ansible.cfg
     touch ssh.config.ansible
