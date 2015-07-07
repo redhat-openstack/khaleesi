@@ -71,13 +71,11 @@ Configuration:
 
 Create the appropriate ansible.cfg for khaleesi::
 
-    pushd khaleesi
     cp ansible.cfg.example ansible.cfg
     touch ssh.config.ansible
     echo "" >> ansible.cfg
     echo "[ssh_connection]" >> ansible.cfg
     echo "ssh_args = -F ssh.config.ansible" >> ansible.cfg
-    popd
 
 Create an ssh key pair::
 
