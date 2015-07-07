@@ -63,6 +63,7 @@ Options:
         self._rules = None
         self.parsed = None
         self.extra_vars = None
+        self.all_settings = None
         self.defaults = []
 
     def run(self):
@@ -72,24 +73,21 @@ Options:
         self._merge_rules_file_exports(loader)
         loader.load()
         self._merge_extra_vars(loader)
-        all_settings = loader.settings()
+        self.all_settings = loader.settings()
 
         try:
             # remove defaults traces
-            del all_settings[DEFAULTS_TAG]
+            del self.all_settings[DEFAULTS_TAG]
         except KeyError:
             logger.debug("No defaults have been found, nothing to delete...")
 
-        # 'in-string' lookup workaround
-        for value in all_settings.values():
-            if isinstance(value, OrderedTree):
-                recursive_lookup(value, all_settings)
+        self._replace_in_string_lookup()
 
-        logger.debug(yaml_utils.to_yaml("All Settings", all_settings))
+        logger.debug(yaml_utils.to_yaml("All Settings", self.all_settings))
         logger.info("Writing to file: %s", self.output_file)
         with open(self.output_file, 'w') as out:
-            out.write(yaml.safe_dump(
-                all_settings, default_flow_style=False))
+            out.write(
+                yaml.safe_dump(self.all_settings, default_flow_style=False))
         return 0
 
     def _prepare_defaults(self):
@@ -290,6 +288,41 @@ Options:
             else:
                 raise KeyValueError(var, "No = found between key and value")
 
+    def _replace_in_string_lookup(self, sub_lookup_dict=None):
+        """
+        Search and replace 'in-string' !lookup
+        Example:
+            key: 'pre_string{{ !lookup key.sub_key.sub_sub_key }}post_string'
+        """
+
+        if sub_lookup_dict is None:
+            sub_lookup_dict = self.all_settings
+
+        my_iter = sub_lookup_dict.iteritems() if \
+            isinstance(sub_lookup_dict, dict) else enumerate(sub_lookup_dict)
+
+        for key, value in my_iter:
+            if isinstance(value, OrderedTree):
+                self._replace_in_string_lookup(sub_lookup_dict[key])
+            elif isinstance(value, list):
+                self._replace_in_string_lookup(value)
+            elif isinstance(value, str):
+                while True:
+                    parser = re.compile('\{\{\s*!lookup\s[^\s]+\s*\}\}')
+                    additional_lookups = parser.findall(value)
+
+                    if not additional_lookups:
+                        break
+
+                    for additional_lookup in additional_lookups:
+                        lookup_key = re.search('(\w+\.?)+ *?\}\}',
+                                               additional_lookup)
+                        lookup_key = lookup_key.group(0).strip()[:-2].strip()
+                        lookup_value = str(
+                            self.all_settings[lookup_key.replace('.', '!')])
+                        sub_lookup_dict[key] = re.sub(additional_lookup,
+                                                      lookup_value, value)
+                        value = sub_lookup_dict[key]
 
 class Loader(object):
     def __init__(self, config_dir, settings):
@@ -414,37 +447,3 @@ def load_configuration(file_path, rel_dir=None):
                      os.path.relpath(file_path, rel_dir), e)
         raise
     return None
-
-
-def recursive_lookup(lookup_line, all_settings):
-    """
-    Search and replace 'in-string' lookups
-    """
-
-    for key, value in lookup_line.iteritems():
-        if isinstance(value, OrderedTree):
-            recursive_lookup(value, all_settings)
-        elif isinstance(value, str):
-            successful_search = re.search('\{\{\s*!lookup.*?\}\}', value)
-            if not successful_search:
-                continue
-            else:
-                lookup_key = re.search('\s+.* *?\}\}',
-                                       successful_search.group(0))
-                lookup_key = lookup_key.group(0).strip()[:-2].strip()
-                lookup_value = get_lookup_value(lookup_key, all_settings)
-                lookup_line[key] = re.sub(successful_search.group(0),
-                                          lookup_value, value)
-
-
-def get_lookup_value(lookup, settings):
-    """
-    A recursive function which returns the value of a given lookup sequence
-    from a given settings dictionary
-    """
-
-    if isinstance(lookup, str):
-        return get_lookup_value(lookup.split('.'), settings)
-    elif len(lookup) > 1:
-        return get_lookup_value(lookup[1:], settings[lookup[0]])
-    return settings[lookup[0]]
