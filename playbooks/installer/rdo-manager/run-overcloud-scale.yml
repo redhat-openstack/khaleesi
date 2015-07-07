@@ -97,10 +97,3 @@
     - name: check the service list matches the number of compute nodes
       fail: msg="Overcloud nova list does not show expected number of compute services"
       when: (node_to_scale is defined) and node_to_scale == 'compute' and nova_service_compute.stdout != scale_change_value.stdout
-
-    - name: get ceph status for ceph nodes
-      shell: >
-        source {{ instack_user_home }}/overcloudrc;
-        ceph -s
-      register: ceph_s
-      when: node_to_scale is defined and node_to_scale == 'cephstorage'
