@@ -27,7 +27,7 @@
       register: tempest_repo
       when: tester.git.local_dir is not defined
 
-    - synchronize: dest={{ tester.dir }} src={{ tester.git.local_dir }}
+    - synchronize: dest={{ tester.dir }} src={{ tester.git.local_dir }}/
                    archive=no recursive=yes perms=yes links=yes
       register: tempest_local_dir
       when: tester.git.local_dir is defined
