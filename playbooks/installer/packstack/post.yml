@@ -10,3 +10,48 @@
 
     - name: restart nova compute service to apply changes in nova.conf
       shell: openstack-service restart nova-compute
+
+- name: Check if BZ1138740 S3/boto workaround is enabled
+  hosts: controller
+  gather_facts: no
+  sudo: no
+  tasks:
+      - group_by: key=workaround_bz1138740
+        when: workarounds.bz1138740 is defined
+
+- name: "Workaround BZ1138740: Install nova-objectstore for S3/boto tests"
+  hosts: workaround_bz1138740
+  gather_facts: yes
+  sudo: yes
+  tasks:
+    - name: Get the current endpoint
+      shell: source /root/keystonerc_admin; keystone endpoint-list|grep 8080|grep -v AUTH|awk '{print $2}'
+      register: old_endpoint
+
+    - name: Get the current endpoint for S3
+      shell: source /root/keystonerc_admin; keystone endpoint-list|grep 8080|grep -v AUTH|awk '{print $12}'
+      register: endpoint_s3
+
+    - name: Create new endpoint
+      shell: source /root/keystonerc_admin; keystone endpoint-create
+                --publicurl http://{{ ansible_default_ipv4.address }}:3333
+                --internalurl http://{{ ansible_default_ipv4.address }}:3333
+                --adminurl http://{{ ansible_default_ipv4.address }}:3333
+                --service {{ endpoint_s3.stdout }}
+      when: old_endpoint.stdout and endpoint_s3.stdout
+      register: new_s3_endpoint
+
+    - name: Delete old endpoint
+      shell: source /root/keystonerc_admin; keystone endpoint-delete {{ old_endpoint.stdout }}
+      when: new_s3_endpoint.changed
+
+    - name: Install openstack-nova-objectstore package
+      yum: name=openstack-nova-objectstore state=present
+
+    - name: Start and enable openstack-nova-objectstore
+      service: name=openstack-nova-objectstore state=started enabled=yes
+
+    - name: Open firewall for objectstore api
+      shell: |
+          ( iptables -C INPUT -p tcp -m multiport --dports 3333 -m comment --comment "bz1138740 - nova objectstore api incoming" -j ACCEPT && echo "Already open" ) || \
+          ( iptables -A INPUT -p tcp -m multiport --dports 3333 -m comment --comment "bz1138740 - nova objectstore api incoming" -j ACCEPT && echo "Opened" )
