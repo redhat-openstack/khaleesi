@@ -10,19 +10,23 @@ Requirements
 For deploying rdo-manager you will need at least a baremetal machine which must
 has the following minimum system requirements::
 
+    CentOS-7
     Virtualization hardware extenstions enabled (nested KVM is not supported)
     1 quad core CPU
     12 GB free memory
     120 GB disk space
 
-RDO-Manager only supports the following operating systems::
+Khaleesi driven RDO-Manager deployments only support the following operating systems::
 
-    RHEL 7.1 x86_64 or
-    CentOS 7 x86_64
+    CentOS 7 x86_64 
+    RHEL 7.1 x86_64 ( Red Hat internal deployments only ) 
 
 See the following documentation for system requirements::
 
     https://repos.fedorapeople.org/repos/openstack-m/docs/master/environments/virtual.html#minimum-system-requirements
+
+.. Note:: There is an internal khaleesi-settings git repository that contains the settings and configuration for RHEL deployments.
+     Do not attempt to use a RHEL bare metal host or RHEL options in ksgen using these instructions
 
 Deploy rdo-manager
 ------------------
