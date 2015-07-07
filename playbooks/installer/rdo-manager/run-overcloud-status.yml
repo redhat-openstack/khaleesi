@@ -105,23 +105,20 @@
       failed_when: overcloud_deployment_result != "0"
 
 #Execute Tempest
-- name: Group hosts in gate if we are gating
-  hosts: all
-  tasks:
-    - group_by: key=gate
-
-      when: "\"\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
-
 - name: Run non gating tasks
-  hosts: undercloud:!gate
+  hosts: undercloud
   tasks:
     - name: run overcloud tests
       ignore_errors: yes
-      when: overcloud_deployment_result == "0"
+      when: overcloud_deployment_result == "0" and
+            installer.tempest.enabled is defined and
+            installer.tempest.enabled|bool == True
       shell: >
           source {{ instack_user_home }}/overcloudrc;
           openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL --overcloud-admin-password "$OS_PASSWORD" --tempest-args {{ installer.tempest.test_regex }}
 
     - name: fetch tempest result
       fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes
-      when: overcloud_deployment_result == "0"
+      when: overcloud_deployment_result == "0" and
+            installer.tempest.enabled is defined and
+            installer.tempest.enabled|bool == True
