@@ -1,12 +1,6 @@
 #!/bin/bash
-export NODES_JSON=instackenv.json
-export CONTROLSCALE={{ installer.nodes.controller.scale | default('1') }}
-export COMPUTESCALE={{ installer.nodes.compute.scale | default('1') }}
-export BLOCKSTORAGESCALE={{ installer.nodes.blockstorage.scale | default('0') }}
-export SWIFTSTORAGESCALE={{ installer.nodes.swiftstorage.scale | default ('0') }}
-export CEPHSTORAGESCALE={{ installer.nodes.cephstorage.scale | default ('1') }}
 
-export DEPLOY_COMMAND="openstack overcloud deploy --debug --log-file overcloud_deployment.log --plan-uuid {{ overcloud_uuid }} --neutron-network-type {{ installer.network.variant }} --neutron-tunnel-types {{ installer.network.variant }} --control-scale $CONTROLSCALE --compute-scale $COMPUTESCALE --ceph-storage-scale $CEPHSTORAGESCALE "
+export DEPLOY_COMMAND="openstack overcloud deploy --debug --log-file overcloud_deployment_{{ 100 | random }}.log --plan-uuid {{ overcloud_uuid }} --neutron-network-type {{ installer.network.variant }} --neutron-tunnel-types {{ installer.network.variant }} --control-scale $CONTROLSCALE --compute-scale $COMPUTESCALE --ceph-storage-scale $CEPHSTORAGESCALE "
 
 {% if installer.env.type != "virthost" %}
 export NEUTRON_PUBLIC_INTERFACE={{ hw_env.neutron_public_interface }}
@@ -19,5 +13,5 @@ export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-temp
 {% endif %}
 
 {% if  installer.network.network_config_name is defined and installer.env.type == "virthost" %}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml -e ~/network-environment.yaml "
+export DEPLOY_COMMAND="$DEPLOY_COMMAND --network-cidr 192.168.0.0/24 --floating-ip-cidr=172.16.23.0/24 --floating-ip-start=172.16.23.100 --floating-ip-end=172.16.23.150 --bm-network-gateway=172.16.23.251 -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml -e ~/network-environment.yaml "
 {% endif %}

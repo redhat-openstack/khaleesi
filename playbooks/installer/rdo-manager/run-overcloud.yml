@@ -177,6 +177,12 @@
       set_fact:
         overcloud_uuid: "{{ overcloud_uuid_result.stdout }}"
 
+    - name: copy template file with environment variables for overcloud nodes
+      template:
+        src=templates/deploy-nodes.j2
+        dest={{ instack_user_home }}/deploy-nodesrc
+        mode=0755
+
     - name: copy template file with environment variables for overcloud deploy
       template:
         src=templates/deploy-overcloudrc.j2
@@ -187,6 +193,7 @@
       register: overcloud_deploy_command
       shell: >
           source {{ instack_user_home }}/stackrc;
+          source {{ instack_user_home }}/deploy-nodesrc;
           source {{ instack_user_home }}/deploy-overcloudrc;
           echo $DEPLOY_COMMAND
 

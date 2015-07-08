@@ -14,41 +14,56 @@
         - blockstorage
         - swiftstorage
 
-    - name: setup vars
+    - name: get plan list
+      register: overcloud_uuid_result
+      when: node_to_scale is defined
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          openstack management plan list | grep overcloud | cut -d " " -f2
+
+    - name: set fact for openstack management plan
+      when: node_to_scale is defined
+      set_fact:
+        overcloud_uuid: "{{ overcloud_uuid_result.stdout }}"
+
+    - name: setup environment variables for overcloud scale up
       template: src=templates/scale-setup-env.j2 dest=~/scale-setup-env mode=0755
       when: node_to_scale is defined
+
+    - name: setup environment variables for overcloud nodes
+      template:
+        src=templates/deploy-nodes.j2
+        dest={{ instack_user_home }}/deploy-nodesrc
+        mode=0755
+
+    - name: copy template file with environment variables for overcloud deploy
+      template:
+        src=templates/deploy-overcloudrc.j2
+        dest={{ instack_user_home }}/deploy-overcloudrc
+        mode=0755
 
     - name: Contents of scale-setup-env
       shell: >
         cat {{ instack_user_home }}/scale-setup-env
       when: node_to_scale is defined
 
-    - name: get plan list
-      register: overcloud_uuid
+    - name: echo the deploy scale command
+      register: overcloud_deploy_command
+      when: node_to_scale is defined
       shell: >
-        source {{ instack_user_home }}/stackrc;
-        openstack management plan list | grep overcloud | cut -d " " -f2
-      when: node_to_scale is defined
+          source {{ instack_user_home }}/stackrc;
+          source {{ instack_user_home }}/deploy-nodesrc;
+          source {{ instack_user_home }}/scale-setup-env;
+          source {{ instack_user_home }}/deploy-overcloudrc;
+          echo $DEPLOY_COMMAND
 
-    - name: echo scale overcloud nodes
+    - name: scale-overcloud
+      register: overcloud_deployment_result
+      when: node_to_scale is defined
+      ignore_errors: yes
       shell: >
-        source {{ instack_user_home }}/stackrc;
-        source {{ instack_user_home }}/scale-setup-env;
-        echo "openstack management plan set {{ overcloud_uuid.stdout }} -S $NODE_TO_SCALE_PLAN_TYPE=$NODE_SCALE_CHANGE"
-      register: overcloud_plan_set
-      when: node_to_scale is defined
-
-    - name: run command
-      shell: echo {{ overcloud_plan_set.stdout }}
-      when: node_to_scale is defined
-
-    - name: scale overcloud nodes
-      shell: >
-        source {{ instack_user_home }}/stackrc;
-        source {{ instack_user_home }}/scale-setup-env;
-        {{ overcloud_plan_set.stdout }};
-        openstack overcloud deploy --debug --log-file overcloud_deployment_scale.log --plan-uuid {{ overcloud_uuid.stdout }} &> overcloud_deployment_scale_console.log
-      when: node_to_scale is defined
+          source {{ instack_user_home }}/stackrc;
+          {{ overcloud_deploy_command.stdout }} &> overcloud_deployment_scale_console.log
 
     - name: poll for heat stack-list to go to COMPLETE
       shell: >
