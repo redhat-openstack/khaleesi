@@ -108,6 +108,10 @@
 - name: Run non gating tasks
   hosts: undercloud
   tasks:
+    - name: copy skipfile into stack home
+      when: overcloud_deployment_result == "0"
+      copy: src=files/skipfile dest={{ instack_user_home }}/skipfile owner=stack group=stack
+
     - name: run overcloud tests
       ignore_errors: yes
       when: overcloud_deployment_result == "0" and
@@ -115,7 +119,10 @@
             installer.tempest.enabled|bool == True
       shell: >
           source {{ instack_user_home }}/overcloudrc;
-          openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL --overcloud-admin-password "$OS_PASSWORD" --tempest-args {{ installer.tempest.test_regex }}
+          openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL \
+          --overcloud-admin-password "$OS_PASSWORD" \
+          --tempest-args {{ installer.tempest.test_regex }} \
+          --skipfile {{ instack_user_home }}/skipfile
 
     - name: fetch tempest result
       fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes
