@@ -111,44 +111,13 @@
           openstack flavor create --id auto --ram 4096 --disk 40 --vcpus 1 baremetal;
           openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" baremetal;
 
-    - name: workaround get ironic node ids
-      when: (workarounds is defined and workarounds.enabled|bool)
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          ironic node-list | grep 'None' |  awk '{ print $2; }'
-      register: ironic_node_list_id
-
-    - name: workaround set first node to available
-      when: (workarounds is defined and workarounds.enabled|bool)
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          ironic node-set-provision-state {{ ironic_node_list_id.stdout_lines.0 }} provide
-
     - name: wait until nova becomes aware of first bare metal instance
       when: (workarounds is defined and workarounds.enabled|bool)
       register: vcpu_count_single
       retries: 20
       delay: 15
       until: vcpu_count_single.stdout|int > 0
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          nova hypervisor-stats | grep ' vcpus ' | head -n1 | awk '{ print $4; }'
-
-    - name: workaround set node to available
-      when: (workarounds is defined and workarounds.enabled|bool)
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          if [ -z "$(ironic node-show {{item}} | grep ' provision_state' | grep 'available')" ]; then
-            ironic node-set-provision-state {{item}} provide;
-          fi
-      with_items: ironic_node_list_id.stdout_lines
-
-    - name: wait until nova becomes aware of bare metal instances
-      when: (workarounds is defined and workarounds.enabled|bool)
-      register: vcpu_count
-      retries: 20
-      delay: 15
-      until: vcpu_count.stdout|int >= {{ vcpu_count_single.stdout|int * installer.nodes.node_count|default('3')|int }}
+      ignore_errors: true
       shell: >
           source {{ instack_user_home }}/stackrc;
           nova hypervisor-stats | grep ' vcpus ' | head -n1 | awk '{ print $4; }'
