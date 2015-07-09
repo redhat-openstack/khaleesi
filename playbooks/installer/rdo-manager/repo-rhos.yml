@@ -37,6 +37,10 @@
       - name: yum clean all
         command: yum clean all
 
+      - name: setup vars
+        sudo: yes
+        template: src=templates/eggs-repo.j2 dest=/etc/yum.repos.d/eggs-tempest-repo.repo mode=0644
+
 - name: Get build details
   hosts: "{{ repo_host }}:&RedHat"
   vars:
