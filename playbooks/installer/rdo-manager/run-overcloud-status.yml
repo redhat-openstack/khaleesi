@@ -111,7 +111,7 @@
       sudo: yes
       shell: sed -i 's/novacompute/compute/' /usr/bin/instack-test-overcloud
       tags: workaround
-      when: workarounds.enabled is defined and workarounds.enabled|bool == True
+      when: workarounds.enabled is defined and workarounds.enabled|bool
 
     - name: run instack tests
       ignore_errors: yes
@@ -133,13 +133,13 @@
       copy: src=files/skipfile dest={{ instack_user_home }}/skipfile owner=stack group=stack
       when: overcloud_deployment_result == "0" and
             installer.tempest.enabled is defined and
-            installer.tempest.enabled|bool == True
+            installer.tempest.enabled|bool
 
     - name: run overcloud tests
       ignore_errors: yes
       when: overcloud_deployment_result == "0" and
             installer.tempest.enabled is defined and
-            installer.tempest.enabled|bool == True
+            installer.tempest.enabled|bool
       shell: >
           source {{ instack_user_home }}/overcloudrc;
           openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL \
@@ -151,4 +151,4 @@
       fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes
       when: overcloud_deployment_result == "0" and
             installer.tempest.enabled is defined and
-            installer.tempest.enabled|bool == True
+            installer.tempest.enabled|bool
