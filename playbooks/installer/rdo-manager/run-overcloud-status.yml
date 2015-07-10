@@ -102,7 +102,7 @@
   hosts: undercloud
   tasks:
     - fail: msg="instack-deploy-overcloud failed, see the above debug information"
-      when: result.rc != 0
+      when: overcloud_deployment_result != "0"
 
 - name: run instack test overcloud
   hosts: undercloud
