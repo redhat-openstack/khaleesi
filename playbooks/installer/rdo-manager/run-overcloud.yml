@@ -112,7 +112,6 @@
           openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" baremetal;
 
     - name: wait until nova becomes aware of first bare metal instance
-      when: (workarounds is defined and workarounds.enabled|bool)
       register: vcpu_count_single
       retries: 20
       delay: 15
@@ -154,6 +153,17 @@
       wait_for: path={{ instack_user_home }}/nic-configs/swift-storage.yaml
       when: installer.network.network_config_name is defined and installer.network.network_config_name != 'default'
 
+#note this is part of the instructions, not sure if this is a workaround anymore
+- name: setup networking on virt for network isolation
+  hosts: undercloud:&virthost
+  tasks:
+    - name: net-iso virt setup vlans
+      when: installer.network.network_config_name is defined
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          sudo ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
+          sudo ip l set dev vlan10 up; sudo ip addr add 172.16.23.251/24 dev vlan10;
+
 - name: deploy the overcloud
   hosts: undercloud
   tasks:
@@ -172,13 +182,6 @@
         src=templates/deploy-overcloudrc.j2
         dest={{ instack_user_home }}/deploy-overcloudrc
         mode=0755
-
-    - name: workaround net-iso virt
-      when: (workarounds is defined and workarounds.enabled|bool and installer.network.network_config_name is defined)
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          sudo ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
-          sudo ip l set dev vlan10 up; sudo ip addr add 172.16.23.251/24 dev vlan10;
 
     - name: echo deploy command
       register: overcloud_deploy_command
