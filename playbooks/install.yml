@@ -21,11 +21,13 @@
       - name: Load component config
         include_vars: "{{ component.dir + '/jenkins-config.yml' }}"
         register: component_config
-        when: tester.component is defined
+        #TODO(mpavlase): need to think of a better way (unittest condition)
+        when: tester.component is defined and tester.name == 'unittest'
 
       - name: Print config
         debug: var=component_config
-        when: tester.component is defined
+        #TODO(mpavlase): need to think of a better way (unittest condition)
+        when: tester.component is defined and tester.name == 'unittest'
 
 - include: installer/{{ installer.type }}/main.yml
 
