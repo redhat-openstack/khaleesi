@@ -24,6 +24,9 @@
         command: "rhos-release  -d {{ product.version }}"
         when: product.repo_type in ['poodle']
 
+      - name: yum clean all
+        command: yum clean all
+
 - name: Get build details
   hosts: "{{ repo_host }}:&RedHat"
   vars:

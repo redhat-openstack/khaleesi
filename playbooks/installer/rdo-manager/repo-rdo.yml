@@ -31,6 +31,9 @@
       - name: Install epel release
         command: "yum localinstall -y {{ distro.epel_release }}"
 
+      - name: yum clean all
+        command: yum clean all
+
 - name: RHEL RDO prep
   hosts: "{{ repo_host }}:&RedHat"
   vars:
