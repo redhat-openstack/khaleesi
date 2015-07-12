@@ -75,12 +75,6 @@ Options:
         self._merge_extra_vars(loader)
         self.all_settings = loader.settings()
 
-        try:
-            # remove defaults traces
-            del self.all_settings[DEFAULTS_TAG]
-        except KeyError:
-            logger.debug("No defaults have been found, nothing to delete...")
-
         self._replace_in_string_lookup()
 
         logger.debug(yaml_utils.to_yaml("All Settings", self.all_settings))
@@ -368,6 +362,14 @@ class Loader(object):
         all_cfg = Configuration.from_dict({})
         for f in self._file_list:
             cfg = load_configuration(f, self._config_dir)
+
+            try:
+                del cfg[DEFAULTS_TAG]
+            except KeyError:
+                pass
+            else:
+                logger.debug("Successfully removed default traces from %s" % f)
+
             all_cfg.merge(cfg)
         self._all_settings.merge(all_cfg)
         self._loaded = True
