@@ -17,7 +17,7 @@
   shell: >
       source {{ instack_user_home }}/stackrc;
       heat stack-list;
-      heat resource-list overcloud;
+      heat resource-list overcloud -n5;
       heat event-list overcloud;
       nova list;
 
