@@ -1,0 +1,3 @@
+---
+- name: Component post steps
+  hosts: controller

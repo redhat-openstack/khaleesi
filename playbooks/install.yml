@@ -14,21 +14,6 @@
       command: "iptables {{ item }}"
       with_items: installer.firewall.rules
 
-- name: Load config for component testing
-  hosts: openstack_nodes
-  sudo: yes
-  tasks:
-      - name: Load component config
-        include_vars: "{{ component.dir + '/jenkins-config.yml' }}"
-        register: component_config
-        #TODO(mpavlase): need to think of a better way (unittest condition)
-        when: tester.component is defined and tester.name == 'unittest'
-
-      - name: Print config
-        debug: var=component_config
-        #TODO(mpavlase): need to think of a better way (unittest condition)
-        when: tester.component is defined and tester.name == 'unittest'
-
 - include: installer/{{ installer.type }}/main.yml
 
 - name: Global post install

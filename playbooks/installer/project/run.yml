@@ -1,0 +1,25 @@
+---
+- name: rsync component git repo to tester
+  hosts: controller
+  tasks:
+      - name: rsync
+        synchronize: src="{{ installer.component.dir }}" dest="{{ ansible_env.HOME }}/tester" #"
+        register: result
+
+      - name: print result
+        debug: var=result
+
+- name: configure logs environment
+  hosts: controller
+  tasks:
+      - name: clean log dir
+        file: path={{ ansible_env.HOME }}/tester/logs/ state=absent
+
+      - name: create log dir
+        file: path={{ ansible_env.HOME }}/tester/logs/ state=directory
+
+- name: set tester path
+  hosts: controller
+  tasks:
+      - name: compute the tester path
+        set_fact: component_path={{ ansible_env.HOME + '/tester/' + component_basename }}

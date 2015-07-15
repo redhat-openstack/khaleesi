@@ -1,94 +1,28 @@
 ---
 - name: set required facts
-  hosts: tester
+  hosts: controller
   tasks:
       - name: compute the directory basename
-        set_fact: component_basename={{ component.dir.split('/')|last }}
+        set_fact: component_basename={{ installer.component.dir.split('/')|last }}
 
       - name: find the test dependencies file used for the test-run
-        set_fact: test_deps_file="{{ component.dir + '/jenkins-config.yml' }}" #"
+        set_fact: test_deps_file="{{ installer.component.dir + '/' + installer.component.config_file }}" #"
 
 - name: load test config
-  hosts: tester
+  hosts: controller
   tasks:
       - name: load config
         include_vars: "{{test_deps_file}}"
         register: result
 
       - name: set test_distro
-        set_fact: test_distro="{{ ansible_distribution + '-' + ansible_distribution_version }}" #"
+        set_fact: test_distro="{{ ansible_distribution + '-' + ansible_distribution_version.split(".")[0] }}" #"
 
       - name: set test_env
         set_fact: test_env="{{ test_config.virt[test_distro] }}" #"
 
-- name: Setup openstack repos
-  hosts: tester
-  gather_facts: yes
-  sudo: yes
-  tasks:
-      - name: Disable any existing repos
-        shell: sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/*
-        register: shell_result
-        changed_when: "shell_result.rc == 0"
-        failed_when: "shell_result.rc > 2"
-
-      - name: Install release tool on machines
-        command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/{{ product.name }}-release-latest.noarch.rpm"
-
-      - name: Execute the release tool
-        shell: "{{ product.name }}-release {{ product.version|int }}"
-        register: shell_result
-        changed_when: "shell_result == 0"
-
-      - name: Create the COPR repos required for component tests
-        template: src=templates/apevec-copr-repo.j2 dest=/etc/yum.repos.d/apevec-copr.repo
-        sudo: yes
-        when: ansible_distribution_version|int >= 6
-
-      - name: Create the RHOS poodle repository
-        shell: "rhos-release  -x {{ product.version|int }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.version|int }}"
-        when: product.repo_type in ['poodle']
-
-- name: print out test env
-  hosts: tester
-  gather_facts: yes
-  tasks:
-      - name: component.dir
-        debug: var=component.dir
-
-      - name: HOME dir
-        debug: var=ansible_env.HOME
-
-      - name: test environment name
-        debug: var=test.env_name
-
-- name: rsync component git repo to tester
-  hosts: tester
-  tasks:
-      - name: rsync
-        synchronize: src="{{ component.dir }}" dest="{{ ansible_env.HOME }}/tester" #"
-        register: result
-
-      - name: print result
-        debug: var=result
-
-- name: prep the logs
-  hosts: tester
-  tasks:
-      - name: clean log dir
-        file: path={{ ansible_env.HOME }}/tester/logs/ state=absent
-
-      - name: create log dir
-        file: path={{ ansible_env.HOME }}/tester/logs/ state=directory
-
-- name: set tester path
-  hosts: tester
-  tasks:
-      - name: compute the tester path
-        set_fact: component_path={{ ansible_env.HOME + '/tester/' + component_basename }}
-
 - name: print test configuration
-  hosts: tester
+  hosts: controller
   tasks:
       - name: print component path
         debug: var={{ component_path }}
