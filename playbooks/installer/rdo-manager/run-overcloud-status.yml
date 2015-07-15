@@ -126,6 +126,25 @@
 - name: Run non gating tasks
   hosts: undercloud
   tasks:
+    - name: get ext-tempest-net uuid
+      register: public_network_uuid_result
+      shell: >
+            source {{ instack_user_home }}/overcloudrc;
+            openstack network list | grep ext-net | cut -d " " -f2
+      when: installer.network.type == "neutron"
+
+    - name: set fact for public network uuid
+      set_fact:
+        public_network_uuid: "{{ public_network_uuid_result.stdout }}"
+      when: installer.network.type == "neutron"
+
+    - name: add public_network_id into overcloud_validate.py
+      sudo: yes
+      shell: sed -i "s/tempest.conf/ tempest.conf --network-id {{ public_network_uuid }} /" \
+            /usr/lib/python2.7/site-packages/rdomanager_oscplugin/v1/overcloud_validate.py
+      tags: workaround
+      when: workarounds.enabled is defined and workarounds.enabled|bool
+
     - name: copy skipfile into stack home
       copy: src=files/skipfile dest={{ instack_user_home }}/skipfile owner=stack group=stack
       when: overcloud_deployment_result == "0" and

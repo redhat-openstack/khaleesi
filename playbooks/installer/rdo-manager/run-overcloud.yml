@@ -207,6 +207,19 @@
     - name: echo deploy-overcloud return code
       debug: var=overcloud_deployment_result.rc
 
+    - name: copy template file with environment variables for neutron network
+      template:
+        src=templates/post-deploy-overcloudrc.j2
+        dest={{ instack_user_home }}/post-deploy-overcloudrc
+        mode=0755
+      when: overcloud_deployment_result.rc == 0
+
+    - name: setup neutron network if needed
+      shell: >
+          source {{ instack_user_home }}/overcloudrc;
+          {{ instack_user_home }}/post-deploy-overcloudrc;
+      when: overcloud_deployment_result.rc == 0
+
     - name: heat stack-list
       ignore_errors: yes
       shell: >
