@@ -126,7 +126,7 @@
 - name: Run non gating tasks
   hosts: undercloud
   tasks:
-    - name: get ext-tempest-net uuid
+    - name: get nova uuid
       register: public_network_uuid_result
       shell: >
             source {{ instack_user_home }}/overcloudrc;
@@ -138,9 +138,21 @@
         public_network_uuid: "{{ public_network_uuid_result.stdout }}"
       when: installer.network.type == "neutron"
 
-    - name: add public_network_id into overcloud_validate.py
+    - name: add keystone role heat_stack_owner
+      shell: >
+            source {{ instack_user_home }}/overcloudrc;
+            keystone role-create --name heat_stack_owner;
+
+    - name: add public_network_id into overcloud_validate.py BZ 1243828
       sudo: yes
       shell: sed -i "s/tempest.conf/tempest.conf --network-id {{ public_network_uuid }}/" \
+            /usr/lib/python2.7/site-packages/rdomanager_oscplugin/v1/overcloud_validate.py
+      tags: workaround
+      when: workarounds.enabled is defined and workarounds.enabled|bool
+
+    - name: update SwiftOperator with the correct name BZ 1243825
+      sudo: yes
+      shell: sed -i "s/SwiftOperator/swiftoperator/" \
             /usr/lib/python2.7/site-packages/rdomanager_oscplugin/v1/overcloud_validate.py
       tags: workaround
       when: workarounds.enabled is defined and workarounds.enabled|bool
