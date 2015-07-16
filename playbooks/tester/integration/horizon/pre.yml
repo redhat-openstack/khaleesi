@@ -8,16 +8,10 @@
   gather_facts: yes
   sudo: yes
   tasks:
+    - name: Install epel release (needed to get pip)
+      command: "yum localinstall -y {{ distro.epel_release }}"
     - yum: name={{item}} state=present
       with_items: tester.packages
-
-- name: Setup epel repos
-  hosts: tester
-  gather_facts: yes
-  sudo: yes
-  tasks:
-    - name: Install epel release
-      command: "yum localinstall -y {{ distro.epel_release }}"
 
 - name: Prepare env for horizon int. testing
   hosts: tester
