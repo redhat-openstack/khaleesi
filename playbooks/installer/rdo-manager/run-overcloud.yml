@@ -207,18 +207,12 @@
     - name: echo deploy-overcloud return code
       debug: var=overcloud_deployment_result.rc
 
-    - name: copy template file with environment variables for neutron network
-      template:
-        src=templates/post-deploy-overcloudrc.j2
-        dest={{ instack_user_home }}/post-deploy-overcloudrc
-        mode=0755
-      when: overcloud_deployment_result.rc == 0
-
-    - name: setup neutron network if needed
+    - name: setup neutron network for floating ips
       shell: >
           source {{ instack_user_home }}/overcloudrc;
-          {{ instack_user_home }}/post-deploy-overcloudrc;
-      when: overcloud_deployment_result.rc == 0
+          neutron net-create nova -- --router:external=True --shared=True;
+          neutron subnet-create --name nova --enable_dhcp=False --allocation-pool=start={{ hw_env.floating_ip_start }},end={{ hw_env.floating_ip_end }} --gateway={{ hw_env.network_gateway }} nova {{ hw_env.floating_ip_cidr }}
+      when: overcloud_deployment_result.rc == 0 and installer.network.type == "neutron"
 
     - name: heat stack-list
       ignore_errors: yes

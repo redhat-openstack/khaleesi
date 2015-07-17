@@ -130,7 +130,7 @@
       register: public_network_uuid_result
       shell: >
             source {{ instack_user_home }}/overcloudrc;
-            openstack network list | grep ext-net | cut -d " " -f2
+            openstack network list | grep nova | cut -d " " -f2
       when: installer.network.type == "neutron"
 
     - name: set fact for public network uuid
