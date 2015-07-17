@@ -87,6 +87,16 @@
     - name: install the undercloud
       command: openstack undercloud install
 
+    - name: increase stack_action_timeout to 4 hours (workaround for bz 1243365)
+      command: openstack-config --set /etc/heat/heat.conf DEFAULT stack_action_timeout 14400
+      sudo: yes
+      when: workarounds.enabled is defined and workarounds.enabled|bool
+
+    - name: restart openstack-heat-engine (workaround for bz 1243365)
+      command: systemctl restart openstack-heat-engine
+      sudo: yes
+      when: workarounds.enabled is defined and workarounds.enabled|bool
+
     - name: copy files to home
       sudo: yes
       command: cp /root/{{ item }} {{ instack_user_home }}/{{ item }}
