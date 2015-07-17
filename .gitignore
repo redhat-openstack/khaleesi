@@ -23,6 +23,8 @@ teardown.txt
 tmp/
 # Vagrant
 .vagrant/
+#ansible ssh config
+ssh.config.ansible
 stackrc
 id_rsa*
 hosts

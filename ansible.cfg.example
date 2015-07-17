@@ -20,4 +20,4 @@ filter_plugins = ./plugins/filters
 
 [ssh_connection]
 control_path = %(directory)s/%%h-%%r
-ssh_args =  -F ssh.config.ansible
+
