@@ -1,21 +1,25 @@
 {% if installer.nodes.compute.scale_change is defined %}
 export NODE_TO_SCALE_PLAN_TYPE={{installer.nodes.compute.type}}-{{installer.nodes.compute.type_number | default('1')}}
-export COMPUTESCALE={{installer.nodes.compute.scale_change}}
+declare -i NODE_SCALE_CHANGE
+export NODE_SCALE_CHANGE={{installer.nodes.compute.scale_change | int}}
 export NODE_TO_SCALE_TYPE={{installer.nodes.compute.nova_list_type}}
 {%endif %}
 {% if installer.nodes.blockstorage.scale_change is defined %}
 export NODE_TO_SCALE_PLAN_TYPE={{installer.nodes.blockstorage.type}}-{{installer.nodes.blockstorage.type_number | default('1')}}
-export BLOCKSTORAGESCALE={{installer.nodes.blockstorage.scale_change}}
+declare -i NODE_SCALE_CHANGE
+export NODE_SCALE_CHANGE={{installer.nodes.blockstorage.scale_change | int}}
 export NODE_TO_SCALE_TYPE={{installer.nodes.blockstorage.nova_list_type}}
 {%endif %}
 {% if installer.nodes.swiftstorage.scale_change is defined %}
 export NODE_TO_SCALE_PLAN_TYPE={{installer.nodes.swiftstorage.type}}-{{installer.nodes.swiftstorage.type_number | default('1')}}
-export SWIFTSTORAGESCALE={{installer.nodes.swiftstorage.scale_change}}
+declare -i NODE_SCALE_CHANGE
+export NODE_SCALE_CHANGE={{installer.nodes.swiftstorage.scale_change | int}}
 export NODE_TO_SCALE_TYPE={{installer.nodes.swiftstorage.nova_list_type}}
 {%endif %}
 {% if installer.nodes.cephstorage.scale_change is defined %}
 export NODE_TO_SCALE_PLAN_TYPE={{installer.nodes.cephstorage.type}}-{{installer.nodes.cephstorage.type_number | default('1')}}
-export CEPHSTORAGESCALE={{installer.nodes.cephstorage.scale_change}}
+declare -i NODE_SCALE_CHANGE
+export NODE_SCALE_CHANGE={{installer.nodes.cephstorage.scale_change | int}}
 export NODE_TO_SCALE_TYPE={{installer.nodes.cephstorage.nova_list_type}}
 {%endif %}
 

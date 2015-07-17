@@ -30,12 +30,6 @@
       template: src=templates/scale-setup-env.j2 dest=~/scale-setup-env mode=0755
       when: node_to_scale is defined
 
-    - name: setup environment variables for overcloud nodes
-      template:
-        src=templates/deploy-nodes.j2
-        dest={{ instack_user_home }}/deploy-nodesrc
-        mode=0755
-
     - name: copy template file with environment variables for overcloud deploy
       template:
         src=templates/deploy-overcloudrc.j2
@@ -47,14 +41,21 @@
         cat {{ instack_user_home }}/scale-setup-env
       when: node_to_scale is defined
 
+    - name: update the tuskar plan with scale values
+      register: overcloud_plan_set
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        source {{ instack_user_home }}/scale-setup-env;
+        openstack management plan set {{ overcloud_uuid_result.stdout }} -S $NODE_TO_SCALE_PLAN_TYPE=2
+      when: node_to_scale is defined
+
     - name: echo the deploy scale command
       register: overcloud_deploy_command
       when: node_to_scale is defined
       shell: >
           source {{ instack_user_home }}/stackrc;
-          source {{ instack_user_home }}/deploy-nodesrc;
-          source {{ instack_user_home }}/scale-setup-env;
           source {{ instack_user_home }}/deploy-overcloudrc;
+          export DEPLOY_COMMAND=$(echo "$DEPLOY_COMMAND" | sed 's/\S*\(scale\|SCALE\)\S*//g');
           echo $DEPLOY_COMMAND
 
     - name: scale-overcloud
