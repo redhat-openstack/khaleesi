@@ -140,7 +140,7 @@
 
     - name: add public_network_id into overcloud_validate.py
       sudo: yes
-      shell: sed -i "s/tempest.conf/ tempest.conf --network-id {{ public_network_uuid }} /" \
+      shell: sed -i "s/tempest.conf/tempest.conf --network-id {{ public_network_uuid }}/" \
             /usr/lib/python2.7/site-packages/rdomanager_oscplugin/v1/overcloud_validate.py
       tags: workaround
       when: workarounds.enabled is defined and workarounds.enabled|bool
