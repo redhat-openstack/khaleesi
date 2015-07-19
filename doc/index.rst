@@ -14,6 +14,7 @@ Contents:
    khaleesi
    development
    ksgen
+   kcli
    jjb
    jenkins
    cookbook
