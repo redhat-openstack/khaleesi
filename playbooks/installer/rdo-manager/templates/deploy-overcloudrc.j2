@@ -5,7 +5,8 @@ export DEPLOY_COMMAND="openstack overcloud deploy --debug --log-file overcloud_d
 {% if installer.env.type != "virthost" %}
 export NEUTRON_PUBLIC_INTERFACE={{ hw_env.neutron_public_interface }}
 export OVERCLOUD_LIBVIRT_TYPE={{ hw_env.libvirt_type }}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND --libvirt-type=$OVERCLOUD_LIBVIRT_TYPE --neutron-public-interface=$NEUTRON_PUBLIC_INTERFACE"
+export DEPLOY_TIMEOUT={{ hw_env.deploy_timeout | default('240') }}
+export DEPLOY_COMMAND="$DEPLOY_COMMAND --libvirt-type=$OVERCLOUD_LIBVIRT_TYPE --neutron-public-interface=$NEUTRON_PUBLIC_INTERFACE --timeout=$DEPLOY_TIMEOUT "
 {% endif %}
 
 {% if  installer.network.network_config_name is defined and installer.env.type != "virthost" %}
@@ -15,3 +16,4 @@ export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-temp
 {% if  installer.network.network_config_name is defined and installer.env.type == "virthost" %}
 export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml -e ~/network-environment.yaml "
 {% endif %}
+
