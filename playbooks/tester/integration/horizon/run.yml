@@ -5,7 +5,7 @@
   sudo: no
   tasks:
       - name: run integration tests
-        shell: source ~/{{ tester.venv_dir }}/bin/activate && SELENIUM_HEADLESS=1 INTEGRATION_TESTS=1 nosetests -v --with-xunit --xunit-file=horizon.xml openstack_dashboard/test/integration_tests/tests/test_login.py
+        shell: source ~/{{ tester.venv_dir }}/bin/activate && SELENIUM_HEADLESS=1 INTEGRATION_TESTS=1 nosetests -v --with-xunit --xunit-file=horizon.xml openstack_dashboard/test/integration_tests/tests
         args:
             chdir: ~/{{ tester.dir }}
 
