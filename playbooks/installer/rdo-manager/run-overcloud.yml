@@ -168,6 +168,22 @@
 - name: deploy the overcloud
   hosts: undercloud
   tasks:
+    - name: get number of nodes that could be used for the overcloud
+      shell: >
+        if [ -f  {{ instack_user_home }}/instackenv.json ]; then
+          cat {{ instack_user_home }}/instackenv.json | grep pm_addr |  wc -l
+        else
+          cat {{ installer.nodes.node_count | default('3') }}
+        fi
+      register: number_of_possible_nodes
+
+    - name: poll for nodes to be in powered off state
+      register: ironic_node_power_off
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        ironic node-list | grep 'power off' |  wc -l
+      until: ironic_node_power_off.stdout == number_of_possible_nodes.stdout
+
     - name: get plan list
       register: overcloud_uuid_result
       shell: >
