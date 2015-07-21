@@ -1,0 +1,9 @@
+- name: Apply patch on dist-git
+  shell: "rdopkg update-patches"
+  args:
+    chdir: "/home/{{ ansible_ssh_user }}/{{ patch.dist_git.name }}"
+
+- name: Build an rpm from patched dist-git
+  shell: "rdopkg mockbuild"
+  args:
+    chdir: "/home/{{ ansible_ssh_user }}/{{ patch.dist_git.name }}"

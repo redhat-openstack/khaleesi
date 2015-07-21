@@ -1,0 +1,59 @@
+- name: Install epel repo
+  sudo: yes
+  command: "yum install -y {{ distro.epel_release }}"
+
+- name: Install rdopkg and rhpkg repos
+  sudo: yes
+  get_url: url={{ item }}
+           dest=/etc/yum.repos.d
+           mode=0644
+  with_items:
+      - {{ distro.repo.rdopkg }}
+      - {{ distro.repo.rhpkg }}
+       
+- name: Install packages for patching and building rpms
+  yum: name={{ item }} state=latest
+  sudo: yes
+  with_items:
+    - gcc
+    - python-crypto
+    - rpm-build
+    - rdopkg
+    - rhpkg
+    - python-pbr
+    - python2-devel
+    - python-d2to1
+    - createrepo
+
+- name: Copy patch to builder node
+  register: patch_copy
+  synchronize:
+      src='{{ patch.dir }}'
+      dest="/home/{{ ssh_ansible_user }}/"
+
+- name: Clone dist-git
+  git: repo="{{ patch.dist_git.url }}"
+       version="{{ product.name }}-{{ product.version }}-rhel-{{ ansible_distribution_version|int }}"
+       dest="/home/{{ ssh_ansible_user }}/"
+
+- name: Setup git user and mail
+  sudo: yes
+  shell: >
+      git config --system user.name {{ ansible_ssh_user }};
+      git config --system user.email {{ ansible_ssh_user }}@redhat.com
+
+- name: Setup git configurations
+  shell: >
+      git remote add -f patches /home/{{ ansible_ssh_user }}/{{ patch.name }};
+      git fetch patches;
+      git branch {{ product.name }}-{{ product.version }}-patches patches/{{ product.name}}-{{ product.version }}-patches
+  args:
+    chdir: "/home/{{ ansible_ssh_user }}/{{ patch.dist_git.name }}"
+
+- name: Create mock group
+  sudo: yes
+  group: name=mock state=present
+
+- name: Add user to mock group
+  sudo: yes
+  user: name={{ ansible_ssh_user }} groups=mock

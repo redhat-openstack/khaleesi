@@ -1,0 +1,4 @@
+---
+- include: pre.yml
+- include: patch-rpm.yml
+- include: create-repo.yml

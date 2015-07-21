@@ -1,0 +1,8 @@
+---
+- include: provision.yml
+- name: Patch rpm
+  hosts: controller
+  roles:
+   - patch_rpm
+- include: install.yml
+- include: test.yml

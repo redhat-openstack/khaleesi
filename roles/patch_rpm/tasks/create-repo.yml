@@ -1,0 +1,7 @@
+- name: Create repository for patched rpm
+  sudo: yes
+  shell: "createrepo /home/{{ ansible_ssh_user }}/{{ patch.dist_git.name }}"
+
+- name: Create local repo for patched rpm
+  sudo: yes
+  shell: "createrepo /home/{{ ansible_ssh_user }}/{{ patch.dist_git.name }}"
