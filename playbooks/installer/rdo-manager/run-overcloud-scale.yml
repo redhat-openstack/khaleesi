@@ -46,7 +46,8 @@
       shell: >
         source {{ instack_user_home }}/stackrc;
         source {{ instack_user_home }}/scale-setup-env;
-        openstack management plan set {{ overcloud_uuid_result.stdout }} -S $NODE_TO_SCALE_PLAN_TYPE=2
+        declare -i NODE_SCALE_CHANGE;
+        openstack management plan set {{ overcloud_uuid_result.stdout }} -S $NODE_TO_SCALE_PLAN_TYPE=$((NODE_SCALE_CHANGE))
       when: node_to_scale is defined
 
     - name: echo the deploy scale command
