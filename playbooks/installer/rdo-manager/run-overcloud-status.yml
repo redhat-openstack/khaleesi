@@ -161,7 +161,7 @@
           openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL \
           --overcloud-admin-password "$OS_PASSWORD" \
           --tempest-args {{ installer.tempest.test_regex }} \
-          --skipfile {{ instack_user_home }}/skipfile
+          --skipfile {{ instack_user_home }}/skipfile &> {{ instack_user_home }}/tempest/tempest_console.log
 
     - name: fetch tempest result
       fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes
