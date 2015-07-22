@@ -65,6 +65,7 @@
         source {{ instack_user_home }}/deploy-nodesrc;
         source {{ instack_user_home }}/deploy-overcloudrc;
         echo $DEPLOY_COMMAND | grep -oP '(?<=\-e\s/).*$'
+      when: node_type_to_delete is defined
 
       #NOTE, once a node is deleted and additional ansible calls to the node will fail
     - name: delete the node by id
@@ -115,13 +116,18 @@
       fail: msg="Overcloud nova list does not show expected number of compute services up/down"
       when: (node_type_to_delete is defined) and node_type_to_delete == 'compute' and nova_service_compute.stdout.find("down") == -1
 
+- name: check ceph status on controller node
+  hosts: overcloud-controller-0
+  tasks:
     - name: get ceph status for ceph nodes
       shell: >
-        source {{ instack_user_home }}/overcloudrc;
-        ceph -s
+        sudo ceph -s
       register: ceph_s
       when: node_type_to_delete is defined and node_type_to_delete == 'cephstorage'
 
+- name: remove deleted node from the ansible hosts file
+  hosts: undercloud
+  tasks:
     - name: delete the node from the ansible hosts file
       delegate_to: localhost
       lineinfile: dest="{{ lookup('env', 'PWD') }}/hosts" state=absent regexp="^{{ node_name_to_delete.stdout }}"
