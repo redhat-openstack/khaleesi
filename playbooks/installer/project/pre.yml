@@ -1,4 +1,26 @@
 ---
+- name: set required facts
+  hosts: controller
+  tasks:
+      - name: compute the directory basename
+        set_fact: component_basename={{ installer.component.dir.split('/')|last }}
+
+      - name: find the test dependencies file used for the test-run
+        set_fact: test_deps_file="{{ installer.component.dir + '/' + installer.component.config_file }}" #"
+
+- name: load test config
+  hosts: controller
+  tasks:
+      - name: load config
+        include_vars: "{{test_deps_file}}"
+        register: result
+
+      - name: set test_distro
+        set_fact: test_distro="{{ ansible_distribution + '-' + ansible_distribution_version.split(".")[0] }}" #"
+
+      - name: set test_env
+        set_fact: test_env="{{ test_config.virt[test_distro] }}" #"
+
 - name: Setup openstack repos
   hosts: controller
   gather_facts: yes
