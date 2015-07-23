@@ -16,7 +16,7 @@
         register: result
 
       - name: set test_distro
-        set_fact: test_distro="{{ ansible_distribution + '-' + ansible_distribution_version.split(".")[0] }}" #"
+        set_fact: test_distro="{{ ansible_distribution + '-' + ansible_distribution_version }}" #"
 
       - name: set test_env
         set_fact: test_env="{{ test_config.virt[test_distro] }}" #"
