@@ -1,14 +1,4 @@
 ---
-- name: print test configuration
-  hosts: controller
-  tasks:
-      - name: print component path
-        debug: var={{ component_path }}
-
-      - name: print test configuration
-        debug: var=test_env
-        register: env
-
 - name: Run tests
   hosts: controller
   roles:
