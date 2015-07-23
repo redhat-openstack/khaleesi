@@ -65,14 +65,27 @@
         source {{ instack_user_home }}/deploy-nodesrc;
         source {{ instack_user_home }}/deploy-overcloudrc;
         echo $DEPLOY_COMMAND | grep -oP '(?<=\-e\s/).*$'
+      ignore_errors: yes
       when: node_type_to_delete is defined
 
       #NOTE, once a node is deleted and additional ansible calls to the node will fail
+    - name: get delete command
+      register: delete_command_output
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        source {{ instack_user_home }}/delete-nodes-setup-env;
+        export DELETE_COMMAND='openstack overcloud node delete {{ node_id_to_delete.stdout }} --debug --plan overcloud --stack overcloud ';
+        if [ -f {{ instack_user_home }}/network-environment.yaml ]; then
+          export DELETE_COMMAND='$DELETE_COMMAND -e /{{ overcloud_deploy_command_initial_env.stdout }} ';
+        fi;
+        echo $DELETE_COMMAND
+      when: node_type_to_delete is defined
+
     - name: delete the node by id
       shell: >
         source {{ instack_user_home }}/stackrc;
         source {{ instack_user_home }}/delete-nodes-setup-env;
-        openstack overcloud node delete {{ node_id_to_delete.stdout }} --debug --plan overcloud --stack overcloud -e /{{ overcloud_deploy_command_initial_env.stdout }} &> overcloud_deployment_delete.log
+        {{ delete_command_output.stdout }} &> overcloud_deployment_delete.log
       when: node_type_to_delete is defined
 
     - name: poll for heat stack-list to go to COMPLETE
