@@ -105,7 +105,7 @@
       when: overcloud_deployment_result != "0"
 
 #Execute Tempest
-- name: Run non gating tasks
+- name: Run tempest tasks
   hosts: undercloud
   tasks:
     - name: get nova uuid
@@ -121,13 +121,14 @@
       when: installer.network.type == "neutron"
 
     - name: add keystone role heat_stack_owner
+      ignore_errors: yes
       shell: >
             source {{ instack_user_home }}/overcloudrc;
             keystone role-create --name heat_stack_owner;
 
     - name: add public_network_id into overcloud_validate.py BZ 1243828
       sudo: yes
-      shell: sed -i "s/tempest.conf/tempest.conf --network-id {{ public_network_uuid }}/" \
+      shell: sed -i "s/tempest.conf.*/tempest.conf --network-id {{ public_network_uuid }} '/" \
             /usr/lib/python2.7/site-packages/rdomanager_oscplugin/v1/overcloud_validate.py
       tags: workaround
       when: workarounds.enabled is defined and workarounds.enabled|bool
@@ -139,13 +140,63 @@
       tags: workaround
       when: workarounds.enabled is defined and workarounds.enabled|bool
 
+    - name: change cirros user to fedora
+      sudo: yes
+      shell: sed -i "s/cirros/fedora/" \
+            /usr/lib/python2.7/site-packages/rdomanager_oscplugin/v1/overcloud_validate.py
+      tags: workaround
+      when: overcloud_deployment_result == "0" and
+            installer.tempest.enabled is defined and
+            not installer.tempest.enabled|bool and
+            product.name == "rhos"
+
+    - name: add config into overcloud_validate.py for Fedora image
+      sudo: yes
+      lineinfile: dest=/usr/lib/python2.7/site-packages/rdomanager_oscplugin/v1/overcloud_validate.py
+                  regexp="--create \'"
+                  insertafter="--create \'"
+                  line="                        \'--debug --create --image /home/stack/fedora-user.qcow2 compute.flavor_ref 2 compute.flavor_ref_alt 2 \'"
+                  backup=yes
+                  backrefs=yes
+                  state=present
+      when: overcloud_deployment_result == "0" and
+            installer.tempest.enabled is defined and
+            not installer.tempest.enabled|bool and
+            product.name == "rhos"
+
     - name: copy skipfile into stack home
       copy: src=files/skipfile dest={{ instack_user_home }}/skipfile owner=stack group=stack
       when: overcloud_deployment_result == "0" and
             installer.tempest.enabled is defined and
             installer.tempest.enabled|bool
 
-    - name: run overcloud tests
+    - name: run simple tempest based overcloud tests for gating
+      register: test_basic_output
+      when: overcloud_deployment_result == "0" and
+            installer.tempest.enabled is defined and
+            not installer.tempest.enabled|bool and
+            product.name == "rhos"
+      shell: >
+          source {{ instack_user_home }}/overcloudrc;
+          openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL \
+          --overcloud-admin-password "$OS_PASSWORD" \
+          --tempest-args tempest.scenario.test_minimum_basic &> {{ instack_user_home }}/tempest_console.log
+
+    - name: check test_minimum_basic output
+      ignore_errors: yes
+      shell: "[ `grep \"Passed\" tempest_console.log | cut -d \":\" -f2` -eq 1 ]"
+      register: tempest_console_log_passed_grep
+      when: overcloud_deployment_result == "0" and
+            installer.tempest.enabled is defined and
+            not installer.tempest.enabled|bool and
+            product.name == "rhos"
+
+    - name: fail when tempest comsole log does not show 1 passed test returned
+      fail: msg="tempest.scenario.test_minimum_basic did not return 1 passsed test."
+      when: tempest_console_log_passed_grep is defined and
+            tempest_console_log_passed_grep.rc != 0
+
+    - name: run extensive tempest based overcloud tests
       ignore_errors: yes
       when: overcloud_deployment_result == "0" and
             installer.tempest.enabled is defined and
@@ -161,4 +212,4 @@
       fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes
       when: overcloud_deployment_result == "0" and
             installer.tempest.enabled is defined and
-            installer.tempest.enabled|bool
+            product.name != "rdo" or installer.tempest.enabled|bool
