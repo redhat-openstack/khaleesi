@@ -1,0 +1,45 @@
+---
+- name: install test dependencies rpm needed to run test
+  hosts: controller
+  sudo: yes
+  tasks:
+      - name: Install rpms needed for the tests to run
+        yum: pkg={{ item }} state=latest
+        with_items: test_cfg.setup.install
+        when:
+            test_cfg.setup is defined and test_cfg.setup.install
+
+      - name: remove unwanted rpms specified in test dependencies
+        yum: pkg={{ item }} state=absent
+        with_items: test_cfg.setup.remove
+        when:
+          test_cfg.setup is defined and test_cfg.setup.remove
+
+### actual testrun starts here
+- name: Tests
+  hosts: controller
+  tasks:
+      - name: print the test setup command
+        debug: var=test_cfg
+
+      - name: Run tests ...
+        shell: >
+          export PATH=$PATH:/usr/sbin;
+          {{ test_cfg.run.replace("\n", "") }}
+        args:
+          chdir: "{{ component_path }}"
+          executable: /bin/bash
+        register: test_run
+        ignore_errors: true
+
+      - name: print out test run
+        debug: var=test_run
+
+      - name: copy test results to logs dir
+        fetch: src="{{ component_path }}/{{ item }}"
+               dest=../../../../logs/ flat=yes
+        with_items: test_cfg.archive
+
+      - name: pass or fail the test
+        fail: msg="The test run failed"
+        when: test_run.rc != 0
