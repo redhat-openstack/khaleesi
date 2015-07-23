@@ -5,7 +5,7 @@
   hosts: "{{ repo_host }}:&RedHat"
   vars:
     - ansible_ssh_user: root
-    - product_override_version: 6
+    - product_override_version: 7
   gather_facts: yes
   tasks:
       - name: clean release rpms
@@ -17,7 +17,12 @@
         command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/{{ product.name }}-release-latest.noarch.rpm"
 
       - name: Execute rhos-release for pinned osp-director puddle (osp)
-        command: "rhos-release -p {{ product.repo.puddle_pin_version }} {{ product.version }}"
+        command: "rhos-release -p {{ product.repo.puddle_director_pin_version }} {{ product.version }}"
+        register: pinned_puddle
+        when: product.repo_type in ['puddle'] and product.repo.puddle_director_pin_version is defined
+
+      - name: Execute rhos-release for core rhos puddle (osp)
+        command: "rhos-release -p {{ product.repo.puddle_pin_version }} {{ product.repo.core_product_version }}"
         register: pinned_puddle
         when: product.repo_type in ['puddle'] and product.repo.puddle_pin_version is defined
 
