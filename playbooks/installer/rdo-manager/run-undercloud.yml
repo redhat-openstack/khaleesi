@@ -129,3 +129,31 @@
   tasks:
     - name: install the undercloud
       shell: openstack undercloud install &> {{ instack_user_home }}/undercloud_install_idempotent_check.log
+
+- name: Set ironic to control the power state
+  hosts: undercloud:&baremetal
+  tasks:
+    - name: get power state from /etc/ironic/ironic.conf (workaround for bz 1246641)
+      sudo: yes
+      shell: >
+        sudo cat /etc/ironic/ironic.conf | grep 'force_power_state_during_sync=False'
+      when: workarounds.enabled is defined and workarounds.enabled|bool
+
+    - name: allow ironic to control the power state (workaround for bz 1246641)
+      sudo: yes
+      shell: >
+        sed -i 's/force_power_state_during_sync=False/force_power_state_during_sync=True/g' /etc/ironic/ironic.conf
+      when: workarounds.enabled is defined and workarounds.enabled|bool
+
+    - name: get power state from /etc/ironic/ironic.conf (workaround for bz 1246641)
+      sudo: yes
+      shell: >
+        sudo cat /etc/ironic/ironic.conf | grep 'force_power_state_during_sync=True'
+      when: workarounds.enabled is defined and workarounds.enabled|bool
+
+    - name: restart openstack-ironic-conductor (workaround for bz 1246641)
+      sudo: yes
+      shell: >
+        systemctl restart openstack-ironic-conductor
+      when: workarounds.enabled is defined and workarounds.enabled|bool
+
