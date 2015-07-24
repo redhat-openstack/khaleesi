@@ -24,7 +24,18 @@ export REG_REPOS="rhel-7-server-rpms rhel-7-server-extras-rpms rhel-ha-for-rhel-
 export NODE_DIST=rhel7
 {%endif %}
 
-{% if product.name == "rdo" and distro.name == "centos" %}
+{% if product.name == "rdo" and distro.name == "centos" and product.repo.delorean_pin_version is defined%}
+export USE_DELOREAN_TRUNK=1
+export DELOREAN_REPO_FILE="{{ product.repo.delorean.repo_file }}"
+export DELOREAN_TRUNK_REPO="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}/{{product.repo.delorean_pin_version}}/"
+export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
+export NODE_DIST=centos7
+{%endif %}
+
+{% if product.name == "rdo" and distro.name == "centos" and product.repo.delorean_pin_version is not defined%}
+export USE_DELOREAN_TRUNK=1
+export DELOREAN_REPO_FILE="{{ product.repo.delorean.repo_file }}"
+export DELOREAN_TRUNK_REPO="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}/current/"
 export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
 export NODE_DIST=centos7
 {%endif %}
