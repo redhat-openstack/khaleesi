@@ -1,6 +1,14 @@
-- name: Install epel repo
+- name: Install release tool on machines
   sudo: yes
-  command: "yum install -y {{ distro.epel_release }}"
+  command: "yum localinstall -y {{ product.rpm }}"
+
+- name: Execute rhos-release for packstack poodle/puddle
+  sudo: yes
+  command: "rhos-release {{ product.version|int }} {{ product.repo.rhos_release.extra_args|join(' ') }}"
+
+- name: Install epel release
+  sudo: yes
+  command: "yum localinstall -y {{ distro.epel_release }}"
 
 - name: Install rdopkg and rhpkg repos
   sudo: yes
@@ -8,9 +16,9 @@
            dest=/etc/yum.repos.d
            mode=0644
   with_items:
-      - {{ distro.repo.rdopkg }}
-      - {{ distro.repo.rhpkg }}
-       
+      - "{{ distro.repo.rdopkg }}"
+      - "{{ distro.repo.rhpkg }}"
+
 - name: Install packages for patching and building rpms
   yum: name={{ item }} state=latest
   sudo: yes
@@ -25,16 +33,25 @@
     - python-d2to1
     - createrepo
 
-- name: Copy patch to builder node
-  register: patch_copy
-  synchronize:
-      src='{{ patch.dir }}'
-      dest="/home/{{ ssh_ansible_user }}/"
+- name: Setup git user and mail
+  sudo: yes
+  shell: >
+      git config --system http.sslverify false;
+      git config --system user.name {{ ansible_ssh_user }};
+      git config --system user.email {{ ansible_ssh_user }}@redhat.com
+
+- name: Clone patch
+  git: repo="{{ patch.gerrit.url }}"
+       version="{{ patch.gerrit.branch }}"
+       refspec="{{ patch.gerrit.refspec }}"
+       dest="/home/{{ ansible_ssh_user }}/{{ patch.gerrit.name }}"
+       accept_hostkey=true
 
 - name: Clone dist-git
   git: repo="{{ patch.dist_git.url }}"
        version="{{ product.name }}-{{ product.version }}-rhel-{{ ansible_distribution_version|int }}"
-       dest="/home/{{ ssh_ansible_user }}/"
+       dest="/home/{{ ansible_ssh_user }}/{{ patch.dist_git.name }}"
+       accept_hostkey=true
 
 - name: Setup git user and mail
   sudo: yes
