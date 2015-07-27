@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export DEPLOY_COMMAND="openstack overcloud deploy --debug --log-file overcloud_deployment_{{ 100 | random }}.log --plan overcloud --neutron-network-type {{ installer.network.variant }} --neutron-tunnel-types {{ installer.network.variant }} --ntp-server {{ distro.config.ntp_server_ip }} --control-scale $CONTROLSCALE --compute-scale $COMPUTESCALE --ceph-storage-scale $CEPHSTORAGESCALE "
+export DEPLOY_COMMAND="openstack overcloud deploy --debug --log-file overcloud_deployment_{{ 100 | random }}.log --plan overcloud --neutron-network-type {{ installer.network.variant }} --neutron-tunnel-types {{ installer.network.variant }} --ntp-server {{ distro.config.ntp_server_ip }} --control-scale $CONTROLSCALE --compute-scale $COMPUTESCALE --ceph-storage-scale $CEPHSTORAGESCALE --block-storage-scale $BLOCKSTORAGESCALE --swift-storage-scale $SWIFTSTORAGESCALE --control-flavor $CONTROLFLAVOR --compute-flavor $COMPUTEFLAVOR --ceph-storage-flavor $CEPHSTORAGEFLAVOR --block-storage-flavor $BLOCKSTORAGEFLAVOR --swift-storage-flavor $SWIFTSTORAGEFLAVOR"
 
 {% if installer.env.type != "virthost" %}
 export NEUTRON_PUBLIC_INTERFACE={{ hw_env.neutron_public_interface }}

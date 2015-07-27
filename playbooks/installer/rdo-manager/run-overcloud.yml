@@ -111,12 +111,11 @@
           source {{ instack_user_home }}/stackrc;
           instack-ironic-deployment  --show-profile;
 
-    - name: setup flavors
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          openstack flavor create --id auto --ram 4096 --disk 40 --vcpus 1 baremetal;
-          openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" baremetal;
+- include: run-overcloud-matching-{{ installer.match_style | default('basic') }}.yml
 
+- name: wait for nova
+  hosts: undercloud
+  tasks:
     - name: wait until nova becomes aware of first bare metal instance
       register: vcpu_count_single
       retries: 20

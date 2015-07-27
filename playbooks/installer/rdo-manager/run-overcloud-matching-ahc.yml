@@ -1,0 +1,69 @@
+---
+- name: install and configure ahc-tools
+  hosts: undercloud
+  tasks:
+    - name: install ahc-tools
+      sudo: yes
+      yum: name=ahc-tools state=present
+
+    - name: copy configuration from discoverd
+      sudo: yes
+      shell: >
+          sed 's/\[discoverd/\[ironic/' /etc/ironic-discoverd/discoverd.conf | sudo tee /etc/ahc-tools/ahc-tools.conf > /dev/null;
+          chmod 0600 /etc/ahc-tools/ahc-tools.conf
+
+    - name: create edeploy state file
+      sudo: yes
+      template:
+        src=templates/edeploy-state.j2
+        dest=/etc/ahc-tools/edeploy/state
+        force=yes
+        mode=0644
+
+    - name: create other edeploy.specs files
+      sudo: yes
+      shell: >
+          cp /etc/ahc-tools/edeploy/compute.specs /etc/ahc-tools/edeploy/block.specs;
+          cp /etc/ahc-tools/edeploy/compute.specs /etc/ahc-tools/edeploy/swift.specs;
+          cp /etc/ahc-tools/edeploy/compute.specs /etc/ahc-tools/edeploy/ceph.specs
+
+- name: run ahc-match and setup flavors
+  hosts: undercloud
+  tasks:
+    - name: run ahc-match
+      sudo: yes
+      shell: >
+          ahc-match
+
+    - name: get ironic node ids
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          ironic node-list | grep 'None' |  awk '{ print $2; }'
+      register: ironic_node_list_id
+
+    - name: check all nodes get matched
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          openstack baremetal show  "{{ item }}" -c properties -f value | grep 'profile.*boot'
+      with_items: ironic_node_list_id.stdout_lines
+
+    - name: show profile
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          instack-ironic-deployment  --show-profile;
+
+    - name: setup flavors and assign properties
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          openstack flavor create --id auto --ram 4096 --disk 40 --vcpus 1 baremetal;
+          openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" baremetal;
+          openstack flavor create --id auto --ram 4096 --disk 40 --vcpus 1 control;
+          openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" --property "capabilities:profile"="control" control;
+          openstack flavor create --id auto --ram 4096 --disk 40 --vcpus 1 compute;
+          openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" --property "capabilities:profile"="compute" compute;
+          openstack flavor create --id auto --ram 4096 --disk 40 --vcpus 1 block;
+          openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" --property "capabilities:profile"="block" block;
+          openstack flavor create --id auto --ram 4096 --disk 40 --vcpus 1 swift;
+          openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" --property "capabilities:profile"="swift" swift;
+          openstack flavor create --id auto --ram 4096 --disk 40 --vcpus 1 ceph;
+          openstack flavor set --property "cpu_arch"="x86_64" --property "capabilities:boot_option"="local" --property "capabilities:profile"="ceph" ceph;
