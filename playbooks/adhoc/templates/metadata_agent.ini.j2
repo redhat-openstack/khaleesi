@@ -1,0 +1,14 @@
+[DEFAULT]
+debug = False
+auth_url = http://{{ controller_ip }}:5000/v2.0/
+auth_region = RegionOne
+auth_insecure = False
+admin_tenant_name = services
+admin_user = neutron
+admin_password = {{ admin_password }}
+nova_metadata_protocol = http
+metadata_proxy_shared_secret = {{ admin_password }}
+nova_metadata_ip = {{ controller_ip }}
+metadata_workers = 12
+metadata_backlog = 4096
+cache_url = memory://?default_ttl=5

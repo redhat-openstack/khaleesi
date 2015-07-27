@@ -1,0 +1,133 @@
+---
+- name: Configure Controller node
+  hosts: controller
+  sudo: yes
+  tasks:
+    - name: Generate dvr_base_mac
+      shell: echo "fa:16:"$(openssl rand -hex 2 | sed 's/\(..\)/\1:/g; s/.$//')":00:00"
+      register: dvr_base_mac
+
+    - name: Setting default router as distributed
+      ini_file:
+        dest=/etc/neutron/neutron.conf
+        section=DEFAULT
+        option=router_distributed
+        value=True
+
+    - name: Setting DVR Base MAC
+      ini_file:
+        dest=/etc/neutron/neutron.conf
+        section=DEFAULT
+        option=dvr_base_mac
+        value={{ dvr_base_mac.stdout }}
+
+    - name: Set mechanism_drivers
+      ini_file:
+        dest=/etc/neutron/plugins/ml2/ml2_conf.ini
+        section=ml2
+        option=mechanism_drivers
+        value=openvswitch,l2population
+
+    - name: Restarting Neutron server
+      service: name=neutron-server state=restarted
+
+    - name: Register fwaas exists_status
+      shell: grep -q  neutron.services.firewall.fwaas_plugin.FirewallPlugin /etc/neutron/neutron.conf
+      ignore_errors: yes
+      register: fwaas_exists
+
+    - set_fact: fwaas_exists_status={{ fwaas_exists.rc }}
+
+- name: Configure Network node
+  hosts: network
+  sudo: yes
+  tasks:
+      - name: Set L3 agent_mode
+        ini_file:
+          dest=/etc/neutron/l3_agent.ini
+          section=DEFAULT
+          option=agent_mode
+          value='dvr_snat'
+
+      - name: Setting the external Interface of the network node to down (For DVR Tests)
+        command: ip link set dev {{ provisioner.nodes[inventory_hostname.split('-')|last ].network.interfaces.external.label }} down
+
+      - name: Setting external Interface of the network node to down in the config file
+        command: sed -i 's/ONBOOT=.*/ONBOOT=no/g' /etc/sysconfig/network-scripts/ifcfg-{{ provisioner.nodes[inventory_hostname.split('-')|last ].network.interfaces.external.label }}
+
+- name: Configure Compute node
+  hosts: compute
+  sudo: yes
+  vars:
+    - controller_ip: "{{ hostvars[provisioner.nodes.controller.name].ansible_default_ipv4.address }}"
+    - admin_password: "{{ hostvars[provisioner.nodes.controller.name].admin_password|default('redhat') }}"
+  tasks:
+      - name: Set L3 agent_mode
+        ini_file:
+          dest=/etc/neutron/l3_agent.ini
+          section=DEFAULT
+          option=agent_mode
+          value='dvr'
+
+      - name: Configuring neutron-metadata-agent
+        sudo: yes
+        template: src=../templates/metadata_agent.ini.j2 dest=/etc/neutron/metadata_agent.ini
+
+      - name: Restarting Metadata agent
+        service: name=neutron-metadata-agent state=restarted enabled=yes
+
+- name: Configure Network node and Compute nodes
+  hosts:
+      - network
+      - compute
+  sudo: yes
+  tasks:
+    - name: Set L3 agent options
+      ini_file:
+        dest=/etc/neutron/l3_agent.ini
+        section=DEFAULT
+        option={{ item.option }}
+        value={{ item.value }}
+      with_items:
+        - { option: 'interface_driver', value: 'neutron.agent.linux.interface.OVSInterfaceDriver'}
+        - { option: 'external_network_bridge', value: ''}
+        - { option: 'gateway_external_network_id', value: ''}
+
+    - debug: var=hostvars[provisioner.nodes.controller.name]['fwaas_exists_status']
+
+    - name: Install python-neutron-fwaas
+      yum: name=python-neutron-fwaas state=present
+      when: hostvars[provisioner.nodes.controller.name]['fwaas_exists_status'] == '0'
+
+    - name: Set and enable fwaas driver
+      ini_file:
+        dest=/etc/neutron/fwaas_driver.ini
+        section=fwaas
+        option={{ item.option }}
+        value={{ item.value }}
+      with_items:
+        - { option: 'driver', value: 'neutron.services.firewall.drivers.linux.iptables_fwaas.IptablesFwaasDriver' }
+        - { option: 'enabled', value: 'True' }
+      when: hostvars[provisioner.nodes.controller.name]['fwaas_exists_status'] == '0'
+
+    - name: Set fwaas link
+      file: src=/etc/neutron/fwaas_driver.ini dest=/usr/share/neutron/l3_agent/fwaas_driver.conf state=link
+      when: hostvars[provisioner.nodes.controller.name]['fwaas_exists_status'] == '0'
+
+    - name: Set OVS agent options
+      ini_file:
+        dest=/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
+        section=agent
+        option={{ item.option }}
+        value={{ item.value }}
+      with_items:
+        - { option: 'enable_distributed_routing', value: True}
+        - { option: 'l2_population', value: True}
+        - { option: 'arp_responder', value: True}
+
+    - name: Restarting Neutron L3 Agent
+      service: name=neutron-l3-agent state=restarted enabled=yes
+
+    - name: Restarting Neutron OVS Agent
+      service: name=neutron-openvswitch-agent state=restarted enabled=yes
+
