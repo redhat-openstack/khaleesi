@@ -131,35 +131,34 @@
   hosts: undercloud
   tasks:
     - name: check that network config file exists
-      stat: path="{{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.network_config_name  | replace('_', '-') }}/{{ installer.network.network_config_name  | replace('_', '-') }}.yaml"
-      register: network_config_file_present
-      when:  installer.network.network_config_name is defined
+      stat: path="{{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation | replace('_', '-') }}/{{ installer.network.isolation | replace('_', '-') }}.yaml"
+      when: installer.network.isolation != 'none'
 
     - name: copy over template file (baremetal)
       synchronize: >
-        src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.network_config_name  | replace('_', '-') }}/{{ installer.network.network_config_name  | replace('_', '-') }}.yaml dest={{ instack_user_home }}/network-environment.yaml
-      when: installer.network.network_config_name is defined and installer.env.type != "virthost"
+        src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation | replace('_', '-') }}/{{ installer.network.isolation  | replace('_', '-') }}.yaml dest={{ instack_user_home }}/network-environment.yaml
+      when: installer.network.isolation != 'none' and installer.env.type != "virthost"
 
     - name: copy over template file (virt)
-      local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F $PWD/../../../ssh.config.ansible -S none -o StrictHostKeyChecking=no" $PWD/../../../../khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.network_config_name  | replace('_', '-') }}/{{ installer.network.network_config_name  | replace('_', '-') }}.yaml undercloud:{{ instack_user_home }}/network-environment.yaml
-      when: installer.network.network_config_name is defined and installer.env.type == "virthost"
+      local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F $PWD/../../../ssh.config.ansible -S none -o StrictHostKeyChecking=no" $PWD/../../../../khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation | replace('_', '-') }}/{{ installer.network.isolation  | replace('_', '-') }}.yaml undercloud:{{ instack_user_home }}/network-environment.yaml
+      when: installer.network.isolation != 'none' and installer.env.type == "virthost"
 
     - name: copy over nic-configs default directory
       shell: >
         mkdir {{ instack_user_home }}/nic-configs;
-        cp /usr/share/openstack-tripleo-heat-templates/network/config/{{ installer.network.network_config_name  | replace('_', '-') }}/*.yaml {{ instack_user_home }}/nic-configs
-      when: installer.network.network_config_name is defined and installer.network.network_config_name != 'default'
+        cp /usr/share/openstack-tripleo-heat-templates/network/config/{{ installer.network.isolation | replace('_', '-') }}/*.yaml {{ instack_user_home }}/nic-configs
+      when: installer.network.isolation != 'none' and installer.network.isolation != 'default'
 
     - name: poll for files to exist
       wait_for: path={{ instack_user_home }}/nic-configs/swift-storage.yaml
-      when: installer.network.network_config_name is defined and installer.network.network_config_name != 'default'
+      when: installer.network.isolation != 'none' and installer.network.isolation != 'default'
 
 #note this is part of the instructions, not sure if this is a workaround anymore
 - name: setup networking on virt for network isolation
   hosts: undercloud:&virthost
   tasks:
     - name: net-iso virt setup vlans
-      when: installer.network.network_config_name is defined
+      when: installer.network.isolation != 'none'
       shell: >
           source {{ instack_user_home }}/stackrc;
           sudo ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
