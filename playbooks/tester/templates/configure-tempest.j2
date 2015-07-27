@@ -1,6 +1,9 @@
 #!/bin/bash
 
 python tools/config_tempest.py \
+{% if tester.guest_image is defined %}
+  --image {{ tester.guest_image.url }} \
+{% endif %}
   --out etc/tempest.conf \
   --debug  \
   --create \
