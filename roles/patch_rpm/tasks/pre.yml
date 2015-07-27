@@ -61,7 +61,7 @@
 
 - name: Setup git configurations
   shell: >
-      git remote add -f patches /home/{{ ansible_ssh_user }}/{{ patch.name }};
+      git remote add -f patches /home/{{ ansible_ssh_user }}/{{ patch.gerrit.name }};
       git fetch patches;
       git branch {{ product.name }}-{{ product.version }}-patches patches/{{ product.name}}-{{ product.version }}-patches
   args:
