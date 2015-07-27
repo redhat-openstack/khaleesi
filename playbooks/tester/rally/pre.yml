@@ -53,7 +53,7 @@
         login_username: admin
         login_password: "{{ hostvars[provisioner.nodes.controller.name].admin_password | default('redhat') }}"
         login_tenant_name: admin
-        name: cirros-0.3.3-x86_64-uec
+        name: {{ tester.guest_image.name }}
 #        disk_format: ami
         state: present
-        copy_from: http://download.cirros-cloud.net/0.3.3/cirros-0.3.3-x86_64-disk.img
+        copy_from: {{ tester.guest_image.url }}

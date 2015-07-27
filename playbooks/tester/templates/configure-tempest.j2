@@ -4,6 +4,9 @@ python tools/config_tempest.py \
   --out etc/tempest.conf \
   --debug  \
   --create \
+  {% if tester.guest_image is defined %}
+    --image {{ tester.guest_image.url }}
+  {% endif %}
   {% if tester.tempest.config_options is defined %}
     {% for opt in tester.tempest.config_options %}
       {{ opt }} \
