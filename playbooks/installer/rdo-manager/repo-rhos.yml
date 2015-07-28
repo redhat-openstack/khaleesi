@@ -17,7 +17,7 @@
         command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/{{ product.name }}-release-latest.noarch.rpm"
 
       - name: Execute rhos-release for pinned osp-director puddle (osp)
-        command: "rhos-release -p {{ product.repo.puddle_director_pin_version }} {{ product.version }}"
+        command: "rhos-release -p {{ product.repo.puddle_director_pin_version }} {{ product.full_version }}"
         register: pinned_puddle
         when: product.repo_type in ['puddle'] and product.repo.puddle_director_pin_version is defined
 
@@ -27,16 +27,16 @@
         when: product.repo_type in ['puddle'] and product.repo.puddle_pin_version is defined
 
       - name: Execute rhos-release for pinned osp-director poodle (osp)
-        command: "rhos-release  -d -p {{ product.repo.poodle_pin_version }} {{ product.version }}"
+        command: "rhos-release  -d -p {{ product.repo.poodle_pin_version }} {{ product.full_version }}"
         register: pinnged_poodle
         when: product.repo_type in ['poodle'] and product.repo.poodle_pin_version is defined
 
       - name: Execute rhos-release for osp-director puddle (osp)
-        command: "rhos-release {{ product.version }}"
+        command: "rhos-release {{ product.full_version }}"
         when: product.repo_type in ['puddle'] and product.repo.puddle_pin_version is not defined
 
       - name: Execute rhos-release for osp-director poodle (osp)
-        command: "rhos-release  -d {{ product.version }}"
+        command: "rhos-release  -d {{ product.full_version }}"
         when: product.repo_type in ['poodle'] and product.repo.poodle_pin_version is not defined
 
       - name: yum clean all

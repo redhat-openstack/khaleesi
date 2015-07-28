@@ -57,7 +57,7 @@
   vars:
       controller_name: "{{ provisioner.nodes.controller.name }}"
       horizon_tests:
-          branch: "{{ product.name }}-{{ product.version }}"
+          branch: "{{ product.name }}-{{ product.full_version }}"
           admin_password: "{{ hostvars[controller_name].admin_password | default('redhat') }}"
           demo_password: "{{ hostvars[controller_name].demo_password | default('redhat') }}"
       tmp_controller_host: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"

@@ -1,6 +1,6 @@
 ---
 - name: download the pre-built rdo-manager images
-  get_url: url="{{ installer.images[product.name][product.version][distro.name][distro.version]}}{{ item }}.tar"
+  get_url: url="{{ installer.images[product.name][product.full_version][distro.name][distro.version]}}{{ item }}.tar"
                 dest={{ instack_user_home }}
                 force=no
   with_items:

@@ -22,8 +22,8 @@
   hosts: all:!localhost
   gather_facts: no
   tasks:
-    - group_by: key={{ product.version }}
-      when: product.version is defined
+    - group_by: key={{ product.full_version }}
+      when: product.full_version is defined
 
 - name: Group hosts by virthost and baremetal environments
   hosts: all:!localhost
