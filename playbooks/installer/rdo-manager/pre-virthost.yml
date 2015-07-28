@@ -40,7 +40,7 @@
   hosts: all
   tasks:
     - group_by: key=gate
-      when: "\"\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
+      when: "\"{{ lookup('env', 'GERRIT_PROJECT') }}\" in ['instack-undercloud', 'rdo-management/instack-undercloud']"
 
 - name: Gating tasks
   hosts: virthost:&gate
@@ -278,7 +278,7 @@
   tasks:
     - set_fact:
         gate_job: true
-      when: "\"\" != \"{{ lookup('env', 'GERRIT_PROJECT') }}\""
+      when: "\"{{ lookup('env', 'GERRIT_PROJECT') }}\" in ['instack-undercloud', 'rdo-management/instack-undercloud']"
 
 - name: Install the custom instack-undercloud rpm when gating
   hosts: undercloud
