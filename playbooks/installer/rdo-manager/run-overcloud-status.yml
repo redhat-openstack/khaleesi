@@ -104,24 +104,6 @@
     - fail: msg="instack-deploy-overcloud failed, see the above debug information"
       when: overcloud_deployment_result != "0"
 
-- name: run instack test overcloud
-  hosts: undercloud
-  tasks:
-    - name: workaround for instack-test-overcloud
-      sudo: yes
-      shell: sed -i 's/novacompute/compute/' /usr/bin/instack-test-overcloud
-      tags: workaround
-      when: workarounds.enabled is defined and workarounds.enabled|bool
-
-    - name: run instack tests
-      ignore_errors: yes
-      register: instack_test_overcloud_result
-      shell: instack-test-overcloud &> {{ instack_user_home }}/instack-test-overcloud.log
-
-    - name: check the number of successful tests
-      when: instack_test_overcloud_result.rc == 0
-      shell: "[ `grep -c \"test successful\" instack-test-overcloud.log` -eq 3 ]"
-
 #Execute Tempest
 - name: Run non gating tasks
   hosts: undercloud
