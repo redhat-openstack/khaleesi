@@ -97,6 +97,20 @@
       sudo: yes
       when: workarounds.enabled is defined and workarounds.enabled|bool
 
+    - name: check if haproxy is present (workaround bug bz 1246525)
+      stat: path=/etc/haproxy/haproxy.cfg
+      register: ha_config_file
+
+    - name: disable haproxy check (workaround bug bz 1246525)
+      sudo: yes
+      replace: dest=/etc/haproxy/haproxy.cfg regexp='(listen ironic\n.*\n.*)\n.*option httpchk GET \/' replace='\1'
+      when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
+
+    - name: restart haproxy service (workaround bug bz 1246525)
+      command: systemctl restart haproxy
+      sudo: yes
+      when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
+
     - name: copy files to home
       sudo: yes
       command: cp /root/{{ item }} {{ instack_user_home }}/{{ item }}
@@ -129,6 +143,20 @@
   tasks:
     - name: install the undercloud
       shell: openstack undercloud install &> {{ instack_user_home }}/undercloud_install_idempotent_check.log
+
+    - name: check if haproxy is present (workaround bug bz 1246525)
+      stat: path=/etc/haproxy/haproxy.cfg
+      register: ha_config_file
+
+    - name: disable haproxy check (workaround bug bz 1246525)
+      sudo: yes
+      replace: dest=/etc/haproxy/haproxy.cfg regexp='(listen ironic\n.*\n.*)\n.*option httpchk GET \/' replace='\1'
+      when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
+
+    - name: restart haproxy service (workaround bug bz 1246525)
+      command: systemctl restart haproxy
+      sudo: yes
+      when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
 
 - name: Set ironic to control the power state
   hosts: undercloud:&baremetal
