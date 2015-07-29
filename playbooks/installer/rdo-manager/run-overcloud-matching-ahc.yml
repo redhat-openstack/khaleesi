@@ -20,9 +20,11 @@
         force=yes
         mode=0644
 
-    - name: create other edeploy.specs files
+    - name: create edeploy *.specs files
       sudo: yes
       shell: >
+          sed -i '3d' /etc/ahc-tools/edeploy/compute.specs;
+          cp /etc/ahc-tools/edeploy/compute.specs /etc/ahc-tools/edeploy/control.specs;
           cp /etc/ahc-tools/edeploy/compute.specs /etc/ahc-tools/edeploy/block.specs;
           cp /etc/ahc-tools/edeploy/compute.specs /etc/ahc-tools/edeploy/swift.specs;
           cp /etc/ahc-tools/edeploy/compute.specs /etc/ahc-tools/edeploy/ceph.specs
