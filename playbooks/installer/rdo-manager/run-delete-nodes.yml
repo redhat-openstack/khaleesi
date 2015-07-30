@@ -1,7 +1,14 @@
 ---
 #Note, this playbook is limited to removing one node at a time atm
-- name: scale overcloud nodes
-  hosts: undercloud
+- name: Group hosts by post action - delete-node
+  hosts: all:!localhost
+  gather_facts: no
+  tasks:
+    - group_by: key="delete_node"
+      when: "installer.post_action is defined and 'delete_node' in installer.post_action"
+
+- name: delete an overcloud node of a certain type
+  hosts: undercloud:&delete_node
   tasks:
     - name: set fact stack user home
       set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
@@ -58,6 +65,10 @@
       debug: var=node_name_to_delete.stdout
       when: node_type_to_delete is defined
 
+    - name: setup commannd vars
+      template: src=templates/delete-nodes-command-env.j2 dest=~/delete-nodes-command-env mode=0755
+      when: node_type_to_delete is defined
+
     - name: get initial deploy command env files
       register: overcloud_deploy_command_initial_env
       shell: >
@@ -69,22 +80,20 @@
       when: node_type_to_delete is defined
 
       #NOTE, once a node is deleted and additional ansible calls to the node will fail
-    - name: get delete command
-      register: delete_command_output
+    - name: get command to delete the node by id
       shell: >
         source {{ instack_user_home }}/stackrc;
         source {{ instack_user_home }}/delete-nodes-setup-env;
-        export DELETE_COMMAND='openstack overcloud node delete {{ node_id_to_delete.stdout }} --debug --plan overcloud --stack overcloud ';
-        if [ -f {{ instack_user_home }}/network-environment.yaml ]; then
-          export DELETE_COMMAND='$DELETE_COMMAND -e /{{ overcloud_deploy_command_initial_env.stdout }} ';
-        fi;
+        source {{ instack_user_home }}/delete-nodes-command-env;
         echo $DELETE_COMMAND
+      register: delete_command_output
       when: node_type_to_delete is defined
 
-    - name: delete the node by id
+    - name: get command to delete the node by id
       shell: >
         source {{ instack_user_home }}/stackrc;
         source {{ instack_user_home }}/delete-nodes-setup-env;
+        source {{ instack_user_home }}/delete-nodes-command-env;
         {{ delete_command_output.stdout }} &> overcloud_deployment_delete.log
       when: node_type_to_delete is defined
 
@@ -130,7 +139,7 @@
       when: (node_type_to_delete is defined) and node_type_to_delete == 'compute' and nova_service_compute.stdout.find("down") == -1
 
 - name: check ceph status on controller node
-  hosts: overcloud-controller-0
+  hosts: overcloud-controller-0:&delete_node
   tasks:
     - name: get ceph status for ceph nodes
       shell: >
@@ -139,7 +148,7 @@
       when: node_type_to_delete is defined and node_type_to_delete == 'cephstorage'
 
 - name: remove deleted node from the ansible hosts file
-  hosts: undercloud
+  hosts: undercloud:&delete_node
   tasks:
     - name: delete the node from the ansible hosts file
       delegate_to: localhost

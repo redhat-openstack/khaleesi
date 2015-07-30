@@ -1,6 +1,13 @@
 ---
-- name: scale overcloud nodes
+- name: Group hosts by post action - scale_up_node_type
   hosts: undercloud
+  gather_facts: no
+  tasks:
+    - group_by: key="scale_up_node_type"
+      when: "installer.post_action is defined and 'scale_up_node_type' in installer.post_action"
+
+- name: scale overcloud nodes
+  hosts: undercloud:&scale_up_node_type
   tasks:
     - name: set fact stack user home
       set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
@@ -55,8 +62,9 @@
       when: node_to_scale is defined
       shell: >
           source {{ instack_user_home }}/stackrc;
+          source {{ instack_user_home }}/deploy-nodesrc;
           source {{ instack_user_home }}/deploy-overcloudrc;
-          export DEPLOY_COMMAND=$(echo "$DEPLOY_COMMAND" | sed 's/\S*\(scale\|SCALE\)\S*//g');
+          export DEPLOY_COMMAND=$(echo "$DEPLOY_COMMAND" | sed 's/\S*\(scale\|SCALE\)\S*[0-9 ]\+//g');
           echo $DEPLOY_COMMAND
 
     - name: scale-overcloud
