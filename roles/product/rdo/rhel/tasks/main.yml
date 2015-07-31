@@ -28,7 +28,7 @@
             mode=0644
   notify:
     - Yum clean all
-  when: product.repo_type in ['delorean_mgt'] and product.repo.delorean_mgt_pin_version is not defined
+  when: product.repo_type in ['delorean_mgt_only','delorean_mgt'] and product.repo.delorean_mgt_pin_version is not defined
 
 - name: Create the pinned upstream delorean mgt repositories for EPEL RDO
   get_url: url="{{ product.repo['delorean_mgt'][ansible_distribution][ansible_distribution_version] }}"/"{{product.repo.delorean_mgt_pin_version}}"/delorean-rdo-management.repo
@@ -36,7 +36,7 @@
             mode=0644
   notify:
     - Yum clean all
-  when: product.repo_type in ['delorean_mgt'] and product.repo.delorean_mgt_pin_version is defined
+  when: product.repo_type in ['delorean_mgt_only','delorean_mgt'] and product.repo.delorean_mgt_pin_version is defined
 
 - name: update yum priority of rdo trunk repo
   shell: "sed -i 's/priority=1/priority=10/' /etc/yum.repos.d/rdo-trunk-release.repo"
