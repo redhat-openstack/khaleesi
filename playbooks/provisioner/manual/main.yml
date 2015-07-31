@@ -1,4 +1,20 @@
 ---
-- name: No provisioning needed - using manual
+- name: Dynamically add host to inventory
   hosts: localhost
+  sudo: no
+  tasks:
+    - name: Group by provisioner type
+      group_by: key={{ provisioner.type }}
 
+    - name: ensure correct key_file permission
+      file: path={{ provisioner.key_file }} mode=0600
+
+    - name: Add the host to the inventory
+      when: installer.type in ['rdo-manager']
+      add_host:
+        name="host0"
+        groups="provisioned"
+        ansible_fqdn="{{ lookup('env', 'TEST_MACHINE') }}"
+        ansible_ssh_user="{{ provisioner.remote_user }}"
+        ansible_ssh_private_key_file="{{ lookup('env','HOME')}}/.ssh/id_rsa"
+        ansible_ssh_host="{{ lookup('env', 'TEST_MACHINE') }}"
