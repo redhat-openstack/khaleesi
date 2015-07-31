@@ -71,6 +71,12 @@
       yum: name=* state=latest
       when: yum_update | bool
 
+    - name: Find if a new kernel was installed
+      shell: find /boot/ -anewer /proc/1/stat -name 'initramfs*' | egrep ".*"
+      register: new_kernel
+      ignore_errors: True
+      when: "'{{ repo_host }}' == 'virthost'"
+
     - name: reboot host
       sudo: no
       local_action:
@@ -82,4 +88,4 @@
           key="{{ ansible_ssh_private_key_file }}"
           timeout=900
           sudo=false
-      when: "'{{ repo_host }}' == 'virthost'"
+      when: "'{{ repo_host }}' == 'virthost' and new_kernel.rc == 0"
