@@ -1,6 +1,6 @@
-- name: Create repository for patched rpm
+- name: Setup repository configuration for patched rpm
   sudo: yes
-  shell: "createrepo /home/{{ ansible_ssh_user }}/{{ patch.dist_git.name }}"
+  template: "src=../templates/patched_rpms.j2 dest=/etc/yum.repos.d/patched_rpms.repo"
 
 - name: Create local repo for patched rpm
   sudo: yes
