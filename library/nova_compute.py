@@ -476,7 +476,7 @@ def _create_server(module, nova):
                         % server._info)
             if errors_log:
                 msgs = [ "Previous failed boot attempts:" ] + errors_log
-            module.fail_json('\n'.join(msgs))
+            module.fail_json(msg = '\n'.join(msgs))
         time.sleep(2)
 
 
