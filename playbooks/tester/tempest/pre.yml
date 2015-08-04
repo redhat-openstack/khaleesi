@@ -9,6 +9,8 @@
   hosts: tester
   gather_facts: no
   sudo: no
+  vars:
+    deployer_input: ~/{{ tester.dir }}/etc/deployer-input-{{ product.version.code_name }}.conf
   tasks:
     - name: Create a command to use tempest with our venv if needed
       copy:
@@ -19,6 +21,9 @@
           cd "$(dirname $0)"
           [[ -d .venv ]] && source .venv/bin/activate
           exec "$@"
+
+    - stat: path={{ deployer_input }}
+      register: deployer_input_path
 
     - template: dest={{ tester.dir }}/configure-tempest.sh src=../templates/configure-tempest.j2 mode=0755
       register: config_script

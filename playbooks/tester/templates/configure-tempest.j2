@@ -4,6 +4,9 @@ python tools/config_tempest.py \
 {% if tester.guest_image is defined %}
   --image {{ tester.guest_image.url }} \
 {% endif %}
+{% if deployer_input_path is defined and deployer_input_path.stat.exists %}
+  --deployer-input {{ deployer_input }} \
+{% endif %}
   --out etc/tempest.conf \
   --debug  \
   --create \
