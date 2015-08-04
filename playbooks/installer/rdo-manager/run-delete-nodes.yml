@@ -89,7 +89,7 @@
       register: delete_command_output
       when: node_type_to_delete is defined
 
-    - name: get command to delete the node by id
+    - name: run command to delete the node by id
       shell: >
         source {{ instack_user_home }}/stackrc;
         source {{ instack_user_home }}/delete-nodes-setup-env;
