@@ -19,7 +19,7 @@
 
 import operator
 import time
-from pprint import pprint
+import pprint
 
 try:
     from novaclient.v1_1 import client as nova_client
