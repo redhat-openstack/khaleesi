@@ -17,9 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this software.  If not, see <http://www.gnu.org/licenses/>.
 
+import itertools
 import operator
-import time
 import pprint
+import random
+import time
 
 try:
     from novaclient.v1_1 import client as nova_client
@@ -424,60 +426,80 @@ def _create_server(module, nova):
         if module.params[optional_param]:
             bootkwargs[optional_param] = module.params[optional_param]
 
+    wait = module.params['wait'] == 'yes'
+    wait_for = float(module.params['wait_for'])
+    expire = time.time() + wait_for
+
+    def retrier():
+        for t in expbackoff():
+            time.sleep(t)
+            server = nova_create()
+            yield server
+            try:
+                for i in range(24):
+                    nova.servers.delete(server)
+                    time.sleep(10)
+            except exceptions.NotFound:
+                # Delete succeed
+                pass
+
+
+    def expbackoff():
+        '''
+        Returns an infinte sequence of random values under exponential function.
+        '''
+        return (random.uniform(0, 5*60 * (1.5**k-1)) for k in itertools.count())
+
     def nova_create():
         try:
             server = nova.servers.create(*bootargs, **bootkwargs)
-            server = nova.servers.get(server.id)
             return server
         except Exception, e:
             module.fail_json(msg = "Error in creating instance: %s " % e.message)
 
-
-    server = nova_create()
-    wait = module.params['wait'] == 'yes'
-    expire = time.time() + int(module.params['wait_for'])
-
-    errors_log = []
-    while True:
+    def server_poller(server, poll_interval=2):
         try:
-            server = nova.servers.get(server.id)
+            while True:
+                yield nova.servers.get(server.id)
+                time.sleep(poll_interval)
         except Exception, e:
             module.fail_json(msg = "Error in getting instance  %s: %s " % (server.id, e.message))
-        if server.status == 'ACTIVE':
-            server = _add_floating_ip(module, nova, server)
-            private = openstack_find_nova_addresses(getattr(server, 'addresses'), 'fixed', 'private')
-            public = openstack_find_nova_addresses(getattr(server, 'addresses'), 'floating', 'public')
-            module.exit_json(changed=True,
-                             id=server.id,
-                             private_ip=' '.join(private),
-                             public_ip=' '.join(public),
-                             status=server.status,
-                             info=server._info,
-                             attempts_errors_log=errors_log)
-        elif server.status == 'ERROR':
-            ENGOPS_328484_MSG = (
-                'Timeout while waiting on RPC response - topic: "network"'
-            )
-            if ENGOPS_328484_MSG in server.fault.get('message', ''):
-                # TODO(jhenner) Add warning or something like that.
-                server.delete()
-                server = nova_create()
-                errors_log.append("ERROR: %s" % pprint.pformat(server._info))
-                continue
-            else:
-                module.fail_json(msg=(
-                    "Error in creating the server:\n%s"
-                    % pprint.pformat(server._info)),
-                    info = server._info
-                )
-        if not wait or time.time() >= expire:
-            msgs = []
-            msgs.append("Timeouted when waiting for the server to come up:\n%s"
-                        % server._info)
-            if errors_log:
-                msgs = [ "Previous failed boot attempts:" ] + errors_log
-            module.fail_json(msg = '\n'.join(msgs))
-        time.sleep(2)
+
+    errors_log = []
+    for booted_server in retrier():
+        for polled_server in server_poller(booted_server):
+            if polled_server.status == 'ACTIVE':
+                polled_server = _add_floating_ip(module, nova, polled_server)
+                private = openstack_find_nova_addresses(
+                    getattr(polled_server, 'addresses'),
+                    'fixed',
+                    'private')
+                public = openstack_find_nova_addresses(
+                    getattr(polled_server, 'addresses'),
+                    'floating',
+                    'public')
+                module.exit_json(changed=True,
+                                id=polled_server.id,
+                                private_ip=' '.join(private),
+                                public_ip=' '.join(public),
+                                status=polled_server.status,
+                                info=polled_server._info,
+                                attempts_errors_log=errors_log)
+
+            elif not wait or time.time() >= expire:
+                msgs = []
+                msgs.append(
+                    "Timeouted when waiting for the server to come up:\n%s"
+                    % polled_server._info)
+                if errors_log:
+                    msgs += [ "Previous failed boot attempts:" ] + errors_log
+                module.fail_json(msg = '\n'.join(msgs))
+
+            elif polled_server.status == 'ERROR':
+                errors_log.append("Error in creating the server %s"
+                                  % pprint.pformat(polled_server._info))
+                break # Get new server instead of current one.
+            # Server is still in some transitional state. Let's poll again.
 
 
 def _delete_floating_ip_list(module, nova, server, extra_ips):
