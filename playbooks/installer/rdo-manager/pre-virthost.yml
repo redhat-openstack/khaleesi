@@ -191,9 +191,21 @@
       set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
 
     - name: get the guest-image
-      shell: >
-        curl -o {{ instack_user_home }}/{{ distro.images[distro.name][distro.version].guest_image_name }} \
-        "{{ distro.images[distro.name][distro.version].remote_file_server }}{{ distro.images[distro.name][distro.version].guest_image_name }}"
+      sudo: yes
+      get_url: > 
+        url="{{ distro.images[distro.name][distro.version].remote_file_server }}{{ distro.images[distro.name][distro.version].guest_image_name }}"
+        dest=/root/{{ distro.images[distro.name][distro.version].guest_image_name }}
+
+    - name: copy the guest-image in stack user home
+      sudo: yes
+      command: cp /root/{{ distro.images[distro.name][distro.version].guest_image_name }} {{instack_user_home}}/{{ distro.images[distro.name][distro.version].guest_image_name }}
+
+    - name: set the right permissions for the guest-image
+      sudo: yes
+      file: >
+        path={{instack_user_home}}/{{ distro.images[distro.name][distro.version].guest_image_name }}
+        owner={{ provisioner.remote_user }}
+        group={{ provisioner.remote_user }}
 
     - name: install python-rdomanager-oscplugin
       yum: name=python-rdomanager-oscplugin state=present
@@ -341,6 +353,12 @@
   tasks:
     - name: copy gating_repo package
       command: scp -F ssh.config.ansible {{ gr_build_dir }}/{{ gating_repo }}-{{ gr_pkg_version.stdout }}-99999.noarch.rpm undercloud-from-virthost:{{ instack_user_home }}/
+
+- name: copy the guest image to the undercloud
+  hosts: virthost
+  tasks:
+    - name: upload the guest-image on the undercloud
+      command: scp -F ssh.config.ansible {{instack_user_home}}/{{ distro.images[distro.name][distro.version].guest_image_name }} undercloud-from-virthost:{{ instack_user_home }}/
 
 - name: test host connection
   hosts: all:!localhost
