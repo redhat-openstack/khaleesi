@@ -132,7 +132,9 @@
       shell: sed -i "s/tempest.conf.*/tempest.conf --network-id {{ public_network_uuid }} '/" \
             /usr/lib/python2.7/site-packages/rdomanager_oscplugin/v1/overcloud_validate.py
       tags: workaround
-      when: workarounds.enabled is defined and workarounds.enabled|bool
+      when: workarounds.enabled is defined and
+            workarounds.enabled|bool and
+            product.name != "rdo"
 
     - name: update SwiftOperator with the correct name BZ 1243825
       sudo: yes
@@ -207,6 +209,20 @@
           openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL \
           --overcloud-admin-password "$OS_PASSWORD" \
           --tempest-args {{ installer.tempest.test_regex }} \
+          --skipfile {{ instack_user_home }}/skipfile &> {{ instack_user_home }}/tempest_console.log
+
+    - name: run overcloud tests on rdo
+      ignore_errors: yes
+      when: overcloud_deployment_result == "0" and
+            installer.tempest.enabled is defined and
+            installer.tempest.enabled|bool and
+            product.name == "rdo"
+      shell: >
+          source {{ instack_user_home }}/overcloudrc;
+          openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL \
+          --overcloud-admin-password "$OS_PASSWORD" \
+          --tempest-args {{ installer.tempest.test_regex }} \
+          --network-id {{ public_network_uuid }} \
           --skipfile {{ instack_user_home }}/skipfile &> {{ instack_user_home }}/tempest_console.log
 
     - name: fetch tempest result
