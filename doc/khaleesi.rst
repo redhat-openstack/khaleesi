@@ -62,6 +62,7 @@ Create the virtual envionment, install ansible, ksgen and kcli utils::
 
     virtualenv venv
     source venv/bin/activate
+    pip install ansible==1.9.1
     cd khaleesi
     cd tools/ksgen
     python setup.py develop
@@ -162,123 +163,21 @@ playbooks_ with a correct configuration.
 .. _here: https://ci.centos.org/view/rdo/job/rdo_manager-gate_khaleesi-none-7-rdo-kilo-delorean_mgt-centos-7.0-virthost-minimal-neutron-ml2-vxlan/
 .. _pastebin: http://fpaste.org/
 
-.. _beaker:
+.. _manual:
 
-Installing rdo-manager with Beaker provisioner
+Installing rdo-manager with the manual provisioner
 ----------------------------------------------
 
-Here, we will deploy an RHEL OSP director using Beaker environment.
+Here, we will deploy a RDO-Manager environment using the manual environment.
 
 First, we create the appropriate configuration file with ksgen. Make sure that
 you are in your virtual environment that you previously created. ::
 
     source venv/bin/activate
 
-Generate the configuration with the following command::
+Export the ip or fqdn hostname of the test box you will use as the virtual host for osp-director::
 
-    ksgen --config-dir=../khaleesi-settings/settings generate \
-        --provisioner=beaker \
-        --provisioner-site=bkr \
-        --provisioner-distro=centos \
-        --provisioner-distro-version=7 \
-        --provisioner-site-user=rdo \
-        --product=rdo \
-        --product-version=kilo \
-        --product-version-build=last_known_good \
-        --product-version-repo=delorean_mgt \
-        --distro=centos-7.0 \
-        --installer=rdo_manager \
-        --installer-env=virthost \
-        --installer-images=build \
-        --installer-network=neutron \
-        --installer-network-variant=ml2-vxlan \
-        --installer-topology=minimal \
-        --extra-vars product.repo_type_override=none \
-        ksgen_settings.yml
-
-.. Note:: These run settings can get outdated. If you want to replicate a
-   Jenkins job, the best solution is to check its configuration and use the
-   commands found inside the "Build" section. You could find an example here_.
-
-The result is a YAML file collated from all the small YAML snippets from
-``khaleesi-settings/settings``. All the options are quite self-explanatory and
-changing them is simple as well. The rule file is currently only used for
-deciding the installer+product+topology configuration. Check out ksgen_ for
-detailed documentation.
-
-The next step will run your intended deployment::
-
-    kcli --settings ksgen_settings.yml --provision --install --test
-
-you can run kcli --help for details on the kcli tool
-
-.. Note:: If you get various ansible related errors while running this command
-   (for example ``ERROR: group_by is not a legal parameter in an Ansible task
-   or handler``) then first check if you installed ansible in the virtual env,
-   that you enabled the virtual env. If you have a system wide ansible
-   installation, please also try removing it and try again.
-
-If any part fails, you can ask for help on the internal #rdo-ci channel. Don't
-forget to save the relevant error lines on something like pastebin_.
-
-Using your new undercloud / overcloud
-`````````````````````````````````````
-
-When your run is complete (or even while it's running), you can log in to your
-beaker machine::
-
-    ssh root@<beaker>
-    su stack
-
-If you want to log to your new undercloud machine, just make on your beaker::
-
-    ssh -F ssh.config.ansible undercloud
-
-Here you could play with your newly created Overcloud
-
-.. _centosci:
-
-Installing rdo-manager with centosci provisioner
-------------------------------------------------
-
-Here the installation is quite similar with Beaker provisioner.
-Just notice the changes into the configuration for ksgen::
-
-    export CONFIG_BASE=<path>/khaleesi-settings
-
-    ksgen --config-dir=$CONFIG_BASE/settings generate \
-        --provisioner=centosci \
-        --provisioner-site=default \
-        --provisioner-distro=centos \
-        --provisioner-distro-version=7 \
-        --provisioner-site-user=rdo \
-        --product=rdo \
-        --product-version=kilo \
-        --product-version-build=last_known_good \
-        --product-version-repo=delorean_mgt \
-        --distro=centos-7.0 \
-        --installer=rdo_manager \
-        --installer-env=virthost \
-        --installer-images=build \
-        --installer-network=neutron \
-        --installer-network-variant=ml2-vxlan \
-        --installer-topology=minimal \
-        --extra-vars product.repo_type_override=none \
-        ksgen_settings.yml
-
-All the steps are similar with :ref:`beaker`
-
-.. _manual:
-
-Installing rdo-manager with manual provisioner
-----------------------------------------------
-
-Using the manual provisioner is quite similar than with ref:`beaker`
-
-First we create the appropriate configuration file with ksgen. Make sure that
-you are in your virtual envirnment that you previously created. ::
-
-    source venv/bin/activate
+    export TEST_MACHINE=<ip address of baremetal virt host>
 
 Generate the configuration with the following command::
 
@@ -293,29 +192,79 @@ Generate the configuration with the following command::
         --installer-env=virthost \
         --installer-images=build \
         --installer-network=neutron \
-        --installer-network-variant=ml2-vxlan \
+        --installer-network-isolation=none \
+        --installer-network-variant=gre \
         --installer-topology=minimal \
+        --installer-tempest=disabled \
+        --workarounds=enabled \
         --extra-vars product.repo_type_override=none \
+        --extra-vars @../khaleesi-settings/hardware_environments/virt_default/hw_settings.yml \
         ksgen_settings.yml
 
-You need to regenerate your inventory file or using another one ::
+.. Note:: The "base_dir" key is defined by either where you execute ksgen from or by the $WORKSPACE 
+environment variable.  The base_dir value should point to the directory where khaleesi and khaleesi-settings have been cloned. 
 
-    cat <<EOF > local_hosts
-    localhost ansible_connection=local
-    host0 ansible_ssh_host=$HOST ansible_ssh_user=stack ansible_ssh_private_key_file=rhos-jenkins.pem
-    undercloud ansible_ssh_host=undercloud ansible_ssh_user=stack ansible_ssh_private_key_file=rhos-jenkins.pem
-
-    [virthost]
-    host0
-
-    [local]
-    localhost
-
-    EOF
+The result is a YAML file collated from all the small YAML snippets from
+``khaleesi-settings/settings``. All the options are quite self-explanatory and
+changing them is simple as well. The rule file is currently only used for
+deciding the installer+product+topology configuration. Check out ksgen_ for
+detailed documentation.
 
 The next step will run your intended deployment::
 
-    kcli --settings ksgen_settings.yml --provision --install --test
+    ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/full-job-no-test.yml
+
+
+If any part fails, you can ask for help on freenode #rdo channel. Don't
+forget to save the relevant error lines on something like pastebin_.
+
+Using your new undercloud / overcloud
+`````````````````````````````````````
+
+When your run is complete (or even while it's running), you can log in to your
+test machine::
+
+    ssh root@<test_machine>
+    su stack
+
+If you want to log to your new undercloud machine ::
+
+    ssh -F ssh.config.ansible undercloud
+
+Here you could play with your newly created Overcloud
+
+.. _centosci:
+
+Installing rdo-manager with centosci provisioner
+------------------------------------------------
+
+Here the installation is quite similar with Beaker provisioner.
+Just notice the changes into the configuration for ksgen::
+
+    ksgen --config-dir=../khaleesi-settings/settings generate \
+    --provisioner=centosci \
+    --provisioner-site=default \
+    --provisioner-distro=centos \
+    --provisioner-distro-version=7 \
+    --provisioner-site-user=rdo \
+    --product=rdo \
+    --product-version=kilo \
+    --product-version-build=last_known_good \
+    --product-version-repo=delorean_mgt \
+    --distro=centos-7.0 \
+    --installer=rdo_manager \
+    --installer-env=virthost \
+    --installer-images=build \
+    --installer-network=neutron \
+    --installer-network-isolation=none \
+    --installer-network-variant=ml2-vxlan \
+    --installer-topology=minimal \
+    --installer-tempest=disabled \
+    --workarounds=enabled \
+    --extra-vars product.repo_type_override=none \
+    --extra-vars @../khaleesi-settings/hardware_environments/virt_default/hw_settings.yml \
+    ksgen_settings.yml
+
 
 If any part fails, you can ask for help on the internal #rdo-ci channel. Don't
 forget to save the relevant error lines on something like pastebin_.
@@ -337,100 +286,9 @@ Here you could play with your newly created Overcloud
 
 .. _openstack:
 
-Installing Openstack All-in-one in Blue using your own tenant
--------------------------------------------------------------
 
-.. Note:: In the below example we assume that the tenant we got at 'Blue'
-    environment is 'tenant1' and the user is 'user1'.
-    Replace 'tenant1' with your tenant name and 'user1' with your user name in
-    Blue. We also assume that the external IPs range we got here is
-    '10.35.184.121-10.35.184.126' - Replace the public* entries below with your
-    network data as supplied by the 'Blue' admin
-    There are three networks - 'Default-mgmt' and 'Nested-bridge' which are
-    already created and 'Private-network' which is a private network
-    which we created before.
-    For every network entry the name is the name of the network and the id is
-    the id of the network 'Private-network' is a network we created before.
-    We use cloud.key as the key file. We assume we have a file key file cloud.key.
 
-Upload the key to Blue
-``````````````````````
-
-From you tenant go to: Compute -> Access & Security -> Key Pairs ->
-Import Key Pair::
-
-   Key Pair name: cloudkey
-   Public Key: Copy the content of cloud.key.pub
-
-In case your tenant and user are not in khaleesi add the following files:
-
-.. Note:: Change the files below to reflect your environment Please change 'tenant1' and 'user1' with your tenant and user name
-
-settings/provisioner/openstack/site/blue/tenant/tenant1.yml::
-
-    --- !extends:common/image.yml
-    provisioner:
-        tenant_name: tenant1
-        key_file: <absolute path to cloud.key file>
-        key_name: cloudkey
-        network:
-            network_list:
-                data:
-                    name: Private-network
-                    id: 4b8e57fc-394e-430e-ae57-3ab7df54e7a7
-                external:
-                    allocation_start: 10.35.184.121
-                    allocation_end:  10.35.184.126
-
-settings/provisioner/openstack/site/blue/user/user1.yml::
-
-    --- !extends:../tenant/tenant1.yml
-    provisioner:
-        username: user1
-        password: mypassword
-
-From the khaleesi-settings directory run the following (Adjust as needed)::
-The following is a Red Hat internal only example.
-
-    export TENANT=tenant1
-    export USER=user1
-    ksgen --config-dir=../khaleesi-settings/settings generate \
-        --provisioner=openstack \
-        --provisioner-site=blue \
-        --provisioner-site-tenant=$TENANT \
-        --provisioner-site-user=$USER \
-        --product=rhos \
-        --product-version=7.1 \
-        --product-version-repo=puddle \
-        --product-version-build=latest \
-        --distro=rhel-7.1 \
-        --installer=packstack \
-        --installer-topology=all-in-one \
-        --installer-network=neutron \
-        --installer-network-variant=ml2-vxlan \
-        --installer-messaging=rabbitmq \
-        --extra-vars tmp.node_prefix="$TENANT-"\
-        ksgen_settings.yml
-
-.. Note:: tmp.node_prefix should be ended with '-' !! It's optional variable.
-
-.. Note:: Tester: If you want to add a tester node you should add --tester=<tester type> to the ksgen command (e.g. --tester=tempest)
-
-The above command should create the file ksgen_settings.yml in the current
-directory. From Khaleesi directory, run the following to provision the
-instance and install OpenStack:
-
-    kcli --settings ksgen_settings.yml --provision --install
-
-Installing Openstack Multi Node in Blue using your own tenant
--------------------------------------------------------------
-
-All the steps are the same as the All-in-one case. The only difference is
-running the ksgen with the paramter --installer-topology=multi-node instead
-of --installer-topology=all-in-one.
-This will install 4 nodes: controller , network node and 2 compute nodes.
-
-Installing Openstack on Bare Metal
+Installing Openstack on Bare Metal via Packstack
 ----------------------------------
 
 All the steps are the same as the All-in-one case. The only difference is

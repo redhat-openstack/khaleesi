@@ -25,20 +25,20 @@
   hosts: localhost:!skip_provision
   tasks:
     - name: Check if beakerCheckOut.sh script exists
-      stat: path="{{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh"
+      stat: path="{{base_dir}}/khaleesi-settings/beakerCheckOut.sh"
       register: beakerCheckOut_present
 
     - name: Remove beakerCheckOut.sh script if it exists
-      command: rm -rf {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh
+      command: rm -rf {{base_dir}}/khaleesi-settings/beakerCheckOut.sh
       when: beakerCheckOut_present.stat.exists == True
 
     - name: Get beakerCheckOut.sh file from khaleesi-settings
       shell: >
-        chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
-        cp {{ jenkins.workspace }}/{{ jenkins.job_name }}/{{ provisioner.beaker_checkout_script }} .
+        chdir={{base_dir}}/khaleesi-settings
+        cp {{base_dir}}/khaleesi-settings/settings/provisioner/beaker/files/beakerCheckOut.sh .
 
     - name: Check if beakerCheckOut.sh script exists
-      stat: path="{{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh"
+      stat: path="{{base_dir}}/khaleesi-settings/beakerCheckOut.sh"
       register: beakerCheckOut_downloaded
 
     - name: Fail when can't get checkout script
@@ -47,7 +47,7 @@
 
     - name: Chmod if file exists
       shell: >
-        chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
+        chdir={{base_dir}}/khaleesi-settings
         chmod +x beakerCheckOut.sh
       when: beakerCheckOut_downloaded.stat.exists == True
 
@@ -62,8 +62,8 @@
 
     - name: Provision beaker machine with password
       shell: >
-        chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
-        {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh --arch={{ provisioner.beaker_arch }} --family={{ provisioner.beaker_family }} --distro={{ provisioner.beaker_distro }} --variant={{ provisioner.beaker_variant }} --hostrequire=hostlabcontroller={{ provisioner.host_lab_controller }} --username={{ provisioner.beaker_user_name }} --password=$BEAKER_PASSWORD --task=/CoreOS/rhsm/Install/automatjon-keys --keyvalue=HVM=1  --ks_meta="ksdevice=link" --whiteboard={{ provisioner.whiteboard_message }} --job-group={{ provisioner.beaker_group }} --machine={{ lookup('env', 'BEAKER_MACHINE') }} --timeout=720 >/dev/null 2>&1
+        chdir={{base_dir}}/khaleesi-settings
+        {{base_dir}}/khaleesi-settings/beakerCheckOut.sh --arch={{ provisioner.beaker_arch }} --family={{ provisioner.beaker_family }} --distro={{ provisioner.beaker_distro }} --variant={{ provisioner.beaker_variant }} --hostrequire=hostlabcontroller={{ provisioner.host_lab_controller }} --username={{ provisioner.beaker_user_name }} --password=$BEAKER_PASSWORD --task=/CoreOS/rhsm/Install/automatjon-keys --keyvalue=HVM=1  --ks_meta="ksdevice=link" --whiteboard={{ provisioner.whiteboard_message }} --job-group={{ provisioner.beaker_group }} --machine={{ lookup('env', 'BEAKER_MACHINE') }} --timeout=720 >/dev/null 2>&1
       register: beaker_job_status
       async: 7200
       poll: 180
@@ -72,8 +72,8 @@
 
     - name: provision beaker machine with kerberos auth
       shell: >
-        chdir={{ jenkins.workspace }}/{{ jenkins.job_name }}
-        {{ jenkins.workspace }}/{{ jenkins.job_name }}/beakerCheckOut.sh --arch={{ provisioner.beaker_arch }} --family={{ provisioner.beaker_family }} --distro={{ provisioner.beaker_distro }} --variant={{ provisioner.beaker_variant }} --hostrequire=hostlabcontroller={{ provisioner.host_lab_controller }} --task=/CoreOS/rhsm/Install/automatjon-keys --keyvalue=HVM=1 --ks_meta=ksdevice=link --whiteboard={{ provisioner.whiteboard_message }} --job-group={{ provisioner.beaker_group }} --machine={{ lookup('env', 'BEAKER_MACHINE') }} --timeout=720;
+        chdir={{base_dir}}/khaleesi-settings
+        {{base_dir}}/khaleesi-settings/beakerCheckOut.sh --arch={{ provisioner.beaker_arch }} --family={{ provisioner.beaker_family }} --distro={{ provisioner.beaker_distro }} --variant={{ provisioner.beaker_variant }} --hostrequire=hostlabcontroller={{ provisioner.host_lab_controller }} --task=/CoreOS/rhsm/Install/automatjon-keys --keyvalue=HVM=1 --ks_meta=ksdevice=link --whiteboard={{ provisioner.whiteboard_message }} --job-group={{ provisioner.beaker_group }} --machine={{ lookup('env', 'BEAKER_MACHINE') }} --timeout=720;
       register: beaker_job_status
       async: 7200
       poll: 180

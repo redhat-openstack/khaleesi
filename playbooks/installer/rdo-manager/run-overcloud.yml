@@ -130,12 +130,12 @@
   hosts: undercloud
   tasks:
     - name: check that network config file exists
-      stat: path="{{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation | replace('_', '-') }}/{{ installer.network.isolation | replace('_', '-') }}.yaml"
+      stat: path="{{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation | replace('_', '-') }}/{{ installer.network.isolation | replace('_', '-') }}.yaml"
       when: installer.network.isolation != 'none'
 
     - name: copy over template file (baremetal)
       synchronize: >
-        src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation | replace('_', '-') }}/{{ installer.network.isolation  | replace('_', '-') }}.yaml dest={{ instack_user_home }}/network-environment.yaml
+        src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation | replace('_', '-') }}/{{ installer.network.isolation  | replace('_', '-') }}.yaml dest={{ instack_user_home }}/network-environment.yaml
       when: installer.network.isolation != 'none' and installer.env.type != "virthost"
 
     - name: copy over template file (virt)

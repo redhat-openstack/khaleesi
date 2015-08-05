@@ -56,6 +56,7 @@ Create the virtual envionment, install ansible, ksgen and kcli utils::
 
     virtualenv venv
     source venv/bin/activate
+    pip install ansible==1.9.1
     cd khaleesi/tools/ksgen
     python setup.py develop
     cd ../kcli
@@ -77,15 +78,22 @@ Create the appropriate ansible.cfg for khaleesi::
     echo "[ssh_connection]" >> ansible.cfg
     echo "ssh_args = -F ssh.config.ansible" >> ansible.cfg
 
-Create an ssh key pair::
+SSH Keys:
+``````````````
 
-    ssh-keygen
+.. Note:: We assume that you will named the key : ~/id_rsa and ~/id_rsa.pub
 
-.. Note:: We assume that you will named the key : id_rsa and id_rsa.pub
+Ensure that your ~/.ssh/id_rsa.pub file is in /root/.ssh/authorized_keys file on the baremetal virt host::
+    
+    ssh-copy-id root@<ip address of baremetal virt host>
 
-Upload the public key to the root user of your baremetal virt host::
 
-    ssh-copy-id -i id_rsa.pub root@mybox
+Deployment Configuration:
+``````````````
+
+Export the ip or fqdn hostname of the test box you will use as the virtual host for osp-director::
+
+    export TEST_MACHINE=<ip address of baremetal virt host>
 
 Create a ksgen-settings file for Khaleesi to be able to get options and
 settings::
@@ -95,21 +103,27 @@ settings::
         --product=rdo \
         --product-version=kilo \
         --product-version-build=last_known_good \
-        --product-version-repo=delorean \
+        --product-version-repo=delorean_mgt \
         --distro=centos-7.0 \
-        --workarounds=enabled \
         --installer=rdo_manager \
         --installer-env=virthost \
         --installer-images=build \
         --installer-network=neutron \
+        --installer-network-isolation=none \
         --installer-network-variant=gre \
         --installer-topology=minimal \
+        --installer-tempest=disabled \
+        --workarounds=enabled \
         --extra-vars product.repo_type_override=none \
+        --extra-vars @$CONFIG_BASE/hardware_environments/virt_default/hw_settings.yml \
         ksgen_settings.yml
+
+.. Note:: The "base_dir" key is defined by either where you execute ksgen from or by the $WORKSPACE 
+environment variable.  The base_dir value should point to the directory where khaleesi and khaleesi-settings have been cloned.  
 
 If you want to have more informations about the options used by ksgen launch::
 
-    ksgen --config-dir=../khaleesi-settings/settings generate
+    ksgen --config-dir=../khaleesi-settings/settings help
 
 .. Note:: This output will give you all options available in ksgen tools, You
     can also check into :ref:`usage` for more examples.
@@ -120,32 +134,16 @@ YAML file.
 
 Review the ksgen_settings.yml file
 
-Here we assume that $HOST correspond to your baremetal virt host::
-
-    export HOST=mybox
-
-Generate the host file::
-
-    cat <<EOF > local_hosts
-    localhost ansible_connection=local
-    host0 ansible_ssh_host=$HOST ansible_ssh_user=stack ansible_ssh_private_key_file=~/.ssh/id_rsa
-    undercloud ansible_ssh_host=undercloud ansible_ssh_user=stack ansible_ssh_private_key_file=~/.ssh/id_rsa
-
-    [virthost]
-    host0
-
-    [local]
-    localhost
-    EOF
-
-Test your ssh connection with the generated hosts file::
-
-    ansible -m ping -i local_hosts all
+Deployment Execution:
+``````````````
 
 The next step will run your intended deployment::
 
+    ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/full-job-no-test.yml
+
+
+KCLI:: 
+
     kcli --settings ksgen_settings.yml --provision --install
 
-or::
-
-    ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/full-job-no-test.yml
+.. Note:: kcli is considered beta for rdo-manager

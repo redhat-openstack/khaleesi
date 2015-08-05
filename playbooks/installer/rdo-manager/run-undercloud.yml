@@ -116,7 +116,7 @@
   tasks:
     - name: copy vendor-specific setup file
       synchronize: >
-        src={{ jenkins.workspace }}/{{ jenkins.job_name }}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
+        src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
         delegate_to: local
 
     - name: execute vendor-specific setup

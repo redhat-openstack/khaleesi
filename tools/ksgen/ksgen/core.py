@@ -24,6 +24,7 @@ from ksgen import docstring, log_color, settings, yaml_utils
 from docopt import docopt
 from os import environ
 from os import path
+import os
 import logging
 import sys
 
@@ -69,6 +70,23 @@ def get_config_dir(args):
 
     return config_dir
 
+def get_base_dir():
+    """load the path for configuration tree.
+
+    get environment variable WORKSPACE
+
+    :param args: module input arguments
+    :raises: ValueError if path is missing or doesn't exist.
+    :return: path to configuration tree
+    """
+
+    base_dir = environ.get('WORKSPACE') or os.path.abspath("../")
+    if not base_dir:
+        raise ValueError("Missing path to configuration tree (base dir)")
+
+    os.environ['WORKSPACE'] = base_dir
+    return base_dir
+
 
 def main(args=None):
     """Generate config YAML for Khaleesi
@@ -85,6 +103,7 @@ def main(args=None):
     cmd = args['<command>']
 
     config_dir = get_config_dir(args)
+    get_base_dir()
 
     logging.debug("config_dir = %s" % config_dir)
 
