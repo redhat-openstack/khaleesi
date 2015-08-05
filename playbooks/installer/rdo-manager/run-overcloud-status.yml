@@ -99,6 +99,14 @@
     - name: regenerate ssh config
       template: src=templates/ssh_config.j2 dest=../../../ssh.config.ansible mode=0755
 
+- name: debug output from the overcloud controller
+  hosts: overcloud-controller-0
+  tasks:
+    - name: ceph status
+      sudo: yes
+      command: ceph status
+      ignore_errors: yes
+
 - name: fail playbook when instack-deploy-overcloud fails
   hosts: undercloud
   tasks:

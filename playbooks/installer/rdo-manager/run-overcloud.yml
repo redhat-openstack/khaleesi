@@ -227,6 +227,19 @@
         dest={{ instack_user_home }}/deploy-overcloudrc
         mode=0755
 
+    - name: set plan values for plan based ceph deployments
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          source {{ instack_user_home }}/deploy-nodesrc;
+          if [ "$CEPHSTORAGESCALE" -gt "0" ]; then
+            openstack management plan set {{ overcloud_uuid }} \
+              -P Controller-1::CinderEnableIscsiBackend=false \
+              -P Controller-1::CinderEnableRbdBackend=true \
+              -P Controller-1::GlanceBackend=rbd \
+              -P Compute-1::NovaEnableRbdBackend=true;
+          fi
+      when: installer.deploy.type == 'plan'
+
     - name: echo deploy command
       register: overcloud_deploy_command
       shell: >
