@@ -15,11 +15,18 @@
         include_vars: "{{test_deps_file}}"
         register: result
 
-      - name: set test_distro
-        set_fact: test_distro="{{ ansible_distribution + '-' + ansible_distribution_version }}" #"
+      #TODO(abregman): add major and minor version in distro settings 
+      - name: set major release
+        set_fact: major_release="{{ ansible_distribution + '-' + ansible_distribution_version.split('.')[0] }}"
 
+      - name: set full release
+        set_fact: full_release="{{ ansible_distribution + '-' + ansible_distribution_version }}"
+      
       - name: set test_env
-        set_fact: test_env="{{ test_config.virt[test_distro] }}" #"
+        set_fact: test_env="{{ test_config.virt[item]|default(omit) }}"
+        with_items:
+            - "{{ major_release }}"
+            - "{{ full_release }}"
 
 - name: Setup openstack repos
   hosts: controller
