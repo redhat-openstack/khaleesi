@@ -22,6 +22,7 @@ import operator
 import pprint
 import random
 import time
+import traceback
 
 try:
     from novaclient.v1_1 import client as nova_client
@@ -282,12 +283,16 @@ def _delete_server(module, nova):
     if module.params['wait'] == 'no':
         module.exit_json(changed = True, result = "deleted")
     expire = time.time() + int(module.params['wait_for'])
+    name = []
     while time.time() < expire:
         name = nova.servers.list(True, {'name': module.params['name']})
         if not name:
             module.exit_json(changed = True, result = "deleted")
         time.sleep(5)
-    module.fail_json(msg = "Timed out waiting for server to get deleted, please check manually")
+    module.fail_json(msg=("Timed out waiting for server to get deleted, "
+                          "please check manually.\n"
+                          "Still have list:\n%s") % (
+                              pprint.pformat(name)))
 
 
 def _add_floating_ip_from_pool(module, nova, server):
@@ -454,8 +459,9 @@ def _create_server(module, nova):
         try:
             server = nova.servers.create(*bootargs, **bootkwargs)
             return server
-        except Exception, e:
-            module.fail_json(msg = "Error in creating instance: %s " % e.message)
+        except Exception as e:
+            module.fail_json(msg=("Error in creating instance: %s\n%s"
+                                  % (e, traceback.format_exc())))
 
     def server_poller(server, poll_interval=2):
         try:
