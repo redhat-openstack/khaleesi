@@ -54,7 +54,7 @@
     - name: download the fedora-user image
       get_url: url="{{ distro.images['fedora']['21'].remote_file_server }}{{ distro.images['fedora']['21'].guest_image_name }}"
                     dest={{ instack_user_home }}/fedora-user.qcow2
-                    force=no
+                    force=no timeout=60
       when: installer.overcloud_images is defined and installer.overcloud_images == "import"
 
     - name: prepare for overcloud by loading the images into glance
