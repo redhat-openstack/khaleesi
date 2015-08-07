@@ -20,7 +20,7 @@
               - net-id: "{{ provisioner.network.network_list.external.id }}"
            config_drive: True
            auto_floating_ip: "{{ provisioner.network.use_floating_ip }}"
-           wait_for: 200
+           wait_for: 800
       retries: 4
       with_dict: provisioner.nodes
       register: created_nodes
