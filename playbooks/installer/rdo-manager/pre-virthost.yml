@@ -377,18 +377,14 @@
 - name: Group all hosts in gate if we are gating
   hosts: all
   tasks:
-    - group_by: key=gate-instack-undercloud
+    - group_by: key=gate-install-instack-undercloud
       when: "\"{{ lookup('env', 'GERRIT_PROJECT') }}\" in ['instack-undercloud', 'rdo-management/instack-undercloud']"
 
-    - group_by: key=gate-oscplugin
+    - group_by: key=gate-install-oscplugin
       when: "\"{{ lookup('env', 'GERRIT_PROJECT') }}\" in ['python-rdomanager-oscplugin', 'rdo-management/python-rdomanager-oscplugin']"
 
-    - name: Set the gating_repo fact
-      set_fact: gating_repo="python-rdomanager-oscplugin"
-      when: "\"{{ lookup('env', 'GERRIT_PROJECT') }}\" in ['python-rdomanager-oscplugin', 'rdo-management/python-rdomanager-oscplugin']"
-
-- name: Install the custom instack-undercloud and gating_repo rpm when gating
-  hosts: undercloud:&gate-instack-undercloud
+- name: Install the custom instack-undercloud rpm when gating
+  hosts: undercloud:&gate-install-instack-undercloud
   sudo: yes
   tasks:
     - name: ensure install-undercloud is not installed
@@ -397,10 +393,14 @@
     - name: install the rpm we previously built
       shell: yum -y install /home/stack/instack-undercloud-*
 
-- name: Install the custom instack-undercloud and gating_repo rpm when gating
-  hosts: undercloud:&gate-oscplugin
+- name: Install the custom oscplugin rpm when gating
+  hosts: undercloud:&gate-install-oscplugin
   sudo: yes
   tasks:
+    - name: Set the gating_repo fact
+      set_fact: gating_repo="python-rdomanager-oscplugin"
+      when: "\"{{ lookup('env', 'GERRIT_PROJECT') }}\" in ['python-rdomanager-oscplugin', 'rdo-management/python-rdomanager-oscplugin']"
+
     - name: ensure gating_repo is not installed
       yum: name={{ gating_repo }} state=absent
 
