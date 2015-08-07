@@ -166,6 +166,20 @@
 - name: deploy the overcloud
   hosts: undercloud
   tasks:
+    - name: get ironic node ids (workaround for bz 1246641)
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        ironic node-list | grep 'None' | awk '{ print $2; }'
+      register: ironic_node_ids
+      when: workarounds.enabled is defined and workarounds.enabled|bool
+
+    - name: power off ironic nodes (workaround for bz 1246641)
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        ironic node-set-power-state {{item}} 'off'
+      with_items: ironic_node_ids.stdout_lines
+      when: workarounds.enabled is defined and workarounds.enabled|bool
+
     - name: get number of nodes that could be used for the overcloud
       shell: >
         if [ -f  {{ instack_user_home }}/instackenv.json ]; then
