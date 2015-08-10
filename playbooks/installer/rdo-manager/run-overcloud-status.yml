@@ -23,8 +23,9 @@
           openstack baremetal list;
           openstack server list;
 
-    - name: debug deploy-overcloud failure
+    - name: heat debug deploy-overcloud failure
       when: overcloud_deployment_result != "0"
+      ignore_errors: yes
       shell: >
           source {{ instack_user_home }}/stackrc;
           heat resource-list overcloud;
