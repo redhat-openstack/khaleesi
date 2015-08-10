@@ -475,6 +475,15 @@ def _create_server(module, nova):
     for booted_server in retrier():
         for polled_server in server_poller(booted_server):
             if polled_server.status == 'ACTIVE':
+                missing_networks = _check_networks(module, nova, polled_server)
+                if missing_networks:
+                    errors_log.append(("Server %s is ACTIVE but missing"
+                                       " networks %s, considering it as"
+                                       " ERROR state.") % (
+                                           polled_server.id,
+                                           missing_networks))
+                    break  # stop waiting for status, get new server
+
                 polled_server = _add_floating_ip(module, nova, polled_server)
                 private = openstack_find_nova_addresses(
                     getattr(polled_server, 'addresses'),
@@ -511,6 +520,23 @@ def _create_server(module, nova):
 def _delete_floating_ip_list(module, nova, server, extra_ips):
     for ip in extra_ips:
         nova.servers.remove_floating_ip(server=server.id, address=ip)
+
+
+def _check_networks(module, nova, server):
+    # Return all networks which VM should have but are missing
+    # ... in form of list of str('name (id)')
+    # ... empty list if it has all requested networks
+
+    missing = []
+    all_networks = dict((net.id, net.label) for net in nova.networks.list())
+    for nic in module.params['nics']:
+        net_id = nic['net-id']
+        if net_id not in all_networks:
+            module.fail_json('Unable to find network with id %s' % net_id)
+        net_name = all_networks[net_id]
+        if net_name not in server.addresses:
+            missing.append('%s (%s)' % (net_name, net_id))
+    return missing
 
 
 def _check_floating_ips(module, nova, server):
@@ -558,6 +584,10 @@ def _get_server_state(module, nova):
     if server and module.params['state'] == 'present':
         if server.status != 'ACTIVE':
             module.fail_json( msg="The VM is available but not Active. state:" + server.status)
+        missing_networks = _check_networks(module, nova, server)
+        if missing_networks:
+            module.fail_json(msg=('The VM is available but is missing some'
+                                  ' networks: %s' % missing_networks))
         (ip_changed, server) = _check_floating_ips(module, nova, server)
         private = openstack_find_nova_addresses(getattr(server, 'addresses'), 'fixed', 'private')
         public = openstack_find_nova_addresses(getattr(server, 'addresses'), 'floating', 'public')
