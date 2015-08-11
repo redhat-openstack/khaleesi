@@ -195,6 +195,7 @@ Generate the configuration with the following command::
         --installer-network-isolation=none \
         --installer-network-variant=gre \
         --installer-topology=minimal \
+        --installer-deploy=plan \
         --installer-tempest=disabled \
         --workarounds=enabled \
         --extra-vars product.repo_type_override=none \
@@ -260,6 +261,7 @@ Just notice the changes into the configuration for ksgen::
     --installer-network-variant=ml2-vxlan \
     --installer-topology=minimal \
     --installer-tempest=disabled \
+    --installer-deploy=plan \
     --workarounds=enabled \
     --extra-vars product.repo_type_override=none \
     --extra-vars @../khaleesi-settings/hardware_environments/virt_default/hw_settings.yml \

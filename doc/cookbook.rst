@@ -113,6 +113,7 @@ settings::
         --installer-network-variant=gre \
         --installer-topology=minimal \
         --installer-tempest=disabled \
+        --installer-deploy=plan \
         --workarounds=enabled \
         --extra-vars product.repo_type_override=none \
         --extra-vars @$CONFIG_BASE/hardware_environments/virt_default/hw_settings.yml \
