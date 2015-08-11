@@ -54,7 +54,7 @@
 
       - name: Create the RHOS poodle repository
         shell: "rhos-release  -x {{ product.full_version|int }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.full_version|int }}"
-        when: product.repo.type in ['poodle']
+        when: product.repo.type is defined and product.repo.type in ['poodle']
 
 - name: print out test env
   hosts: controller

@@ -3,12 +3,12 @@
   product_snapshot_data:
   register: product_snapshot_data_execution
   ignore_errors: yes
-  when: product.repo.type in ('poodle', 'puddle', 'advanced', 'poodle_advanced')
+  when: product.repo.type is defined and product.repo.type in ('poodle', 'puddle', 'advanced', 'poodle_advanced')
 
 - name: Print build information (puddle/poddle)
   debug: 'msg="Build mark: {{ product_snapshot_type }}={{ product_snapshot_version }}"'
   ignore_errors: yes
-  when: product.repo.type in ('poodle', 'puddle', 'advanced', 'poodle_advanced') and not product_snapshot_data_execution|failed
+  when: product.repo.type is defined and product.repo.type in ('poodle', 'puddle', 'advanced', 'poodle_advanced') and not product_snapshot_data_execution|failed
   register: buildmark
 
 - name: Write build information to file (puddle/poddle)
