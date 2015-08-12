@@ -292,7 +292,7 @@ def _delete_server(module, nova):
     module.fail_json(msg=("Timed out waiting for server to get deleted, "
                           "please check manually.\n"
                           "Still have list:\n%s") % (
-                              pprint.pformat(name)))
+                              pprint.pformat([s._info for s in name])))
 
 
 def _add_floating_ip_from_pool(module, nova, server):
