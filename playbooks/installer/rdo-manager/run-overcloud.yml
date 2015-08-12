@@ -142,6 +142,15 @@
       local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F $PWD/../../../ssh.config.ansible -S none -o StrictHostKeyChecking=no" $PWD/../../../../khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation | replace('_', '-') }}/{{ installer.network.isolation  | replace('_', '-') }}.yaml undercloud:{{ instack_user_home }}/network-environment.yaml
       when: installer.network.isolation != 'none' and installer.env.type == "virthost"
 
+    - name: copy over common environment file (baremetal)
+      synchronize: >
+        src={{base_dir}}/khaleesi-settings/hardware_environments/common/plan-parameter-neutron-bridge.yaml dest={{ instack_user_home }}/plan-parameter-neutron-bridge.yaml
+      when: installer.network.isolation != 'none' and installer.env.type != "virthost" and installer.deploy.type == 'plan'
+
+    - name: copy over common environment file (virt)
+      local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F $PWD/../../../ssh.config.ansible -S none -o StrictHostKeyChecking=no" $PWD/../../../../khaleesi-settings/hardware_environments/common/plan-parameter-neutron-bridge.yaml undercloud:{{ instack_user_home }}/plan-parameter-neutron-bridge.yaml
+      when: installer.network.isolation != 'none' and installer.env.type == "virthost" and installer.deploy.type == 'plan'
+
     - name: copy over nic-configs default directory
       shell: >
         mkdir {{ instack_user_home }}/nic-configs;
