@@ -16,5 +16,5 @@
         groups="provisioned"
         ansible_fqdn="{{ lookup('env', 'TEST_MACHINE') }}"
         ansible_ssh_user="{{ provisioner.remote_user }}"
-        ansible_ssh_private_key_file="{{ lookup('env','HOME')}}/.ssh/id_rsa"
+        ansible_ssh_private_key_file="{{ provisioner.key_file }}"
         ansible_ssh_host="{{ lookup('env', 'TEST_MACHINE') }}"
