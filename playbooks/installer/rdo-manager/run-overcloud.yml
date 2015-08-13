@@ -161,6 +161,26 @@
       wait_for: path={{ instack_user_home }}/nic-configs/swift-storage.yaml
       when: installer.network.isolation != 'none' and installer.network.isolation != 'default'
 
+    - name : BAGL change nic2 to nic5
+      sudo : yes
+      shell : >
+        sed -i 's/nic2/nic3/g' {{ instack_user_home }}/nic-configs/*
+      when: hw_env.env_type == 'bagl-lab' and installer.network.isolation != 'none' and installer.network.isolation != 'default'
+
+    - name : BAGL change nic3 to nic6
+      sudo : yes
+      shell : >
+        sed -i 's/nic3/nic4/g' {{ instack_user_home }}/nic-configs/*
+      when: hw_env.env_type == 'bagl-lab' and installer.network.isolation != 'none' and installer.network.isolation != 'default'
+
+    - name : BAGL Network config for Controllers
+      template:
+        src={{ lookup('env', 'CONFIG_BASE') }}/hardware_environments/{{hw_env.env_type}}/controller.yaml
+        dest={{ instack_user_home }}/nic-configs/
+        mode=0755
+      when : hw_env.env_type == 'bagl-lab' 
+
+
 #note this is part of the instructions, not sure if this is a workaround anymore
 - name: setup networking on virt for network isolation
   hosts: undercloud:&virthost
