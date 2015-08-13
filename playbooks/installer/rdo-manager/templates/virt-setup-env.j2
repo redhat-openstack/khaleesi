@@ -33,6 +33,10 @@ export NODE_COUNT={{ installer.nodes.node_count | default('3') }}
 export NODE_MEM={{ installer.nodes.node_mem | default('4096') }}
 {%endif %}
 
+{% if installer.nodes.node_cpu is defined %}
+export NODE_CPU={{ installer.nodes.node_cpu | default('1') }}
+{%endif %}
+
 {% if installer.nodes.undercloud_node_mem is defined %}
 export UNDERCLOUD_NODE_MEM={{ installer.nodes.undercloud_node_mem | default('4096') }}
 {%endif %}
