@@ -178,7 +178,7 @@
         src={{ lookup('env', 'CONFIG_BASE') }}/hardware_environments/{{hw_env.env_type}}/controller.yaml
         dest={{ instack_user_home }}/nic-configs/
         mode=0755
-      when : hw_env.env_type == 'bagl-lab' 
+      when : hw_env.env_type == 'bagl-lab' and installer.network.isolation != 'none' and installer.network.isolation != 'default'
 
 
 #note this is part of the instructions, not sure if this is a workaround anymore
