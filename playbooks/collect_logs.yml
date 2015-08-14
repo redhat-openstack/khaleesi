@@ -1,6 +1,6 @@
 ---
 - name: Gather Logs
-  hosts: all:!localhost
+  hosts: all:!localhost:!host0
   gather_facts: no
   sudo: yes
   tasks:
