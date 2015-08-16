@@ -1,0 +1,33 @@
+[DEFAULT]
+debug = true
+use_stderr = false
+log_file = tempest.log
+
+[auth]
+tempest_roles = _member_
+
+[identity]
+username = demo
+tenant_name = demo
+password = {{ hostvars[provisioner.nodes.controller.name].demo_password|default('secrete') }}
+alt_username = alt_demo
+alt_tenant_name = alt_demo
+alt_password = secrete
+admin_username = admin
+admin_tenant_name = admin
+admin_domain_name = Default
+disable_ssl_certificate_validation = false
+uri = http://{{ hostvars[provisioner.nodes.controller.name].ansible_default_ipv4.address }}:5000/v2.0/
+admin_password = {{ hostvars[provisioner.nodes.controller.name].admin_password|default('redhat') }}
+uri_v3 = http://{{ hostvars[provisioner.nodes.controller.name].ansible_default_ipv4.address }}:5000/v3/
+
+[oslo_concurrency]
+lock_path = ~
+
+[service_available]
+{{ tester.component.name }} = True
+
+[network]
+default_network = 10.0.0.0/24
+tenant_networks_reachable = false
+api_version = 2.0

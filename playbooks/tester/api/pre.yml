@@ -1,0 +1,51 @@
+---
+- name: Run pre tasks
+  hosts: controller
+  gather_facts: yes
+  roles:
+    - component-test/pre
+
+- name: Configure Tempest
+  hosts: controller
+  tasks:
+      - name: Ensure tempest configuration directory exists
+        sudo: yes
+        file: path={{ tester.component.conf_dir | default('/opt/stack/tempest/etc') }} state=directory mode=0777
+
+      - name: Deploy tempet.conf
+        sudo: yes
+        template: src=templates/tempest_conf.j2 dest=/opt/stack/tempest/etc/tempest.conf mode=0666
+
+      - name: Set public_network_id
+        sudo: yes
+        environment:
+            OS_USERNAME: admin
+            OS_PASSWORD: redhat
+            OS_TENANT_NAME: admin
+            OS_AUTH_URL: http://127.0.0.1:5000/v2.0
+        shell: >
+            echo "public_network_id = $(neutron net-list | grep public | awk '{print $2}')" >> {{ tester.component.conf_dir | default('/opt/stack/tempest/etc') }}/tempest.conf;
+
+      - name: Create demo user and tenant
+        sudo: yes
+        environment:
+            OS_USERNAME: admin
+            OS_PASSWORD: redhat
+            OS_TENANT_NAME: admin
+            OS_AUTH_URL: http://127.0.0.1:5000/v2.0
+        shell: >
+            keystone tenant-create --name demo;
+            keystone user-create --name demo --pass secrete --tenant-id `keystone tenant-get demo | grep id | awk -F'|' '{print $3}' | tr -d ' '`
+
+      - name: Additional component setup
+        sudo: yes
+        shell: "{{ item }}"
+        with_items: "{{ tester.component.setup }}"
+        when: tester.component.setup is defined
+
+      - name: Set tempest api environment
+        shell: >
+            echo "export OS_USERNAME=demo" >> ~/.bash_profile;
+            echo "export OS_PASSWORD=secrete" >> ~/.bash_profile;
+            echo "export OS_TENANT_NAME=demo" >> ~/.bash_profile;
+            echo "export OS_AUTH_URL=http://127.0.0.1:5000/v2.0" >> ~/.bash_profile
