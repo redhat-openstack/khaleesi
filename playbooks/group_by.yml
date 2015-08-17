@@ -32,3 +32,10 @@
     - group_by: key={{ installer.env.type }}
       when: installer.env.type is defined
 
+- name: Group hosts by custom deploy
+  hosts: undercloud
+  gather_facts: no
+  tasks:
+    - group_by: key={{ installer.custom_deploy.type }}
+      when: installer.custom_deploy.type is defined
+

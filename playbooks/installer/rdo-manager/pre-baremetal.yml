@@ -32,6 +32,22 @@
     - name: set file permissions on authorized_hosts
       file: path=/home/{{ provisioner.remote_user }}/.ssh/authorized_keys mode=0600 owner=stack group=stack
 
+    - name: copy ssh keys
+      command:  cp /root/.ssh/id_rsa /home/{{ provisioner.remote_user }}/.ssh/
+      when: hw_env.env_type == 'ovb_host_cloud'
+
+    - name: copy ssh pub keys
+      command:  cp /root/.ssh/id_rsa.pub /home/{{ provisioner.remote_user }}/.ssh/
+      when: hw_env.env_type == 'ovb_host_cloud'
+
+    - name: set permission on keys
+      file: path=/home/{{ provisioner.remote_user }}/.ssh/id_rsa mode=0600 owner=stack group=stack
+      when: hw_env.env_type == 'ovb_host_cloud'
+
+    - name: set permission on pub keys
+      file: path=/home/{{ provisioner.remote_user }}/.ssh/id_rsa.pub mode=0644 owner=stack group=stack
+      when: hw_env.env_type == 'ovb_host_cloud'
+
     - name: add user to sudoers
       lineinfile: dest=/etc/sudoers line="stack ALL=(root) NOPASSWD:ALL"
 
@@ -41,8 +57,21 @@
 - name: Configure the baremetal undercloud
   hosts: undercloud
   tasks:
+    - name: check if instackenv.json exists in root
+      stat: path="/root/instackenv.json"
+      register: instackenv_json_root
+      sudo_user: root
+      sudo: yes
+
+    - name: copy instackenv.json from root if it exists there
+      shell: cp /root/instackenv.json {{ instack_user_home }}/instackenv.json
+      when: instackenv_json_root.stat.exists == True
+      sudo_user: root
+      sudo: yes
+
     - name: get instackenv.json
       synchronize: src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/instackenv.json dest={{ instack_user_home }}/instackenv.json
+      when: instackenv_json_root.stat.exists == False
 
     - name: chown instackenv.json
       file: path={{ instack_user_home }}/instackenv.json owner=stack group=stack
@@ -78,18 +107,18 @@
 
     - name: power off node boxes - IPMI
       shell: >
-         export IP=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | sed 's/\"//g'`);
-         export USER=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_user.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
-         export PASSWORD=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_password.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
+         export IP=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | sed 's/[},\"]//g'`);
+         export USER=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_user.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/[},\"]//g'`);
+         export PASSWORD=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_password.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/[},\"]//g'`);
          ipmitool -I lanplus -H ${IP[item]} -U ${USER[item]} -P ${PASSWORD[item]} power off
       with_sequence: count="{{node_length.stdout}}"
       when: hw_env.remote_mgmt == "ipmi"
 
     - name: power off node boxes - DRACS
       shell: >
-         export IP=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | sed 's/\"//g'`);
-         export USER=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_user.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
-         export PASSWORD=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_password.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/\"//g'`);
+         export IP=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | sed 's/[},\"]//g'`);
+         export USER=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_user.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/[},\"]//g'`);
+         export PASSWORD=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_password.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/[},\"]//g'`);
          sshpass -p ${PASSWORD[item]} ssh -o "StrictHostKeyChecking=no" ${USER[item]}@${IP[item]} "racadm serveraction powerdown"
       with_sequence: count="{{node_length.stdout}}"
       when: hw_env.remote_mgmt == "dracs"

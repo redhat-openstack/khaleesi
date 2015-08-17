@@ -45,7 +45,7 @@
           login_password: "{{ get_admin_password_result.stdout }}"
           login_tenant_name: admin
           network_name: "{{ installer.network.name }}"
-          name: external-subnet
+          name: "{{ installer.network.name }}"
           enable_dhcp: False
           gateway_ip: "{{ hw_env.network_gateway }}"
           cidr: "{{ hw_env.floating_ip_cidr }}"

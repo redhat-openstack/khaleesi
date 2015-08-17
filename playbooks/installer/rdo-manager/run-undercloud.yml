@@ -61,13 +61,28 @@
       register: short_hostname
 
     - name: register full hostname
-      shell: "hostname --fqdn"
+      shell: "cat /etc/hostname"
       register: full_hostname
+
+    - name: set the hostname
+      shell: >
+        hostnamectl set-hostname {{ full_hostname.stdout }};
+        hostnamectl set-hostname --transient {{ full_hostname.stdout }}
+      sudo: yes
 
     - name: Set /etc/hostname for those that need it
       lineinfile: >
         dest=/etc/hosts
         line="127.0.1.1 {{ short_hostname.stdout }} {{ full_hostname.stdout }}"
+      sudo: yes
+
+    - name: get domain from /etc/resolv.conf
+      shell: cat /etc/resolv.conf | grep search | sed -n -e 's/^.*search //p'
+      register: search_domain
+      sudo: yes
+
+    - name: add short and full hostname to /etc/hosts
+      shell: "sed -i 's/localhost4.localdomain4/localhost4.localdomain4 {{ short_hostname.stdout }} {{ full_hostname.stdout }} {{ short_hostname.stdout }}.{{ search_domain.stdout }}/g' /etc/hosts"
       sudo: yes
 
     - name: copy instackenv.json to nodes.json
@@ -132,6 +147,11 @@
       synchronize: >
         src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
         delegate_to: local
+      when: hw_env.env_type != 'ovb_host_cloud'
+
+    - name: copy over vendor-specific setup file (quintupleo_host_cloud)
+      local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F $PWD/../../../ssh.config.ansible -S none -o StrictHostKeyChecking=no" $PWD/../../../../khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup undercloud:{{ instack_user_home }}/vendor_specific_setup
+      when: hw_env.env_type == 'ovb_host_cloud'
 
     - name: execute vendor-specific setup
       shell: >

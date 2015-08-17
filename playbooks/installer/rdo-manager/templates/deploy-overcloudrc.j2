@@ -2,10 +2,11 @@
 export OVERCLOUD_LIBVIRT_TYPE={{ hw_env.libvirt_type }}
 export DEPLOY_COMMAND="openstack overcloud deploy --debug \
                                                   --log-file overcloud_deployment_{{ 100 | random }}.log \
-                                                  {{ installer.deploy.command }} \ 
+                                                  {{ installer.deploy.command }} \
+                                                  {{ installer.custom_deploy.command }} \
                                                   --libvirt-type=$OVERCLOUD_LIBVIRT_TYPE \
                                                   --neutron-network-type {{ installer.network.variant }} \
-                                                  --neutron-tunnel-types {{ installer.network.variant }} \ 
+                                                  --neutron-tunnel-types {{ installer.network.variant }} \
                                                   --ntp-server {{ distro.config.ntp_server_ip }} \
                                                   --control-scale $CONTROLSCALE \
                                                   --compute-scale $COMPUTESCALE \
@@ -44,4 +45,8 @@ export DEPLOY_COMMAND="$DEPLOY_COMMAND -e ~/plan-parameter-neutron-bridge.yaml "
 if [ "$CEPHSTORAGESCALE" -gt "0" ]; then
   export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/storage-environment.yaml"
 fi
+{% endif %}
+
+{% if installer.custom_deploy.type != 'none' and installer.custom_deploy.type == 'openstack_virtual_baremetal' %}
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e ~/openstack-virtual-baremetal/templates/overcloud-env/ovb.yaml "
 {% endif %}
