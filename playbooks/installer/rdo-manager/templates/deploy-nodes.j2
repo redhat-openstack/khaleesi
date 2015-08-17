@@ -1,12 +1,12 @@
 #!/bin/bash
 export NODES_JSON=instackenv.json
-export CONTROLSCALE={{ installer.nodes.controller.scale | default('1') }}
-export COMPUTESCALE={{ installer.nodes.compute.scale | default('1') }}
-export BLOCKSTORAGESCALE={{ installer.nodes.blockstorage.scale | default('0') }}
-export SWIFTSTORAGESCALE={{ installer.nodes.swiftstorage.scale | default ('0') }}
-export CEPHSTORAGESCALE={{ installer.nodes.cephstorage.scale | default ('0') }}
-export CONTROLFLAVOR={{ installer.nodes.controller.flavor | default('baremetal') }}
-export COMPUTEFLAVOR={{ installer.nodes.compute.flavor | default('baremetal') }}
-export BLOCKSTORAGEFLAVOR={{ installer.nodes.blockstorage.flavor | default('baremetal') }}
-export SWIFTSTORAGEFLAVOR={{ installer.nodes.swiftstorage.flavor | default('baremetal') }}
-export CEPHSTORAGEFLAVOR={{ installer.nodes.cephstorage.flavor | default ('baremetal') }}
+export CONTROLSCALE={{ installer.nodes.controller.scale }}
+export COMPUTESCALE={{ installer.nodes.compute.scale }}
+export BLOCKSTORAGESCALE={{ installer.nodes.blockstorage.scale }}
+export SWIFTSTORAGESCALE={{ installer.nodes.swiftstorage.scale }}
+export CEPHSTORAGESCALE={{ installer.nodes.cephstorage.scale }}
+export CONTROLFLAVOR={{ installer.nodes.controller.flavor }}
+export COMPUTEFLAVOR={{ installer.nodes.compute.flavor }}
+export BLOCKSTORAGEFLAVOR={{ installer.nodes.blockstorage.flavor }}
+export SWIFTSTORAGEFLAVOR={{ installer.nodes.swiftstorage.flavor }}
+export CEPHSTORAGEFLAVOR={{ installer.nodes.cephstorage.flavor }}
