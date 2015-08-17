@@ -1,0 +1,230 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+import contextlib
+import json
+import os
+import pprint
+import sys
+import traceback
+import urllib2
+import yaml
+
+CLOSED_STATES = (
+    'ON_QE', 'CLOSED',  # RHBZ
+    'Fix Released',  # Launchpad
+)
+WORKAROUND_ENABLED_BY_PRESENCE = True
+
+
+def clr(color, text):
+    if sys.stdout.isatty():
+        print('\033['+color+'m'+str(text)+'\033[0m')
+    else:
+        print(str(text))
+
+
+def red(text):
+    clr('1;31', text)
+
+
+def bold(text):
+    clr('1', text)
+
+
+#
+# == our extended-syntax yaml handling ==
+#
+
+def default_ctor(loader, tag_suffix, node):
+    # we ignore any special 'tag_suffix' stuff here
+    if isinstance(node, yaml.ScalarNode):
+        return loader.construct_scalar(node)
+    if isinstance(node, yaml.MappingNode):
+        return loader.construct_mapping(node)
+    return loader.construct_sequence(node)
+
+
+yaml.add_multi_constructor('', default_ctor)
+
+
+def yml2bool(val):
+    return (str(val).lower() in ('true', 'y', 'yes', '1'))
+
+
+#
+# == parsing our yamls for bug/workaround entries ==
+#
+
+def bugs_from_dir(bugs, dirname, files):
+    for fname in files:
+        f = os.path.join(dirname, fname)
+        if os.path.isfile(f) and os.path.splitext(f)[1] in ('.yml', '.yaml'):
+            bugs_from_file(bugs, f)
+    # bugs.append(files)
+
+
+def bugs_from_file(bugs, path):
+    with open(path) as f:
+        try:
+            cnt = yaml.load(f)
+        except yaml.YAMLError:
+            print('!!! ERROR: failed to yaml-parse %s' % path)
+            raise
+
+    if not cnt:
+        return
+
+    # pprint.pprint(dict(cnt))
+    workarounds = cnt.get('workarounds', [])
+    for bug in workarounds:
+        try:
+            if yml2bool(workarounds[bug].get(
+                    'enabled', WORKAROUND_ENABLED_BY_PRESENCE)):
+                if bug in bugs:
+                    bugs[bug]['khal_source'].append(path)
+                else:
+                    bugs[bug] = {'khal_source': [path], 'our_id': bug}
+        except Exception:
+            print('Unexpected settings structure in file %s for bug:\n'
+                  ' %s: %s'
+                  % (path, bug, pprint.pformat(workarounds[bug])))
+
+
+#
+# == fetching info from bug tracking tools ==
+#
+
+def get(url):
+    with contextlib.closing(urllib2.urlopen(url)) as reply:
+        return reply.read()
+
+
+def bug_info_rhbz(bugnum):
+    info = {
+        'id': bugnum,
+        'title': '', 'state': [],
+        'product_state': '',
+        'url': ('https://bugzilla.redhat.com/show_bug.cgi?id=%s' % bugnum),
+    }
+    url = ('https://bugzilla.redhat.com/jsonrpc.cgi'
+           '?method=Bug.get'
+           '&params=[{"ids":[%s]}]') % (bugnum)
+    src = get(url)
+    try:
+        parsed = json.loads(src)
+        bug = parsed['result']['bugs'][0]
+
+        info['title'] = bug['summary']
+
+        info['product_state'] = (
+            '%s/%s %s/%s' % (
+                bug['product'],
+                bug['component'][0],
+                bug['status'],
+                bug['resolution']))
+        info['state'].append(bug['status'])
+
+    except (KeyError, IndexError, ValueError):
+        print('Failed to get/process info about %s from RH Bugzilla:' % bugnum,
+              file=sys.stderr)
+        print(traceback.format_exc(), file=sys.stderr)
+        # in case we failed to parse the reply return what we have so far
+        # in worst case bug data-structure without details
+    return info
+
+
+def bug_info_launchpad(bugnum):
+    info = {
+        'id': bugnum,
+        'title': '', 'state': [],
+        'product_state': '',
+        'url': ('https://bugs.launchpad.net/bugs/%s' % bugnum),
+    }
+
+    src = get("https://api.launchpad.net/1.0/bugs/%s" % bugnum)
+    try:
+        bug = json.loads(src)
+
+        info['title'] = bug['title']
+
+        product_state = []
+        bug_tasks = json.loads(
+            get(bug['bug_tasks_collection_link']))
+
+        for entry in bug_tasks['entries']:
+            product_state.append(
+                '%s=%s' % (entry['bug_target_name'],
+                           entry['status']))
+            info['state'].append(entry['status'])
+        info['product_state'] = ' '.join(product_state)
+
+    except (KeyError, ValueError):
+        print('Failed to get/process info about %s from Launchpad' % bugnum,
+              file=sys.stderr)
+        print(traceback.format_exc(), file=sys.stderr)
+        # ignore possible failures/struct changes, so we return
+        # at least basic info (bugnum/url) about the workaround
+    return info
+
+
+def bug_info(bug_ident):
+    if bug_ident[0:4] == 'rhbz':
+        return bug_info_rhbz(bug_ident[4:])
+    elif bug_ident[0:2] == 'lp':
+        return bug_info_launchpad(bug_ident[2:])
+    else:
+        raise Exception('Unsupported bugtracker for: %s' % bug_ident)
+
+
+def print_bug(bug):
+
+    head = ('{our_id}:  {title}  {product_state}').format(**bug)
+    if bug['is_closed']:
+        red(head)
+    else:
+        bold(head)
+    print('  %s' % bug['url'])
+    print('  - %s' % ('\n  - '.join(bug['khal_source'])))
+
+
+def mark_closed(bugs):
+    any_closed = False
+    for bugnum in bugs:
+        bugs[bugnum]['is_closed'] = False
+        for state in bugs[bugnum]['state']:
+            if state in CLOSED_STATES:
+                bugs[bugnum]['is_closed'] = True
+                any_closed = True
+    return any_closed
+
+#
+# == cli execution start point ==
+#
+
+if __name__ == '__main__':
+    try:
+        path = sys.argv[1]
+    except KeyError:
+        print("You have to specify path to folder with yamls or to one file,"
+              " in where the workarounds should be searched for.")
+
+    # found bugs mentioned as workarounds
+    bugs = {}
+    if(os.path.isdir(path)):
+        os.path.walk(path, bugs_from_dir, bugs)
+    else:
+        bugs_from_file(bugs, path)
+
+    # gather more info about them
+    for bug in bugs:
+        bugs[bug].update(bug_info(bug))
+
+    any_closed = mark_closed(bugs)
+    # print output
+    for bug in bugs:
+        print_bug(bugs[bug])
+    if any_closed:
+        print('\nWARNING: At least one of the bugs we have workaround for'
+              ' seems resolved!')

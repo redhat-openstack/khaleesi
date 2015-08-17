@@ -55,3 +55,126 @@ Khaleesi use cases
 ------------------
 
 Check khaleesi :ref:`usage`
+
+
+Handling workarounds
+--------------------
+
+As OpenStack code and also general tools/libraries from distribution
+may contain bugs responsible for blocking installation, running or behaviour
+of OpenStack, it can be necessary or very helpfull to implement
+workaround for the time while the bug is being properly fixed.
+
+Basically any bug has to be **reported first** in corresponding place
+(eg. Red Hat Bugzilla, Launchpad, ...), idealy with
+possible workaround described there before implementation in khaleesi happens.
+
+To reflect this there is common style `how to implement workarounds`_,
+to support tracking them and obtaining their `bug status overview`_,
+and examples for `overriding workaround usage`_ per single run.
+
+How to implement workarounds
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1) workaround has to have it's **flag** set **in khaleesi-settings**
+   (per product/version/...):
+
+   - in 'workarounds:{}' top level dict
+   - flag value should be also dict, with boolean property **enabled** (true|false)
+   - has to be named in format ``[bug-tracker-prefix][bug-number-ident]`` where prefixes are:
+
+     - *rhbz* for Red Hat Bugzilla
+     - *lp* for Launchpad
+
+   - for example ``workarounds.rhbz1138740.enabled=true``
+
+2) it's **implementation** may be:
+
+   - single task (guarded by ``when: workarounds | bug(flag)`` condition)
+   - whole play(s) scoped to group after *group_by* with when condition
+   - group name has to be in form `workaround_[flag]` where the flag
+     means the key used in *workarounds* settings dictionary (eg. rhbz1138740).
+     to not cause confusion with regular groups (imagine usage of group names
+     like nova_something etc)
+
+Example of enabling the workaround in settings (same for both following examples)::
+
+    # khaleesi-settings:settings/product/rdo/kilo.yml
+    workarounds:
+        rhbz1138740:
+            desc: "Workaround BZ#1138740: Install nova-objectstore for S3 tests"
+            enabled: True
+        lp0000001:
+            enabled: True
+
+
+Example of single-task workaround::
+
+    # khaleesi:playbooks/.../some.yml
+    # can be some already existing play
+
+    - hosts: somenodes
+      tasks:
+
+        # ... snip ... (part of bigger play)
+        # you just add one task in the list like following one:
+
+        - fileinline: tempest.conf enable_s3_tests=true
+          when: workarounds | bug('rhbz1138740')
+
+Example of multi-task workaround Play (utilizing group_by)::
+
+    # khaleesi:playbooks/.../some.yml
+    # ... snip ... following is what you are adding:
+
+    - hosts: controller
+      tasks:
+        - group_by: key=workaround_rhbz1138740
+          when: workarounds| bug('rhbz1138740')
+
+    - name: Workaround BZ#1138740 Install Nova Object Store for S3 tests
+      hosts: workaround_rhbz1138740
+      tasks:
+        - yum: ...
+        - service: ...
+        ...
+
+Bug status overview
+^^^^^^^^^^^^^^^^^^^
+
+For getting overview of currently implemented workarounds, which follow
+this guide, You can use helper tool which detects them in the code
+and provides more detailed description (fetched from bugtrackers),
+to see **all workarounds present in the settings** yamls::
+
+    $ cd khaleesi
+    $ ./tools/workaround_status ./settings
+
+    ... list of bugs, their title, state and url, also in which yamls we enable them ...
+
+But as some workarounds can be for older version of OpenStack, and so
+marked as resolved in newer versions, this will show warning
+that some of the bugs are already closed (as there are settings for older versions too).
+
+So instead of settings folder, You can point it at the **ksgen_settings.yaml**
+file to get overview of **workarounds used in specific job run**,
+where there normally shouldn't be any workaround for closed bug,
+unless it's just freshly resolved and author of the workaround didn't revalidated it yet::
+    $ ksgen ...
+    $ ./tools/workaround_status ksgen_settings.yaml
+
+    ... partial list of information about bugs,
+    ... for just those in use (enabled) for given configuration
+
+Overriding workaround usage
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Workarounds are enabled by default (based on values in settings),
+to disable all of them by force use::
+
+    ksgen ... --extra-vars 'workarounds={}'
+
+to disable (or force enable) specific one::
+
+    ksgen ... --extra-vars '{"workarounds": {"rhbz1138740": {"enabled": true}}}'
+
