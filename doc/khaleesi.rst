@@ -62,7 +62,7 @@ Create the virtual envionment, install ansible, ksgen and kcli utils::
 
     virtualenv venv
     source venv/bin/activate
-    pip install ansible==1.9.1
+    pip install ansible==1.9.2
     cd khaleesi
     cd tools/ksgen
     python setup.py develop
@@ -166,7 +166,7 @@ playbooks_ with a correct configuration.
 .. _manual:
 
 Installing rdo-manager with the manual provisioner
-----------------------------------------------
+--------------------------------------------------
 
 Here, we will deploy a RDO-Manager environment using the manual environment.
 
@@ -291,7 +291,7 @@ Here you could play with your newly created Overcloud
 
 
 Installing Openstack on Bare Metal via Packstack
-----------------------------------
+------------------------------------------------
 
 All the steps are the same as the All-in-one case. The only difference is
 running the ksgen with differents paramters:

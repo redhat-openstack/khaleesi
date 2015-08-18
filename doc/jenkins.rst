@@ -1,6 +1,8 @@
 Creating a Jenkins server with Khaleesi jobs
 ============================================
 
+.. _jenkins:
+
 Getting a Jenkins
 -----------------
 
