@@ -289,7 +289,20 @@
           --allocation-pool=start={{ hw_env.floating_ip_start }},end={{ hw_env.floating_ip_end }} \
           --gateway={{ hw_env.network_gateway }} nova {{ hw_env.floating_ip_cidr }}
       when: overcloud_deployment_result.rc == 0 and
-            installer.network.isolation != 'none'
+            installer.network.isolation != 'none' and
+            hw_env.ExternalNetworkVlanID is defined
+
+    - name: setup neutron network for floating ips on net-iso
+      shell: >
+          source {{ instack_user_home }}/overcloudrc;
+          neutron net-create nova --router:external --provider:network_type vlan \
+          --provider:physical_network datacentre;
+          neutron subnet-create --name nova --disable-dhcp \
+          --allocation-pool=start={{ hw_env.floating_ip_start }},end={{ hw_env.floating_ip_end }} \
+          --gateway={{ hw_env.network_gateway }} nova {{ hw_env.floating_ip_cidr }}
+      when: overcloud_deployment_result.rc == 0 and
+            installer.network.isolation != 'none' and
+            hw_env.ExternalNetworkVlanID is not defined
 
     - name: heat stack-list
       ignore_errors: yes
