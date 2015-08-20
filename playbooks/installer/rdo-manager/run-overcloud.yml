@@ -271,5 +271,4 @@
       set_fact:
         overcloud_deployment_result: "{{ overcloud_deployment_result.rc }}"
 
-- include: run-overcloud-status.yml
 
