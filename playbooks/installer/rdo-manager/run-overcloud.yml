@@ -172,6 +172,14 @@
           sudo ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
           sudo ip l set dev vlan10 up; sudo ip addr add 172.16.23.251/24 dev vlan10;
 
+- name: update neutron values for undercloud
+  hosts: undercloud
+  tasks:
+    - name: update neutron quota to unlimited
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          neutron quota-update --port -1;
+
 - name: deploy the overcloud
   hosts: undercloud
   tasks:
