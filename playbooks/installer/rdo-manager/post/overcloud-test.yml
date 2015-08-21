@@ -1,13 +1,13 @@
 ---
 - name: Group hosts by post action - tempest
-  hosts: all:!localhost
+  hosts: undercloud
   gather_facts: no
   tasks:
     - group_by: key="tempest"
       when: "installer.post_action is defined and 'tempest' in installer.post_action"
 
 - name: Execute tempest
-  hosts: undercloud:&tempest
+  hosts: tempest
   tasks:
     - name: set fact stack user home
       set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
@@ -30,8 +30,8 @@
         regexp: cirros
         replace: fedora
         dest: /usr/lib/python2.7/site-packages/rdomanager_oscplugin/v1/overcloud_validate.py
-      when: installer.tempest.enabled is defined and
-            not installer.tempest.enabled|bool and
+      when: installer.tempest.test_regex is defined and
+            installer.tempest.test_regex == "tempest\.scenario\.test_minimum_basic" and
             product.name == "rhos"
 
     - name: add config into overcloud_validate.py for Fedora image
@@ -43,8 +43,8 @@
                   backup=yes
                   backrefs=yes
                   state=present
-      when: installer.tempest.enabled is defined and
-            not installer.tempest.enabled|bool and
+      when: installer.tempest.test_regex is defined and
+            installer.tempest.test_regex == "tempest\.scenario\.test_minimum_basic" and
             product.name == "rhos"
 
     - name: copy skipfile into stack home
@@ -52,31 +52,7 @@
       when: installer.tempest.enabled is defined and
             installer.tempest.enabled|bool
 
-    - name: run simple tempest based overcloud tests for gating
-      register: test_basic_output
-      when: installer.tempest.enabled is defined and
-            not installer.tempest.enabled|bool and
-            product.name == "rhos"
-      shell: >
-          source {{ instack_user_home }}/overcloudrc;
-          openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL \
-          --overcloud-admin-password "$OS_PASSWORD" \
-          --tempest-args tempest.scenario.test_minimum_basic &> {{ instack_user_home }}/tempest_console.log
-
-    - name: check test_minimum_basic output
-      ignore_errors: yes
-      shell: "[ `grep \"Passed\" tempest_console.log | cut -d \":\" -f2` -eq 1 ]"
-      register: tempest_console_log_passed_grep
-      when: installer.tempest.enabled is defined and
-            not installer.tempest.enabled|bool and
-            product.name == "rhos"
-
-    - name: fail when tempest comsole log does not show 1 passed test returned
-      fail: msg="tempest.scenario.test_minimum_basic did not return 1 passsed test."
-      when: tempest_console_log_passed_grep is defined and
-            tempest_console_log_passed_grep.rc != 0
-
-    - name: run extensive tempest based overcloud tests
+    - name: run tempest based overcloud tests
       ignore_errors: yes
       when: installer.tempest.enabled is defined and
             installer.tempest.enabled|bool
@@ -100,6 +76,19 @@
           --tempest-args {{ installer.tempest.test_regex }} \
           --network-id {{ public_network_uuid }} \
           --skipfile {{ instack_user_home }}/skipfile &> {{ instack_user_home }}/tempest_console.log
+
+    - name: check test_minimum_basic output
+      ignore_errors: yes
+      shell: "[ `grep \"Passed\" tempest_console.log | cut -d \":\" -f2` -eq 1 ]"
+      register: tempest_console_log_passed_grep
+      when: installer.tempest.test_regex is defined and
+            installer.tempest.test_regex == "tempest\.scenario\.test_minimum_basic" and
+            product.name == "rhos"
+
+    - name: fail when tempest comsole log does not show 1 passed test returned
+      fail: msg="tempest.scenario.test_minimum_basic did not return 1 passsed test."
+      when: tempest_console_log_passed_grep is defined and
+            tempest_console_log_passed_grep.rc != 0
 
     - name: fetch tempest result
       fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes

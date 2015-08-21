@@ -112,4 +112,3 @@
   tasks:
     - fail: msg="instack-deploy-overcloud failed, see the above debug information"
       when: overcloud_deployment_result != "0"
-
