@@ -166,7 +166,7 @@
   hosts: undercloud:&virthost
   tasks:
     - name: net-iso virt setup vlans
-      when: installer.network.isolation == 'default'
+      when: installer.network.isolation == 'single_nic_vlans'
       shell: >
           source {{ instack_user_home }}/stackrc;
           sudo ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
