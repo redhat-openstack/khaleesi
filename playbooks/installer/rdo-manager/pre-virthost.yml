@@ -5,7 +5,7 @@
     - ansible_ssh_user: root
   tasks:
     - group_by: key=virthost
-      when: provisioner.type in ['centosci', 'beaker', 'manual']
+      when: provisioner.type in ['centosci', 'beaker', 'manual', 'foreman']
 
 - include: cleanup-virthost.yml
 - include: repo-{{ product.name }}.yml repo_host=virthost

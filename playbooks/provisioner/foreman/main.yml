@@ -11,13 +11,14 @@
             else item.value.groups| join(',') }}"
         rebuild="{{ item.value.rebuild|lower}}"
         node_label="{{ item.key }}"
+        ansible_fqdn="{{ item.value.fqdn }}"
         ansible_ssh_user="{{ item.value.remote_user }}"
         ansible_ssh_host="{{ item.value.fqdn }}"
         ansible_ssh_private_key_file="{{ provisioner.key_file }}"
       with_dict: provisioner.nodes
 
 - name: Rebuild nodes - Foreman
-  hosts: openstack_nodes
+  hosts: openstack_nodes:rdo_nodes
   gather_facts: no
   tasks:
     - name: Rebuild nodes
@@ -32,9 +33,12 @@
       delegate_to: localhost
       register: created_nodes
 
-    - name: wait for hosts to get reachable after rebuild
+    - name: Wait for hosts to get reachable (after rebuild)
       local_action:
-          module: wait_for_ssh host={{ hostvars[inventory_hostname].ansible_ssh_host }} user={{ hostvars[inventory_hostname].ansible_ssh_user }} key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
+        wait_for_ssh
+          user="root"
+          host={{ hostvars[inventory_hostname].ansible_ssh_host }}
+          key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
 
 - name: Update network interfaces on nodes - Foreman
   hosts: openstack_nodes
