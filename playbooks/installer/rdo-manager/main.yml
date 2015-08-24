@@ -4,3 +4,4 @@
 - include: run-overcloud.yml
 - include: run-overcloud-status.yml
 - include: post/main.yml
+- include: updates/main.yml

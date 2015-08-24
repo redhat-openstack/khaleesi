@@ -1,0 +1,88 @@
+- name: Group hosts by post action - update
+  hosts: undercloud:overcloud
+  gather_facts: no
+  tasks:
+    - group_by: key="update"
+      when: installer.updates is defined and
+            installer.updates.enabled|bool
+
+- name: Dump packages list
+  hosts: update:!undercloud
+  tasks:
+    - name: dump package list
+      shell: rpm -qa &> {{ ansible_ssh_host }}-rpm.log
+
+- name: Update the Overcloud
+  hosts: update:!overcloud
+  tasks:
+    - name: set fact stack user home
+      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
+
+    - name: get plan list
+      register: overcloud_uuid_result
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          openstack management plan list | grep overcloud | cut -d " " -f2
+      when: installer.deploy.type == 'plan'
+
+    - name: set fact for openstack management plan
+      set_fact:
+        overcloud_uuid: "{{ overcloud_uuid_result.stdout }}"
+      when: installer.deploy.type == 'plan'
+
+    - name: copy template file for update overcloud
+      template:
+        src=templates/update-overcloudrc.j2
+        dest={{ instack_user_home }}/update-overcloudrc
+        mode=0755
+
+    - name: echo update command
+      register: overcloud_update_command
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          source {{ instack_user_home }}/update-overcloudrc;
+          echo $UPDATE_COMMAND
+
+    - name: update-overcloud
+      register: update
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          export HEAT_INCLUDE_PASSWORD=1;
+          {{ overcloud_update_command.stdout }} &> update_overcloud_console.log
+
+    - name: check update status
+      register: update_status
+      shell: >
+        cat update_overcloud_console.log | grep 'COMPLETE'
+
+    - name: fail when status is not COMPLETE
+      fail: msg="Overcloud update failed"
+      when: update_status.rc != 0
+
+    - name: heat stack-list
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          heat stack-list
+
+- name: Check update status
+  hosts: update:!undercloud
+  tasks:
+    - name: dump package list
+      shell: rpm -qa &> {{ ansible_ssh_host }}-rpm-updated.log
+
+    - name: get rpm list stat
+      register: rpm_list_result
+      stat: path=~/{{ ansible_ssh_host }}-rpm.log
+
+    - name: get rpm updated stat
+      register: rpm_list_updated_result
+      stat: path=~/{{ ansible_ssh_host }}-rpm-updated.log
+
+    - name: fail when rpm list checksum are equal
+      fail: msg="Failed, no package has been updated..."
+      when: rpm_list_result.stat.checksum == rpm_list_updated_result.stat.checksum
+
+- include: ../../../installer/rdo-manager/post/run-overcloud-scale.yml
+- include: ../../../installer/rdo-manager/post/overcloud-test.yml

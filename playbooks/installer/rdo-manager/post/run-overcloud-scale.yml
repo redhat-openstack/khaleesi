@@ -4,10 +4,11 @@
   gather_facts: no
   tasks:
     - group_by: key="scale_up_node_type"
-      when: "installer.post_action is defined and 'scale_up_node_type' in installer.post_action"
+      when: installer.post_action is defined and
+            'scale_up_node_type' in installer.post_action
 
 - name: scale overcloud nodes
-  hosts: undercloud:&scale_up_node_type
+  hosts: undercloud:&scale_up_node_type:!noupdate
   tasks:
     - name: set fact stack user home
       set_fact: instack_user_home=/home/{{ provisioner.remote_user }}

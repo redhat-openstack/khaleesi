@@ -1,0 +1,19 @@
+#!/bin/bash
+
+export UPDATE_COMMAND="/usr/bin/yes '' | openstack overcloud update stack -i overcloud"
+
+{% if installer.deploy.type == 'plan' %}
+export UPDATE_COMMAND="$UPDATE_COMMAND --plan {{ overcloud_uuid }}"
+{% endif %}
+
+{% if installer.deploy.type == 'templates' %}
+export UPDATE_COMMAND="$UPDATE_COMMAND --templates /usr/share/openstack-tripleo-heat-templates "
+{% endif %}
+
+{% if installer.network.isolation != 'none' %}
+export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/network-environment.yaml "
+{% endif %}
+
+{% if installer.network.isolation != 'none' and installer.deploy.type == 'plan' %}
+export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/plan-parameter-neutron-bridge.yaml "
+{% endif %}

@@ -1,0 +1,54 @@
+- name: Group hosts by post action - update
+  hosts: undercloud:overcloud
+  gather_facts: no
+  tasks:
+    - group_by: key="update"
+      when: installer.updates is defined and
+            installer.updates.enabled|bool
+
+- name: Update dns server
+  hosts: update:!undercloud
+  gather_facts: no
+  tasks:
+    - name: update dns server
+      sudo: yes
+      lineinfile: regexp="nameserver" line="nameserver {{ distro.config.dns_servers[0] }}" dest="/etc/resolv.conf"
+
+- name: Update yum repo
+  hosts: update
+  sudo: yes
+  gather_facts: yes
+  tasks:
+      - name: Install release tool
+        command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/{{ product.name }}-release-latest.noarch.rpm"
+
+      - name: Execute rhos-release for pinned osp-director puddle (osp)
+        command: "rhos-release -p {{ installer.updates.target_pin_version }} {{ installer.updates.target_full_version }}"
+        register: target_puddle
+        when: installer.updates.repo_type == 'puddle'
+
+      - name: Execute rhos-release for pinned osp-director poodle (osp)
+        command: "rhos-release -d -p {{ installer.updates.target_pin_version }} {{ installer.updates.target_full_version }}"
+        register: target_puddle
+        when: installer.updates.repo_type == 'poodle'
+
+      - name: Execute rhos-release for core rhos puddle (osp)
+        command: "rhos-release -p {{ installer.updates.target_pin_version }} {{ installer.updates.target_core_product_version }}"
+        register: pinned_puddle
+        when: installer.updates.repo_type == 'puddle'
+
+      - name: Execute rhos-release for core rhos poodle (osp)
+        command: "rhos-release -d -p {{ installer.updates.target_pin_version }} {{ installer.updates.target_core_product_version }}"
+        register: pinned_puddle
+        when: installer.updates.repo_type== 'poodle'
+
+      - name: Execute rhos-release for osp-director puddle (osp)
+        command: "rhos-release {{ installer.updates.target_full_version }}"
+        when: installer.updates.repo_type == 'puddle'
+
+      - name: Execute rhos-release for osp-director poodle (osp)
+        command: "rhos-release -d {{ installer.updates.target_full_version }}"
+        when: installer.updates.repo_type == 'poodle'
+
+      - name: yum clean all
+        command: yum clean all

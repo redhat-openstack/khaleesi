@@ -1,0 +1,13 @@
+---
+- name: Group hosts by post action - update
+  hosts: undercloud:overcloud
+  gather_facts: false
+  tasks:
+    - name: add host to key noupdate if update is disabled
+      group_by: key="noupdate"
+      when: installer.updates is defined and
+            not installer.updates.enabled|bool
+
+- include: repo-{{ product.name }}.yml
+- include: update-undercloud.yml
+- include: update-overcloud.yml

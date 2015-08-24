@@ -4,10 +4,11 @@
   gather_facts: no
   tasks:
     - group_by: key="tempest"
-      when: "installer.post_action is defined and 'tempest' in installer.post_action"
+      when: installer.post_action is defined and
+            'tempest' in installer.post_action
 
 - name: Execute tempest
-  hosts: tempest
+  hosts: undercloud:&tempest:!noupdate
   tasks:
     - name: set fact stack user home
       set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
