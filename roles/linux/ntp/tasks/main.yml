@@ -5,7 +5,7 @@
   retries: 3
   delay: 30
   register: ntp_result
-  until: ntp_result.rc == 0
+  until: ntp_result|success
 
 - name: be sure ntp is configured
   template: src=ntp.conf.j2 dest=/etc/ntp.conf
