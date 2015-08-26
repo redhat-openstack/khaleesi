@@ -29,7 +29,8 @@
         git:
             repo={{ tester.git.repo }}
             accept_hostkey=true
-            version={{ tester.git.revision }}
+            refspec={{ tester.git.revision }}
+            version=FETCH_HEAD
             dest=~/{{ tester.dir }}
         register: tests_repo
       - command: chdir=~/{{ tester.dir }} git log -1 --pretty=format:%h
