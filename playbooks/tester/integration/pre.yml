@@ -1,2 +1,42 @@
 ---
+- name: Refresh facts from controller
+  hosts: controller
+  gather_facts: yes
+
+- name: Enable EPEL (needed to get pip)
+  hosts: tester
+  gather_facts: yes
+  sudo: yes
+  tasks:
+    - command: "yum localinstall -y {{ distro.epel_release }}"
+      when: "ansible_distribution in ['RedHat', 'CentOS'] and tester.pip_packages|default([])|length > 0"
+
+- name: Install required packages
+  hosts: tester
+  gather_facts: yes
+  sudo: yes
+  tasks:
+    - yum: name={{ item }} state=present
+      with_items: tester.packages
+
+- name: Prepare repository with tests
+  hosts: tester
+  sudo: no
+  gather_facts: no
+  tasks:
+      - name: Clone repo with integration tests
+        git:
+            repo={{ tester.git.repo }}
+            accept_hostkey=true
+            version={{ tester.git.revision }}
+            dest=~/{{ tester.dir }}
+        register: tests_repo
+      - command: chdir=~/{{ tester.dir }} git log -1 --pretty=format:%h
+        register: tests_repo_version
+      - debug: "msg='Build mark: int_test={{ tests_repo_version.stdout }}'"
+
+      - name: Install pip test requirements
+        pip: name={{ item }} virtualenv=~/{{ tester.venv_dir }} virtualenv_site_packages=yes
+        with_items: tester.pip_packages
+
 - include: "{{ tester.component }}/pre.yml"

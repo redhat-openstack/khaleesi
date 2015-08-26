@@ -1,18 +1,4 @@
 ---
-- name: ensure get facts from controller
-  hosts: controller
-  gather_facts: yes
-
-- name: Install required packages
-  hosts: tester
-  gather_facts: yes
-  sudo: yes
-  tasks:
-    - name: Install epel release (needed to get pip)
-      command: "yum localinstall -y {{ distro.epel_release }}"
-    - yum: name={{item}} state=present
-      with_items: tester.packages
-
 - name: Prepare env for horizon int. testing
   hosts: tester
   sudo: yes
@@ -62,15 +48,6 @@
           demo_password: "{{ hostvars[controller_name].demo_password | default('redhat') }}"
       tmp_controller_host: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"
   tasks:
-      - name: Clone repo with integration tests
-        git:
-            repo={{ tester.git.repo }}
-            accept_hostkey=true
-            version={{ tester.git.revision }}
-            dest=~/{{ tester.dir }}
-      - name: Install pip test requirements
-        pip: name={{item}} virtualenv=~/{{ tester.venv_dir }} virtualenv_site_packages=yes
-        with_items: tester.pip_packages
       - name: Patch horizon.conf (test configuration)
         ini_file:
             dest=~/{{ tester.dir }}/openstack_dashboard/test/integration_tests/horizon.conf
