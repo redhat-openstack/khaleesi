@@ -26,6 +26,12 @@
   shell: pkill -9 NetworkManager
   ignore_errors: yes    # When no NM running, killall exits with 1
 
+# We need to kill dhclient before next step - this is needed if host
+# has not been correctly reprovisioned and next step failed before
+- name: kill all dhclients
+  shell: pkill -9 dhclient
+  ignore_errors: yes
+
 - name: restart the network
   service: name=network state=restarted
 
