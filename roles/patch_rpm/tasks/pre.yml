@@ -1,4 +1,4 @@
-- name: Install release tool on machines
+- name: Install release tool
   sudo: yes
   command: "yum localinstall -y {{ product.rpm }}"
 
@@ -50,7 +50,7 @@
 - name: Clone dist-git
   git: repo="{{ patch.dist_git.url }}"
        version="{{ product.name }}-{{ product.full_version }}-rhel-{{ ansible_distribution_version|int }}"
-       dest="/home/{{ ansible_ssh_user }}/{{ patch.dist_git.name }}"
+       dest="/home/{{ ansible_ssh_user }}/dist-git/{{ patch.dist_git.name }}"
        accept_hostkey=true
 
 - name: Setup git user and mail
@@ -65,7 +65,7 @@
       git fetch patches;
       git branch {{ product.name }}-{{ product.full_version }}-patches patches/{{ product.name}}-{{ product.full_version }}-patches
   args:
-    chdir: "/home/{{ ansible_ssh_user }}/{{ patch.dist_git.name }}"
+    chdir: "/home/{{ ansible_ssh_user }}/dist-git/{{ patch.dist_git.name }}"
 
 - name: Create mock group
   sudo: yes
