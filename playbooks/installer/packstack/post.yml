@@ -56,6 +56,34 @@
           ( iptables -C INPUT -p tcp -m multiport --dports 3333 -m comment --comment "bz1138740 - nova objectstore api incoming" -j ACCEPT && echo "Already open" ) || \
           ( iptables -A INPUT -p tcp -m multiport --dports 3333 -m comment --comment "bz1138740 - nova objectstore api incoming" -j ACCEPT && echo "Opened" )
 
+- name: Check if BZ1210411 packstack/floating_ip_pool is enabled
+  hosts: controller
+  gather_facts: no
+  sudo: no
+  tasks:
+      - group_by: key=workaround_bz1210411
+        when: workarounds.bz1210411 is defined
+
+- name: "Workaround BZ1210411: Update floating_ip_pool in nova.conf"
+  hosts: workaround_bz1210411
+  gather_facts: yes
+  sudo: yes
+  tasks:
+    - name: Get packstack's floating ip pool value
+      shell: crudini --get packstack_config.txt general CONFIG_NOVA_NETWORK_DEFAULTFLOATINGPOOL
+      args:
+        chdir: /root
+      register: packstack_floating_ip_pool
+
+    - name: Apply packstack's floating ip pool value to nova.conf
+      shell: crudini --set /etc/nova/nova.conf DEFAULT default_floating_pool {{ packstack_floating_ip_pool.stdout }}
+
+    - name: Restart nova services to apply changes in nova.conf
+      shell: openstack-service restart nova
+
+    - name: Restart neutron service to apply changes in floating ip pool
+      shell: openstack-service restart neutron
+
 - name: Enable l3-ha (VRRP) for Neutron networkers
   hosts: controller
   gather_facts: no
