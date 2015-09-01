@@ -1,29 +1,5 @@
 ---
-- name: Prepare env for horizon int. testing
-  hosts: tester
-  sudo: yes
-  gather_facts: no
-  vars:
-      controller_name: "{{ provisioner.nodes.controller.name }}"
-      tmp_controller_host: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"
-      demo_password: "{{ hostvars[controller_name].demo_password | default('redhat') }}"
-  tasks:
-    - keystone_user:
-        tenant=demo
-        login_user=admin
-        login_password={{ hostvars[controller_name].admin_password | default('redhat') }}
-        login_tenant_name=admin
-        endpoint=http://{{ tmp_controller_host }}:35357/v2.0/
-        state=present
-    - keystone_user:
-        user=demo
-        password={{ demo_password }}
-        tenant=demo
-        login_user=admin
-        login_password={{ hostvars[controller_name].admin_password | default('redhat') }}
-        login_tenant_name=admin
-        endpoint=http://{{ tmp_controller_host }}:35357/v2.0/
-        state=present
+- include: ../common/demo_tenant.yml
 
 - name: Allow access to horizon from floating IP
   hosts: controller

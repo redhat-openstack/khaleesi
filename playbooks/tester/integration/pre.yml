@@ -13,9 +13,10 @@
 
 - name: Install required packages
   hosts: tester
-  gather_facts: yes
+  gather_facts: no
   sudo: yes
   tasks:
+    # test-specific packages
     - yum: name={{ item }} state=present
       with_items: tester.packages
 
