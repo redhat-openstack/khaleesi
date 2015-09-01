@@ -3,12 +3,12 @@
   hosts: controller
   gather_facts: yes
 
-- name: Enable EPEL (needed to get pip)
+- name: "Install pip if it's needed"
   hosts: tester
   gather_facts: yes
   sudo: yes
   tasks:
-    - command: "yum localinstall -y {{ distro.epel_release }}"
+    - command: "easy_install pip"
       when: "ansible_distribution in ['RedHat', 'CentOS'] and tester.pip_packages|default([])|length > 0"
 
 - name: Install required packages
