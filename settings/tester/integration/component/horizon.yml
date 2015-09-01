@@ -21,7 +21,6 @@ tester:
     horizon:
       help_url: !lookup tmp.horizon[!lookup product.full_version].help_url
   packages:
-  - python-pip
   - python-virtualenv
   - firefox
   - git
