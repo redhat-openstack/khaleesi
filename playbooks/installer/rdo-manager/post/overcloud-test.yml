@@ -12,40 +12,47 @@
     - name: set fact stack user home
       set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
 
-    - name: rename SwiftOperator and add network_id BZ 1243825 - BZ 1243828
-      sudo: yes
-      replace:
-        regexp: "{{ item.regexp }}"
-        replace: "{{ item.replace }}"
-        dest: /usr/lib/python2.7/site-packages/rdomanager_oscplugin/v1/overcloud_validate.py
-      with_items:
-        - { regexp: "SwiftOperator" , replace: "swiftoperator" }
-        - { regexp: "tempest.conf" , replace: "tempest.conf --network-id {{ public_network_uuid }} " }
-      tags: workaround
-      when: workarounds.enabled is defined and workarounds.enabled|bool
+    - name : create tempest directory
+      file: path={{ instack_user_home }}/tempest state=directory
 
-    - name: change cirros user to fedora
-      sudo: yes
-      replace:
-        regexp: cirros
-        replace: fedora
-        dest: /usr/lib/python2.7/site-packages/rdomanager_oscplugin/v1/overcloud_validate.py
-      when: installer.tempest.test_regex is defined and
-            installer.tempest.test_regex == "tempest\.scenario\.test_minimum_basic" and
-            product.name == "rhos"
+    - name: execute configure tempest directory
+      shell: cd /home/{{ provisioner.remote_user }}/tempest && \
+             /usr/share/openstack-tempest-kilo/tools/configure-tempest-directory
 
-    - name: add config into overcloud_validate.py for Fedora image
-      sudo: yes
-      lineinfile: dest=/usr/lib/python2.7/site-packages/rdomanager_oscplugin/v1/overcloud_validate.py
-                  regexp="--create \'"
-                  insertafter="--create \'"
-                  line="                        \'--debug --create --image /home/stack/fedora-user.qcow2 compute.flavor_ref 2 compute.flavor_ref_alt 2 \'"
-                  backup=yes
-                  backrefs=yes
-                  state=present
+    - name: generate tempest.conf for minimun basic scenario
+      shell: >
+          source {{ instack_user_home }}/overcloudrc;
+          cd /home/{{ provisioner.remote_user }}/tempest && \
+          tools/config_tempest.py --out etc/tempest.conf \
+          --network-id {{ public_network_uuid }} \
+          --deployer-input ~/tempest-deployer-input.conf \
+          --debug --create --image /home/stack/fedora-user.qcow2 \
+          identity.uri $OS_AUTH_URL \
+          identity.admin_password $OS_PASSWORD \
+          network.tenant_network_cidr 192.168.0.0/24 \
+          object-storage.operator_role swiftoperator \
+          compute.image_ssh_user fedora \
+          compute.ssh_user fedora \
+          scenario.ssh_user fedora \
+          compute.flavor_ref 2 \
+          compute.flavor_ref_alt 2
       when: installer.tempest.test_regex is defined and
-            installer.tempest.test_regex == "tempest\.scenario\.test_minimum_basic" and
-            product.name == "rhos"
+            installer.tempest.test_regex == "tempest\.scenario\.test_minimum_basic"
+
+    - name: generate tempest.conf for tempest
+      shell: >
+          source {{ instack_user_home }}/overcloudrc;
+          cd /home/{{ provisioner.remote_user }}/tempest && \
+          tools/config_tempest.py --out etc/tempest.conf \
+          --network-id {{ public_network_uuid }} \
+          --deployer-input ~/tempest-deployer-input.conf \
+          --debug --create \
+          identity.uri $OS_AUTH_URL \
+          identity.admin_password $OS_PASSWORD \
+          network.tenant_network_cidr 192.168.0.0/24 \
+          object-storage.operator_role swiftoperator
+      when: installer.tempest.test_regex is defined and
+            installer.tempest.test_regex != "tempest\.scenario\.test_minimum_basic"
 
     - name: copy skipfile into stack home
       copy: src=files/skipfile dest={{ instack_user_home }}/skipfile owner=stack group=stack
@@ -58,24 +65,9 @@
             installer.tempest.enabled|bool
       shell: >
           source {{ instack_user_home }}/overcloudrc;
-          openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL \
-          --overcloud-admin-password "$OS_PASSWORD" \
-          --tempest-args {{ installer.tempest.test_regex }} \
-          --skipfile {{ instack_user_home }}/skipfile &> {{ instack_user_home }}/tempest_console.log
-
-    - name: run overcloud tests on rdo
-      ignore_errors: yes
-      when: overcloud_deployment_result == "0" and
-            installer.tempest.enabled is defined and
-            installer.tempest.enabled|bool and
-            product.name == "rdo"
-      shell: >
-          source {{ instack_user_home }}/overcloudrc;
-          openstack overcloud validate --overcloud-auth-url $OS_AUTH_URL \
-          --overcloud-admin-password "$OS_PASSWORD" \
-          --tempest-args {{ installer.tempest.test_regex }} \
-          --network-id {{ public_network_uuid }} \
-          --skipfile {{ instack_user_home }}/skipfile &> {{ instack_user_home }}/tempest_console.log
+          cd /home/{{ provisioner.remote_user }}/tempest && \
+          tools/run-tests.sh --skip-file {{ instack_user_home }}/skipfile \
+          {{ installer.tempest.test_regex }} &> {{ instack_user_home }}/tempest_console.log
 
     - name: check test_minimum_basic output
       ignore_errors: yes
