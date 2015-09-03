@@ -40,3 +40,7 @@
       command: "{{ tester.dir }}/with_venv testr init"
       args:
         creates: "{{ tester.dir }}/.testrepository"
+
+    - name: "Workaround: Cap boto version to 2.34 for RHOS5"
+      pip: name=boto version=2.34 virtualenv={{ tester.dir }}/.venv chdir=~
+      when: workarounds.lp1408987 is defined
