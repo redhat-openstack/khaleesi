@@ -133,7 +133,7 @@ conntimeout=${conntimeout:-7} # (soft) timeout for ssh connection
 connkill=${connkill:-20}       # hard timeout for ssh connection
 ssh_opts="${ssh_opts:-}"
 ssh_opts="$ssh_opts -vvvv -n"
-
+key="${key/#\~/$HOME}"
 
 # basic sanity check of options
 [[ $connkill -gt $timeout ]] && connkill=$timeout
