@@ -5,10 +5,12 @@
   tasks:
     - group_by: key="tempest"
       when: installer.post_action is defined and
-            'tempest' in installer.post_action
+            'tempest' in installer.post_action and
+            installer.tempest.enabled|bool and
+            disabled_tempest is not defined
 
 - name: Execute tempest
-  hosts: undercloud:&tempest:!noupdate
+  hosts: tempest
   tasks:
     - name: set fact stack user home
       set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
@@ -57,13 +59,9 @@
 
     - name: copy skipfile into stack home
       copy: src=files/skipfile dest={{ instack_user_home }}/skipfile owner=stack group=stack
-      when: installer.tempest.enabled is defined and
-            installer.tempest.enabled|bool
 
     - name: run tempest based overcloud tests
       ignore_errors: yes
-      when: installer.tempest.enabled is defined and
-            installer.tempest.enabled|bool
       shell: >
           source {{ instack_user_home }}/overcloudrc;
           cd /home/{{ provisioner.remote_user }}/tempest && \
@@ -76,7 +74,6 @@
       register: tempest_console_log_passed_grep
       when: installer.tempest.test_regex is defined and
             installer.tempest.test_regex == "tempest\.scenario\.test_minimum_basic" and
-            product.name == "rhos"
 
     - name: fail when tempest comsole log does not show 1 passed test returned
       fail: msg="tempest.scenario.test_minimum_basic did not return 1 passsed test."
@@ -86,4 +83,4 @@
     - name: fetch tempest result
       fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes
       when: installer.tempest.enabled is defined and
-            product.name != "rdo" or installer.tempest.enabled|bool
+            product.name != "rdo"

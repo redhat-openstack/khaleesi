@@ -5,10 +5,11 @@
   tasks:
     - group_by: key="scale_up_node_type"
       when: installer.post_action is defined and
-            'scale_up_node_type' in installer.post_action
+            'scale_up_node_type' in installer.post_action and
+            disabled_scale is not defined
 
 - name: scale overcloud nodes
-  hosts: undercloud:&scale_up_node_type:!noupdate
+  hosts: scale_up_node_type
   tasks:
     - name: set fact stack user home
       set_fact: instack_user_home=/home/{{ provisioner.remote_user }}

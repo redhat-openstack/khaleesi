@@ -1,10 +1,15 @@
 ---
-- name: Group hosts by post action - update
+- name: Set fact for manage update
   hosts: undercloud:overcloud
   gather_facts: false
   tasks:
-    - name: add host to key noupdate if update is disabled
-      group_by: key="noupdate"
+    - name: set fact for disabled tempest when update is disabled
+      set_fact: disabled_tempest=true
+      when: installer.updates is defined and
+            not installer.updates.enabled|bool
+
+    - name: set fact for disabled scale if update disabled
+      set_fact: disabled_scale=true
       when: installer.updates is defined and
             not installer.updates.enabled|bool
 
