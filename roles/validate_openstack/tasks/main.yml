@@ -1,106 +1,229 @@
 ---
-- name: create random string
-  shell: echo $RANDOM
-  register: random
-
-- name: print random
-  debug: var=random.stdout_lines.0
-
 - name: set random number as a fact
   set_fact:
-    tempest_random: "{{ validate_instance_name }}_{{ random.stdout_lines.0 }}"
+    random: "{{ tmp.node_prefix }}"
 
-- name: list available cirros image
-  shell: "source /root/keystonerc_demo; nova image-list | grep cirros | awk '{ print $2 }'"
-  register: cirros
+- name: admin pass
+  set_fact: admin_password={{ admin_password }} | default({{ installer.validate.admin_password }})
 
-- name: print result of nova image-list
-  debug: var=cirros.stdout_lines.0
+- name: auth url
+  set_fact: keystone_endpoint={{ keystone_endpoint }} | default({{ installer.validate.keystone_endpoint }})
+
+- name: get the guest-image
+  get_url: >
+    url="{{ installer.validate.image.url }}{{ installer.validate.image.id }}"
+    dest=/home/{{ provisioner.remote_user }}/{{ installer.validate.image.id }}
+
+# assume that the image is in /home/user/
+- name: upload image
+  register: glance_image_uuid_result
+  glance_image:
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      name: "{{ installer.validate.image.id }}"
+      container_format: bare
+      disk_format: qcow2
+      state: present
+      file: "/home/stack/{{ installer.validate.image.id }}"
+
+- name: create public network
+  register: public_network_uuid_result
+  quantum_network:
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      name: "{{ installer.network.name }}"
+      provider_network_type: "{{ hw_env.network_type }}"
+      provider_physical_network: "{{ hw_env.physical_network }}"
+      provider_segmentation_id: "{{ hw_env.ExternalNetworkVlanID }}"
+      router_external: yes
+      shared: no
+
+- name: Create subnet for public network
+  quantum_subnet:
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      network_name: "{{ installer.network.name }}"
+      name: "{{ installer.network.name }}"
+      enable_dhcp: False
+      gateway_ip: "{{ hw_env.network_gateway }}"
+      cidr: "{{ hw_env.floating_ip_cidr }}"
+      allocation_pool_start: "{{ hw_env.floating_ip_start }}"
+      allocation_pool_end: "{{ hw_env.floating_ip_end }}"
+
+# create tenant network
+- name: create tenant network
+  register: tenant_network_uuid_result
+  quantum_network:
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      name: "{{ installer.validate.tenant_network_name }}_{{ random }}"
+      shared: no
+
+- name: Create subnet for tenant network
+  register: subnet_tenant_network_uuid_result
+  quantum_subnet:
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      network_name: "{{ installer.validate.tenant_network_name }}_{{ random }}"
+      name: "{{ installer.validate.tenant_network_name }}_{{ random }}"
+      enable_dhcp: True
+      gateway_ip: "10.0.0.1"
+      cidr: "10.0.0.0/24"
+      allocation_pool_start: "10.0.0.20"
+      allocation_pool_end: "10.0.0.60"
+
+- name: create router
+  register: router_uuid_result
+  quantum_router:
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      name: "{{ installer.validate.router_name }}_{{ random }}"
+
+- name: create router gateway
+  quantum_router_gateway:
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      router_name: "{{ installer.validate.router_name }}_{{ random }}"
+      network_name: "{{ installer.network.name }}"
+
+- name: create router interface
+  quantum_router_interface:
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      router_name: "{{ installer.validate.router_name }}_{{ random }}"
+      subnet_name: "{{ installer.validate.tenant_network_name }}_{{ random }}"
 
 # Creates a new key pair and the private key returned after the run
 - name: create keypair
   nova_keypair:
-      state=present
-      auth_url={{ keystone_endpoint }}
-      login_username={{ demo_username }}
-      login_password={{ demo_password }}
-      login_tenant_name={{ demo_tenant_name }}
-      name={{ tempest_random }}
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      name: "{{ installer.validate.instance_name }}"
   register: keypair
 
 - name: Capture private ssh key
   debug: var=keypair.key
 
 - name: cp private ssh key to host
-  shell: 'echo "{{ keypair.key }}" > /root/"{{ tempest_random }}"'
+  ignore_errors: yes
+  when: keypair.key is defined
+  shell: 'echo "{{ keypair.key }}" > ~/"{{ installer.validate.instance_name }}"'
 
 - name: set the file attributes on the ssh key
-  file: path=/root/"{{ tempest_random }}"
-        owner=root
-        group=root
+  file: path=~/"{{ installer.validate.instance_name }}"
+        owner={{ provisioner.remote_user }}
+        group={{ provisioner.remote_user }}
         mode=0600
 
 # Creates a new VM and attaches to a network and passes metadata to the instance
 - name: create instance for validation test
   nova_compute:
-       state=present
-       auth_url={{ keystone_endpoint }}
-       login_username={{ demo_username }}
-       login_password={{ demo_password }}
-       login_tenant_name={{ demo_tenant_name }}
-       name={{ tempest_random }}
-       image_id={{ cirros.stdout_lines.0 }}
-       key_name={{ tempest_random }}
-       wait_for=300
-       flavor_id=1
-  ignore_errors: yes
-
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      name: "{{ installer.validate.instance_name }}"
+      image_id: "{{ glance_image_uuid_result.id }}"
+      key_name: "{{ installer.validate.instance_name }}"
+      wait_for: 300
+      flavor_id: 2
+      nics:
+        - net-id: "{{ tenant_network_uuid_result.id }}"
+      security_groups: default
 
 # Assign a floating ip to the instance from an external network
 - name: assign a floating ip to the instance
   quantum_floating_ip:
-      state=present
-      auth_url={{ keystone_endpoint }}
-      login_username={{ demo_username }}
-      login_password={{ demo_password }}
-      login_tenant_name={{ demo_tenant_name }}
-      network_name={{ public_net_name }}
-      instance_name={{ tempest_random }}
-      internal_network_name={{ private_net_name }}
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      network_name: "{{ installer.network.name }}"
+      instance_name: "{{ installer.validate.instance_name }}"
+      internal_network_name: "{{ installer.validate.tenant_network_name }}_{{ random }}"
   register: floating_ip
-  ignore_errors: yes
-  when: installer.network.plugin.name == "neutron"
 
 - name: print floating ip address
   debug: var=floating_ip
-  when: installer.network.plugin.name == "neutron"
 
 - name: Pause to let the instance boot
   pause: seconds=30
-  when: installer.network.plugin.name == "neutron" and floating_ip.public_ip is defined
+
+- name: check console_log
+  register: nova_console_log_result
+  shell: >
+        source ~/overcloudrc;
+        nova console-log {{ installer.validate.instance_name }} &> nova_console_log.log
+
+- name: add sec rule
+  shell: >
+         source ~/overcloudrc;
+         nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0;
+         nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
+  ignore_errors: yes
 
 - name: ping instance public ip from controller
   command: ping -c 5 "{{ floating_ip.public_ip }}"
   retries: 3
   until: ping_result.rc == 0
   register: ping_result
-  ignore_errors: yes
-  when: installer.network.plugin.name == "neutron" and floating_ip.public_ip is defined
 
 - name: print ping output
   debug: var=ping_result.stdout_lines
-  when: installer.network.plugin.name == "neutron" and floating_ip.public_ip is defined
 
 - name: ssh to instance
   shell: ssh
            -o StrictHostKeyChecking=no
            -o PasswordAuthentication=no
-           -i /root/"{{ tempest_random }}"
-           cirros@"{{ floating_ip.public_ip }}" uname -a
+           -i ~/"{{ installer.validate.instance_name }}"
+           "{{ installer.validate.image.user }}"@"{{ floating_ip.public_ip }}" uname -a
   register: ssh_result
-  ignore_errors: yes
-  when: installer.network.plugin.name == "neutron" and floating_ip.public_ip is defined
 
 - name: print result of ssh
   debug: var=ssh_result.stdout_lines
-  when: installer.network.plugin.name == "neutron" and floating_ip.public_ip is defined
+
+- name: delete instance
+  nova_compute:
+      state: absent
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      name: "{{ installer.validate.instance_name }}"
+      image_id: "{{ glance_image_uuid_result.id }}"
+      key_name: "{{ installer.validate.instance_name }}"
+      wait_for: 300
+      flavor_id: 2
+      nics:
+        - net-id: "{{ tenant_network_uuid_result.id }}"
+      security_groups: default
+
