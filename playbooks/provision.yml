@@ -1,4 +1,13 @@
 ---
+- name: Change key file permissions
+  hosts: localhost
+  tasks:
+    - file:
+        path: "{{ provisioner.key_file }}"
+        state: touch
+        mode: 0600
+      when: provisioner.key_file is defined
+
 - name: clean old inventory file
   hosts: localhost
   tasks:
