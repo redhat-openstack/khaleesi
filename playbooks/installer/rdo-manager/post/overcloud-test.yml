@@ -73,7 +73,7 @@
       shell: "[ `grep \"Passed\" tempest_console.log | cut -d \":\" -f2` -eq 1 ]"
       register: tempest_console_log_passed_grep
       when: installer.tempest.test_regex is defined and
-            installer.tempest.test_regex == "tempest\.scenario\.test_minimum_basic" and
+            installer.tempest.test_regex == "tempest\.scenario\.test_minimum_basic"
 
     - name: fail when tempest comsole log does not show 1 passed test returned
       fail: msg="tempest.scenario.test_minimum_basic did not return 1 passsed test."
