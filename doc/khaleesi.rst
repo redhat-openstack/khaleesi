@@ -31,7 +31,7 @@ Install the 'Development Tools' Package group, python-devel and
 sshpass packages::
 
     sudo yum group install -y 'Development Tools'
-    sudo yum -y install python-devel sshpass
+    sudo yum -y install python-devel python-virtualenv sshpass
 
 Install the OpenStack clients::
 
@@ -333,4 +333,3 @@ Cleanup
 After you finished your work, you can simply remove the created instances by::
 
     kcli cleanup
-
