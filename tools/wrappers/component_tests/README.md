@@ -5,12 +5,11 @@ purpose of executing the openstack component unit tests.
 
 ## Setup
 
-Copy the component__* files to an empty directory.
-Open the component__settings.sh file read the instructions and update the
-settings appropriately.
+Open the component__settings.sh file and replace every ###CHANGE_ME### with
+your chosen option.
+You can change any other variable as well.
 
 ## Usage
 
 Once the settings are updated, simply execute the component__test.sh script
-
 
