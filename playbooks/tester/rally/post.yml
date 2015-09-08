@@ -18,6 +18,12 @@
         creates: "{{ tester.rally.outputdir }}/results.html"
         chdir: "{{ tester.rally.dir }}"
 
+    - name: Create Report JUnit
+      command: "{{ tester.rally.path }}/bin/rally task report --junit --out {{ tester.rally.outputdir }}/nosetests.xml"
+      args:
+        creates: "{{ tester.rally.outputdir }}/nosetests.xml"
+        chdir: "{{ tester.rally.dir }}"
+
     - name: JSON results
       shell: "{{ tester.rally.path }}/bin/rally task results | {{ tester.rally.path }}/bin/python -m json.tool > {{ tester.rally.outputdir }}/results.json"
       args:
@@ -52,21 +58,12 @@
 # These need to be archived by Jenkins Somehow
     - name: Fetch Results
     # Assumes env has $WORKSPACE defined like in Jenkins
-      fetch: src={{ item }} dest="{{ lookup('env','WORKSPACE') }}/rally_results/" fail_on_missing=yes flat=yes
+      fetch: src={{ item }} dest="{{ lookup('env','PWD') }}/" fail_on_missing=yes flat=yes
       with_items:
 #        - "{{ tester.rally.outputdir }}/index.html"
         - "{{ tester.rally.outputdir }}/results.html"
+        - "{{ tester.rally.outputdir }}/nosetests.xml"
         - "{{ tester.rally.outputdir }}/detailed.txt"
         - "{{ tester.rally.outputdir }}/detailed_with_iterations.txt"
         - "{{ tester.rally.outputdir }}/sla.txt"
         - "{{ tester.rally.outputdir }}/sla.json"
-
-    - name: Convert SLA to JUnit
-      delegate_to: localhost
-      shell: python "{{ lookup('env', 'PWD') }}/tools/sla2junit.py" "{{ item }}/sla.json" "{{ item }}/nosetests.xml"
-      args:
-          creates: "{{ item }}/nosetests.xml"
-      sudo: no
-      with_items:
-        - "{{ lookup('env','WORKSPACE') }}/rally_results"
-
