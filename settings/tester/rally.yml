@@ -1,8 +1,8 @@
 --- !extends:common.yml
 tester:
     guest_image:
-        url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
-        name: cirros-0.3.4-x86_64-disk
+        url: !lookup tester.images.cirros.url
+        name: !lookup tester.images.cirros.name
     type: rally
     rally:
         dir: '/home/{{ provisioner.nodes.tester.remote_user }}/rally-dir'

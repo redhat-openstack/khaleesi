@@ -3,7 +3,7 @@ tester:
     type: tempest
     dir: tempest-dir
     guest_image:
-        url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
+        url: !lookup tester.images.cirros.url
     threads: 4
     tempest:
         testr_args: "--parallel --concurrency={{ !lookup tester.threads }}"

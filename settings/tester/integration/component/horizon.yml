@@ -18,6 +18,8 @@ tester:
     #repo key is filled by settings/tester/integration/component/horizon/setup/git/repo
     revision: !lookup tmp.horizon[!lookup product.full_version].revision
   integration:
+    image_url: !lookup tester.images.cirros.url
+    image_name: !lookup tester.images.cirros.name
     horizon:
       help_url: !lookup tmp.horizon[!lookup product.full_version].help_url
   packages:

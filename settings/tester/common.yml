@@ -32,3 +32,7 @@ tester:
     image_version: '7.1'
     image_id: !lookup provisioner.images[ !lookup tester.image_name ][ !lookup tester.image_version ].id
     remote_user: !lookup provisioner.images[ !lookup tester.image_name ][ !lookup tester.image_version ].remote_user
+    images:
+        cirros:
+            name: cirros-0.3.4-x86_64-disk
+            url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
