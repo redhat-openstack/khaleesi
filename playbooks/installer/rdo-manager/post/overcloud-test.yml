@@ -82,5 +82,4 @@
 
     - name: fetch tempest result
       fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes
-      when: installer.tempest.enabled is defined and
-            product.name != "rdo"
+      when: installer.tempest.enabled is defined
