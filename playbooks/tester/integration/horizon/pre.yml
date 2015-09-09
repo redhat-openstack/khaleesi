@@ -1,5 +1,6 @@
 ---
 - include: ../common/demo_tenant.yml
+- include: ../common/upload_image.yml
 
 - name: Allow access to horizon from floating IP
   hosts: controller

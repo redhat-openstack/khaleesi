@@ -1,0 +1,25 @@
+---
+- name: Upload test image into glance
+  hosts: tester
+  gather_facts: no
+  sudo: no
+  vars:
+    - demo_username: demo
+    - demo_password: "{{ hostvars[controller_name].demo_password | default('redhat') }}"
+    - demo_tenant_name: demo
+    - controller_name: "{{ provisioner.nodes.controller.name }}"
+    - controller_ip: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"
+  tasks:
+    - yum: name=python-glanceclient state=present
+      sudo: yes
+
+    - glance_image:
+        auth_url: "http://{{ controller_ip }}:5000/v2.0"
+        login_username: "{{ demo_username }}"
+        login_password: "{{ demo_password }}"
+        login_tenant_name: "{{ demo_tenant_name }}"
+        name: "{{ tester.integration.image_name }}"
+        state: present
+        copy_from: "{{ tester.integration.image_url }}"
+        is_public: false
+        timeout: 3600
