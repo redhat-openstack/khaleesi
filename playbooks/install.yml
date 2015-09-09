@@ -60,8 +60,8 @@
             network_name: "{{ installer.network.name }}"
             name: external-subnet
             enable_dhcp: False
-            gateway_ip: "{{ provisioner.network.network_list.external.subnet_gateway }}"
-            cidr: "{{ provisioner.network.network_list.external.subnet_cidr}}"
-            allocation_pool_start: "{{ provisioner.network.network_list.external.allocation_start }}"
-            allocation_pool_end: "{{ provisioner.network.network_list.external.allocation_end }}"
+            gateway_ip: "{{ provisioner.network.network_list.external.nested.subnet_gateway }}"
+            cidr: "{{ provisioner.network.network_list.external.nested.subnet_cidr}}"
+            allocation_pool_start: "{{ provisioner.network.network_list.external.nested.allocation_pool_start }}"
+            allocation_pool_end: "{{ provisioner.network.network_list.external.nested.allocation_pool_end }}"
         when: installer is defined and installer.network.type == 'neutron' and installer.type != 'devstack'

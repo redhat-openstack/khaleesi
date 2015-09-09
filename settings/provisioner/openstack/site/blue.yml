@@ -2,9 +2,7 @@ provisioner:
     auth_url: !lookup private.provisioner.blue.auth_url
     network:
         domain: ".novalocal"
-        name: Floating
         type: neutron
-        use_floating_ip: false
         network_list:
             management:
                 name: Default-mgmt
@@ -12,8 +10,9 @@ provisioner:
             external:
                 name: Nested-bridge
                 id: 57401469-484b-4002-b2f6-298071b1dc7f
-                subnet_cidr: 10.35.184.0/23
-                subnet_gateway:  10.35.185.254
+                nested:
+                    subnet_cidr: 10.35.184.0/23
+                    subnet_gateway:  10.35.185.254
 
     images:
       centos:

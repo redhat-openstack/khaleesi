@@ -6,5 +6,6 @@ provisioner:
                 name: Private-network
                 id: a2cc7f29-4563-4ac8-8f72-6078fe821783
             external:
-                allocation_start: 10.35.185.1
-                allocation_end:  10.35.185.253
+                nested:
+                  allocation_pool_start: 10.35.185.1
+                  allocation_pool_end:  10.35.185.253

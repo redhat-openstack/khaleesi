@@ -1,5 +1,29 @@
 ---
-- name: Cleanup
+- name: Check if network provisioning enabled
+  hosts: localhost
+  gather_facts: no
+  sudo: no
+  tasks:
+      - group_by: key=net_prov
+        when: provisioner.network.dynamic_net is defined and provisioner.network.dynamic_net
+
+- name: Cleanup Networks
+  hosts: net_prov
+  gather_facts: no
+  tasks:
+    - name: Delete Floating IPs
+      quantum_floating_ip:
+           auth_url: "{{ provisioner.auth_url }}"
+           login_username: "{{ provisioner.username }}"
+           login_password: "{{ provisioner.password }}"
+           login_tenant_name: "{{ provisioner.tenant_name }}"
+           instance_name: "{{ item.value.name }}"
+           network_name: "{{ provisioner.network.public_net_name }}"
+           internal_network_name: "{{ provisioner.network.network_list.management.name }}"
+           state: absent
+      with_dict: provisioner.nodes
+
+- name: Cleanup Nodes
   hosts: localhost
   gather_facts: no
   tasks:
@@ -11,5 +35,54 @@
            login_password: "{{ provisioner.password }}"
            login_tenant_name: "{{ provisioner.tenant_name }}"
            name: "{{ item.value.name }}"
-           wait: "no"
+#           wait for deletion until we can delete flaoting ips explicitly.
+           wait: "yes"
       with_dict: provisioner.nodes
+
+- name: Cleanup Networks
+  hosts: net_prov
+  gather_facts: no
+  tasks:
+    - name: Detach network interfaces from the router
+      quantum_router_interface:
+          auth_url: "{{ provisioner.auth_url }}"
+          login_username: "{{ provisioner.username }}"
+          login_password: "{{ provisioner.password }}"
+          login_tenant_name: "{{ provisioner.tenant_name }}"
+          state: absent
+          router_name: "{{ provisioner.network.router.name }}"
+          subnet_name: "{{ item }}"
+      with_items:
+        - "{{ provisioner['network']['network_list']['management']['subnet_name'] }}"
+        - "{{ provisioner['network']['network_list']['external']['subnet_name'] }}"
+
+    - name: Unset gateway for router
+      quantum_router_gateway:
+          auth_url: "{{ provisioner.auth_url }}"
+          login_username: "{{ provisioner.username }}"
+          login_password: "{{ provisioner.password }}"
+          login_tenant_name: "{{ provisioner.tenant_name }}"
+          router_name: "{{ provisioner.network.router.name }}"
+          state: absent
+
+    - name: Delete created router
+      quantum_router:
+           auth_url: "{{ provisioner.auth_url }}"
+           state: absent
+           login_username: "{{ provisioner.username }}"
+           login_password: "{{ provisioner.password }}"
+           login_tenant_name: "{{ provisioner.tenant_name }}"
+           name: "{{ provisioner.network.router.name }}"
+
+    - name: Delete created networks
+      quantum_network:
+           auth_url: "{{ provisioner.auth_url }}"
+           state: absent
+           login_username: "{{ provisioner.username }}"
+           login_password: "{{ provisioner.password }}"
+           login_tenant_name: "{{ provisioner.tenant_name }}"
+           name: "{{ item }}"
+      with_items:
+          - "{{ provisioner.network.network_list.management.name }}"
+          - "{{ provisioner.network.network_list.data.name }}"
+          - "{{ provisioner.network.network_list.external.name }}"

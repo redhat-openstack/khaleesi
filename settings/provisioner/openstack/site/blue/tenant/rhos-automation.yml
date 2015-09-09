@@ -15,7 +15,8 @@ provisioner:
             external:
                 name: Nested-bridge
                 id: 5d7ede48-7716-4f2c-bbeb-c2d68cbd1821
-                subnet_cidr: 10.35.184.0/23
-                allocation_start: 10.35.185.1
-                allocation_end:  10.35.185.253
-                subnet_gateway:  10.35.185.254
+                nested:
+                    subnet_cidr: 10.35.184.0/23
+                    allocation_pool_start: 10.35.185.1
+                    allocation_pool_end:  10.35.185.253
+                    subnet_gateway:  10.35.185.254

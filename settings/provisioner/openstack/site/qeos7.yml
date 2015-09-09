@@ -1,0 +1,7 @@
+provisioner:
+    auth_url: !lookup private.provisioner.qeos7.auth_url
+
+    network:
+        domain: ""
+        type: neutron
+        name: public

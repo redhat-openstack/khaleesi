@@ -1,0 +1,45 @@
+--- !extends:common/image.yml
+
+provisioner:
+    tenant_name: qe-ci2
+    network:
+        dynamic_net: true
+        public_net_name: '10.8.184.0/22'
+        router:
+            name: '{{ tmp.node_prefix }}router'
+        network_list:
+            management:
+                name: '{{ tmp.node_prefix }}management'
+                subnet_name: '{{ tmp.node_prefix }}management-subnet'
+                cidr: 192.168.1.0/24
+                dns_nameservers: !lookup private.dns_servers
+                allocation_pool_start: 192.168.1.10
+                allocation_pool_end: 192.168.1.20
+            data:
+                name: '{{ tmp.node_prefix }}data'
+                subnet_name: '{{ tmp.node_prefix }}data-subnet'
+                cidr: 172.16.1.0/24
+                dns_nameservers: !lookup private.dns_servers
+                allocation_pool_start: 172.16.1.10
+                allocation_pool_end: 172.16.1.20
+            external:
+                name: '{{ tmp.node_prefix }}external'
+                subnet_name: '{{ tmp.node_prefix }}external-subnet'
+                cidr: 172.31.0.0/23
+                dns_nameservers: !lookup private.dns_servers
+                allocation_pool_start: 172.31.0.10
+                allocation_pool_end: 172.31.0.20
+                nested:
+                    subnet_cidr: 172.31.0.0/23
+                    subnet_gateway: 172.31.0.1
+                    allocation_pool_start: 172.31.1.10
+                    allocation_pool_end: 172.31.1.100
+
+    flavor:
+        small: 2
+        medium: 3
+        large: 4
+        large_testing: c6e0ad85-81a8-4fbb-a2d9-b0abac52f79b
+        large_ephemeral: a89c1587-aab2-49c2-a60d-4d19ea40bdbc
+        medlarge: d4cb47aa-9278-4762-9d89-b8c6693a46e9
+        xlarge: 5

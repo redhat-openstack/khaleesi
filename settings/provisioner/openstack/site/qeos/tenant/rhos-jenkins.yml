@@ -14,10 +14,11 @@ provisioner:
             external:
                 name: rhos-jenkins
                 id: af671cde-de07-4207-a041-5f7124d9dfaf
-                subnet_cidr: 192.168.1.0/24
-                subnet_gateway: 192.168.1.1
-                allocation_start: 192.168.1.200
-                allocation_end: 192.168.1.220
+                nested:
+                    subnet_cidr: 192.168.1.0/24
+                    subnet_gateway: 192.168.1.1
+                    allocation_pool_start: 192.168.1.200
+                    allocation_pool_end: 192.168.1.220
 
     flavor:
         tiny:  1

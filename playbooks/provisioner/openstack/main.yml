@@ -1,8 +1,91 @@
 ---
+- name: Check if network provisioning enabled
+  hosts: localhost
+  gather_facts: no
+  sudo: no
+  tasks:
+      - group_by: key=net_prov
+        when: provisioner.network.dynamic_net is defined and provisioner.network.dynamic_net
+
+
+- name: Create networks
+  hosts: net_prov
+  gather_facts: no
+  tasks:
+    - name: Create networks
+      quantum_network:
+          auth_url: "{{ provisioner.auth_url }}"
+          login_username: "{{ provisioner.username }}"
+          login_password: "{{ provisioner.password }}"
+          login_tenant_name: "{{ provisioner.tenant_name }}"
+          name: "{{ item.value.name }}"
+      register: "networks"
+      with_dict: "{{ provisioner.network.network_list }}"
+
+- name: Create subnets
+  hosts: net_prov
+  gather_facts: no
+  tasks:
+    - name: Create subnet for each network
+      quantum_subnet:
+          auth_url: "{{ provisioner.auth_url }}"
+          login_username: "{{ provisioner.username }}"
+          login_password: "{{ provisioner.password }}"
+          login_tenant_name: "{{ provisioner.tenant_name }}"
+          name: "{{ item.value.subnet_name }}"
+          cidr: "{{ item.value.cidr }}"
+          network_name: "{{ item.value.name }}"
+          enable_dhcp: "{{ item.value.enable_dhcp | default('True') }}"
+#          dns_nameservers: "{{ item.value.dns_nameservers | join(',') | default('null') }}"
+          dns_nameservers: "{{ item.value.dns_nameservers.first_dns | default(omit) }}"
+          allocation_pool_start: "{{ item.value.allocation_pool_start | default(omit) }}"
+          allocation_pool_end: "{{ item.value.allocation_pool_end | default(omit) }}"
+      register: "subnets"
+      with_dict: "{{ provisioner.network.network_list }}"
+
+- name: Create and configure router
+  hosts: net_prov
+  tasks:
+    - name: Create router
+      quantum_router:
+          auth_url: "{{ provisioner.auth_url }}"
+          login_username: "{{ provisioner.username }}"
+          login_password: "{{ provisioner.password }}"
+          login_tenant_name: "{{ provisioner.tenant_name }}"
+          name: "{{ provisioner.network.router.name }}"
+      register: router
+
+    - name: Attach external interface to the router
+      quantum_router_interface:
+          auth_url: "{{ provisioner.auth_url }}"
+          login_username: "{{ provisioner.username }}"
+          login_password: "{{ provisioner.password }}"
+          login_tenant_name: "{{ provisioner.tenant_name }}"
+          router_name: "{{ provisioner.network.router.name }}"
+          subnet_name: "{{ item }}"
+      with_items:
+          - "{{ provisioner['network']['network_list']['external']['subnet_name'] }}"
+          - "{{ provisioner['network']['network_list']['management']['subnet_name'] }}"
+
+    - name: Set gateway for router
+      quantum_router_gateway:
+          auth_url: "{{ provisioner.auth_url }}"
+          login_username: "{{ provisioner.username }}"
+          login_password: "{{ provisioner.password }}"
+          login_tenant_name: "{{ provisioner.tenant_name }}"
+          network_name: "{{ provisioner.network.public_net_name }}"
+          router_name: "{{ provisioner.network.router.name }}"
+
 - name: Create nodes - OpenStack
   hosts: localhost
   gather_facts: no
   tasks:
+    - name: Get static networks from settings
+      when: networks is not defined
+      set_fact:
+          networks:
+              results: "{{ provisioner.network.network_list.values() }}"
+
     - name: Create nodes
       nova_compute:
            auth_url: "{{ provisioner.auth_url }}"
@@ -15,11 +98,11 @@
            key_name: "{{ provisioner.key_name }}"
            flavor_id: "{{ item.value.flavor_id }}"
            nics:
-              - net-id: "{{ provisioner.network.network_list.management.id }}"
-              - net-id: "{{ provisioner.network.network_list.data.id }}"
-              - net-id: "{{ provisioner.network.network_list.external.id }}"
+              - net-id: "{{ networks.results.0.id }}"
+              - net-id: "{{ networks.results.1.id }}"
+              - net-id: "{{ networks.results.2.id }}"
            config_drive: True
-           auto_floating_ip: "{{ provisioner.network.use_floating_ip }}"
+           auto_floating_ip: "{{ provisioner.network.use_floating_ip | default(omit) }}"
            wait_for: 800
              # our library/nova_compute will retry booting new servers
              # in case of errors, until it reaches 'wait_for' seconds timelimit
@@ -28,16 +111,36 @@
 
     - name: Add created hosts to host list
       add_host:
-        name="{{ item.item.value.name }}"
-        groups="{{ item.item.value.groups
-            if item.item.value.groups is string
-            else item.item.value.groups| join(',') }}"
-        ansible_fqdn="{{ item.item.value.hostname }}"
-        ansible_ssh_user="{{ item.item.value.remote_user }}"
-        ansible_ssh_private_key_file="{{ provisioner.key_file }}"
-        ansible_ssh_host={%- if item.public_ip %}{{ item.public_ip }}{%- else %}{{ item.info.addresses[provisioner.network.network_list.management.name][0].addr }}{% endif %}
-        eth1_interface_ip="{{ item.info.addresses[provisioner.network.network_list.data.name][0].addr }}"
+        name: "{{ item.item.value.name }}"
+        groups: "{{ item.item.value.groups if item.item.value.groups is string else item.item.value.groups| join(',') }}"
+        ansible_fqdn: "{{ item.item.value.hostname }}"
+        ansible_ssh_user: "{{ item.item.value.remote_user }}"
+        ansible_ssh_private_key_file: "{{ provisioner.key_file }}"
+        ansible_ssh_host: "{%- if item.public_ip %}{{ item.public_ip }}{%- else %}{{ item.info.addresses[provisioner.network.network_list.management.name][0].addr }}{% endif %}"
+        eth1_interface_ip: "{{ item.info.addresses[provisioner.network.network_list.data.name][0].addr }}"
       with_items: created_nodes.results
+
+- name: Add Floating IPs
+  hosts: net_prov
+  tasks:
+    - name: assign floating ip to instances
+      quantum_floating_ip:
+          auth_url: "{{ provisioner.auth_url }}"
+          login_username: "{{ provisioner.username }}"
+          login_password: "{{ provisioner.password }}"
+          login_tenant_name: "{{ provisioner.tenant_name }}"
+          instance_name: "{{ item.value.name }}"
+          network_name: "{{ provisioner.network.public_net_name }}"
+          internal_network_name: "{{ provisioner['network']['network_list']['management']['name'] }}"
+      with_dict: provisioner.nodes
+      register: floatingip
+
+    - name: Add Neutron Floating IPs to host list
+      add_host:
+        name: "{{ item.item.value.name }}"
+        ansible_ssh_host: "{{ item.public_ip }}"
+      with_items: floatingip.results
+      when: floatingip
 
 - name: wait for hosts to get reachable
   hosts: openstack_nodes
