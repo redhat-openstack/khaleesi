@@ -85,4 +85,3 @@
       when: rpm_list_result.stat.checksum == rpm_list_updated_result.stat.checksum
 
 - include: ../../../installer/rdo-manager/post/run-overcloud-scale.yml
-- include: ../../../installer/rdo-manager/post/overcloud-test.yml
