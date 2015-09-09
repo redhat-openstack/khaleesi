@@ -161,6 +161,10 @@
       wait_for: path={{ instack_user_home }}/nic-configs/swift-storage.yaml
       when: installer.network.isolation != 'none' and installer.network.isolation != 'default'
 
+    - name: update network-environment.yml file w/ undercloud ip
+      lineinfile: "dest={{ instack_user_home }}/network-environment.yaml state=present  line='  EC2MetadataIp: {{ hostvars['undercloud']['ansible_default_ipv4']['address'] }}'"
+      when: installer.network.isolation != 'none'
+
 #note this is part of the instructions, not sure if this is a workaround anymore
 - name: setup networking on virt for network isolation
   hosts: undercloud:&virthost
