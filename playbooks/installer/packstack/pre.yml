@@ -52,3 +52,14 @@
         when: bz1262357_te_file|changed
       - command: semodule -i /tmp/bz1262357.pp
         when: bz1262357_te_file|changed
+
+- name: Enable patched_rpm repo
+  hosts: controller
+  sudo: yes
+  tasks:
+      - name: Enable patched_rpms repository
+        shell: sed -i 's/enabled=0/enabled=1/' /etc/yum.repos.d/patched_rpms.repo
+        register: shell_result
+        changed_when: "shell_result.rc == 0"
+        failed_when: "shell_result.rc > 2"
+        when: patch is defined
