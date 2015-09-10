@@ -1,7 +1,5 @@
 ---
-- include: pre-{{ installer.env.type }}.yml
-- include: run-undercloud.yml
-- include: run-overcloud.yml
-- include: run-overcloud-status.yml
-- include: post/main.yml
-- include: updates/main.yml
+- include: undercloud/main.yml
+- include: overcloud/main.yml
+- include: "{{ base_dir }}/khaleesi/playbooks/post-deploy/rdo-manager/overcloud-test.yml"
+

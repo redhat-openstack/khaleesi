@@ -1,23 +1,9 @@
 ---
-- include: ../../group_by.yml
-
-- name: test host connection
-  hosts: all:!localhost
-  tasks:
-    - name: test ssh
-      command: hostname
-
-    - name: check distro
-      command: cat /etc/redhat-release
-
-    - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
-
 - name: build or import images
   hosts: undercloud
   tasks:
     - name: setup environment vars
-      template: src=templates/build-img-env.j2 dest=~/build-img-env mode=0755
+      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/build-img-env.j2 dest=~/build-img-env mode=0755
 
     - name: ensure /tmp/svc-map-services is absent
       file: path=/tmp/svc-map-services state=absent
@@ -273,13 +259,13 @@
 
     - name: copy template file with environment variables for overcloud nodes
       template:
-        src=templates/deploy-nodes.j2
+        src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/deploy-nodes.j2
         dest={{ instack_user_home }}/deploy-nodesrc
         mode=0755
 
     - name: copy template file with environment variables for overcloud deploy
       template:
-        src=templates/deploy-overcloudrc.j2
+        src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/deploy-overcloudrc.j2
         dest={{ instack_user_home }}/deploy-overcloudrc
         mode=0755
 

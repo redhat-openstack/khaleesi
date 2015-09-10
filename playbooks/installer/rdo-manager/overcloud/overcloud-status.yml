@@ -1,10 +1,4 @@
 ---
-- name: test host connection
-  hosts: all:!localhost
-  tasks:
-    - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
-
 - name: Post deploy
   hosts: undercloud
   tasks:
@@ -13,7 +7,7 @@
 
     - name: print result of deploy-overcloud install
       debug: var=overcloud_deployment_result.stdout_lines
-      when: overcloud_deployment_result == "0"
+      when: overcloud_deployment_result is defined and overcloud_deployment_result == "0"
 
     - name: See the overcloud deployment
       shell: >
@@ -24,7 +18,7 @@
           openstack server list;
 
     - name: heat debug deploy-overcloud failure
-      when: overcloud_deployment_result != "0"
+      when: overcloud_deployment_result is defined and overcloud_deployment_result != "0"
       ignore_errors: yes
       shell: >
           source {{ instack_user_home }}/stackrc;
@@ -32,37 +26,37 @@
           heat event-list overcloud;
 
     - name: debug deploy-overcloud failure
-      when: overcloud_deployment_result != "0"
+      when: overcloud_deployment_result is defined and overcloud_deployment_result != "0"
       ignore_errors: yes
       shell: >
           source {{ instack_user_home }}/stackrc;
           heat resource-show overcloud ControllerNodesPostDeployment;
 
     - name: debug all deployment failures
-      when: overcloud_deployment_result != "0"
+      when: overcloud_deployment_result is defined and overcloud_deployment_result != "0"
       ignore_errors: yes
       shell: >
           source {{ instack_user_home }}/stackrc;
           for failed_deployment in $(heat resource-list --nested-depth 5 overcloud | grep FAILED | grep 'StructuredDeployment ' | cut -d '|' -f3); do heat deployment-show $failed_deployment; done;
 
     - name: grep for errors in heat-engine.log
-      when: overcloud_deployment_result != "0"
+      when: overcloud_deployment_result is defined and overcloud_deployment_result != "0"
       sudo: yes
       command: "grep ERROR /var/log/heat/heat-engine.log"
 
     - name: show ironic nodes create template
-      when: overcloud_deployment_result != "0"
-      template: src=templates/show_nodes.sh dest={{ instack_user_home }}/show_nodes.sh mode=0755
+      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/show_nodes.sh dest={{ instack_user_home }}/show_nodes.sh mode=0755
+      when: overcloud_deployment_result is defined and overcloud_deployment_result == "0"
 
     - name: show ironic nodes
-      when: overcloud_deployment_result != "0"
       shell: "{{ instack_user_home }}/show_nodes.sh"
+      when: overcloud_deployment_result is defined and overcloud_deployment_result == "0"
 
     - name: copy the undercloud id_rsa key back to the slave
-      fetch: src=~/.ssh/id_rsa dest=../../../id_rsa_undercloud flat=yes
+      fetch: src=~/.ssh/id_rsa dest="{{ base_dir }}/khaleesi/id_rsa_undercloud" flat=yes
 
     - name: copy get-overcloud-nodes.py to undercloud
-      template: src=templates/get-overcloud-nodes.py.j2 dest={{ instack_user_home }}/get-overcloud-nodes.py mode=0755
+      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/get-overcloud-nodes.py.j2 dest={{ instack_user_home }}/get-overcloud-nodes.py mode=0755
 
     - name: fetch overcloud node names and IPs
       register: overcloud_nodes
@@ -77,7 +71,7 @@
       add_host:
         name={{ item.key }}
         groups=overcloud
-        ansible_ssh_host={{ item.value }}
+        ansible_ssh_host={{ item.key }}
         ansible_fqdn={{ item.value }}
         ansible_ssh_user="heat-admin"
         ansible_ssh_private_key_file="{{ lookup('env', 'PWD') }}/id_rsa_undercloud"
@@ -85,10 +79,13 @@
 - name: regenerate the inventory file after adding hosts
   hosts: localhost
   tasks:
+    - name: set_fact for undercloud ip #required for regeneration of ssh.config.ansible
+      set_fact: undercloud_ip={{ hostvars['undercloud']['ansible_default_ipv4']['address'] }}
+
     - name: create inventory from template
       template:
         dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
-        src: ../../provisioner/templates/inventory.j2
+        src: "{{ base_dir }}/khaleesi/playbooks/provisioner/templates/inventory.j2"
 
     - name: symlink inventory to a static name
       file:
@@ -97,10 +94,11 @@
         src: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
 
     - name: regenerate ssh config
-      template: src=templates/ssh_config.j2 dest=../../../ssh.config.ansible mode=0755
+      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/ssh_config.j2 dest={{ base_dir }}/khaleesi/ssh.config.ansible mode=0755
 
 - name: debug output from the overcloud controller
   hosts: overcloud-controller-0
+  gather_facts: no
   tasks:
     - name: ceph status
       sudo: yes
@@ -111,4 +109,4 @@
   hosts: undercloud
   tasks:
     - fail: msg="instack-deploy-overcloud failed, see the above debug information"
-      when: overcloud_deployment_result != "0"
+      when: overcloud_deployment_result is defined and overcloud_deployment_result != "0"

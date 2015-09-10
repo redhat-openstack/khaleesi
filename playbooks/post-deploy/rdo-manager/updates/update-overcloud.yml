@@ -15,9 +15,6 @@
 - name: Update the Overcloud
   hosts: update:!overcloud
   tasks:
-    - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
-
     - name: get plan list
       register: overcloud_uuid_result
       shell: >
@@ -84,4 +81,3 @@
       fail: msg="Failed, no package has been updated..."
       when: rpm_list_result.stat.checksum == rpm_list_updated_result.stat.checksum
 
-- include: ../../../installer/rdo-manager/post/run-overcloud-scale.yml

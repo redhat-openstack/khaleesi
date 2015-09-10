@@ -1,5 +1,5 @@
 ---
-- include: ../../group_by.yml ansible_ssh_user=root
+- include: "{{ base_dir }}/khaleesi/playbooks/group_by.yml ansible_ssh_user=root"
 
 - name: Setup openstack repos
   hosts: "{{ repo_host }}:&RedHat"

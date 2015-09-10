@@ -1,6 +1,0 @@
----
-- include: overcloud-network.yml
-- include: run-overcloud-scale.yml
-- include: run-delete-nodes.yml
-- include: overcloud-validate.yml
-- include: overcloud-test.yml

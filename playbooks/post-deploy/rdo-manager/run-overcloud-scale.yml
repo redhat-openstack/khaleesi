@@ -1,19 +1,7 @@
 ---
-- name: Group hosts by post action - scale_up_node_type
-  hosts: undercloud
-  gather_facts: no
-  tasks:
-    - group_by: key="scale_up_node_type"
-      when: installer.post_action is defined and
-            'scale_up_node_type' in installer.post_action and
-            disabled_scale is not defined
-
 - name: scale overcloud nodes
-  hosts: scale_up_node_type
+  hosts: undercloud
   tasks:
-    - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
-
     - name: set node type to scale
       set_fact: node_to_scale={{item}}
       when: installer.nodes.{{item}}.scale_change is defined
@@ -41,7 +29,7 @@
 
     - name: copy template file with environment variables for overcloud deploy
       template:
-        src=../templates/deploy-overcloudrc.j2
+        src={{ base_dir }}/khaleesi/playbooks/installer/templates/deploy-overcloudrc.j2
         dest={{ instack_user_home }}/deploy-overcloudrc
         mode=0755
 

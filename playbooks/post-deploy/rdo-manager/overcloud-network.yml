@@ -1,17 +1,14 @@
 ---
-- name: Group hosts by post action - create neutron networks for overcloud
-  hosts: all:!localhost
+- name: Group hosts by post action - tempest
+  hosts: undercloud
   gather_facts: no
   tasks:
-    - group_by: key="setup_network"
-      when: "installer.post_action is defined and 'setup_network' in installer.post_action"
+    - group_by: key="tempest"
+      when: installer.tempest.enabled|bool
 
 - name: configure neutron
-  hosts: undercloud:&setup_network
+  hosts: tempest
   tasks:
-    - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
-
     - name: get admin password
       register: get_admin_password_result
       shell: >

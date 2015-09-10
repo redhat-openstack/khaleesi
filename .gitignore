@@ -28,6 +28,7 @@ ssh.config.ansible
 stackrc
 id_rsa*
 hosts
+*-hosts
 ksgen_settings.yml
 instack_hosts
 doc/_build/

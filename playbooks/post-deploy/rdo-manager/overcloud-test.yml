@@ -1,20 +1,16 @@
 ---
+- include: overcloud-network.yml
+
 - name: Group hosts by post action - tempest
   hosts: undercloud
   gather_facts: no
   tasks:
     - group_by: key="tempest"
-      when: installer.post_action is defined and
-            'tempest' in installer.post_action and
-            installer.tempest.enabled|bool and
-            disabled_tempest is not defined
+      when: installer.tempest.enabled|bool
 
 - name: Execute tempest
   hosts: tempest
   tasks:
-    - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
-
     - name : create tempest directory
       file: path={{ instack_user_home }}/tempest state=directory
 
@@ -83,4 +79,4 @@
 
     - name: fetch tempest result
       fetch: src={{ installer.tempest.dir }}/tempest.xml dest={{ lookup('env', 'PWD') }}/nosetests.xml flat=yes
-      when: installer.tempest.enabled is defined
+

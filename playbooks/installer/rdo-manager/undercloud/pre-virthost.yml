@@ -212,7 +212,7 @@
       sudo: yes
 
     - name: setup environment vars
-      template: src=templates/virt-setup-env.j2 dest=~/virt-setup-env mode=0755
+      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/virt-setup-env.j2 dest=~/virt-setup-env mode=0755
 
     - name: Contents of virt-setup-env
       shell: >
@@ -294,8 +294,20 @@
     - name: set_fact for undercloud ip
       set_fact: undercloud_ip={{ undercloud_vm_ip_result.stdout }}
 
+- name: setup the virt host
+  hosts: localhost
+  tasks:
+    - name: set_fact for undercloud ip
+      set_fact: undercloud_ip={{ hostvars['host0'].undercloud_ip }}
+
+    - name: debug undercloud_ip
+      debug: var=hostvars['localhost'].undercloud_ip
+
+- name: setup the virt host
+  hosts: virthost
+  tasks:
     - name: wait until ssh is available on undercloud node
-      wait_for: host={{ undercloud_ip }}
+      wait_for: host={{ hostvars['localhost'].undercloud_ip }}
             state=started
             port=22
             delay=15
@@ -311,16 +323,13 @@
         ansible_ssh_private_key_file="{{ provisioner.key_file }}"
 
     - name: setup ssh config
-      template: src=templates/ssh_config.j2 dest=~/ssh.config.ansible mode=0755
-
-    - name: print PWD
-      debug: var=ansible_env.PWD
+      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/ssh_config.j2 dest=~/ssh.config.ansible mode=0755
 
     - name: copy ssh_config back to the slave
-      fetch: src=~/ssh.config.ansible dest=../../../ssh.config.ansible flat=yes
+      fetch: src=~/ssh.config.ansible dest="{{ base_dir }}/khaleesi/ssh.config.ansible" flat=yes
 
     - name: copy id_rsa key back to the slave
-      fetch: src=~/.ssh/id_rsa dest=../../../id_rsa_virt_host flat=yes
+      fetch: src=~/.ssh/id_rsa dest="{{ base_dir }}/khaleesi/id_rsa_virt_host" flat=yes
 
     - name: copy undercloud root user authorized_keys to stack user
       shell: 'ssh -F ssh.config.ansible undercloud-from-virthost "cp /root/.ssh/authorized_keys /home/stack/.ssh/"'
@@ -334,7 +343,7 @@
     - name: create inventory from template
       template:
         dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
-        src: ../../provisioner/templates/inventory.j2
+        src: "{{ base_dir }}/khaleesi/playbooks/provisioner/templates/inventory.j2"
 
     - name: symlink inventory to a static name
       file:

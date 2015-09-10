@@ -1,18 +1,7 @@
 ---
-#Note, this playbook is limited to removing one node at a time atm
-- name: Group hosts by post action - delete-node
-  hosts: all:!localhost
-  gather_facts: no
-  tasks:
-    - group_by: key="delete_node"
-      when: "installer.post_action is defined and 'delete_node' in installer.post_action"
-
 - name: delete an overcloud node of a certain type
-  hosts: undercloud:&delete_node
+  hosts: undercloud
   tasks:
-    - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
-
     - name: set node type to delete
       set_fact: node_type_to_delete={{item}}
       when: installer.nodes.{{item}}.scale_change is defined
