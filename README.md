@@ -1,4 +1,13 @@
 Getting Started with Khaleesi.
------------------------
+------------------------------
 
-http://khaleesi.readthedocs.org/en/latest/
+Docs:
+`````
+
+    http://khaleesi.readthedocs.org/en/latest/
+
+Bugs / RFE:
+```````````
+
+    https://bugzilla.redhat.com/buglist.cgi?bug_status=__open__&product=khaleesi
+
