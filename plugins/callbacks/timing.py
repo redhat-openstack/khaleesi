@@ -8,6 +8,10 @@ class CallbackModule(object):
     def __init__(self, *args, **kwargs):
         super(CallbackModule, self).__init__(*args, **kwargs)
 
+        # capture datetime.now for __del__, as otherwise
+        # it may be destroyed before this instance is
+        self.__dtnow = datetime.now
+
         self.__debug_time = {
             'playbook': None,
             'play': None,
@@ -23,7 +27,7 @@ class CallbackModule(object):
 
     def __nexttime(self, which):
         old = self.__debug_time[which]
-        now = datetime.now()
+        now = self.__dtnow()
         self.__debug_time[which] = now
 
         if old is not None:
