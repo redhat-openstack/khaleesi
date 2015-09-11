@@ -6,9 +6,6 @@
     - name: Group by provisioner type
       group_by: key={{ provisioner.type }}
 
-    - name: ensure correct key_file permission
-      file: path={{ provisioner.key_file }} mode=0600
-
     - name: Add the host to the inventory
       when: installer.type in ['rdo-manager']
       add_host:
