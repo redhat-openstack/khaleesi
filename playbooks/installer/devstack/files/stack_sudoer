@@ -1,0 +1,3 @@
+Defaults:stack !requiretty
+
+stack ALL=(ALL)	NOPASSWD: ALL

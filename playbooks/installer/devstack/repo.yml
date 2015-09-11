@@ -1,0 +1,29 @@
+---
+- include: ../../group_by.yml
+
+# setup packstack prerequisites
+- name: Setup openstack repos
+  hosts: openstack_nodes
+  gather_facts: yes
+  sudo: yes
+
+- name: Setup epel repos
+  hosts: all:!localhost:&RedHat:&CentOS
+  gather_facts: yes
+  sudo: yes
+  tasks:
+      - name: Install epel release
+        command: "yum localinstall -y {{ distro.epel_release }}"
+
+- name: RHEL RDO prep
+  hosts: all:!localhost:&RedHat
+  sudo: yes
+  roles:
+    - { role: linux/rhel/rdo }
+
+- name: CentOS RDO prep
+  hosts: all:!localhost:&CentOS
+  sudo: yes
+  roles:
+    - { role: linux/centos }
+

@@ -1,0 +1,39 @@
+---
+- name: Create ssh key if one does not exist
+  hosts: controller
+  gather_facts: no
+  sudo: yes
+  tasks:
+      - name: create key
+        #this will not overwrite an existing key
+        user: name=root generate_ssh_key=yes
+
+      - name: fetch ssh-key generated from controller
+        fetch: src=/root/.ssh/id_rsa.pub dest=/tmp/ssh_keys/ flat=yes fail_on_missing=yes
+
+- name: Copy ssh-key to compute and network hosts
+  hosts: openstack_nodes
+  gather_facts: no
+  sudo: yes
+  tasks:
+    - name: copy ssh-key to nodes
+      authorized_key: user=root key="{{ lookup('file', '/tmp/ssh_keys/id_rsa.pub') }}"
+
+
+- name: "Prepare devstack user and directories"
+  hosts: openstack_nodes
+  gather_facts: no
+  sudo: yes
+  tasks:
+    - name: Create stack user
+      user: name=stack shell=/bin/bash home=/opt/stack/new createhome=no
+
+    - name: Create /opt/stack/new
+      file: mode=775 state=directory owner=stack recurse=yes path=/opt/stack/new
+
+    - name: add to the sudoers
+      copy: dest=/etc/sudoers.d/stack src=files/stack_sudoer mode=600 owner=root
+
+    - name: install git
+      # Expected to work with dnf based systems as well
+      shell: yum install -y git

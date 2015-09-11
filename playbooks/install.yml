@@ -46,7 +46,7 @@
             router_external: yes
             shared: no
             admin_state_up: yes
-        when: installer is defined and installer.network.type == 'neutron'
+        when: installer is defined and installer.network.type == 'neutron' and installer.type != 'devstack'
 
       - name: Create subnet for external network - neutron
         quantum_subnet:
@@ -63,4 +63,4 @@
             cidr: "{{ provisioner.network.network_list.external.subnet_cidr}}"
             allocation_pool_start: "{{ provisioner.network.network_list.external.allocation_start }}"
             allocation_pool_end: "{{ provisioner.network.network_list.external.allocation_end }}"
-        when: installer is defined and installer.network.type == 'neutron'
+        when: installer is defined and installer.network.type == 'neutron' and installer.type != 'devstack'

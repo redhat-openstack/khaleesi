@@ -1,0 +1,72 @@
+[[local|localrc]]
+TEMPEST_ALLOW_TENANT_ISOLATION='True'
+API_RATE_LIMIT='False'
+TERMINATE_TIMEOUT='60'
+SYSLOG='False'
+
+{% if installer.devstack.plugins is defined %}
+ {% for plug in installer.devstack.plugins %}
+enable_plugin {{ plug.name }} {{ plug.git_url }} {{ plug.git_ref|default ('') }}
+ {% endfor %}
+{% endif %}
+
+
+ENABLED_SERVICES="{{- installer.devstack.srv_distribution.all | join(",") -}},
+{%- if inventory_hostname in groups['controller'] -%}
+ {{ installer.devstack.srv_distribution.controller | join(",") }},
+{%- endif -%}
+
+{%- if inventory_hostname in groups['network'] -%}
+ {{ installer.devstack.srv_distribution.network | join(",") }},
+{%- endif -%}
+
+{%- if inventory_hostname in groups['compute'] -%}
+ {{ installer.devstack.srv_distribution.compute | join(",") }}
+{%- endif -%}"
+
+
+# same as in configure-tempest.j2
+ADMIN_PASSWORD='{{ hostvars[provisioner.nodes.controller.name].admin_password|default('redhat') }}'
+SERVICE_PASSWORD='secret'
+MYSQL_PASSWORD='secret'
+RABBIT_PASSWORD='secret'
+DATABASE_PASSWORD='secret'
+
+SERVICE_HOST='{{ controller_host }}'
+{{ installer.messaging.host_var }}='{{ controller_host }}'
+
+DATABASE_TYPE='{{ installer.database.type }}'
+ROOTSLEEP='0'
+FORCE='yes'
+FIXED_RANGE='10.1.0.0/24'
+TEMPEST_HTTP_IMAGE='http://google.com'
+NOVNC_FROM_PACKAGE='False'
+# TODO add mirror support
+# IMAGE_URLS='http://<mirror_host>/images/cirros-0.3.4-x86_64-uec.tar.gz'
+# DEFAULT_IMAGE_NAME='cirros-0.3.4-x86_64-uec'
+PIP_USE_MIRRORS='True'
+PRECACHE_IMAGES='False'
+SWIFT_REPLICAS='1'
+CEILOMETER_PIPELINE_INTERVAL='60'
+CIRROS_VERSION='0.3.4'
+DEST='/opt/stack/new'
+CINDER_PERIODIC_INTERVAL='10'
+FIXED_NETWORK_SIZE='256'
+SWIFT_LOOPBACK_DISK_SIZE='8G'
+BOOT_TIMEOUT='90'
+VOLUME_BACKING_FILE_SIZE='16G'
+export OS_NO_CACHE='True'
+LOGFILE='/opt/stack/new/devstacklog.txt'
+VERBOSE='True'
+SERVICE_TOKEN='111222333444'
+ACTIVE_TIMEOUT='90'
+CINDER_SECURE_DELETE='False'
+ASSOCIATE_TIMEOUT='60'
+SWIFT_HASH='1234123412341234'
+LOGDIR='/opt/stack/new/screen-logs'
+NETWORK_GATEWAY='10.1.0.1'
+SCREEN_LOGDIR='/opt/stack/new/screen-logs'
+VIRT_DRIVER='libvirt'
+LOG_COLOR='False'
+FLOATING_RANGE='172.24.4.0/24'
+SCREEN_SLEEP=0.1

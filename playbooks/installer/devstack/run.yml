@@ -1,0 +1,44 @@
+---
+- name: Setup devstack on controller
+  hosts: controller:network:compute
+  gather_facts: yes
+  sudo: yes
+  sudo_user: stack
+  vars:
+    controller_name: "{{ provisioner.nodes.controller.name }}"
+    controller_host: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"
+    devstack_git: "{{ installer.devstack.git_root| default ('https://github.com') }}/openstack-dev/devstack"
+  tasks:
+
+      - name: Fetch devstack
+        git: repo={{ devstack_git }} dest=/opt/stack/new/devstack force=yes
+
+      - name: Fetch the local.conf
+        template:
+            src={{ installer.devstack.base_template | default ('files/local_conf.j2') }}
+            dest=/opt/stack/new/devstack/local.conf
+
+- name: Setup controller (messaging..)
+  hosts: controller
+  gather_facts: no
+  sudo: yes
+  sudo_user: stack
+  tasks:
+
+      - name: Running devstack
+        shell: "/opt/stack/new/devstack/stack.sh && touch /opt/stack/devstack-already-done"
+        args:
+          creates: /opt/stack/devstack-already-done
+
+
+- name: Setup all other openstack node
+  hosts: network:compute:!controller
+  gather_facts: no
+  sudo: yes
+  sudo_user: stack
+  tasks:
+
+      - name: Running devstack
+        shell: "/opt/stack/new/devstack/stack.sh && touch /opt/stack/devstack-already-done"
+        args:
+          creates: /opt/stack/devstack-already-done
