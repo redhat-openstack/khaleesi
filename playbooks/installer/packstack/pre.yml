@@ -18,3 +18,37 @@
   tasks:
     - name: copy ssh-key to nodes
       authorized_key: user=root key="{{ lookup('file', '/tmp/ssh_keys/id_rsa.pub') }}"
+
+- name: "Group for workaround of RHBZ#1262357 - ovs-vsctl hangs"
+  hosts: openstack_nodes
+  gather_facts: no
+  sudo: no
+  tasks:
+      - group_by: key=workaround_bz1262357
+        when: workarounds['bz1262357']['enabled'] is defined and workarounds['bz1262357']['enabled'] | bool
+
+- name: "Workaround RHBZ#1262357 new ovs-vsctl hangs"
+  hosts: workaround_bz1262357
+  gather_facts: no
+  sudo: yes
+  tasks:
+      - copy:
+          dest: /tmp/bz1262357.te
+          content: |
+              module bz1262357 1.0;
+
+              require {
+                  type modules_dep_t;
+                  type openvswitch_t;
+                  class file { read getattr open };
+              }
+
+              #============= openvswitch_t ==============
+              allow openvswitch_t modules_dep_t:file { read getattr open };
+        register: bz1262357_te_file
+      - command: checkmodule -M -m -o /tmp/bz1262357.mod /tmp/bz1262357.te
+        when: bz1262357_te_file|changed
+      - command: semodule_package -o /tmp/bz1262357.pp -m /tmp/bz1262357.mod
+        when: bz1262357_te_file|changed
+      - command: semodule -i /tmp/bz1262357.pp
+        when: bz1262357_te_file|changed
