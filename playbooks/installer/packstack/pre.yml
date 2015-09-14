@@ -63,3 +63,30 @@
         changed_when: "shell_result.rc == 0"
         failed_when: "shell_result.rc > 2"
         when: patch is defined
+
+- name: Check if BZ1261491 is enabled
+  hosts: controller
+  gather_facts: no
+  sudo: no
+  tasks:
+    - group_by: key=workaround_bz1261491
+      when: workarounds.bz1261491 is defined
+
+- name: Workaround for BZ1261491
+  hosts: workaround_bz1261491
+  gather_facts: yes
+  sudo: yes
+  tasks:
+    - name: set proper hostname
+      hostname: name="{{ hostvars[inventory_hostname].inventory_hostname }}"
+
+    - name: update hosts file
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '.*{{ inventory_hostname }}$'
+        line: "{{ hostvars[inventory_hostname].ansible_default_ipv4.address }} {{inventory_hostname}}"
+        state: present
+      when: hostvars[inventory_hostname].ansible_default_ipv4.address is defined
+
+    - name: restart systemd-hostnamed
+      service: name=systemd-hostnamed state=restarted
