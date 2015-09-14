@@ -14,6 +14,14 @@
     - Yum clean all
   when: product.repo_type in ['delorean', 'delorean_mgt'] and product.repo.delorean_pin_version is not defined
 
+- name: Create the upstream delorean dependency repositories for EPEL RDO
+  get_url: url="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}/{{ product.repo.delorean_deps.repo_file }}"
+            dest=/etc/yum.repos.d/rdo-trunk-release-deps.repo
+            mode=0644
+  notify:
+    - Yum clean all
+  when: product.repo_type in ['delorean', 'delorean_mgt'] and product.repo.delorean_deps is defined
+
 - name: Create the pinned upstream delorean repositories for EPEL RDO
   get_url: url="{{ product.repo['delorean'][ansible_distribution][ansible_distribution_version] }}/{{product.repo.delorean_pin_version}}/{{ product.repo.delorean.repo_file }}"
             dest=/etc/yum.repos.d/rdo-trunk-release.repo
