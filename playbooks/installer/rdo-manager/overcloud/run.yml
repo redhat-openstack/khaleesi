@@ -159,6 +159,19 @@
     - name: add oter variables to param.ini file
       local_action: shell echo -e "PARENT_WORKSPACE_DIR={{ base_dir }}\nREMOTE_FILE_SERVER={{ installer.custom_deploy.image.remote_file_server }}\nIMAGE_NAME={{ installer.custom_deploy.image.name }}\nPROVISION_CIDR={{ installer.custom_deploy.host_cloud_networks.provision.cidr }}\nPRIVATE_CIDR={{ installer.custom_deploy.host_cloud_networks.private.cidr }}\nPUBLIC_CIDR={{ installer.custom_deploy.host_cloud_networks.public.cidr }}" >> {{ base_dir }}/param.ini
 
+    - name: get ctlplane subnet uuid
+      register: ctlplane_subnet_uuid
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          neutron net-show ctlplane -f value -F subnets;
+      when: installer.env.type == "virthost"
+
+    - name: update dns server on ctlplane
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          neutron subnet-update {{ ctlplane_subnet_uuid.stdout }} --dns_nameservers list=true {{ hw_env.dns_server }}
+      when: installer.env.type == "virthost"
+
 - name: deploy the overcloud
   hosts: undercloud
   tasks:
