@@ -105,6 +105,15 @@
       command: ceph status
       ignore_errors: yes
 
+- name: dump puppet apply logs into /var/log for collection
+  hosts: overcloud
+  gather_facts: no
+  tasks:
+    - name: get overcloud puppet logs
+      sudo: yes
+      shell: journalctl -u os-collect-config > /var/log/os-collect-config.log
+      ignore_errors: yes
+
 - name: fail playbook when instack-deploy-overcloud fails
   hosts: undercloud
   tasks:
