@@ -6,11 +6,6 @@
 - name: Create the RHEL Repositories
   template: src=rhel.repo.j2 dest=/etc/yum.repos.d/rhel_ci.repo
 
-
-- name: Create the EPEL Repository
-  template: src=epel.repo.j2 dest=/etc/yum.repos.d/epel.repo
-
-
 #WORKAROUND
 - name: Ensure /etc/sysconfig/iptables-services
   copy: src=iptables dest=/etc/sysconfig/iptables owner=root group=root mode=0600 force=no
