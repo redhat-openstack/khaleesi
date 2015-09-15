@@ -6,16 +6,4 @@
 - name: Create the RHEL Repositories
   template: src=rhel.repo.j2 dest=/etc/yum.repos.d/rhel_ci.repo
 
-#WORKAROUND
-- name: Ensure /etc/sysconfig/iptables-services
-  copy: src=iptables dest=/etc/sysconfig/iptables owner=root group=root mode=0600 force=no
-
-- name: Ensure iptables
-  yum: name=iptables state=present
-
-- name: WORKAROUND | BZ | Ensure iptables-services
-  yum: name=iptables-services state=present
-  tags: workaround
-  when: workaround_rhel7_iptable_services|default(false)
-        and ansible_distribution_version == "7.0"
 
