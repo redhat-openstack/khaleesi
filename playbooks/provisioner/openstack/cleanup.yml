@@ -11,7 +11,5 @@
            login_password: "{{ provisioner.password }}"
            login_tenant_name: "{{ provisioner.tenant_name }}"
            name: "{{ item.value.name }}"
-           wait_for: 240
-             # our library/nova_compute module retries deletion until
-             # server was deleted or 'wait_for' seconds is reached
+           wait: "no"
       with_dict: provisioner.nodes
