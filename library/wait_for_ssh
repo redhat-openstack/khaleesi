@@ -148,7 +148,10 @@ fi
 [[ ! -z "$user" ]] && ssh_opts="$ssh_opts -o User=$user"
 if [[ ! -z "$key" ]]; then
     if [[ ! -f "$key" ]]; then
-        echo "Unable to read keyfile $key!" >&2
+        echo "Unable to read keyfile '$key'!" >&2
+        if [[ "$key" != "$(readlink -f "$key")" ]]; then
+            echo "Seems you did not specified full absolute path to the key." >&2
+        fi
         finish $E_MISCONF
     fi
     ssh_opts="$ssh_opts -i $key"
