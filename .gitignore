@@ -30,3 +30,4 @@ id_rsa*
 hosts
 ksgen_settings.yml
 instack_hosts
+doc/_build/
