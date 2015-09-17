@@ -1,0 +1,18 @@
+- name: Copy test results to convert them into junit xml format
+  shell: |
+   find '{{ component_path}}/.testrepository/' -regex '.*/[0-9]+' \
+       | while read name; do cat "$name"; done \
+           > '{{ component_path }}/results.subunit'
+
+- name: Convert test results
+  shell: >
+      cat results.subunit | subunit-1to2 > results.subunit2;
+      cat results.subunit2 | subunit2junitxml > tests_results.xml
+  args:
+      chdir: "{{ component_path }}"
+  ignore_errors: true
+
+- name: Fetch test results from remote node
+  fetch: src="{{ component_path }}/tests_results.xml"
+         dest={{ lookup('env', 'PWD') }}/tests_results.xml
+         flat=yes

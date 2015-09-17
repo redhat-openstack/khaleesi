@@ -1,2 +1,5 @@
 ---
-- include: ../common/component/main.yml
+- name: Run tests
+  hosts: controller
+  roles:
+    - component-test/run

@@ -1,4 +1,14 @@
 ---
+- name: Install packages to convert and publish tests results
+  sudo: yes
+  hosts: controller
+  tasks:
+      - name: Install packages to convert subunit stream into junitxml
+        yum: name={{ item }} state=present
+        with_items:
+            - subunit-filters
+            - python-junitxml
+
 - name: print test configuration
   hosts: controller
   tasks:

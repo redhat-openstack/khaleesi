@@ -1,4 +1,11 @@
 ---
+- name: install packages to convert tests results into junitxml format
+  sudo: yes
+  yum: name={{ item }} state=present
+  with_items:
+      - subunit-filters
+      - python-junitxml
+
 - name: compute the directory basename
   set_fact: component_basename={{ tester.component.dir.split('/')|last }}
 
