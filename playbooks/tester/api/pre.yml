@@ -37,15 +37,14 @@
             keystone tenant-create --name demo;
             keystone user-create --name demo --pass secrete --tenant-id `keystone tenant-get demo | grep id | awk -F'|' '{print $3}' | tr -d ' '`
 
-      - name: Additional component setup
-        sudo: yes
-        shell: "{{ item }}"
-        with_items: "{{ tester.component.setup }}"
-        when: tester.component.setup is defined
-
       - name: Set tempest api environment
         shell: >
             echo "export OS_USERNAME=demo" >> ~/.bash_profile;
             echo "export OS_PASSWORD=secrete" >> ~/.bash_profile;
             echo "export OS_TENANT_NAME=demo" >> ~/.bash_profile;
             echo "export OS_AUTH_URL=http://127.0.0.1:5000/v2.0" >> ~/.bash_profile
+
+- name: Install vpnaas
+  hosts: controller
+  roles:
+    - component-test/neutron/vpnaas
