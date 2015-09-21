@@ -16,14 +16,9 @@
   hosts: openstack_nodes:!tester
   sudo: yes
   tasks:
-    - name: Iptables - Set default rules
+    - name: Iptables - Reset Rules To Default Drop
       command: "iptables {{ item }}"
       with_items: installer.firewall.rules
-
-    # packstack does not change the rules if they do not conflict and
-    # they are saved, so save them.
-    - name: Iptables - Save default rules
-      shell: /usr/sbin/iptables-save >/etc/sysconfig/iptables
 
 - include: installer/{{ installer.type }}/main.yml
 
