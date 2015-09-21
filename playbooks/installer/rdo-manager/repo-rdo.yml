@@ -15,6 +15,11 @@
           - epel-release
           - rhos-release
 
+      - name: remove any yum repos not owned by rpm
+        file: path=/etc/yum.repos.d/{{ item }} state=absent
+        with_items:
+          - beaker-*
+
       - name: Install release tool on machine
         command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}"
 
