@@ -16,7 +16,7 @@
           - rhos-release
 
       - name: remove any yum repos not owned by rpm
-        file: path=/etc/yum.repos.d/{{ item }} state=absent
+        shell: rm -Rf /etc/yum.repos.d/{{ item }}
         with_items:
           - beaker-*
 
