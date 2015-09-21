@@ -1,7 +1,4 @@
-# With Ansible 1.8, you should be able use this file directly. Ansible 1.7.2
-# doesn't seem to expand the environment variables ($VIRTUAL_ENV). So you have 
-# to do it yourself, or let bash do it for you (: .
-
+# With Ansible >=1.8, you should be able use this file directly.
 [defaults]
 host_key_checking = False
 
