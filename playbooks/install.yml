@@ -17,9 +17,14 @@
   sudo: yes
   serial: 1
   tasks:
-    - name: Iptables - Reset Rules To Default Drop
+    - name: Iptables - Set default rules
       command: "iptables {{ item }}"
       with_items: installer.firewall.rules
+
+    # packstack does not change the rules if they do not conflict
+    # and they are saved, so save them.
+    - name: Iptables - Save default rules
+      shell: /usr/sbin/iptables-save >/etc/sysconfig/iptables
 
 - include: installer/{{ installer.type }}/main.yml
 
