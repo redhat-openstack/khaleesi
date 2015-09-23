@@ -2,7 +2,7 @@
 export DIB_LOCAL_IMAGE={{ distro.images[distro.name][distro.version].guest_image_name }}
 export USE_DELOREAN_TRUNK=0
 export RHOS=1
-export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-7-director-rhel-7.1.repo /etc/yum.repos.d/rhos-release-7-rhel-7.1.repo"
+export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-7-director.repo /etc/yum.repos.d/rhos-release-rhel-7.1.repo"
 export NODE_DIST=rhel7
 {%endif %}
 
@@ -18,7 +18,7 @@ export REG_REPOS="rhel-7-server-rpms rhel-7-server-extras-rpms rhel-ha-for-rhel-
 
 {% if product.name == "rdo" and distro.name == "rhel" and product.repo_type_override is defined and product.repo_type_override == 'rhos-release' %}
 export DIB_LOCAL_IMAGE={{ distro.images[distro.name][distro.version].guest_image_name }}
-export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-7-director-rhel-7.1.repo /etc/yum.repos.d/rhos-release-7-rhel-7.1.repo"
+export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-7-director.repo /etc/yum.repos.d/rhos-release-rhel-7.1.repo"
 export NODE_DIST=rhel7
 {%endif %}
 
