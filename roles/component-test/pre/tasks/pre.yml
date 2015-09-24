@@ -1,11 +1,4 @@
 ---
-- name: install packages to convert tests results into junitxml format
-  sudo: yes
-  yum: name={{ item }} state=present
-  with_items:
-      - subunit-filters
-      - python-junitxml
-
 - name: compute the directory basename
   set_fact: component_basename={{ tester.component.dir.split('/')|last }}
 
@@ -55,6 +48,13 @@
   template: src=../templates/copr-repo.j2 dest=/etc/yum.repos.d/test-reqs-copr.repo
   sudo: yes
   when: ansible_distribution_version|int >= 6
+
+- name: install packages to convert tests results into junitxml format
+  sudo: yes
+  yum: name={{ item }} state=present
+  with_items:
+      - subunit-filters
+      - python-junitxml
 
 - name: print tester component dir
   debug: var=tester.component.dir
