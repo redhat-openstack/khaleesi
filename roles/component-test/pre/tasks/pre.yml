@@ -38,7 +38,7 @@
 
 - name: Install release tool on machines
   sudo: yes
-  command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/{{ product.name }}-release-latest.noarch.rpm"
+  command: "yum localinstall -y {{ product.rpm }}"
 
 - name: Execute rhos-release for packstack poodle/puddle
   sudo: yes
