@@ -2,7 +2,7 @@
 export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
 export USE_DELOREAN_TRUNK=0
 export RHOS=1
-export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-rhel-7.1.repo /etc/yum.repos.d/rhos-release-7-director.repo"
+export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-7-director-rhel-7.1.repo /etc/yum.repos.d/rhos-release-7-rhel-7.1.repo"
 export NODE_DIST=rhel7
 {%endif %}
 
@@ -11,7 +11,7 @@ export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_versio
 export NODE_DIST=rhel7
 export RUN_RHOS_RELEASE=1
 export RHOS_RELEASE=7-director
-export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-rhel-7.1.repo /etc/yum.repos.d/rhos-release-7-director.repo"
+export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-7-director-rhel-7.1.repo /etc/yum.repos.d/rhos-release-7-rhel-7.1.repo"
 {%endif %}
 
 {% if product.repo_type_override is defined and product.repo_type_override == 'rhsm' %}
