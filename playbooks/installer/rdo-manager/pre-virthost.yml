@@ -192,7 +192,7 @@
 
     - name: get the guest-image
       sudo: yes
-      get_url: > 
+      get_url: >
         url="{{ distro.images[distro.name][distro.version].remote_file_server }}{{ distro.images[distro.name][distro.version].guest_image_name }}"
         dest=/root/{{ distro.images[distro.name][distro.version].guest_image_name }}
 
@@ -206,6 +206,13 @@
         path={{instack_user_home}}/{{ distro.images[distro.name][distro.version].guest_image_name }}
         owner={{ provisioner.remote_user }}
         group={{ provisioner.remote_user }}
+
+    - name: install rdo-manager-deps
+      yum: name={{item}} state=present
+      sudo: yes
+      with_items:
+        - yum-plugin-priorities
+        - python-tripleoclient
 
     - name: install python-rdomanager-oscplugin
       yum: name=python-rdomanager-oscplugin state=present

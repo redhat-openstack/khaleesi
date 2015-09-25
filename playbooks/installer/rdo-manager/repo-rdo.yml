@@ -20,18 +20,19 @@
         with_items:
           - beaker-*
 
-      - name: Install release tool on machine
-        command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}"
+      - name: Enable last known good RDO Trunk Delorean repository
+        shell: "curl -o /etc/yum.repos.d/delorean.repo http://trunk.rdoproject.org/centos7/current-tripleo/delorean.repo"
 
-        #remove this step when rdo and rhos diverge
-      - name: Install extra release tool on machine
-        command: "yum localinstall -y {{ product.rpmrepo_override[ansible_distribution] }}"
-        when: product_override_version is defined and product.repo_type_override == 'rhos-release'
+      - name: Enable latest RDO Trunk Delorean repository
+        shell: >
+          curl -o /etc/yum.repos.d/delorean-current.repo http://trunk.rdoproject.org/centos7/current/delorean.repo;
+          sed -i 's/\[delorean\]/\[delorean-current\]/' /etc/yum.repos.d/delorean-current.repo;
+          curl -o /etc/yum.repos.d/delorean-deps.repo http://trunk.rdoproject.org/centos7/delorean-deps.repo
 
-        #remove this step when rdo and rhos diverge
-      - name: Execute rhos-release for rdo-manager (rdo)
-        command: "rhos-release {{ product_override_version }}"
-        when: product_override_version is defined and product.repo_type_override == 'rhos-release'
+      - name: Update delorean-current.repo
+        shell: >
+          printf "\n" >> /etc/yum.repos.d/delorean-current.repo;
+          printf "includepkgs=diskimage-builder,openstack-heat,instack,instack-undercloud,openstack-ironic,openstack-ironic-inspector,os-cloud-config,os-net-config,python-ironic-inspector-client,python-tripleoclient,tripleo-common,openstack-tripleo-heat-templates,openstack-tripleo-image-elements,openstack-tuskar-ui-extras,openstack-puppet-modules" >> /etc/yum.repos.d/delorean-current.repo
 
       - name: Install epel release
         command: "yum localinstall -y {{ distro.epel_release }}"
