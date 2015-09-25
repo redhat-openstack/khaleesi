@@ -53,7 +53,8 @@
           identity.uri $OS_AUTH_URL \
           identity.admin_password $OS_PASSWORD \
           network.tenant_network_cidr 192.168.0.0/24 \
-          object-storage.operator_role swiftoperator
+          object-storage.operator_role swiftoperator \
+          orchestration.stack_owner_role heat_stack_owner
       when: installer.tempest.test_regex is defined and
             installer.tempest.test_regex != "tempest\.scenario\.test_minimum_basic"
 
