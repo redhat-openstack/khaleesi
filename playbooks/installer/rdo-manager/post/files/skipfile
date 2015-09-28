@@ -20,3 +20,5 @@
 -tempest.api.volume.admin.test_volumes_backup.VolumesBackupsV2Test.test_volume_backup_create_get_detailed_list_restore_delete
 -tempest.api.volume.test_volumes_snapshots.VolumesV1SnapshotTestJSON.test_volume_from_snapshot
 -tempest.api.volume.test_volumes_snapshots.VolumesV2SnapshotTestJSON.test_volume_from_snapshot
+# BZ 1266947
+-tempest.api.identity.admin.v3
