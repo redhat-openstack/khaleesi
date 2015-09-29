@@ -13,6 +13,14 @@
     - redhat-lsb-core
     - rsync
 
+# We need to kill dhclient before next step - this is needed if host
+# has not been correctly reprovisioned and network restart failed
+# before or because of network restart failures caused by dhclient in general
+- name: kill dhclient before network restart
+  shell: pkill -9 dhclient
+  ignore_errors: yes
+  when: installer.network_restart is defined and installer.network_restart == True
+
 - name: restart the network if env requires
   service: name=network state=restarted
   ignore_errors: yes
@@ -26,9 +34,8 @@
   shell: pkill -9 NetworkManager
   ignore_errors: yes    # When no NM running, killall exits with 1
 
-# We need to kill dhclient before next step - this is needed if host
-# has not been correctly reprovisioned and next step failed before
-- name: kill all dhclients
+# We need to kill dhclient before network restart again
+- name: kill dhclient before network restart again
   shell: pkill -9 dhclient
   ignore_errors: yes
 
