@@ -26,7 +26,7 @@
       container_format: bare
       disk_format: qcow2
       state: present
-      file: "/home/stack/{{ installer.validate.image.id }}"
+      file: "/home/{{ provisioner.remote_user }}/{{ installer.validate.image.id }}"
 
 - name: create public network
   register: public_network_uuid_result
