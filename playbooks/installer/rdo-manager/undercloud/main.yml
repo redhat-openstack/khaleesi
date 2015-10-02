@@ -1,4 +1,5 @@
 ---
 - include: pre-{{ installer.env.type }}.yml
+- include: build-images.yml
 - include: run.yml
 

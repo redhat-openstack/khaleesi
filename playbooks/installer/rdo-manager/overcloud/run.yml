@@ -1,33 +1,7 @@
 ---
-- name: build or import images
+- name: prep and upload images into glance
   hosts: undercloud
   tasks:
-    - name: setup environment vars
-      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/build-img-env.j2 dest=~/build-img-env mode=0755
-
-    - name: ensure /tmp/svc-map-services is absent
-      file: path=/tmp/svc-map-services state=absent
-      sudo: yes
-      when: installer.overcloud_images | default('build') == "build"
-
-    - name: Contents of build-img-env
-      shell: >
-          cat {{ instack_user_home }}/build-img-env
-
-    - name: build all the images
-      shell: >
-          source {{ instack_user_home }}/build-img-env;
-          source {{ instack_user_home }}/stackrc;
-          openstack overcloud image build --all > {{ instack_user_home }}/openstack-build-images.log
-      when: installer.overcloud_images | default('build') == "build"
-
-    - name: download the pre-built rdo-manager images
-      shell: >
-        curl -o "{{ instack_user_home }}/{{ item }}.tar"  \
-        "{{ installer.images.url[product.name][product.full_version][distro.name][distro.version]}}{{ item }}.tar"
-      with_items: "{{ installer.images.files|list }}"
-      when: installer.overcloud_images is defined and installer.overcloud_images == "import"
-
     - name: untar the overcloud images
       shell: tar -xvf "{{ instack_user_home }}/{{ item }}.tar"
       with_items: "{{ installer.images.files|list }}"

@@ -1,0 +1,43 @@
+---
+- name: install the undercloud packages and get the guest image
+  hosts: undercloud
+  tasks:
+    - name: get the guest-image
+      get_url: >
+        url="{{ distro.images[distro.name][distro.version].remote_file_server }}{{ distro.images[distro.name][distro.version].guest_image_name }}"
+        dest=/home/stack/{{ distro.images[distro.name][distro.version].guest_image_name }}
+        timeout=360
+
+    - name: install python-rdomanager-oscplugin
+      yum: name=python-rdomanager-oscplugin state=present
+      sudo: yes
+
+- name: build or import images
+  hosts: undercloud
+  tasks:
+    - name: setup environment vars
+      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/build-img-env.j2 dest=~/build-img-env mode=0755
+
+    - name: ensure /tmp/svc-map-services is absent
+      file: path=/tmp/svc-map-services state=absent
+      sudo: yes
+      when: installer.overcloud_images | default('build') == "build"
+
+    - name: Contents of build-img-env
+      shell: >
+          cat {{ instack_user_home }}/build-img-env
+
+    - name: build all the images
+      shell: >
+          source {{ instack_user_home }}/build-img-env;
+          openstack overcloud image build --all > {{ instack_user_home }}/openstack-build-images.log
+      when: installer.overcloud_images | default('build') == "build"
+
+    - name: download the pre-built rdo-manager images
+      get_url: url="{{ installer.images.url[product.name][product.full_version][distro.name][distro.version]}}{{ item }}.tar"
+                    dest={{ instack_user_home }}
+                    force=no
+                    timeout=360
+      with_items: "{{ installer.images.files|list }}"
+      when: installer.overcloud_images is defined and installer.overcloud_images == "import"
+
