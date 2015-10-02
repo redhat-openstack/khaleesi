@@ -35,7 +35,7 @@
   with_items: test_cfg.archive
 
 - include: collect_results.yml
-  when: tester.name != pep8
+  when: tester.name != "pep8"
 
 - name: pass or fail the test
   fail: msg="The test run failed"
