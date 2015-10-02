@@ -6,7 +6,7 @@
     chdir={{ instack_user_home.stdout }}
     export RHOS=1;
     export NODE_DIST="rhel7";
-    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-{{ansible_distribution_version}}.repo";
+    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6.repo /etc/yum.repos.d/rhos-release-rhel-{{ansible_distribution_version}}.repo";
     export REG_HALT_UNREGISTER=1
     export REG_METHOD=disable;
     sudo yum install -y instack-undercloud
@@ -35,7 +35,7 @@
     chdir={{ instack_user_home.stdout }}
     export RHOS=1;
     export NODE_DIST="rhel7";
-    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6-rhel-{{ansible_distribution_version}}.repo";
+    export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-6.repo /etc/yum.repos.d/rhos-release-rhel-{{ansible_distribution_version}}.repo";
     export REG_HALT_UNREGISTER=1
     export REG_METHOD=disable;
     instack-install-undercloud
