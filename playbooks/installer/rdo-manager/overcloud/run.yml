@@ -235,6 +235,7 @@
 
     - name: poll for nodes to be in powered off state
       register: ironic_node_power_off
+      retries: 10
       shell: >
         source {{ instack_user_home }}/stackrc;
         ironic node-list | grep 'power off' |  wc -l

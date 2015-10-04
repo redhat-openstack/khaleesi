@@ -85,6 +85,15 @@
         nova quota-update --instances -1 {{ admin_tenant_result.stdout }};
         nova quota-update --floating_ips -1 {{ admin_tenant_result.stdout }};
 
+    - name: set neutron subnet quota to unlimited
+      ignore_errors: true
+      shell: >
+        source {{ instack_user_home }}/overcloudrc;
+        neutron quota-update --subnet -1;
+        neutron quota-update --network -1;
+        neutron quota-update --router -1;
+        neutron quota-update --security_group -1;
+
     - name: create baremetal flavor
       shell: >
         source {{ instack_user_home }}/overcloudrc;
@@ -222,11 +231,13 @@
         sed -i 's/CentOS-7-x86_64-GenericCloud-1503/{{ provisioner.image.name }}/g' {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
         sed -i 's/node_count: 2/node_count: {{ provisioner.node_count }}/g'  {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
         sed -i 's/private_net: private/private_net: {{ tmp.node_prefix }}private/g' {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
-        sed -i 's/provision_net: provision/provision_net: {{ tmp.node_prefix }}provision/g' {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
         sed -i 's/public_net: public/public_net: {{ tmp.node_prefix }}public/g' {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
+        sed -i 's/provision_net: provision/provision_net: {{ tmp.node_prefix }}provision/g' {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
         sed -i 's/bmc_prefix: bmc/bmc_prefix: {{ tmp.node_prefix }}bmc/g' {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
         sed -i 's/baremetal_prefix: baremetal/baremetal_prefix: {{ tmp.node_prefix }}baremetal/g' {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
         sed -i 's/key_name: default/key_name: {{ tmp.node_prefix }}default/g' {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
+        sed -i 's/bmc_flavor: bmc/bmc_flavor: m1.small/g' {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
+        sed -i 's/external_net: external/external_net: nova/g' {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
 
     - name: deploy the stack
       shell: >
@@ -270,7 +281,7 @@
     - name: boot a VM to serve as the undercloud
       shell: >
         source {{ instack_user_home }}/overcloudrc;
-        nova boot "{{ tmp.node_prefix }}undercloud" --flavor m1.xlarge --image {{ provisioner.image.name }} --nic net-id={{ private_network_uuid_result.id }} --nic net-id={{ provision_network_uuid_result.id }} --key_name "{{ tmp.node_prefix }}default" --security_group default
+        nova boot "{{ tmp.node_prefix }}undercloud" --flavor m1.xlarge --image {{ provisioner.image.name }} --nic net-id={{ private_network_uuid_result.id }} --nic net-id={{ provision_network_uuid_result.id }} --nic net-id={{ public_network_uuid_result.id }} --key_name "{{ tmp.node_prefix }}default" --security_group default
 
     - name: wait for undercloud instance to go active
       shell: >
@@ -286,6 +297,18 @@
         source {{ instack_user_home }}/overcloudrc;
         neutron floatingip-list
       register: floatingip_list
+
+    - name: get public port uuid
+      register: public_port_result
+      shell: >
+            source {{ instack_user_home }}/overcloudrc;
+            neutron port-list  | grep {{ public_subnet_uuid_result.id }} | cut -d " " -f2
+
+    - name: Delete public port to baremetal instance
+      shell: >
+            source {{ instack_user_home }}/overcloudrc;
+            neutron port-delete {{ item }}
+      with_items: public_port_result.stdout_lines
 
     - name: create floating ip
       shell: >
