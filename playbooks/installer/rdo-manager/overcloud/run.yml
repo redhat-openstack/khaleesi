@@ -99,7 +99,7 @@
           source {{ instack_user_home }}/stackrc;
           instack-ironic-deployment  --show-profile;
 
-- include: run-overcloud-matching-{{ installer.match_style | default('basic') }}.yml
+- include: run-matching-{{ installer.match_style | default('basic') }}.yml
 
 - name: wait for nova
   hosts: undercloud
