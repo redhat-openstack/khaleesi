@@ -127,3 +127,104 @@ and add the relevant public key for the rhos-ci user. use the
 ``/home/rhos-ci/jenkins`` directory, add the ``khaleesi`` label, only run tied
 jobs. You're done.
 
+
+Jenkins RDO-Manager:
+--------
+
+For using khaleesi with Jenkins, first of all see the steps :ref:`jenkins` part for setting
+up a Jenkins slave and for use jjb.
+
+If you want to setup a manual job on Jenkins you have to follow those steps:
+
+Setup a slave (General):
+````````````````````````
+
+Check the option::
+
+    Restrict where this project can be run
+
+And put the name of your slave.
+
+Clone the repositories (Source Code Management):
+````````````````````````````````````````````````
+Select the choice::
+
+     Multiple SCMs
+
+And put the urls of the khaleesi / khaleesi-settings repositories.
+You need to specify to jenkins to checkout the repositories in a sub-directory::
+
+    Check out to a sub-directory
+
+And specify for each::
+
+    khaleesi
+    khaleesi-settings
+
+Build Environment:
+``````````````````
+Check the option:
+
+    Delete workspace before build starts
+
+Build:
+``````
+
+Add a step::
+
+    Virtualenv Builder
+
+And select::
+
+    Python version: System-CPython-2.7
+    Nature: Shell
+
+And put the above informations into the shell command::
+
+    pip install -U ansible==1.9.2 > ansible_build; ansible --version
+    source khaleesi-settings/jenkins/ansible_rdo_mang_settings.sh
+
+    # install ksgen
+    pushd khaleesi/tools/ksgen
+    python setup.py develop
+    popd
+
+    pushd khaleesi
+    # generate config
+    ksgen --config-dir=../khaleesi-settings/settings generate \
+        --provisioner=your_provisioner (see cookbook)
+
+    # get nodes and run test
+    set +e
+    anscmd="stdbuf -oL -eL ansible-playbook -vv --extra-vars @ksgen_settings.yml"
+
+    $anscmd -i local_hosts playbooks/full-job-no-test.yml
+    result=$?
+
+    infra_result=0
+    $anscmd -i hosts playbooks/collect_logs.yml &> collect_logs.txt || infra_result=1
+    $anscmd -i local_hosts playbooks/cleanup.yml &> cleanup.txt || infra_result=2
+
+    if [[ "$infra_result" != "0" && "$result" = "0" ]]; then
+        # if the job/test was ok, but collect_logs/cleanup failed,
+        # print out why the job is going to be marked as failed
+        result=$infra_result
+        cat collect_logs.txt
+        cat cleanup.txt
+    fi
+
+    exit $result
+
+Post-build actions:
+```````````````````
+
+Add a post build action for collecting logs and required files for debuging and archived them::
+
+    Archive the artifacts: **/collected_files/*.tar.gz, **/nosetests.xml, **/ksgen_settings.yml
+
+If you run tempest during the deployment add the following step for collecting the tests result::
+
+    Publish JUnit test result report
+    Test Report XMLs : **/nosetests.xml
+    Check : Test stability history
+

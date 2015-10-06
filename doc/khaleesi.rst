@@ -184,7 +184,7 @@ Generate the configuration with the following command::
     ksgen --config-dir=../khaleesi-settings/settings generate \
         --provisioner=manual \
         --product=rdo \
-        --product-version=kilo \
+        --product-version=liberty \
         --product-version-build=last_known_good \
         --product-version-repo=delorean_mgt \
         --distro=centos-7.0 \
@@ -193,17 +193,17 @@ Generate the configuration with the following command::
         --installer-images=build \
         --installer-network=neutron \
         --installer-network-isolation=none \
-        --installer-network-variant=gre \
+        --installer-network-variant=ml2-vxlan \
         --installer-topology=minimal \
-        --installer-deploy=plan \
+        --installer-deploy=templates \
+        --installer-post_action=none \
         --installer-tempest=disabled \
         --workarounds=enabled \
-        --extra-vars product.repo_type_override=none \
         --extra-vars @../khaleesi-settings/hardware_environments/virt_default/hw_settings.yml \
         ksgen_settings.yml
 
-.. Note:: The "base_dir" key is defined by either where you execute ksgen from or by the $WORKSPACE 
-environment variable.  The base_dir value should point to the directory where khaleesi and khaleesi-settings have been cloned. 
+.. Note:: The "base_dir" key is defined by either where you execute ksgen from or by the $WORKSPACE
+environment variable.  The base_dir value should point to the directory where khaleesi and khaleesi-settings have been cloned.
 
 The result is a YAML file collated from all the small YAML snippets from
 ``khaleesi-settings/settings``. All the options are quite self-explanatory and
@@ -260,10 +260,10 @@ Just notice the changes into the configuration for ksgen::
     --installer-network-isolation=none \
     --installer-network-variant=ml2-vxlan \
     --installer-topology=minimal \
+    --installer-post_action=none \
     --installer-tempest=disabled \
-    --installer-deploy=plan \
+    --installer-deploy=templates \
     --workarounds=enabled \
-    --extra-vars product.repo_type_override=none \
     --extra-vars @../khaleesi-settings/hardware_environments/virt_default/hw_settings.yml \
     ksgen_settings.yml
 
@@ -326,10 +326,10 @@ Please change the below settings to match your environment::
 
 And then simply run::
 
-    kcli --settings ksgen_settings.yml --provision --install
+    ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/full-job-no-test.yml
 
 Cleanup
 -------
 After you finished your work, you can simply remove the created instances by::
 
-    kcli cleanup
+    ansible-playbook -vv --extra-vars @ksgen_settings.yml -i hosts playbooks/cleanup.yml

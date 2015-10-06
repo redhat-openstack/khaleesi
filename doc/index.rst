@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    khaleesi
+   community_guidelines
    development
    ksgen
    kcli
