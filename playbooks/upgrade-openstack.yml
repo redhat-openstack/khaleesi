@@ -1,0 +1,2 @@
+- include: post-deploy/{{ installer.type }}/update-6-7/main.yml
+- include: test.yml

@@ -1,0 +1,18 @@
+---
+- name: upgrade database schemas
+  sudo: true
+  hosts: controller
+  tasks:
+    - name: upgrade database schemas
+      command: openstack-db --service {{item}} --update
+      with_items:
+        - keystone
+        - cinder
+        - nova
+        - glance
+        - neutron
+        - nova
+        - heat
+      run_once: true
+
+

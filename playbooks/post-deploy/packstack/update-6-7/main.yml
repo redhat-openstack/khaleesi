@@ -1,0 +1,10 @@
+---
+- name: collect facts for upgrade
+  hosts: all:!localhost
+  gather_facts: yes
+
+- include: pre.yml
+- include: upgrade.yml
+- include: config.yml
+- include: database.yml
+- include: post.yml

@@ -1,0 +1,68 @@
+---
+- name: why does it always have to be neutron?
+  sudo: true
+  gather_facts: no
+  hosts:
+    - controller
+    - network
+  tasks:
+    - name: check for enabled neutron service plugins
+      command: crudini --get /etc/neutron/neutron.conf DEFAULT service_plugins
+      register: service_plugins
+    - name: check for enabled service providers
+      shell: |
+        sed -n '/^\[service_providers]/,/^\[/ p' < /etc/neutron/neutron.conf |
+        grep '^service_provider' |
+        cut -f2 -d=
+      register: service_providers
+    - name: comment out service_providers in neutron.conf
+      command: sed -i.upgrade '/^service_provider/ s/^/#/' /etc/neutron/neutron.conf
+    - name: install missing neutron packages
+      yum: name={{item.package}} state=latest
+      when: item.match in service_plugins.stdout.split(',')
+      with_items:
+        - package: openstack-neutron-lbaas
+          match: lbaas
+        - package: openstack-neutron-fwaas
+          match: firewall
+        - package: openstack-neutron-vpnaas
+          match: vpnaas
+        - package: openstack-neutron-lbaas
+          match: neutron.services.loadbalancer.plugin.LoadBalancerPlugin
+        - package: openstack-neutron-fwaas
+          match: neutron.services.firewall.fwaas_plugin.FirewallPlugin
+        - package: openstack-neutron-vpnaas
+          match: neutron.services.vpn.plugin.VPNDriverPlugin
+
+- name: adjust configuration on controller
+  sudo: true
+  hosts: controller
+  tasks:
+    - name: adjust keystone configuration
+      command: >
+        sed -i '{{item}}' /etc/keystone/keystone.conf
+      with_items:
+        - 's/keystone.token.backends/keystone.token.persistence.backends/g'
+
+- name: set api caps for juno compatability
+  sudo: true
+  hosts:
+    - controller
+    - compute[0]
+  tasks:
+    - name: set api caps for juno compatability
+      command: >
+        crudini --set /etc/nova/nova.conf upgrade_levels {{item}} juno
+      with_items:
+        - compute
+
+- name: adjust configuration on network host
+  sudo: true
+  hosts: network
+  tasks:
+    - name: adjust neutron dnsmasq rootwrap filter
+      command: >
+        sed -i '{{item}}' /usr/share/neutron/rootwrap/dhcp.filters
+      with_items:
+        - '/^dnsmasq:/ s/: .*/: CommandFilter, dnsmasq, root/'
+

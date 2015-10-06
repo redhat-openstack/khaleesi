@@ -1,0 +1,19 @@
+---
+- name: shut down all openstack services.
+  sudo: true
+  hosts: openstack_nodes:!tester
+  tasks:
+    - name: shut down openstack services
+      command: openstack-service stop
+
+- name: install osp-7 repositories
+  sudo: true
+  hosts:
+    - controller
+    - network
+    - compute[0]
+  gather_facts: no
+  tasks:
+    - name: install osp-7 repositories
+      command: rhos-release 7
+

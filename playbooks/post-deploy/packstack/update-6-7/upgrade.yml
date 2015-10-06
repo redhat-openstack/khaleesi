@@ -1,0 +1,17 @@
+---
+- name: upgrade to osp-7
+  sudo: true
+  hosts:
+    - controller
+    - network
+    - compute[0]
+  gather_facts: no
+  tasks:
+    - name: remove erroenous erlang packages
+      yum: name={{item}} state=absent
+      with_items:
+        - erlang-examples
+        - erlang-jinterface
+        - erlang-ic
+    - name: upgrade to osp-7 packages
+      yum: name=* state=latest

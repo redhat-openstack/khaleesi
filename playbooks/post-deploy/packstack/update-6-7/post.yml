@@ -1,0 +1,26 @@
+---
+- name: reload systemd to activate any updated unit files
+  sudo: true
+  hosts: all:!localhost
+  tasks:
+    - name: reload systemd
+      command: systemctl daemon-reload
+
+# This is necessary because somehow rabbitmq was getting stopped as part of the
+# upgrade process.
+- name: restart support services on controllers
+  sudo: true
+  hosts: controller
+  tasks:
+    - name: ensure critical services are running
+      service: name={{item}} state=running
+      with_items:
+        - rabbitmq-server
+        - mariadb
+
+- name: restart all openstack services.
+  sudo: true
+  hosts: openstack_nodes:!tester
+  tasks:
+    - name: restart openstack services
+      command: openstack-service start
