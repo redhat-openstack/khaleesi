@@ -1,4 +1,4 @@
 ---
-- include: pre.yml
+- include: pre.yml test_cfg={{ test_env }}
 - include: run.yml
 - include: post.yml

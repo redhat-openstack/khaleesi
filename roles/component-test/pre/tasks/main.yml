@@ -1,2 +1,3 @@
 ---
 - include: pre.yml
+- include: packages.yml test_cfg="{{ test_env }}"

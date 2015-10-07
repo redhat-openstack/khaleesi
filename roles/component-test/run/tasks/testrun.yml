@@ -1,18 +1,3 @@
-- name: install test dependencies rpm needed to run test
-  sudo: yes
-  yum: pkg={{ item }} state=latest
-  with_items: test_cfg.setup.install
-  when:
-    test_cfg.setup | default(false) and test_cfg.setup.install | default(false)
-
-- name: remove unwanted rpms specified in test dependencies
-  sudo: yes
-  yum: pkg={{ item }} state=absent
-  with_items: test_cfg.setup.remove
-  when:
-    test_cfg.setup | default(false) and test_cfg.setup.remove | default(false)
-
-### actual testrun starts here
 - name: print the test setup  command
   debug: var=test_cfg
 

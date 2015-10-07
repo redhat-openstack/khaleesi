@@ -49,13 +49,6 @@
   sudo: yes
   when: ansible_distribution_version|int >= 6
 
-- name: install packages to convert tests results into junitxml format
-  sudo: yes
-  yum: name={{ item }} state=present
-  with_items:
-      - subunit-filters
-      - python-junitxml
-
 - name: print tester component dir
   debug: var=tester.component.dir
 
