@@ -162,8 +162,14 @@
   tasks:
     - name: clone openstack-virtual-baremetal repo
       shell: >
-         chdir={{instack_user_home}}
-         git clone https://github.com/cybertron/openstack-virtual-baremetal/
+        chdir={{instack_user_home}}
+        git clone https://github.com/cybertron/openstack-virtual-baremetal/
+
+    - name: pin openstack virtual baremetal to a specific hash
+      shell: >
+        chdir={{instack_user_home}}/openstack-virtual-baremetal
+        git reset --hard {{ installer.custom_deploy.ovb_pin_version }}
+      when: installer.custom_deploy.ovb_pin_version is defined
 
     - name: copy tripleo-heat-templates to custom
       shell: >

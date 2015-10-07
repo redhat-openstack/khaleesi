@@ -150,7 +150,7 @@
       when: hw_env.env_type != 'ovb_host_cloud'
 
     - name: copy over vendor-specific setup file (quintupleo_host_cloud)
-      local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F $PWD/../../../ssh.config.ansible -S none -o StrictHostKeyChecking=no" $PWD/../../../../khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup undercloud:{{ instack_user_home }}/vendor_specific_setup
+      local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F {{base_dir}}/khaleesi/ssh.config.ansible -S none -o StrictHostKeyChecking=no" {{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup undercloud:{{ instack_user_home }}/vendor_specific_setup
       when: hw_env.env_type == 'ovb_host_cloud'
 
     - name: execute vendor-specific setup
