@@ -32,7 +32,7 @@ tester:
   - python-httplib2
     #- ffmpeg   # needed for future to capture video from tests
   pip_packages:
-  - xvfbwrapper==0.2.4
+  - xvfbwrapper
   - oslo.config==1.11.0
   - selenium==2.45.0
   - nose
