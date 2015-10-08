@@ -270,7 +270,7 @@
     - name: boot a VM to serve as the undercloud
       shell: >
         source {{ instack_user_home }}/overcloudrc;
-        nova boot "{{ tmp.node_prefix }}undercloud" --flavor m1.large --image {{ provisioner.image.name }} --nic net-id={{ private_network_uuid_result.id }} --nic net-id={{ provision_network_uuid_result.id }} --key_name "{{ tmp.node_prefix }}default" --security_group default
+        nova boot "{{ tmp.node_prefix }}undercloud" --flavor m1.xlarge --image {{ provisioner.image.name }} --nic net-id={{ private_network_uuid_result.id }} --nic net-id={{ provision_network_uuid_result.id }} --key_name "{{ tmp.node_prefix }}default" --security_group default
 
     - name: wait for undercloud instance to go active
       shell: >
