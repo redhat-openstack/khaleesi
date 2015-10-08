@@ -25,11 +25,11 @@
   sudo: yes
   tasks:
     - name: Get the current endpoint
-      shell: source /root/keystonerc_admin; keystone endpoint-list|grep 8080|grep -v AUTH|awk '{print $2}'
+      shell: source /root/keystonerc_admin; keystone endpoint-list| grep -v AUTH | awk '/[0-9]{1,3}:8080/ {print $2}'
       register: old_endpoint
 
     - name: Get the current endpoint for S3
-      shell: source /root/keystonerc_admin; keystone endpoint-list|grep 8080|grep -v AUTH|awk '{print $12}'
+      shell: source /root/keystonerc_admin; keystone endpoint-list| grep -v AUTH | awk '/[0-9]{1,3}:8080/ {print $12}'
       register: endpoint_s3
 
     - name: Create new endpoint
