@@ -1,4 +1,12 @@
 ---
+- name: Update yum on all nodes before packstack installation
+  hosts: openstack_nodes
+  gather_facts: no
+  sudo: yes
+  tasks:
+      - name: Update all packages
+        yum: name=* state=latest
+
 - name: Setup packstack on controller
   hosts: controller
   gather_facts: no
