@@ -1,0 +1,21 @@
+---
+- name: Group hosts by post action - validate
+  hosts: overcloud
+  gather_facts: no
+  tasks:
+    - group_by: key="ovb"
+      when: installer.custom_deploy.type is defined and
+            installer.custom_deploy.type == 'openstack_virtual_baremetal'
+
+- name: add neutron ml2 option for ovb on the overcloud
+  hosts: ovb
+  gather_facts: no
+  tasks:
+    - name: configure Neutron to use the NoopFirewallDriver
+      sudo: yes
+      ignore_errors: yes
+      lineinfile:
+          dest=/etc/neutron/plugins/ml2/ml2_conf.ini
+          line="firewall_driver = neutron.agent.firewall.NoopFirewallDriver"
+          insertafter="^\[securitygroup\]"
+          state=present
