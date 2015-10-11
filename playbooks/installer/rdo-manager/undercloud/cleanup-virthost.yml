@@ -125,7 +125,7 @@
         - python-eventlet
         - tripleo-*
         - python-rdomanager-*
-
+        - jq
 
     - name: remove any instack rpms from the host
       yum: name={{item}} state=absent
