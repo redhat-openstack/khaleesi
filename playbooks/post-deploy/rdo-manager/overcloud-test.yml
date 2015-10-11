@@ -17,7 +17,7 @@
     - name: install tempest rpm (remove when enabled by default)
       yum: name=openstack-tempest state=present
       sudo: yes
-      when: product.name = 'rdo'
+      when: product.name == "rdo"
 
     - name: execute configure tempest directory
       shell: cd /home/{{ provisioner.remote_user }}/tempest && \
