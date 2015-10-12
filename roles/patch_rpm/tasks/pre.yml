@@ -40,12 +40,16 @@
       git config --system user.name {{ ansible_ssh_user }};
       git config --system user.email {{ ansible_ssh_user }}@redhat.com
 
-- name: Clone patch
+- name: Clone project
   git: repo="{{ patch.gerrit.url }}"
        version="{{ patch.gerrit.branch }}"
-       refspec="{{ patch.gerrit.refspec }}"
        dest="/home/{{ ansible_ssh_user }}/{{ patch.gerrit.name }}"
        accept_hostkey=true
+
+- name: Fetch patch
+  shell: git fetch {{ patch.gerrit.url }} {{ patch.gerrit.refspec }} && git cherry-pick FETCH_HEAD
+  args:
+      chdir: "/home/{{ ansible_ssh_user }}/{{ patch.gerrit.name }}"
 
 - name: Clone dist-git
   git: repo="{{ patch.dist_git.url }}"
