@@ -57,8 +57,8 @@
           state: present
           file: "/home/stack/empty.qcow2"
 
-    - name: upload centos image
-      register: glance_centos_image_uuid_result
+    - name: upload os image
+      register: glance_os_image_uuid_result
       glance_image:
           auth_url: "{{ get_auth_url_result.stdout }}"
           login_username: "admin"
@@ -239,17 +239,55 @@
         sed -i 's/bmc_flavor: bmc/bmc_flavor: m1.small/g' {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
         sed -i 's/external_net: external/external_net: nova/g' {{ instack_user_home }}/openstack-virtual-baremetal/env.yaml;
 
+    - name: change from centos-related to RHEL-related repos
+      shell: >
+         chdir={{ instack_user_home }}/openstack-virtual-baremetal
+         sed -i 's#yum -y update centos-release#yum localinstall -y {{ product.rpm }}#g' templates/virtual-baremetal-servers.yaml
+      when: provisioner.distro.name == "rhel"
+
+    - name: Execute rhos-release for pinned osp-director puddle (osp)
+      lineinfile: >
+        dest={{ instack_user_home }}/openstack-virtual-baremetal/templates/virtual-baremetal-servers.yaml 
+        line="            rhos-release -p {{ product.repo.puddle_director_pin_version }} {{ product.full_version }}"
+        state=present
+        insertafter="^            yum localinstall"
+      when: product.repo_type in ['puddle'] and product.repo.puddle_director_pin_version is defined
+
+    - name: Execute rhos-release for core rhos puddle (osp)
+      shell: > 
+         chdir={{ instack_user_home }}/openstack-virtual-baremetal
+         sed -i 's#yum install -y https://rdo.fedorapeople.org/rdo-release.rpm#rhos-release -p {{ product.repo.puddle_pin_version }} {{ product.repo.core_product_version }}#g' templates/virtual-baremetal-servers.yaml
+      when: product.repo_type in ['puddle'] and product.repo.puddle_pin_version is defined
+
+    - name: Execute rhos-release for pinned osp-director poodle (osp)
+      shell: >
+         chdir={{ instack_user_home }}/openstack-virtual-baremetal
+         sed -i 's#yum install -y https://rdo.fedorapeople.org/rdo-release.rpm#rhos-release  -d -p {{ product.repo.poodle_pin_version }} {{ product.full_version }}#g' templates/virtual-baremetal-servers.yaml
+      when: product.repo_type in ['poodle'] and product.repo.poodle_pin_version is defined
+
+    - name: Execute rhos-release for osp-director puddle (osp)
+      shell: >
+         chdir={{ instack_user_home }}/openstack-virtual-baremetal
+         sed -i 's#yum install -y https://rdo.fedorapeople.org/rdo-release.rpm#rhos-release {{ product.full_version }}}#g' templates/virtual-baremetal-servers.yaml
+      when: product.repo_type in ['puddle'] and product.repo.puddle_pin_version is not defined
+
+    - name: Execute rhos-release for osp-director poodle (osp)
+      shell: >
+         chdir={{ instack_user_home }}/openstack-virtual-baremetal
+         sed -i 's#yum install -y https://rdo.fedorapeople.org/rdo-release.rpm#rhos-release  -d {{ product.full_version }}#g' templates/virtual-baremetal-servers.yaml
+      when: product.repo_type in ['poodle'] and product.repo.poodle_pin_version is not defined
+
     - name: deploy the stack
       shell: >
         chdir={{ instack_user_home }}/openstack-virtual-baremetal
         source {{ instack_user_home }}/overcloudrc;
         op=${1:-create};
-        heat stack-$op -f templates/virtual-baremetal.yaml -e env.yaml -e templates/resource-registry.yaml "{{ tmp.node_prefix }}baremetal"
+        heat stack-$op -f templates/virtual-baremetal.yaml -e env.yaml -e templates/resource-registry.yaml "{{product.name}}-{{ tmp.node_prefix }}baremetal"
 
     - name: wait for heat stack to go to complete
       shell: >
         source {{ instack_user_home }}/overcloudrc;
-        heat stack-list | grep "{{ tmp.node_prefix }}baremetal"
+        heat stack-list | grep "{{product.name}}-{{ tmp.node_prefix }}baremetal"
       register: heat_stack_list_result
       until: heat_stack_list_result.stdout.find("COMPLETE") != -1
       retries: 10
@@ -258,7 +296,7 @@
     - name: view baremetal nodes
       shell: >
         source {{ instack_user_home }}/overcloudrc;
-        heat stack-show "{{ tmp.node_prefix }}baremetal"
+        heat stack-show "{{product.name}}-{{ tmp.node_prefix }}baremetal"
 
     - name: get nova network uuid
       shell: >
@@ -278,7 +316,7 @@
         nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
       ignore_errors: true
 
-    - name: boot a VM to serve as the undercloud
+    - name: boot an instance to serve as the undercloud
       shell: >
         source {{ instack_user_home }}/overcloudrc;
         nova boot "{{ tmp.node_prefix }}undercloud" --flavor m1.xlarge --image {{ provisioner.image.name }} --nic net-id={{ private_network_uuid_result.id }} --nic net-id={{ provision_network_uuid_result.id }} --nic net-id={{ public_network_uuid_result.id }} --key_name "{{ tmp.node_prefix }}default" --security_group default
@@ -379,8 +417,12 @@
         scp -o "StrictHostKeyChecking=no" {{ instack_user_home }}/openstack-virtual-baremetal/{{ tmp.node_prefix }}nodes.json {{ provisioner.host_cloud_user }}@{{ floating_ip_result.stdout }}:~/instackenv.json
 
     - name: copy instackenv.json to root dir
-      shell: 'ssh -t {{ provisioner.host_cloud_user }}@{{ floating_ip_result.stdout }} "sudo cp /home/{{ provisioner.host_cloud_user }}/instackenv.json /root/instackenv.json"'
+      shell: 'ssh -t -o "StrictHostKeyChecking=no" {{ provisioner.host_cloud_user }}@{{ floating_ip_result.stdout }} "sudo cp /home/{{ provisioner.host_cloud_user }}/instackenv.json /root/instackenv.json"'
       when: provisioner.host_cloud_user != 'root'
+
+    - name: copy authorized_keys to root user
+      shell: 'ssh -t -o "StrictHostKeyChecking=no" {{ provisioner.host_cloud_user }}@{{ floating_ip_result.stdout }} "sudo rm -rf /root/.ssh/authorized_keys; sudo cp /home/{{ provisioner.host_cloud_user }}/.ssh/authorized_keys /root/.ssh/"'
+      ignore_errors: true
 
     - name: copy ssh keys to undercloud instance user
       shell: >
@@ -393,11 +435,11 @@
         scp -o "StrictHostKeyChecking=no" .ssh/id_rsa.pub {{ provisioner.host_cloud_user }}@{{ floating_ip_result.stdout }}:~/.ssh/id_rsa.pub
 
     - name: copy ssh keys to root dir
-      shell: 'ssh -t {{ provisioner.host_cloud_user }}@{{ floating_ip_result.stdout }} "sudo cp /home/{{ provisioner.host_cloud_user }}/.ssh/id_rsa /root/.ssh/id_rsa"'
+      shell: 'ssh -t -o "StrictHostKeyChecking=no" {{ provisioner.host_cloud_user }}@{{ floating_ip_result.stdout }} "sudo cp /home/{{ provisioner.host_cloud_user }}/.ssh/id_rsa /root/.ssh/id_rsa"'
       when: provisioner.host_cloud_user != 'root'
 
     - name: copy ssh pub keys to root dir
-      shell: 'ssh -t {{ provisioner.host_cloud_user }}@{{ floating_ip_result.stdout }} "sudo cp /home/{{ provisioner.host_cloud_user }}/.ssh/id_rsa.pub /root/.ssh/id_rsa.pub"'
+      shell: 'ssh -t -o "StrictHostKeyChecking=no" {{ provisioner.host_cloud_user }}@{{ floating_ip_result.stdout }} "sudo cp /home/{{ provisioner.host_cloud_user }}/.ssh/id_rsa.pub /root/.ssh/id_rsa.pub"'
       when: provisioner.host_cloud_user != 'root'
 
     - name: setup ssh config
