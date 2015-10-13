@@ -25,8 +25,7 @@ export NODE_DIST=rhel7
 {%endif %}
 
 {% if product.name == "rdo" and distro.name == "centos" and product.repo_type is defined and product.repo_type == "delorean_mgt" %}
-export DIB_INSTALLTYPE_puppet_modules=source
 export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
 export NODE_DIST=centos7
-export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rdo-trunk-release.repo   /etc/yum.repos.d/rdo-mgr-trunk-release.repo   /etc/yum.repos.d/rdo-trunk-release-deps.repo"
+export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rdo-trunk-release.repo /etc/yum.repos.d/rdo-trunk-release-deps.repo"
 {%endif %}

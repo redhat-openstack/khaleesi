@@ -99,17 +99,8 @@
       lineinfile: dest=/etc/hosts line="127.0.0.1   localhost localhost.localhost"
       sudo: yes
 
-    - name: setup environment vars
-      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/instack-undercloud-setup-env.j2 dest=~/instack-undercloud-setup-env mode=0755
-
-    - name: Contents of instack-undercloud-setup-env
-      shell: >
-        cat {{ instack_user_home }}/instack-undercloud-setup-env
-
     - name: install the undercloud
-      shell: >
-       source {{ instack_user_home }}/instack-undercloud-setup-env;
-       openstack undercloud install --debug &> {{ instack_user_home }}/undercloud_install_initial_install.log
+      shell: openstack undercloud install --debug &> {{ instack_user_home }}/undercloud_install_initial_install.log
 
     - name: increase stack_action_timeout to 4 hours (workaround for bz 1243365)
       command: openstack-config --set /etc/heat/heat.conf DEFAULT stack_action_timeout 14400
@@ -171,9 +162,7 @@
   hosts: undercloud
   tasks:
     - name: install the undercloud
-      shell: >
-       source {{ instack_user_home }}/instack-undercloud-setup-env;
-       openstack undercloud install &> {{ instack_user_home }}/undercloud_install_idempotent_check.log
+      shell: openstack undercloud install &> {{ instack_user_home }}/undercloud_install_idempotent_check.log
 
     - name: check if haproxy is present (workaround bug bz 1246525)
       stat: path=/etc/haproxy/haproxy.cfg
