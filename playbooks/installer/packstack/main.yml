@@ -1,5 +1,5 @@
 ---
 - include: repo-{{ product.name }}.yml
 - include: pre.yml
-- include: run.yml
+- include: run-{{ installer.packstack.variant|default('default') }}.yml
 - include: post.yml

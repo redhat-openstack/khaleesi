@@ -1,0 +1,30 @@
+---
+- name: Update yum on all nodes before packstack installation
+  hosts: openstack_nodes
+  gather_facts: no
+  sudo: yes
+  tasks:
+      - name: Update all packages
+        yum: name=* state=latest
+
+- name: Setup packstack on controller
+  hosts: controller
+  gather_facts: no
+  sudo: no
+  tasks:
+      - name: Install packstack package
+        yum: name=openstack-packstack state=present
+
+      - name: Generate answer file
+        shell: "packstack --gen-answer-file={{ installer.packstack.answer_file }}"
+
+      - name: Update answer file with default password
+        replace: dest="/root/{{ installer.packstack.answer_file }}"
+            regexp="(.*_PASSWORD|.*_PW)=.*"
+            replace="\1=redhat"
+
+      - name: Running packstack
+        shell: "packstack --answer-file=/root/{{ installer.packstack.answer_file }} && touch /root/packstack-already-done"
+        args:
+          creates: /root/packstack-already-done
+        register: result
