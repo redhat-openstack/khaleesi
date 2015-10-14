@@ -1,0 +1,32 @@
+---
+- hosts: openstack_nodes:!tester
+  gather_facts: false
+  sudo: true
+  tasks:
+    - name: find openstack packages
+      command: rpm -qa 'openstack-*'
+      register: openstack_packages
+      changed_when: false
+
+    - name: get log directories
+      shell: |
+        rpm -ql {{openstack_packages.stdout_lines|join(' ')}} |
+        grep /var/log | 
+        sort -u
+      register: openstack_logs
+      changed_when: false
+
+    - name: check directories for deprecation warnings
+      shell: |
+        tmpfile=$(mktemp)
+        grep -r 'WARNING.*deprecated' {{item}} > $tmpfile
+        res=$?
+        sed '
+          s/.*WARNING/WARNING/
+          s/\[[^]]*\]//
+          ' $tmpfile | sort -u
+        rm -f $tmpfile
+        exit $res
+      with_items: openstack_logs.stdout_lines
+      register: depcheck
+      failed_when: depcheck.rc == 0
