@@ -229,7 +229,7 @@
     - name: run instack-virt-setup
       shell: >
         source {{ instack_user_home }}/virt-setup-env;
-        instack-virt-setup;
+        instack-virt-setup > {{ instack_user_home }}/instack-virt-setup.log;
       register: instack_virt_setup_result
       ignore_errors: yes
 
@@ -286,7 +286,7 @@
       shell: >
         virsh undefine instack;
         source {{ instack_user_home }}/virt-setup-env;
-        instack-virt-setup;
+        instack-virt-setup > {{ instack_user_home }}/instack-virt-setup-retry.log;
       when: "instack_virt_setup_result.rc != 0"
 
     - name: print out all the VMs
