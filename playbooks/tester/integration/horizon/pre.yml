@@ -94,3 +94,11 @@
             option={{ item.split()[0] }}
             value='{{ item.split()[1] }}'
         with_items: services_status.enabled_services
+
+- name: Turn hosts file to ordinary file
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - copy:
+        src: "{{ lookup('env', 'PWD') }}/hosts"
+        dest: "{{ lookup('env', 'PWD') }}/hosts-horizon"
