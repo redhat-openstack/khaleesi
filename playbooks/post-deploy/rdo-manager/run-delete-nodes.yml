@@ -54,7 +54,7 @@
       debug: var=node_name_to_delete.stdout
       when: node_type_to_delete is defined
 
-    - name: setup commannd vars
+    - name: setup command vars
       template: src=templates/delete-nodes-command-env.j2 dest=~/delete-nodes-command-env mode=0755
       when: node_type_to_delete is defined
 
