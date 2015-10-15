@@ -28,3 +28,17 @@
         dest: "{{ lookup('env', 'PWD') }}/hosts"
         state: link
         src: "{{ lookup('env', 'PWD') }}/hosts-{{ tmp.node_prefix }}"
+
+- name: extend hosts file
+  hosts: openstack_nodes
+  sudo: yes
+  tasks:
+    - name: Template of nodes
+      template:
+        dest: "/tmp/ansible_hosts"
+        src: provisioner/templates/hosts.j2
+      register: templatehosts
+
+    - name: Update hosts file
+      shell: "cat /tmp/ansible_hosts >> /etc/hosts"
+      when: templatehosts|changed

@@ -2,6 +2,7 @@ provisioner:
     auth_url: !lookup private.provisioner.qeos.auth_url
 
     network:
+        domain: ""
         type: nova
         name: public
         use_floating_ip: true

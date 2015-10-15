@@ -1,6 +1,7 @@
 provisioner:
     auth_url: !lookup private.provisioner.blue.auth_url
     network:
+        domain: ".novalocal"
         name: Floating
         type: neutron
         use_floating_ip: false
