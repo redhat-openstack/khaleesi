@@ -1,0 +1,5 @@
+---
+- name: Build gate rpm
+  hosts: local
+  roles:
+   - patch_rpm

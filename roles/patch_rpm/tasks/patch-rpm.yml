@@ -1,9 +1,14 @@
 - name: Apply patch on dist-git
   shell: "rdopkg update-patches"
   args:
-    chdir: "/home/{{ ansible_ssh_user }}/dist-git/{{ patch.dist_git.name }}"
+    chdir: "{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
+
+- name: Write the epoch so the package does not updated by oders versions
+  shell: "(grep -q \"^Epoch:\" *.spec && sed -i \"s/^Epoch.*/Epoch: 99999/\" *.spec) ||sed -i \"/^Release.*/a Epoch: 99999\" *.spec "
+  args:
+    chdir: "{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
 
 - name: Build an rpm from patched dist-git
   shell: "rdopkg mockbuild"
   args:
-    chdir: "/home/{{ ansible_ssh_user }}/dist-git/{{ patch.dist_git.name }}"
+    chdir: "{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"

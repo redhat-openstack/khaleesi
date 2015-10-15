@@ -1,38 +1,3 @@
-- name: Install release tool
-  sudo: yes
-  command: "yum localinstall -y {{ product.rpm }}"
-
-- name: Execute rhos-release for packstack poodle/puddle
-  sudo: yes
-  command: "rhos-release {{ product.full_version|int }} {{ product.repo.rhos_release.extra_args|join(' ') }}"
-
-- name: Install epel release
-  sudo: yes
-  command: "yum localinstall -y {{ distro.epel_release }}"
-
-- name: Install rdopkg and rhpkg repos
-  sudo: yes
-  get_url: url={{ item }}
-           dest=/etc/yum.repos.d
-           mode=0644
-  with_items:
-      - "{{ distro.repo.rdopkg }}"
-      - "{{ distro.repo.rhpkg }}"
-
-- name: Install packages for patching and building rpms
-  yum: name={{ item }} state=latest
-  sudo: yes
-  with_items:
-    - gcc
-    - python-crypto
-    - rpm-build
-    - rdopkg
-    - rhpkg
-    - python-pbr
-    - python2-devel
-    - python-d2to1
-    - createrepo
-
 - name: Setup git user and mail
   sudo: yes
   shell: >
@@ -40,22 +5,38 @@
       git config --system user.name {{ ansible_ssh_user }};
       git config --system user.email {{ ansible_ssh_user }}@redhat.com
 
-- name: Clone project
+- name: Clone upstream
+  git: repo="{{ patch.upstream.url }}"
+       dest="{{ tmp_dir }}/dist-git/{{ patch.upstream.name }}"
+       accept_hostkey=true
+  when: patch.upstream is defined
+
+- name: Clone patch
   git: repo="{{ patch.gerrit.url }}"
        version="{{ patch.gerrit.branch }}"
-       dest="/home/{{ ansible_ssh_user }}/{{ patch.gerrit.name }}"
+       dest="{{ tmp_dir }}/dist-git/{{ patch.gerrit.name }}"
        accept_hostkey=true
 
-- name: Fetch patch
-  shell: git fetch {{ patch.gerrit.url }} {{ patch.gerrit.refspec }} && git cherry-pick FETCH_HEAD
-  args:
-      chdir: "/home/{{ ansible_ssh_user }}/{{ patch.gerrit.name }}"
+- name: Setup patch branch
+  shell: >
+      cd {{ tmp_dir }}/dist-git/{{ patch.gerrit.name }};
+      git fetch {{ patch.gerrit.url }} {{ patch.gerrit.refspec}} && git checkout FETCH_HEAD -b gerrit-patch
+
+- name: Clone director dist-git
+  git: repo="{{ patch.dist_git.url }}"
+       version="{{ product.name }}-{{ product.version.major }}.{{ product.version.minor }}-pmgr-rhel-{{ product.version.major }}"
+       dest="{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
+       accept_hostkey=true
+  when: patch.dist_git.use_director is defined and patch.dist_git.use_director
+  # this is due to this rule of building:
+  # the directive is always use pmgr if it exists. Only exception to that is python-tuskarclient
 
 - name: Clone dist-git
   git: repo="{{ patch.dist_git.url }}"
-       version="{{ product.name }}-{{ product.full_version }}-rhel-{{ ansible_distribution_version|int }}"
-       dest="/home/{{ ansible_ssh_user }}/dist-git/{{ patch.dist_git.name }}"
+       version="{{ product.name }}-{{ product.version.major }}.{{ product.version.minor }}-rhel-{{ product.version.major }}"
+       dest="{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
        accept_hostkey=true
+  when: patch.dist_git.use_director is not defined or not patch.dist_git.use_director
 
 - name: Setup git user and mail
   sudo: yes
@@ -65,11 +46,15 @@
 
 - name: Setup git configurations
   shell: >
-      git remote add -f patches /home/{{ ansible_ssh_user }}/{{ patch.gerrit.name }};
+      if [ "{{ patch.upstream is defined }}" == "True" ]; then
+          git remote add -f upstream {{ tmp_dir }}/dist-git/{{ patch.upstream is defined and patch.upstream.name }};
+          git fetch upstream;
+      fi;
+      git remote add -f patches {{ tmp_dir }}/dist-git/{{ patch.gerrit.name }};
       git fetch patches;
-      git branch {{ product.name }}-{{ product.full_version }}-patches patches/{{ product.name}}-{{ product.full_version }}-patches
+      git branch {{ product.name }}-{{ product.version.major }}.{{ product.version.minor }}-patches patches/gerrit-patch
   args:
-    chdir: "/home/{{ ansible_ssh_user }}/dist-git/{{ patch.dist_git.name }}"
+    chdir: "{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
 
 - name: Create mock group
   sudo: yes
