@@ -16,32 +16,20 @@
         yum: name=openstack-packstack state=present
 
       - name: Generate answer file
-        shell: "packstack --gen-answer-file={{ installer.packstack.answer_file }}"
+        shell: "packstack --gen-answer-file=/root/{{ installer.packstack.answer_file }}"
 
-      - name: Fetch the answer file for editing
-        fetch:
-            src="{{ installer.packstack.answer_file }}"
-            dest=/tmp/
-            flat=yes
-            fail_on_missing=yes
-
-      - name: create packstack answer-file from the config
-        sudo: no
-        local_action: lineinfile
-                dest="/tmp/{{ installer.packstack.answer_file }}"
-                regexp='{{ item.key }}=.*'
-                line='{{ item.key }}={{ item.value }}'
+      - name: Edit packstack answer-file from the config
+        lineinfile:
+            dest="/root/{{ installer.packstack.answer_file }}"
+            regexp='{{ item.key }}=.*'
+            line='{{ item.key }}={{ item.value }}'
         with_dict: installer.packstack.config
 
-      - name: Copy updated answer file back to controller
-        copy: src="/tmp/{{ installer.packstack.answer_file }}" dest="/root/{{ installer.packstack.answer_file }}"
-
-      - name: Update answer file with default password
-        command:
-          sed
-              -e 's|_PASSWORD=.*|_PASSWORD=redhat|'
-              -e 's|_PW=.*|_PW=redhat|'
-              -i /root/{{ installer.packstack.answer_file }}
+      - name: Update password values in answer file with default password
+        replace:
+            dest="/root/{{ installer.packstack.answer_file }}"
+            regexp="(.*_PASSWORD|.*_PW)=.*"
+            replace="\1=redhat"
 
       - name: Update network hosts
         replace:
