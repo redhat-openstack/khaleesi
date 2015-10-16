@@ -1,3 +1,5 @@
+export PATH='/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/stack/bin'
+
 {% if product.repo_type is defined and product.repo_type in ["poodle", "puddle"] %}
 export DIB_LOCAL_IMAGE={{ distro.images[distro.name][distro.version].guest_image_name }}
 export USE_DELOREAN_TRUNK=0
@@ -25,7 +27,6 @@ export NODE_DIST=rhel7
 {% if product.name == "rdo" and distro.name == "centos" %}
 export DIB_LOCAL_IMAGE={{ distro.images[distro.name][distro.version].guest_image_name }}
 export NODE_DIST=centos7
-export PATH='/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/stack/bin'
 {%endif %}
 
 export NODE_COUNT={{ installer.nodes.node_count | default('3') }}
