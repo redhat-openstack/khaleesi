@@ -1,14 +1,6 @@
 ---
-- name: Group hosts by post action - validate
-  hosts: undercloud
-  gather_facts: no
-  tasks:
-    - group_by: key="validate"
-      when: installer.post_action is defined and
-            'validate' in installer.post_action
-
 - name: set fact for validation
-  hosts: validate
+  hosts: undercloud
   tasks:
     - name: set fact stack user home
       set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
@@ -30,7 +22,7 @@
       set_fact: keystone_endpoint={{ get_auth_url_result.stdout }}
 
 - name: validate overcloud
-  hosts: validate
+  hosts: undercloud
   gather_facts: false
   roles:
     - validate_openstack
