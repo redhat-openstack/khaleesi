@@ -1,13 +1,6 @@
 ---
-- name: Group hosts by post action - tempest
-  hosts: undercloud
-  gather_facts: no
-  tasks:
-    - group_by: key="tempest"
-      when: installer.tempest.enabled|bool
-
 - name: configure neutron
-  hosts: tempest
+  hosts: undercloud
   tasks:
     - name: get admin password
       register: get_admin_password_result
