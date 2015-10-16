@@ -21,4 +21,5 @@
           state=present
 
     - name: Restart neutron openvswith agent
+      sudo: yes
       service: name=neutron-openvswitch-agent state=restarted enabled=yes
