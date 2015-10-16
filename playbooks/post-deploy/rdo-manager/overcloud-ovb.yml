@@ -19,3 +19,6 @@
           line="firewall_driver = neutron.agent.firewall.NoopFirewallDriver"
           insertafter="^\[securitygroup\]"
           state=present
+
+    - name: Restart neutron openvswith agent
+      service: name=neutron-openvswitch-agent state=restarted enabled=yes
