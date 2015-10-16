@@ -24,7 +24,10 @@
         overcloud_uuid: "{{ overcloud_uuid_result.stdout }}"
 
     - name: setup environment variables for overcloud scale up
-      template: src=templates/scale-setup-env.j2 dest=~/scale-setup-env mode=0755
+      template: 
+        src={{ base_dir }}/khaleesi/playbooks/post-deploy/rdo-manager/templates/scale-setup-env.j2
+        dest={{ instack_user_home }}/scale-setup-env
+        mode=0755
       when: node_to_scale is defined
 
     - name: copy template file with environment variables for overcloud deploy
@@ -36,7 +39,7 @@
     - name: copy template file with environment variables for nodes
       template:
         src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/deploy-nodes.j2
-        dest={{ instack_user_home }}/deploy-overcloudrc
+        dest={{ instack_user_home }}/deploy-nodesrc
         mode=0755
 
     - name: Contents of scale-setup-env
