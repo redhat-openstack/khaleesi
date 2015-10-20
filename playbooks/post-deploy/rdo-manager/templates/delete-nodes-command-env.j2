@@ -1,11 +1,14 @@
 export DELETE_COMMAND="openstack overcloud node delete {{ node_id_to_delete.stdout }} --debug {{ installer.deploy.command }} --stack overcloud "
 
 {% if installer.network.isolation != 'none' and installer.env.type != "virthost" %}
-export DELETE_COMMAND="$DELETE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml -e ~/network-environment.yaml "
+export DELETE_COMMAND="$DELETE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
+                                       -e ~/network-environment.yaml "
 {% endif %}
 
 {% if installer.network.isolation != 'none' and installer.env.type == "virthost" %}
-export DELETE_COMMAND="$DELETE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml -e ~/network-environment.yaml "
+export DELETE_COMMAND="$DELETE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
+                                       -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml \
+                                       -e ~/network-environment.yaml "
 {% endif %}
 
 {% if installer.network.isolation != 'none' and installer.deploy.type == 'plan' %}
@@ -20,6 +23,10 @@ fi
 
 {% if installer.custom_deploy.type != 'none' and installer.custom_deploy.type == 'openstack_virtual_baremetal' %}
 export DELETE_COMMAND="$DELETE_COMMAND -e ~/openstack-virtual-baremetal/templates/overcloud-env/ovb.yaml "
+{% endif %}
+
+{% if product.name == 'rdo' %}
+export DELETE_COMMAND="$DELETE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml"
 {% endif %}
 
 
