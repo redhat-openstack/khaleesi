@@ -50,3 +50,7 @@ fi
 {% if installer.custom_deploy.type != 'none' and installer.custom_deploy.type == 'openstack_virtual_baremetal' %}
 export DEPLOY_COMMAND="$DEPLOY_COMMAND -e ~/openstack-virtual-baremetal/templates/overcloud-env/ovb.yaml "
 {% endif %}
+
+{% if product.name == 'rdo' %}
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml"
+{% endif %}
