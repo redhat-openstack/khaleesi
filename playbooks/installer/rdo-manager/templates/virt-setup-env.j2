@@ -43,6 +43,6 @@ export NODE_CPU={{ installer.nodes.node_cpu | default('1') }}
 export UNDERCLOUD_NODE_MEM={{ installer.nodes.undercloud_node_mem | default('4096') }}
 {%endif %}
 
-{% if installer.network.isolation != 'none' %}
+{% if product.name == 'rhos' and installer.network.isolation != 'none' %}
 export TESTENV_ARGS=" --baremetal-bridge-names 'brbm' --vlan-trunk-ids='10 20 30 40 50'"
 {%endif %}
