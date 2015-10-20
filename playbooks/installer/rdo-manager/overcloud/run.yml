@@ -312,6 +312,24 @@
           source {{ instack_user_home }}/deploy-overcloudrc;
           echo $DEPLOY_COMMAND
 
+    - name: find the env files to be used in deploy
+      register: env_files
+      shell: >
+        echo {{ overcloud_deploy_command.stdout }} | grep -o -e '\-e .*yaml' | sed s'/\-e //g' | sed s'#[A-Z a-z 0-9 _ -]*\.yaml##g'
+
+    - name: clone template validation tools
+      shell: >
+        chdir={{instack_user_home}}
+        git clone https://github.com/openstack/tripleo-heat-templates.git
+
+    - name: validate the yaml files
+      shell: >
+        chdir={{instack_user_home}}
+        python tripleo-heat-templates/tools/yaml-validate.py {{ item }}
+      register: validate_yaml_output
+      failed_when: validate_yaml_output.stdout.find('Validation failed on') != -1
+      with_items: env_files.stdout.split('\n')
+
     - name: deploy-overcloud
       register: overcloud_deployment_result
       ignore_errors: yes
