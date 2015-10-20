@@ -63,3 +63,24 @@
 #        disk_format: ami
         state: present
         copy_from: "{{ tester.guest_image.url }}"
+
+- name: Enable VRRP Failover
+  hosts: network
+  sudo: yes
+  tasks:
+    - name: Disable TTY requirement for sudo
+      lineinfile:
+        dest: /etc/sudoers
+        state: absent
+        regexp: "^Defaults    requiretty"
+
+- name: Enable VRRP Failover
+  hosts: tester
+  sudo: no
+  tasks:
+    - name: Copy private key to tester
+      copy:
+        src: "{{ provisioner.key_file }}"
+        dest: "{{ tester.rally.tmp.private_key }}"
+        mode: 0600
+
