@@ -42,7 +42,7 @@
       when: installer.type in ['packstack']
 
 - name: wait for hosts to get reachable
-  hosts: centosci
+  hosts: provisioned
   gather_facts: no
   max_fail_percentage: 0
   tasks:
