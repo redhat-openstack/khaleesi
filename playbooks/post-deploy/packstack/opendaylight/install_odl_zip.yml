@@ -1,0 +1,28 @@
+---
+- name: Deploy OpenDaylight using zip file
+  hosts: odl_controller
+  sudo: yes
+  tasks:
+      - name: Download zip file
+        get_url:
+            url="{{ opendaylight.distribution.zip }}"
+            dest=/tmp/karaf.zip
+
+      - name: Ensure unzip installed to extract OpenDaylight distribution
+        yum:
+            name=unzip
+            state=present
+
+      - name: Ensure java installed to run OpenDaylight
+        yum:
+            name=java
+            state=present
+
+      - name: Unzip OpenDaylight distribution
+        unarchive:
+            src=/tmp/karaf.zip
+            dest=/opt
+            copy=no
+
+      - name: Rename directory to opendaylight
+        shell: mv /opt/karaf* /opt/opendaylight

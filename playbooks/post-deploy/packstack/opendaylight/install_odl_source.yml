@@ -1,0 +1,83 @@
+---
+- name: Prepare environment for building odl from source
+  hosts: odl_controller
+  sudo: yes
+  tasks:
+      - name: Create the COPR repos required for component tests
+        template: src=templates/component-test-copr-repo.j2 dest=/etc/yum.repos.d/component-test-copr.repo
+
+      - name: Install rhpkg repo
+        command: "yum localinstall -y {{ distro.repo.rhpkg }}"
+
+      - name: Install apache-maven repo
+        template: src=templates/epel-apache-maven.j2 dest=/etc/yum.repos.d/epel-apache-maven.repo
+
+      - name: Install required RPMs for the build
+        yum: name="{{ item }}" state=present
+        with_items:
+            - mock
+            - git
+            - GitPython
+            - apache-maven
+
+      - name: Install settings
+        template: src=templates/m2_settings.j2 dest=/usr/share/apache-maven/conf/settings.xml
+
+      - name: Create mock configuration for the build
+        template: src=templates/mock_config.j2 dest=/etc/mock/rhos-{{ product.full_version }}-odl-rhel-{{ ansible_distribution_version|int }}-build.cfg
+
+      - name: Add entries to hosts file
+        lineinfile:
+            dest="/etc/hosts"
+            insertafter=EOF
+            line="{{ item }}"
+        with_items:
+            - '127.1.0.1   nexus.opendaylight.org'
+            - '127.1.0.2   repo.maven.apache.org'
+            - '127.1.0.3   oss.sonatype.org'
+            - '127.1.0.4   registry.npmjs.org'
+
+      - name: Clone opendayligt dist-git
+        git: repo='{{ odl.dist_git.url }}'
+             version='{{ odl.dist_git.branch }}'
+             dest='/home/{{ ansible_ssh_user}}/opendaylight'
+             accept_hostkey=true
+
+      - name: Clone maven-chain-builder
+        git: repo=https://github.com/bregman-arie/maven-chain-builder.git
+             dest='/home/{{ ansible_ssh_user }}/maven-chain-builder'
+             accept_hostkey=true
+
+      - name: Install PME
+        get_url: url={{ odl.pme.url }} dest=/usr/share/apache-maven/lib/ext
+
+- name: Build opendaylight
+  hosts: odl_controller
+  sudo: yes
+  tasks:
+      - name: Prepare chain file
+        args:
+            chdir: /home/{{ ansible_ssh_user}}/maven-chain-builder
+        shell: >
+            sudo sed -i "s/\$TAG_TO_BUILD/rhos-{{ product.full_version }}-patches/g" /home/{{ ansible_ssh_user }}/opendaylight/make-vars;
+            /home/{{ ansible_ssh_user }}/opendaylight/make-vars;
+            cp /home/{{ ansible_ssh_user}}/opendaylight/opendaylight-chain/opendaylight-chain.ini .;
+            cd /home/{{ ansible_ssh_user }}/opendaylight && git checkout -- make-vars && git checkout -- opendaylight-chain/opendaylight-chain.ini && cd -;
+            redhat_version=`cat /home/{{ ansible_ssh_user }}/opendaylight/*/*.ini | grep "redhat_version = " | cut -d= -f2 | xargs`;
+            sed -i "s/\%(redhat_version)s/$redhat_version/g" *.ini;
+            bomver=`cat /home/{{ ansible_ssh_user }}/opendaylight/*/*.ini | grep "bomversion = " | cut -d= -f2 | xargs`;
+            sed -i "s/\%\(bomversion\)s/$bomver/g" *.ini;
+            sed -i "s/skipTests/skipTests=true/g" *.ini;
+            sed -i "s/properties = /\n/g" *.ini
+
+      - name: Run apache-chain-builder and build the opendaylight disturbution
+        args:
+            chdir: /home/{{ ansible_ssh_user}}/maven-chain-builder
+        shell: "python maven-chain-builder.py opendaylight-chain.ini {{ ansible_ssh_user }}"
+
+- name: Prepare opendaylight distribution for run
+  hosts: odl_controller
+  sudo: yes
+  tasks:
+      - name: Extract odl distribution to /opt/karaf
+        shell: "tar -zxf /tmp/org/opendaylight/ovsdb/karaf/*/*.tar.gz -C /opt && mv /opt/karaf* /opt/opendaylight"

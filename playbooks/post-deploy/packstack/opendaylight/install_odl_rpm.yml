@@ -1,0 +1,7 @@
+---
+- name: Install OpenDaylight distribution
+  hosts: odl_controller
+  sudo: yes
+  tasks:
+    - name: Install OpenDaylight distribution using an RPM
+      yum: name=opendaylight state=present

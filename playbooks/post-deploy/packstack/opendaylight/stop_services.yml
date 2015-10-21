@@ -1,0 +1,26 @@
+---
+- name: Stop networking services
+  hosts: controller
+  sudo: yes
+  tasks:
+    - name: Stop neutron-server
+      service: name=neutron-server
+               state=stopped
+
+    - name: Stop neutron-openvswitch-agent
+      service: name=neutron-openvswitch-agent
+               state=stopped
+
+    - name: Stop openvswitch
+      service: name=openvswitch
+               state=stopped
+
+- name: Remove openvswitch logs and configuration
+  hosts: controller
+  sudo: yes
+  tasks:
+    - name: Remove openvswitch logs
+      command: "rm -rf /var/log/openvswitch/*"
+
+    - name: Remove openvswitch configuration
+      command: "rm -rf /etc/openvswitch/conf.db"

@@ -1,0 +1,19 @@
+---
+- name: Start OpenDaylight distribution
+  hosts: odl_controller
+  sudo: yes
+  vars:
+      odl_controller_name: "{{ provisioner.nodes.odl_controller.name }}"
+  tasks:
+    - name: Enable traffic from OpenStack Controller to OpenDaylight node
+      shell: iptables -I INPUT -j ACCEPT -p tcp -s {{ hostvars[provisioner.nodes.controller.name].ansible_default_ipv4.address }}
+
+    - name: Add L3 configuration
+      shell: >
+           echo "ovsdb.l3.fwd.enabled=yes" >> /opt/opendaylight/etc/custom.properties;
+           eth0_mac_address={{ hostvars[odl_controller_name]['ansible_eth0']['macaddress'] }};
+           echo "ovsdb.l3gateway.mac=$eth0_mac_address" >> /opt/opendaylight/etc/custom.properties
+
+    - name: Run controller
+      command: "sh /opt/opendaylight/bin/start"
+      async: 20

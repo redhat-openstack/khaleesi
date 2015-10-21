@@ -1,0 +1,17 @@
+---
+- name: Attach ovs to an active opendaylight controller
+  hosts: controller
+  sudo: yes
+  tasks:
+      - name: Start openvswitch
+        service: name=openvswitch state=running
+
+      - name: Attach ovs to opendaylight controller
+        command: ovs-vsctl set-manager tcp:{{ hostvars[provisioner.nodes.odl_controller.name].ansible_default_ipv4.address }}:6640
+
+- name: Install opendaylight driver using rpm
+  hosts: controller
+  sudo: yes
+  tasks:
+      - name: Install opendaylight driver
+        yum: name=python-networking-odl state=latest

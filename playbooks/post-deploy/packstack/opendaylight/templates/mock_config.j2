@@ -1,0 +1,20 @@
+config_opts['chroothome'] = '/builddir'
+config_opts['use_host_resolv'] = True
+config_opts['basedir'] = '/var/lib/mock'
+config_opts['rpmbuild_timeout'] = 86400
+config_opts['yum.conf'] = '[main]\ncachedir=/var/cache/yum\ndebuglevel=9\nlogfile=/var/log/yum.log\nreposdir=/dev/null\nretries=20\nobsoletes=1\ngpgcheck=0\nassumeyes=1\n\n# repos\n\n[build]\nname=build\nbaseurl={{ private.distro.rhel.download_server }}/brewroot/repos/rhos-{{ product.full_version }}-odl-rhel-{{ ansible_distribution_version|int }}-build/latest/x86_64\n'
+config_opts['chroot_setup_cmd'] = 'groupinstall maven-build'
+config_opts['target_arch'] = 'x86_64'
+config_opts['root'] = 'rhos-{{ product.full_version }}-odl-rhel-{{ ansible_distribution_version|int }}-build'
+
+config_opts['plugin_conf']['root_cache_enable'] = False
+config_opts['plugin_conf']['yum_cache_enable'] = False
+config_opts['plugin_conf']['ccache_enable'] = False
+
+config_opts['macros']['%_host'] = 'x86_64-koji-linux-gnu'
+config_opts['macros']['%_host_cpu'] = 'x86_64'
+config_opts['macros']['%vendor'] = 'Koji'
+config_opts['macros']['%distribution'] = 'Koji Testing'
+config_opts['macros']['%_topdir'] = '/builddir/build'
+config_opts['macros']['%_rpmfilename'] = '%%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm'
+config_opts['macros']['%packager'] = 'Koji'

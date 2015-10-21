@@ -1,0 +1,40 @@
+---
+- name: Start neutron-server
+  hosts: controller
+  sudo: yes
+  tasks:
+      - name: Start neutron-server service
+        service: name=neutron-server
+                 state=running
+
+      # Required for running tests
+      - name: Create an external network
+        quantum_network:                                                        
+            state: present                                                      
+            auth_url: "http://{{ hostvars[inventory_hostname].ansible_default_ipv4.address }}:35357/v2.0/"
+            login_username: admin                                               
+            login_password: "{{ hostvars[inventory_hostname].admin_password | default('redhat') }}"
+            login_tenant_name: admin                                            
+            name: "{{ installer.network.name }}"                                
+            provider_network_type: "{{ installer.network.external.provider_network_type }}"
+            provider_physical_network: "{{ installer.network.label }}"          
+            provider_segmentation_id: "{{ installer.network.external.vlan.tag|default(omit) }}"
+            router_external: yes                                                
+            shared: no                                                          
+            admin_state_up: yes                                                 
+                                                                                
+      - name: Create subnet for external network
+        quantum_subnet:                                                         
+            state: present                                                      
+            auth_url: "http://{{ hostvars[inventory_hostname].ansible_default_ipv4.address }}:35357/v2.0/"
+            login_username: admin                                               
+            login_password: "{{ hostvars[inventory_hostname].admin_password | default('redhat') }}"
+            login_tenant_name: admin                                            
+            tenant_name: admin                                                  
+            network_name: "{{ installer.network.name }}"                        
+            name: external-subnet                                               
+            enable_dhcp: False                                                  
+            gateway_ip: "{{ provisioner.network.network_list.external.nested.subnet_gateway }}"
+            cidr: "{{ provisioner.network.network_list.external.nested.subnet_cidr}}"
+            allocation_pool_start: "{{ provisioner.network.network_list.external.nested.allocation_pool_start }}"
+            allocation_pool_end: "{{ provisioner.network.network_list.external.nested.allocation_pool_end }}"
