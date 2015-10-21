@@ -1,5 +1,0 @@
---- !extends:common.yml
-
-product:
-    short_repo: pad
-    repo_type: poodle_advanced

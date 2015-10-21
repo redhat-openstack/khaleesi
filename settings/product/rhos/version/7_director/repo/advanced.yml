@@ -1,5 +1,0 @@
---- !extends:common.yml
-
-product:
-    short_repo: adv
-    repo_type: advanced

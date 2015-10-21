@@ -76,13 +76,19 @@
         owner={{ provisioner.remote_user }}
         group={{ provisioner.remote_user }}
 
-    - name: install rdo-manager-deps
+    - name: install yum-plugin-priorities for rdo-manager
       yum: name={{item}} state=present
       sudo: yes
       with_items:
         - yum-plugin-priorities
-        - python-tripleoclient
       when: product.name == "rdo"
+
+    - name: install rdo-manager-deps
+      yum: name={{item}} state=present
+      sudo: yes
+      with_items:
+        - python-tripleoclient
+      when: product.name == "rdo" or product.full_version == "8-director"
 
     - name: install python-rdomanager-oscplugin
       yum: name=python-rdomanager-oscplugin state=present
@@ -99,16 +105,33 @@
       shell: >
         source {{ instack_user_home }}/virt-setup-env;
         instack-virt-setup > {{ instack_user_home }}/instack-virt-setup.log;
+      register: instack_virt_setup_result
+      ignore_errors: yes
+
+    - name: destroy default pool
+      command: virsh pool-destroy default
+      sudo: yes
+      ignore_errors: true
+      when: "instack_virt_setup_result.rc != 0"
 
     - name: update libvirtd unix_sock_group
       lineinfile: dest=/etc/libvirt/libvirtd.conf
                   regexp=^unix_sock_group
                   line='unix_sock_group = "stack"'
+      when: "instack_virt_setup_result.rc != 0"
       sudo: yes
 
     - name: restart libvirtd
       service: name=libvirtd state=restarted
+      when: "instack_virt_setup_result.rc != 0"
       sudo: yes
+
+    - name: retry run instack-virt-setup
+      shell: >
+        virsh undefine instack;
+        source {{ instack_user_home }}/virt-setup-env;
+        instack-virt-setup > {{ instack_user_home }}/instack-virt-setup-retry.log;
+      when: "instack_virt_setup_result.rc != 0"
 
     - name: print out all the VMs
       shell: >

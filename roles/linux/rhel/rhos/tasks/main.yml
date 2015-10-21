@@ -143,7 +143,6 @@
   yum: name={{ item }} state=present
   with_items:
     - yum-utils
-    - yum-plugin-priorities
 
 - name: Disable default foreman puddle rhelosp repo when using poodle
   shell: /usr/bin/yum-config-manager --disable 'rhelosp-*-OS-Foreman'

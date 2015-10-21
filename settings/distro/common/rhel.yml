@@ -29,7 +29,7 @@ distro:
             remote_file_server: !lookup private.images.rhel.7.1.remote_file_server
           '7.2':
             remote_user: cloud-user
-            guest_image_name: "rhel-guest-image-7.2-20150821.0.x86_64.qcow2"
+            guest_image_name: "rhel-guest-image-7.2-20150925.0.x86_64.qcow2"
             remote_file_server: !lookup private.images.rhel.7.2.remote_file_server
     rhel:
         subscription:

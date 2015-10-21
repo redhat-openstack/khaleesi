@@ -1,0 +1,5 @@
+--- !extends:common.yml
+
+product:
+    short_repo: rsm
+    repo_type: rhsm

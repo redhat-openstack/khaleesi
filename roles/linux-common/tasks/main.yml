@@ -6,7 +6,6 @@
   yum: name={{ item }} state=latest
   with_items:
     - yum-utils
-    - yum-plugin-priorities
     - iptables
     - libselinux-python
     - psmisc
@@ -41,6 +40,7 @@
 
 - name: restart the network
   service: name=network state=restarted
+  ignore_errors: yes
 
 # cloud-init can interfere w/ openstack installs
 - name: remove cloud-init

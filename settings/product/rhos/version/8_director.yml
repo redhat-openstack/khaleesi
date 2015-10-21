@@ -1,0 +1,7 @@
+product:
+    full_version: 8-director
+    version:
+        major: 8
+        minor: 0
+        code_name: liberty
+    short_version: 8d
