@@ -1,5 +1,6 @@
 ---
 - include: undercloud/main.yml
 - include: overcloud/main.yml
+- include: "{{ base_dir }}/khaleesi/playbooks/post-deploy/rdo-manager/overcloud-virt-fencing.yml"
 - include: "{{ base_dir }}/khaleesi/playbooks/post-deploy/rdo-manager/overcloud-test.yml"
 

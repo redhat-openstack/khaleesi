@@ -1,0 +1,98 @@
+---
+- name: Group hosts by post action
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - group_by: key="ha_fencing"
+      when: '"ha_fencing" in installer.post_action and installer.env.type == "virthost"'
+
+# We initially chose to put fence_virtd on the undercloud and
+# and configure it to connect to host0 via qemu+ssh://. This approach
+# was too fragile, slow and we hit a bunch of BZs (1267367)
+- name: Preparatory work
+  hosts: ha_fencing:&localhost
+  tasks:
+    - name: Create fence key
+      command: dd if=/dev/random of={{ base_dir }}/khaleesi/fence_xvm.key bs=512 count=1
+
+- name: create fencing group
+  hosts: localhost
+  tasks:
+    - name: create fence_xvm group
+      add_host: name={{ item }} groups=fence_xvm
+      with_items:
+        - overcloud-controller-0
+        - overcloud-controller-1
+        - overcloud-controller-2
+        - host0
+
+- name: Create remote /etc/cluster folder and copy key
+  hosts: ha_fencing:&fence_xvm
+  sudo: yes
+  gather_facts: yes
+  tasks:
+    - file: path=/etc/cluster state=directory mode=0755
+    - copy: src={{ base_dir }}/khaleesi/fence_xvm.key dest=/etc/cluster/ mode=644
+
+- name: Install virt fencing packages on host0, configuration and make sure /tmp/vm-host-table is absent
+  hosts: ha_fencing:&host0
+  gather_facts: no
+  sudo: yes
+  tasks:
+    - yum: name=fence-virt,fence-virtd,fence-virtd-multicast,fence-virtd-libvirt state=present
+    - template: src=templates/fence_virtd.j2 dest=/etc/fence_virt.conf mode=0644
+    - file: path=/tmp/vm-host-table state=absent
+
+# TO-DO: shell task: This approach of creating a table of vm:hostname mapping and then
+# run a script on top of it, is not very ansible-friendly. A better approach might be to
+# store the vm:hostname mapping in some variables and then use those
+- name: set vm name fact and ease iptables rules
+  hosts: ha_fencing:&host0
+  gather_facts: yes
+  sudo: yes
+  tasks:
+    - command: iptables -I INPUT 1 -p igmp -j ACCEPT
+    - shell: >
+        echo "{{ hostvars[item]['ansible_hostname'] }};"`ps auxwfww | grep -i "{{ hostvars[item]['ansible_eth0']['macaddress'] }}" | sed -nr "s/.*name\ (.*)\ /\1/p" | cut -f1 -d " ";`";{{ hostvars[item]['ansible_eth0']['macaddress'] }}" >> /tmp/vm-host-table
+      with_items:
+        - overcloud-controller-0
+        - overcloud-controller-1
+        - overcloud-controller-2
+    - fetch: src=/tmp/vm-host-table dest={{ base_dir }}/khaleesi/vm-host-table flat=yes
+
+- name: push vm table, and stonith script on overcloud controller 0
+  hosts: ha_fencing:&overcloud-controller-0
+  sudo: yes
+  gather_facts: no
+  tasks:
+    - copy: src={{ base_dir }}/khaleesi/vm-host-table dest=/root/vm-host-table
+    - copy: src=files/create-stonith.sh dest=/root/create-stonith.sh mode=0755
+
+# This is needed in order for the overcloud controllers to be able
+# to talk to the host0 fence_virtd service. Without IP address
+# this cannot work. We chose this approach instead of having fence_virtd
+# running on the undercloud and pointing to the host via libvirt/ssh
+# because it seems to be simpler and less prone to issues
+# NB: Note that it seems that a subsequent restarted is actually needed...
+# TO-DO: The choice of a fixed ip address is fairly risky and needs revisiting
+- name: configure ip address on brbm on host0 and enable fence_virtd
+  hosts: ha_fencing:&host0
+  gather_facts: no
+  sudo: yes
+  tasks:
+    - command: ip a a 192.0.2.222/24 dev brbm
+    - command: ip link set up dev brbm
+    - service: name=fence_virtd enabled=yes state=started
+    - service: name=fence_virtd state=restarted
+
+# Disable stonith property before toying with stonith devices as we might
+# trigger random fences if something fails (especially if this playbook is
+# run again)
+- name: make sure stonith property is set to false
+  hosts: ha_fencing:&overcloud-controller-0
+  sudo: yes
+  gather_facts: no
+  tasks:
+    - command: pcs property set stonith-enabled=false
+    - command: /root/create-stonith.sh /root/vm-host-table
+    - command: pcs property set stonith-enabled=true
