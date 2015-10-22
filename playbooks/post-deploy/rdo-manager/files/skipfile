@@ -27,3 +27,6 @@
 -tempest.api.telemetry.test_telemetry_notification_api.TelemetryNotificationAPITestJSON.test_check_glance_v1_notifications
 -tempest.api.telemetry.test_telemetry_notification_api.TelemetryNotificationAPITestJSON.test_check_glance_v2_notifications
 -tempest.scenario.test_volume_boot_pattern.TestVolumeBootPatternV2.test_volume_boot_pattern
+# BZ 1274308
+-tempest.api.object_storage.test_container_services.ContainerTest.test_create_container
+-tempest.api.object_storage.test_object_services.ObjectTest.test_update_object_metadata
