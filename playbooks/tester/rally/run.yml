@@ -24,7 +24,10 @@
   sudo: yes
   tasks:
   - name: Copy Task file from Khaleesi Settings
-    copy: dest="{{ tester.rally.dir }}/{{ tester.rally.taskfile }}" content="{{ tester.rally.task }}" force=yes
+    copy:
+      dest: "{{ tester.rally.dir }}/{{ tester.rally.taskfile }}"
+      content: "{{ tester.rally.task | to_nice_json }}"
+      force: yes
 
 - name: Setup Rally
   hosts: tester
