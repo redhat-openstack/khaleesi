@@ -41,8 +41,9 @@
             login_password: "{{ hostvars[inventory_hostname].admin_password | default('redhat') }}"
             login_tenant_name: admin
             name: "{{ installer.network.name }}"
-            provider_network_type: flat
+            provider_network_type: "{{ installer.network.external.provider_network_type }}"
             provider_physical_network: "{{ installer.network.label }}"
+            provider_segmentation_id: "{{ installer.network.external.vlan.tag|default(omit) }}"
             router_external: yes
             shared: no
             admin_state_up: yes
