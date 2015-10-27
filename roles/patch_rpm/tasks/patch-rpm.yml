@@ -1,21 +1,26 @@
 - name: Apply patch on dist-git
   shell: "rdopkg update-patches"
   args:
-    chdir: "/home/{{ ansible_ssh_user }}/dist-git/{{ patch.dist_git.name }}"
+    chdir: "{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
+
+- name: Write the epoch so the package does not get updated by older versions
+  shell: "(grep -q \"^Epoch:\" *.spec && sed -i \"s/^Epoch.*/Epoch: 99999/\" *.spec) ||sed -i \"/^Release.*/a Epoch: 99999\" *.spec "
+  args:
+    chdir: "{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
 
 - name: Build an rpm from patched dist-git
   shell: "rdopkg mockbuild"
   ignore_errors: true
   register: rpm_build
   args:
-    chdir: "/home/{{ ansible_ssh_user }}/dist-git/{{ patch.dist_git.name }}"
+    chdir: "{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
 
 - name: Check for 'non-exist file' errors
   shell: grep -R "can't find file to patch" results*
   register: file_exists
   ignore_errors: true
   args:
-    chdir: "/home/{{ ansible_ssh_user }}/dist-git/{{ patch.dist_git.name }}"
+    chdir: "{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
 
 - name: Fail run if rpm build failed
   fail: msg="The mockbuild has failed for some reason, other than missing file"
