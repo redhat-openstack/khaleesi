@@ -1,5 +1,0 @@
-- name: Copy and rename the generated rpm
-  shell: >
-    cp {{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}/results*/*/*/*.rpm {{ lookup('env', 'PWD') }};
-    rm {{ lookup('env', 'PWD') }}/*src.rpm;
-    mv {{ lookup('env', 'PWD') }}/*.rpm {{ lookup('env', 'PWD') }}/{{ patch.dist_git.name }}.rpm;
