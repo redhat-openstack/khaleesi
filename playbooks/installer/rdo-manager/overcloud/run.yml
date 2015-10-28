@@ -161,7 +161,7 @@
         - controller.yaml
         - compute.yaml
         - cinder-storage.yaml
-        - switft-storage.yaml
+        - swift-storage.yaml
         - ceph-storage.yaml
 
 - name: Set up for custom template deploy with nova change
