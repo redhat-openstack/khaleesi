@@ -1,0 +1,4 @@
+--- !extends:common/rhel.yml
+
+packstack:
+    distro: RHEL 6.5

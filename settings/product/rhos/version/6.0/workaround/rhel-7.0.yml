@@ -1,0 +1,6 @@
+workaround:
+    staypuft_kickstart_template: true
+    staypuft_pxe_template: true
+    cinder_unicode_decode: false
+    default_floating_pool: true
+    mongodb: false

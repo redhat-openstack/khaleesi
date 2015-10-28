@@ -1,0 +1,12 @@
+--- !extends:common.yml
+provisioner:
+    key_file: '{{ MANDATORY_FIELD }}'
+    network:
+        network_list:
+            external:
+                subnet_cidr: ''
+                subnet_gateway: ''
+                allocation_end: ''
+                allocation_start: ''
+
+base_dir: !env WORKSPACE

@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: neutron-lbaas
+        short_name: n-lbaas
+        dir: !join [ !env PWD, /../neutron-lbaas]
+        dist_git: openstack-neutron-lbaas
+        codeng: neutron-lbaas
+        config_file: jenkins-config.yml

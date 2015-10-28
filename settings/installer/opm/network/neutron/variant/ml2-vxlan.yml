@@ -1,0 +1,4 @@
+installer:
+    network:
+        variant:
+            short_name: m2vx

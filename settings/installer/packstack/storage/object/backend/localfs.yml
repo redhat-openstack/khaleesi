@@ -1,0 +1,22 @@
+--- !extends:common/shared.yml
+
+storage:
+  services:
+    - swift
+  object:
+    config:
+      swift:
+        "icehouse":
+          &swift_cfg
+          "app:container-server":
+            allow_versions: "true"
+        "juno":
+          *swift_cfg
+        "kilo":
+          *swift_cfg
+        "5.0":
+          *swift_cfg
+        "6.0":
+          *swift_cfg
+        "7.0":
+          *swift_cfg

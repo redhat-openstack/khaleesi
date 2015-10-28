@@ -1,0 +1,19 @@
+--- !extends:common.yml
+tester:
+    guest_image:
+        url: http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img
+        name: cirros-0.3.4-x86_64-disk
+    type: rally
+    rally:
+        dir: '/home/{{ provisioner.nodes.tester.remote_user }}/rally-dir'
+        path: '/home/{{ provisioner.nodes.tester.remote_user }}/rally'
+        deployment: cloud_under_test
+        taskfile: rally-jobs/mytest.json
+        outputdir: /tmp/rally_output
+
+job:
+    archive:
+        - '{{ tester.rally.outputdir }}/*.log'
+        - '{{ tester.rally.outputdir }}/*.xml'
+        - '{{ tester.rally.outputdir }}/*.html'
+        - '{{ tester.rally.outputdir }}/*.txt'

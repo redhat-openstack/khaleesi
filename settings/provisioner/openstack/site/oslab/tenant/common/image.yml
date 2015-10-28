@@ -1,0 +1,14 @@
+provisioner:
+  image:
+    rhel:
+      "7.0":
+        remote_user: cloud-user
+        name: rhel-guest-image-7.0-20140506.1
+        id:  380dc248-5511-427c-a2e3-c8abece469a0 
+
+    fedora:
+      "20":
+        remote_user: fedora
+        name: fedora 20 cloud image
+        id: 10a4092c-6ec9-4ddf-b97c-b0f8dff0958e
+

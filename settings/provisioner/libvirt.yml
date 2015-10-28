@@ -1,0 +1,19 @@
+--- !extends:common/common.yml
+provisioner:
+  type: libvirt
+  flavor:
+     large:
+        memory: 3072
+        vcpus: 2
+        size: 40G
+     medium:
+        memory: 3072
+        vcpus: 2
+        size: 20G
+     small:
+        memory: 2072
+        vcpus: 2
+        size: 20G
+
+  ssh_config:
+        location: !env PWD

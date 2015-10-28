@@ -1,0 +1,2 @@
+workaround:
+    mysql_centos7: false

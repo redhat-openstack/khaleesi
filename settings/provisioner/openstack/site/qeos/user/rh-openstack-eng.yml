@@ -1,0 +1,6 @@
+--- !extends:../tenant/rhos-jenkins.yml
+
+provisioner:
+    username: rh-openstack-eng
+    password: changeme
+

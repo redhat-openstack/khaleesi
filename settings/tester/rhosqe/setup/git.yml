@@ -1,0 +1,5 @@
+---
+tester:
+  git:
+    repo: !lookup private.tester.git.psedlak_http
+    revision: HEAD

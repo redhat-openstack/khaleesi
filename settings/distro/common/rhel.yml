@@ -1,0 +1,79 @@
+--- !extends:all.yml
+
+distro:
+    name: rhel
+    short_name: rh
+    config:
+        ntp_server: !lookup private.ntp_server
+        ntp_server_ip: !lookup private.ntp_server_ip
+    images:
+        rhel:
+          '6.6':
+            remote_user: cloud-user
+            guest_image_name: "rhel-guest-image-6.6-20150127.0.x86_64.qcow2"
+            remote_file_server: !lookup private.images.rhel.6.6.remote_file_server
+          '6.7':
+            remote_user: cloud-user
+            guest_image_name: "rhel-guest-image-6.7-20150427.0.x86_64.qcow2"
+            remote_file_server: !lookup private.images.rhel.6.7.remote_file_server
+          '7.0':
+            remote_user: cloud-user
+            guest_image_name: "rhel-guest-image-7.0-20150126.0.x86_64.qcow2"
+            remote_file_server: !lookup private.images.rhel.7.0.remote_file_server
+          '7.1':
+            remote_user: cloud-user
+            guest_image_name: "rhel-guest-image-7.1-20150224.0.x86_64.qcow2"
+            remote_file_server: !lookup private.images.rhel.7.1.remote_file_server
+          '7.2':
+            remote_user: cloud-user
+            guest_image_name: "rhel-guest-image-7.2-20150821.0.x86_64.qcow2"
+            remote_file_server: !lookup private.images.rhel.7.2.remote_file_server
+    rhel:
+        subscription:
+            username: !lookup private.distro.rhel.subscription.username
+            password: !lookup private.distro.rhel.subscription.password
+            pool: !lookup private.distro.rhel.subscription.pool
+            physical_pool: !lookup private.distro.rhel.subscription.physical_pool
+            physical_pool_small: !lookup private.distro.rhel.subscription.physical_pool_small
+        ### should move to individual distro-version files when
+        ### ksgen starts supporting multiple options feature
+        "7.1":
+            kickstart_url: !lookup private.distro.rhel.7.1.kickstart_url
+            repos:
+                - section: rhel7-server-rpms
+                  name: Packages for RHEL 7 - $basearch
+                  baseurl: !lookup private.distro.rhel.7.1.baseurl_server
+                  gpgcheck: 0
+
+                - section: rhel7-server-update-rpms
+                  name: Updated Packages for RHEL 7 - $basearch
+                  baseurl: !lookup private.distro.rhel.7.1.baseurl_updates
+                  gpgcheck: 0
+
+                - section: rhel-7-server-optional-rpms
+                  name: Optional Packages for Enterprise Linux 7 - $basearch
+                  baseurl: !lookup private.distro.rhel.7.1.baseurl_optional
+                  gpgcheck: 0
+
+                - section: rhel-7-server-common-rpms
+                  name: Common Packages for Enterprise Linux 7 - $basearch
+                  baseurl: !lookup private.distro.rhel.7.1.baseurl_common
+                  gpgcheck: 0
+
+                - section: rhel-7-server-HA-rpms
+                  name: HA Packages for Enterprise Linux 7 - $basearch
+                  baseurl: !lookup private.distro.rhel.7.1.baseurl_ha
+                  gpgcheck: 0
+
+                - section: rhel-7-server-EXTRAS-rpms
+                  name: Extra Packages for Enterprise Linux 7 - $basearch
+                  baseurl: !lookup private.distro.rhel.7.1.baseurl_extra
+                  gpgcheck: 0
+
+
+
+
+job:
+    archive:
+        - /etc/yum.repos.d
+        - /etc/selinux

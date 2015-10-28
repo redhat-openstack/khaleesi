@@ -1,0 +1,8 @@
+--- !extends:minimal.yml
+installer:
+    topology_name: minimal_scale_compute
+    nodes:
+        node_count: 4
+        compute:
+            scale_change: 2
+

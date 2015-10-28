@@ -1,0 +1,5 @@
+--- !extends:common/all.yml
+
+job:
+    opm_path: /usr/src/openstack-puppet-modules
+    opm_tests_path: /usr/src/openstack-puppet-modules-tests

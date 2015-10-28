@@ -1,0 +1,5 @@
+provisioner:
+    username: rhos-jenkins
+    password: !lookup private.provisioner.qeos.password
+    key_file: !join [ !env HOME , /.ssh/rhos-jenkins/id_rsa ]
+    key_name: rhos-jenkins

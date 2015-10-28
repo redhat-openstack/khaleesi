@@ -1,0 +1,8 @@
+--- !extends:../tenant/rhos-jenkins.yml
+
+provisioner:
+    username: rhos-jenkins
+    password: !lookup private.provisioner.blue.password
+    key_file: !join [ !env HOME , /.ssh/rhos-jenkins/id_rsa ]
+    key_name: rhos-jenkins
+

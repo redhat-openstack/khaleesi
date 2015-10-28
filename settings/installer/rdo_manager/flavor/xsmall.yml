@@ -1,0 +1,7 @@
+---
+installer:
+    nodes:
+        node_mem: 4096
+        node_cpu: 1
+        undercloud_node_mem: 4096
+        undercloud_node_cpu: 1

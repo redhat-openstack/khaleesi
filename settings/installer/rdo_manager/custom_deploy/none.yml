@@ -1,0 +1,5 @@
+installer:
+    custom_deploy:
+        type: 'none'
+        command: ''
+

@@ -1,0 +1,10 @@
+---
+tester:
+    type: unittest
+    name: unittest
+    component:
+        config_file: !lookup installer.component.config_file
+        tox_target: unittest
+node:
+    prefix:
+        - !lookup tester.type

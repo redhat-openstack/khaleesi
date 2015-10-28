@@ -1,0 +1,5 @@
+---
+provisioner:
+    image:
+        remote_file_server: !lookup private.installer.custom_deploy.image.remote_file_server
+        name: rhel-guest-image-7.1-20150224.0.x86_64

@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: swift
+        short_name: sft
+        dir: !join [ !env PWD, /../swift]
+        dist_git: openstack-swift
+        codeng: swift
+        config_file: jenkins-config.yml

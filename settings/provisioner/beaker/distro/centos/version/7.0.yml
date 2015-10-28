@@ -1,0 +1,4 @@
+---
+provisioner:
+    beaker_family: CentOS7
+    beaker_distro: CentOS-7

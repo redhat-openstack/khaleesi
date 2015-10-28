@@ -1,0 +1,9 @@
+provisioner:
+    url: 'http://8.21.28.222:5000/v2.0'
+    network:
+        name: external
+        type: neutron
+    flavor:
+        small: 2
+        medium: 3
+        large: 4

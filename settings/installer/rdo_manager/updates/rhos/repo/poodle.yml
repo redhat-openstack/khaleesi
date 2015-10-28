@@ -1,0 +1,3 @@
+installer:
+    updates:
+        repo_type: poodle

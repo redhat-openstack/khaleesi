@@ -1,0 +1,36 @@
+---
+provisioner:
+  network:
+    type: libvirt
+    nic:
+        net_1:
+              name: khaleesi_default
+              dhcp_enabled: true
+              domain: khaleesi
+              forward_mode: nat
+              ip_address: 192.168.132.1
+              ip_netmask: 255.255.255.0
+              dhcp_start: 192.168.132.2
+              dhcp_end: 192.168.132.254
+              khaleesi_managed: true
+        net_2:
+              name: pxe_net
+              forward_mode: nat
+              ip_address: 192.168.70.1
+              ip_netmask: 255.255.255.0
+              khaleesi_managed: true
+        net_3:
+              name: openstack_tenant
+              dhcp_enabled: true
+              forward_mode: none
+              ip_address: 172.16.16.1
+              ip_netmask: 255.255.255.0
+              dhcp_start: 172.16.16.2
+              dhcp_end: 172.16.16.254
+              khaleesi_managed: true
+        net_4:
+              name: openstack_floating_ips
+              forward_mode: none
+              ip_address: 192.168.123.1
+              ip_netmask: 255.255.255.0
+              khaleesi_managed: true

@@ -1,0 +1,9 @@
+job:
+    verbosity: !lookup verbosity.info
+
+verbosity:
+    debug: 0
+    info:  1
+    warn:  2
+    warning:  2
+    errors:  3

@@ -1,0 +1,6 @@
+--- !extends:../tenant/rdo-ci.yml
+
+provisioner:
+    username: rdo-ci
+    password: !env TRYSTACK_PASSWORD
+

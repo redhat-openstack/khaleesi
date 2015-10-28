@@ -1,0 +1,16 @@
+--- !extends:common/common.yml
+installer:
+    type: packstack
+    short_type: pksk
+
+    packstack:
+        answer_file: packstack_config.txt
+
+job:
+    archive:
+        - /var/tmp/packstack
+
+defaults:
+    messaging: rabbitmq
+    network: neutron
+    config: default

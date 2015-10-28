@@ -1,0 +1,6 @@
+--- !extends:common/rhel.yml
+
+distro:
+    version: "6.5"
+    short_version: 65
+    epel_release: http://fedora.mirrors.pair.com/epel/6/i386/epel-release-6-8.noarch.rpm

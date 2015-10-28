@@ -1,0 +1,5 @@
+---
+storage:
+  object:
+    plugin:
+      name: object

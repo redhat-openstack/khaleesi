@@ -1,0 +1,6 @@
+--- !extends:../tenant/whayutin.yml
+
+provisioner:
+    username: whayutin
+    password: override password
+

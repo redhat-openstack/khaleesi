@@ -1,0 +1,14 @@
+--- !extends:common/all.yml
+
+distro:
+    version: '20'
+    short_version: '20'
+    name: fedora
+    short_name: f
+    fedora:
+        '20':
+            repos: []
+
+job:
+    archive:
+        - /etc/yum.repos.d

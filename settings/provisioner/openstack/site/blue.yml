@@ -1,0 +1,45 @@
+provisioner:
+    auth_url: !lookup private.provisioner.blue.auth_url
+    network:
+        name: Floating
+        type: neutron
+        use_floating_ip: false
+        network_list:
+            management:
+                name: Default-mgmt
+                id: 6977bdf6-9811-415a-a57a-1f54d71bbe5a
+            external:
+                name: Nested-bridge
+                id: 57401469-484b-4002-b2f6-298071b1dc7f
+                subnet_cidr: 10.35.184.0/23
+                subnet_gateway:  10.35.185.254
+
+    images:
+      centos:
+        '7.0': {id: 58059085-6af7-4d9c-9d35-b83dec39c5bc, name: CentOS-7-x86_64-GenericCloud-1503,
+          remote_user: centos}
+      fedora:
+        '20': {id: 144c3661-ea76-4607-ba5f-c3e97fd5869b, name: fedora20_64, remote_user: fedora}
+        '21': {id: 58428022-1ff8-4807-8e8a-e03dbb49ae51, name: Fedora21_Cloud-Base-20141203-21.x86_64.qcow2, remote_user: fedora}
+        '22': {id: 6dd20b79-3459-4b63-ac2d-5fea31c79505, name: Fedora22_Cloud-Base-22-20150521.x86_64.qcow2, remote_user: fedora}
+      rhel:
+        '6.5': {id: 29035972-4891-4650-861e-8ca96bd8576c, name: rhel-guest-image-6.5-20140930.0.x86_64.qcow2,
+          remote_user: cloud-user}
+        '7.0': {id: d8980e76-a37c-47c0-9786-3f3ad14c4c47, name: rhel-guest-image-7.0-20140909.0.x86_64.qcow2,
+          remote_user: cloud-user}
+        '7.1': {id: 46424043-b38e-493f-a886-faf92e20f983, name: rhel-guest-image-7.1-20150224.0.x86_64.qcow2,
+          remote_user: cloud-user}
+
+    flavor:
+        tiny:  1
+        small: 2
+        medium: 3
+        large: f972a6d2-b780-4450-b016-cd5c25e64482
+
+    storage:
+        shares:
+            nfs: !lookup private.storage.shares.nfs
+            gluster: !lookup private.storage.shares.gluster
+            nfs_netapp: !lookup private.storage.shares.nfs_netapp
+            xtremio: !lookup private.storage.shares.xtremio
+            ceph: !lookup private.storage.shares.ceph

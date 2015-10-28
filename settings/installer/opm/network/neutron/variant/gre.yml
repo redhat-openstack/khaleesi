@@ -1,0 +1,5 @@
+installer:
+    network:
+        variant:
+            short_name: gre
+

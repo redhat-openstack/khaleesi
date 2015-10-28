@@ -1,0 +1,10 @@
+---
+tester:
+    type: functional
+    name: dsvm-functional
+    short_name: func
+    component:
+        config_file: jenkins-config.yml
+node:
+    prefix:
+        - !lookup tester.short_name

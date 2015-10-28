@@ -1,0 +1,5 @@
+---
+provisioner:
+    image:
+        remote_file_server: !lookup private.installer.custom_deploy.image.remote_file_server
+        name: CentOS-7-x86_64-GenericCloud-20150628_01

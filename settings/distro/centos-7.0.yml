@@ -1,0 +1,9 @@
+--- !extends:common/centos.yml
+
+distro:
+    version: "7.0"
+    short_version: 70
+    centos:
+        "7.0":
+            repos: []
+    epel_release: http://mirror.umd.edu/fedora/epel/7/x86_64/e/epel-release-7-5.noarch.rpm

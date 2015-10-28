@@ -1,0 +1,6 @@
+--- !extends:../tenant/rhos-dev.yml
+
+provisioner:
+    username: rhos-dev
+    password: !lookup private.provisioner.qeos.rhos-dev.password
+

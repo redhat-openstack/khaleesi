@@ -1,0 +1,6 @@
+# Use provisioner: skip=skip_provision to bypass any of the provisioning, this implies the
+# user has correctly set up an environment and the ansible hosts settings
+
+# To ensure provisioning is executed use skip: execute_provision
+provisioner:
+      skip: execute_provision

@@ -1,0 +1,19 @@
+--- !extends:./rhos-jenkins.yml
+
+provisioner:
+    tenant_name: rhos-dev
+    network:
+        nic:
+            net_1:
+                name: rhos-dev
+                id: f060a1fb-d9cd-41b3-aad4-fc69ac34b888
+            net_2:
+                name: rhos-dev-2
+                id: 67a359d4-0027-429c-8864-3b6086a5a624
+            net_3:
+                name: rhos-dev-3
+                id: b84ed76d-63de-4e90-9032-f5ca610129cb
+        public_subnet_cidr: 172.16.42.0/24
+        public_allocation_start: 172.16.42.200
+        public_allocation_end: 172.16.42.220
+        public_subnet_gateway: 172.16.42.1

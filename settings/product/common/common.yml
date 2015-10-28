@@ -1,0 +1,6 @@
+node:
+    prefix:
+        - !lookup product.short_name
+
+workaround:
+    set_key_encrypted_volumes: true

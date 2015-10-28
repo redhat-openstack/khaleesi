@@ -1,0 +1,23 @@
+--- !extends:common/image.yml
+
+provisioner:
+    tenant_name: rhos-jenkins
+    key_file: oslab-rhos-jenkins.pem
+    key_name: oslab-rhos-jenkins
+    network:
+        nic:
+            net_1:
+                name: openstack-deploy-public
+                id: 15a03c42-e196-451d-9fc7-7920a25f0489
+            net_2:
+                name: openstack-deploy-private
+                id: 9730ce10-8e5a-493d-9d95-c56a0924ff1d
+            net_3:
+                name: openstack-deploy-external
+                id: f1097c25-db98-4f7a-a867-0cd2aaa2e68b
+        subnets_netmask: 255.255.0.0
+        public_subnet_cidr: 172.17.0.0/24
+        public_allocation_start: 172.17.0.200
+        public_allocation_end: 172.17.0.220
+        public_subnet_gateway: 172.17.0.1
+

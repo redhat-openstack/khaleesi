@@ -1,0 +1,19 @@
+---
+node:
+    prefix:
+        - !random 5
+        - !env [USER, ~, 8]
+        - !env [BUILD_NUMBER, ~]
+hostname:
+    prefix:
+        - !random 5
+
+tmp:
+    node_prefix: '{{ node.prefix | reject("none") | join("-") }}-'
+    hostname_prefix: '{{ hostname.prefix | reject("none") | join("-") }}-'
+
+job:
+    archive:
+        - /var/log/
+
+base_dir: !env WORKSPACE

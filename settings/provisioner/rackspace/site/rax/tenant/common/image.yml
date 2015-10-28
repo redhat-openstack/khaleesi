@@ -1,0 +1,12 @@
+provisioner:
+  image:
+    rhel:
+      "6.5":
+        remote_user: root
+        name: rhel-6
+        id: 042395fc-728c-4763-86f9-9b0cacb00701
+    fedora:
+      "20":
+        remote_user: root
+        name: fedora-20
+        id: 5596255c-e9ae-48da-866c-9bbdd345ed39

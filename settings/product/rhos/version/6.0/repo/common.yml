@@ -1,0 +1,12 @@
+#todo remove this file, mirror lookups should not be version based.
+location:
+    defaultrepo_string: !lookup private.location.defaultrepo_string
+    map:
+        bos: !lookup private.location.map.bos
+        brq: !lookup private.location.map.brq
+        nay: !lookup private.location.map.nay
+        bne: !lookup private.location.map.bne
+        tlv: !lookup private.location.map.tlv
+        blr: !lookup private.location.map.blr
+        pnq: !lookup private.location.map.pnq
+        rdu: !lookup private.location.map.rdu

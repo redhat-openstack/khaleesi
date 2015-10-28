@@ -1,0 +1,21 @@
+--- !extends:common/common.yml
+provisioner:
+    type: manual
+    key_file: !env [ KEY_FILE, ~/.ssh/id_rsa ]
+
+    image:
+        rhel:
+            '6.5':
+                id:
+                remote_user: cloud-user
+            '7.0':
+                id:
+                remote_user: cloud-user
+        centos:
+            '6.5':
+                id:
+                remote_user: cloud-user
+        fedora:
+            '20':
+                id:
+                remote_user: fedora

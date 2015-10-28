@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: horizon
+        short_name: hrzn
+        dir: !join [ !env PWD, /../horizon]
+        dist_git: openstack-horizon
+        codeng: horizon
+        config_file: jenkins-config.yml

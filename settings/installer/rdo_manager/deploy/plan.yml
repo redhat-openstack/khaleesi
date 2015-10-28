@@ -1,0 +1,4 @@
+installer:
+    deploy:
+        type: plan
+        command: '--plan overcloud'

@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: neutron-vpnaas
+        short_name: n-vpnaas
+        dir: !join [ !env PWD, /../neutron-vpnaas]
+        dist_git: openstack-neutron-vpnaas
+        codeng: neutron-vpnaas
+        config_file: jenkins-config.yml

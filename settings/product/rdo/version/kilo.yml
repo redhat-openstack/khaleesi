@@ -1,0 +1,27 @@
+tmp:
+    anchors:
+    - &rpmurl 'https://rdoproject.org/repos/openstack-kilo/rdo-release-kilo.rpm'
+    - &repo_url 'https://rdoproject.org/repos/openstack-kilo/'
+
+product:
+    full_version: kilo
+    short_version: ki
+    version:
+        major: 7
+        minor: 0
+        code_name: kilo
+    rpmrepo:
+        CentOS: *rpmurl
+        Fedora: *rpmurl
+        RedHat: *rpmurl
+
+# tempest.rdo.rpm = what rdo openstack clients to install
+# tempest.rdo.version = what branch of https://github.com/redhat-openstack/tempest to use
+# tempest.rpm.version = pin the version of the rpm used
+# tempest.use_custom_repo = specify the repo vs.. use rdo repos
+# custom repos for tempest RPM are defined in settings/tester/tempest/setup/rpm.yml
+tempest:
+    rdo:
+        rpm: https://rdoproject.org/repos/openstack-kilo/rdo-release-kilo.rpm
+        version: kilo
+    use_custom_repo: false

@@ -1,0 +1,13 @@
+--- !extends:common/rhel.yml
+
+distro:
+    version: "7.2"
+    short_version: 72
+    epel_release: http://mirror.umd.edu/fedora/epel/7/x86_64/e/epel-release-7-5.noarch.rpm
+    repo:
+        rdopkg: https://copr.fedoraproject.org/coprs/jruzicka/rdopkg/repo/epel-7/jruzicka-rdopkg-epel-7.repo
+        rhpkg: "{{ !lookup private.distro.rhel.download_server }}/rel-eng/dist-git/rhel/rhpkg.repo"
+
+workarounds:
+    bz1262357:
+        enabled: true

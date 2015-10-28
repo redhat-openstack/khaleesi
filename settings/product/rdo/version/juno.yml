@@ -1,0 +1,47 @@
+tmp:
+    anchors:
+    - &rpmurl 'https://repos.fedorapeople.org/repos/openstack/openstack-juno/rdo-release-juno-1.noarch.rpm'
+    - &repo_url 'http://repos.fedorapeople.org/repos/openstack/openstack-juno/'
+
+product:
+    full_version: juno
+    short_version: ju
+    version:
+        major: 6
+        minor: 0
+        code_name: juno
+    rpmrepo:
+        CentOS: *rpmurl
+        Fedora: *rpmurl
+        RedHat: *rpmurl
+### NOTE ###
+# khaleesi require details about the production repo for all jobs since it does
+# a repodiff against production for all other repos.
+    repo:
+        production:         # by default have production available for all jobs
+            CentOS:
+                '6.5': !join [*repo_url, epel-6]
+                '7.0': !join [*repo_url, epel-7]
+                '7.0.1406': !join [*repo_url, epel-7]
+                '7.1.1503': !join [*repo_url, epel-7]
+            Fedora:
+                '20': !join [*repo_url, fedora-20]
+                '21': !join [*repo_url, fedora-21]
+
+            RedHat:
+                '6.5': !join [*repo_url, epel-6]
+                '6.6': !join [*repo_url, epel-6]
+                '6.7': !join [*repo_url, epel-6]
+                '7.0': !join [*repo_url, epel-7]
+                '7.1': !join [*repo_url, epel-7]
+
+# tempest.rdo.rpm = what rdo openstack clients to install
+# tempest.rdo.version = what branch of https://github.com/redhat-openstack/tempest to use
+# tempest.rpm.version = pin the version of the rpm used
+# tempest.use_custom_repo = specify the repo vs.. use rdo repos
+# custom repos for tempest RPM are defined in settings/tester/tempest/setup/rpm.yml
+tempest:
+    rdo:
+        rpm: https://repos.fedorapeople.org/repos/openstack/openstack-kilo/rdo-release-kilo-1.noarch.rpm
+        version: kilo
+    use_custom_repo: false

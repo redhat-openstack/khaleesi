@@ -1,0 +1,18 @@
+tester:
+   guest_image:
+       url: http://10.35.187.115/images/fedora.img
+   tempest:
+       test_regex: all
+       whitelist:
+           - tempest.scenario.test_network_basic_ops
+       blacklist: null
+       config_options:
+           - 'network.port_vnic_type direct'
+           - 'compute.image_ssh_user fedora'
+           - 'compute.flavor_ref 2'
+           - 'network-feature-enabled.port_admin_state_change False'
+           - 'compute-feature-enabled.preserve_ports True'
+           - 'compute-feature-enabled.suspend False'
+           - 'scenario.dhcp_client dhclient'
+
+

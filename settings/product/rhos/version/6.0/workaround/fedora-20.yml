@@ -1,0 +1,3 @@
+workaround:
+    staypuft_kickstart_template: true
+    staypuft_pxe_template: true

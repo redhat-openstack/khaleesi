@@ -1,0 +1,6 @@
+--- !extends:common/rhel.yml
+
+packstack:
+    distro: Fedora 20
+    config:
+        CONFIG_USE_EPEL: !lookup product.config.enable_epel

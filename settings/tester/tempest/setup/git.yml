@@ -1,0 +1,28 @@
+tester:
+    setup: git
+    git:
+        repo: https://github.com/redhat-openstack/tempest.git
+        revision: HEAD
+    use_virtual_env: true
+
+    rpms:
+        - https://repos.fedorapeople.org/repos/openstack/openstack-juno/rdo-release-juno-1.noarch.rpm
+
+    packages:
+        - facter
+        - gcc
+        - git
+        - libffi-devel
+        - libxml2-devel
+        - libxslt-devel
+        - mariadb-devel
+        - openssl-devel
+        - python-pip
+        - python-virtualenv
+
+    pip_packages:
+        - junitxml
+        - unittest2
+        - nose
+        - testtools==0.9.36 # Tempest needs at least 0.9.36 (assertIn problem)
+        - python-subunit==0.0.15

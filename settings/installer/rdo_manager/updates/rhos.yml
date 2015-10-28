@@ -1,0 +1,8 @@
+installer:
+    updates:
+        name: rhos
+        enabled: true
+
+defaults:
+    version: latest
+    repo: poodle

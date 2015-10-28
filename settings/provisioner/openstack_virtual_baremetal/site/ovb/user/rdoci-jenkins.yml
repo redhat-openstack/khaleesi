@@ -1,0 +1,7 @@
+provisioner:
+    beaker_user_name: rdoci-jenkins/REPLACE_ME@REDHAT.COM
+    beaker_group: openstack-m
+    key_file: !join [!env PWD, /../khaleesi-settings/settings/provisioner/beaker/site/bkr/user/keys/rdoci-jenkins.pem]
+    key_file_name: rdoci-jenkins.pem
+    pub_file: !join [!env PWD, /../khaleesi-settings/settings/provisioner/beaker/site/bkr/user/keys/id_rsa_rdoci-jenkins.pub]
+    pub_file_name: id_rsa.pub

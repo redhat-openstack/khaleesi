@@ -1,0 +1,30 @@
+--- !extends:common/image.yml
+
+provisioner:
+    tenant_name: rhos-jenkins
+
+    network:
+        network_list:
+            management:
+                name: rhos-jenkins-big
+                id: 9f8f49fe-2044-43a9-80ed-207a35e1aa8d
+            data:
+                name: rhos-jenkins-1
+                id: 8b7375b8-971c-4864-b509-21786afc4705
+            external:
+                name: rhos-jenkins
+                id: af671cde-de07-4207-a041-5f7124d9dfaf
+                subnet_cidr: 192.168.1.0/24
+                subnet_gateway: 192.168.1.1
+                allocation_start: 192.168.1.200
+                allocation_end: 192.168.1.220
+
+    flavor:
+        tiny:  1
+        small: 2
+        medium: 3
+        large: 4
+        large_testing: fd702dfe-5c74-4000-913c-fedde57a34fe
+        large_ephemeral: 78696021-bf5c-47f7-8de6-1d06e1f67c04
+        medlarge: 16
+        xlarge: 5

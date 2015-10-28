@@ -1,0 +1,6 @@
+tester:
+    tempest:
+        test_regex: tempest\.api.*volume.*
+        whitelist:
+          - tempest\.scenario.*volume.*
+        blacklist: []

@@ -1,0 +1,44 @@
+provisioner:
+  image:
+    rhel:
+      "6.5":
+        remote_user:
+        name:
+        id:
+      "6.6":
+        remote_user: cloud-user
+        name: rhel-guest-image-6.6-20141222.0.x86_64.qcow2
+        id:   71d06914-d36c-4445-aec6-1c932d923aac
+      "7.0":
+        remote_user: cloud-user
+        name: rhel-guest-image-7.0-20140909.0.x86_64.qcow2
+        id:   99104d87-889b-4e72-856b-f28969bde5be
+      "7.1":
+        remote_user: cloud-user
+        name: rhel-guest-image-7.1-20141212.0.x86_64.qcow2
+        id:   eaa3f6b3-25fb-4ca1-ba7c-62afca581588
+
+    fedora:
+      "19":
+        remote_user: fedora
+        name:
+        id:
+      "20":
+        remote_user: fedora
+        name: fedora20_64
+        id:   c9cecc48-1657-4c07-9e3e-1fc16f643070
+      "21":
+        remote_user: fedora
+        name:
+        id:
+
+    centos:
+      "6.5":
+        remote_user:
+        name:
+        id:
+      "7.0":
+        remote_user: centos
+        name: centos7_64
+        id:   ef3d2227-499d-4d01-859b-a3e87dd1b0a7
+

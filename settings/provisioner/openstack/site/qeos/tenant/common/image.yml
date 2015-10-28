@@ -1,0 +1,29 @@
+provisioner:
+  images:
+    centos:
+      '6.5': {id: bc0e7c65-7c97-46e3-91d1-1eea2d32a390, name: centos-6.5-20140117.0.x86_64,
+        remote_user: cloud-user}
+      '7.0': {id: 254f701d-f019-44b0-a20e-4dcbab97eda5, name: CentOS-7-x86_64-GenericCloud-20140829_01,
+        remote_user: centos}
+      '7.1': {id: c064b47b-f1a3-47cc-8634-c774f4023fcc, name: CentOS-7.1.1503-x86_64-GenericCloud,
+        remote_user: centos}
+    fedora:
+      '19': {id: 470965f4-8c50-4803-818d-cf8f6dfbbf78, name: fedora-19_jeos, remote_user: fedora}
+      '20': {id: f7012a55-1969-413c-a362-47d773f1d667, name: fedora-20_jeos, remote_user: fedora}
+      '21': {id: da0efc1f-9ca3-4727-8b77-5837fab1d91a, name: Fedora-Cloud-Base-20141203-21.x86_64,
+        remote_user: fedora}
+      '22': {id: a79f06f6-a219-424d-af60-a8261241bf06, name: Fedora-Cloud-Base-22-20150521.x86_64,
+        remote_user: fedora}
+    rhel:
+      '6.5': {id: 374c4bd9-4a46-4fa7-aa8f-087f457c3399, name: rhel-guest-image-6.5-20140930,
+        remote_user: cloud-user}
+      '6.6': {id: ac98e93d-34a3-437d-a7ba-9ad24c02f5b2, name: rhel-guest-image-6.6-20150127.0,
+        remote_user: cloud-user}
+      '6.7': {id: 183d828c-8801-444f-b834-feebd9f6510f, name: rhel-guest-image-6.7-20150702.0,
+        remote_user: cloud-user}
+      '7.0': {id: 44ede052-1e0d-40b1-8f49-77a9c7e55a8e, name: rhel-guest-image-7.0-20150127.0,
+        remote_user: cloud-user}
+      '7.1': {id: 5cf5b0a3-6e65-486d-b1a8-c3443963676c, name: rhel-guest-image-7.1-20150224.0,
+        remote_user: cloud-user}
+      '7.2': {id: 173a6562-8d75-4555-ac6f-9a2b365f5a75, name: rhel-guest-image-7.2-20150821.0,
+        remote_user: cloud-user}

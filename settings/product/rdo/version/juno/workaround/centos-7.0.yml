@@ -1,0 +1,11 @@
+workaround:
+    mysql_centos7: false
+    iptables_install: false
+    centos7_release: false
+    messagebus_centos7: false
+    reseller_admin_role: true
+    nova_scheduler_default_filters: true
+    default_floating_pool: true
+    s3_objectstore_endpoint: true
+    nova_objectstore_install: true
+    mongodb: false

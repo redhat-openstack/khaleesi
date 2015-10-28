@@ -1,0 +1,12 @@
+installer:
+    network:
+        ha: false
+        type: neutron
+        label: &network_label myphysnet
+        auto_assign_floating_ip: false
+        name: nova
+        external:
+            vlan:
+                tag: ''
+                bridge: "br-{{ !lookup installer.network.label }}"
+            provider_network_type: flat

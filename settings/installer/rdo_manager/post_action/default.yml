@@ -1,0 +1,4 @@
+installer:
+    post_action:
+        - setup_network
+        - tempest

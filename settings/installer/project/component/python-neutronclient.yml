@@ -1,0 +1,8 @@
+installer:
+   component:
+       name: python-neutronclient
+       short_name: py-ntrnclnt
+       dir: !join [ !env WORKSPACE, /python-neutronclient]
+       dist_git: python-neutronclient
+       codeng: python-neutronclient
+       config_file: jenkins-config.yml

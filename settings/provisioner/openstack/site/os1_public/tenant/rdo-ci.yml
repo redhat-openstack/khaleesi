@@ -1,0 +1,24 @@
+--- !extends:common/image.yml
+
+# TODO: khaleesi use the dict below
+provisioner:
+    tenant_name: rdo-ci
+    key_file: rdo-ci-public.pem
+    key_name: rdo-ci-public
+    network:
+        name: os1_public
+        nic:
+            net_1:
+                name: novanetwork_82
+                id:  38001a9b-c394-4371-8b97-c19b3cf3a9c7
+            net_2:
+                name: novanetwork_90
+                id:  bd2076b5-cf70-4664-9ba5-7d3e504cb311
+            net_3:
+                name: novanetwork_91
+                id:  57e1d576-7261-4b0b-8197-b7868a70eb16
+        public_subnet_cidr: 172.18.191.0/24
+        public_allocation_start: 172.18.191.200
+        public_allocation_end: 172.18.191.220
+        public_subnet_gateway: 172.18.191.1
+

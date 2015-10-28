@@ -1,0 +1,4 @@
+workaround:
+    reseller_admin_role: true
+    nova_scheduler_default_filters: true
+    default_floating_pool: true

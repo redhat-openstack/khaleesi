@@ -1,0 +1,4 @@
+---
+provisioner:
+    distro:
+        version: 7

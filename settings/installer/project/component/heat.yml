@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: heat
+        short_name: heat
+        dir: !join [ !env PWD, /../heat]
+        dist_git: openstack-heat
+        codeng: heat
+        config_file: jenkins-config.yml

@@ -1,0 +1,3 @@
+installer:
+    post_action:
+        - validate

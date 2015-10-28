@@ -1,0 +1,6 @@
+--- !extends:common/bm.yml
+provisioner:
+    type: centosci
+    network:
+        type: none
+    node_count: 1

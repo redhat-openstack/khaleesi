@@ -1,0 +1,13 @@
+provisioner:
+    url: !lookup private.provisioner.oslab.auth_url
+    network:
+        name: external
+        type: neutron
+    flavor:
+        tiny:  1
+        small: 2
+        medium: 3
+        large: 3
+        medlarge: 4
+        xlarge: 9
+

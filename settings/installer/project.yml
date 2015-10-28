@@ -1,0 +1,8 @@
+--- !extends:common/common.yml
+installer:
+    type: project
+    short_type: proj
+
+node:
+    prefix:
+       - !lookup installer.component.short_name

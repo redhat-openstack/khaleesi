@@ -1,0 +1,22 @@
+--- !extends:common/image.yml
+
+provisioner:
+    tenant_name: rh-openstack-eng
+    key_file: rhos-jenkins.pem
+    key_name: rhos-jenkins
+    network:
+        nic:
+            net_1:
+                name: rh-openstack-eng-1
+                id: a527bc01-3635-4be4-b80e-a341bfa1455c
+            net_2:
+                name: foo
+                id: 8b7375b8-971c-4864-b509-21786afc4705
+            net_3:
+                name: bar
+                id: af671cde-de07-4207-a041-5f7124d9dfaf
+        public_subnet_cidr: 192.168.1.0/24
+        public_allocation_start: 192.168.1.200
+        public_allocation_end: 192.168.1.220
+        public_subnet_gateway: 192.168.1.1
+

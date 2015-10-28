@@ -1,0 +1,7 @@
+--- !extends:common/common.yml
+provisioner:
+    type: openstack
+
+defaults:
+    site: qeos
+    topology: all-in-one

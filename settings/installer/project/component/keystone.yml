@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: keystone
+        short_name: key
+        dir: !join [ !env PWD, /../keystone]
+        dist_git: openstack-keystone
+        codeng: keystone
+        config_file: jenkins-config.yml

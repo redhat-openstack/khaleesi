@@ -1,0 +1,6 @@
+--- !extends:common.yml
+
+topology:
+    short_name: aio
+    name: all-in-one
+

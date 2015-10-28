@@ -1,0 +1,5 @@
+--- !extends:common/fedora.yml
+
+distro:
+    version: "19"
+    short_version: 19

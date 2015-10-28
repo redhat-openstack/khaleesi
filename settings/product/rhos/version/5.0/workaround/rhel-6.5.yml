@@ -1,0 +1,5 @@
+workaround:
+    staypuft_kickstart_template: true
+    rhel65_update: true
+    staypuft_pxe_template: true
+    default_floating_pool: true

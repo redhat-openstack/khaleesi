@@ -1,0 +1,2 @@
+provisioner:
+    key_file: !join [ !env HOME, /rdo-ci-public.pem ]

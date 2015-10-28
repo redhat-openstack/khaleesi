@@ -1,0 +1,10 @@
+--- !extends:common.yml
+tester:
+    type: unittest
+    name: pep8
+    component:
+        config_file: !lookup installer.component.config_file
+        tox_target: pep8
+node:
+    prefix:
+        - !lookup tester.name

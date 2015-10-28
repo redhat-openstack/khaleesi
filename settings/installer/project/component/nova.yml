@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: nova
+        short_name: nova
+        dir: !join [ !env PWD, /../nova]
+        dist_git: openstack-nova
+        codeng: nova
+        config_file: jenkins-config.yml

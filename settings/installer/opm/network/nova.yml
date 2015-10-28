@@ -1,0 +1,4 @@
+installer:
+    network:
+        plugin:
+            name: nova

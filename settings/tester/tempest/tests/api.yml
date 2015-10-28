@@ -1,0 +1,5 @@
+tester:
+    tempest:
+        test_regex: tempest\.api
+        whitelist: []
+        blacklist: []

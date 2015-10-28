@@ -1,0 +1,4 @@
+---
+installer:
+    network:
+        isolation: single_nic_vlans

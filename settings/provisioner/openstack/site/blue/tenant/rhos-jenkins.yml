@@ -1,0 +1,10 @@
+provisioner:
+    tenant_name: rhos-jenkins
+    network:
+        network_list:
+            data:
+                name: Private-network
+                id: a2cc7f29-4563-4ac8-8f72-6078fe821783
+            external:
+                allocation_start: 10.35.185.1
+                allocation_end:  10.35.185.253

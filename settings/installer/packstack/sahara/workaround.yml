@@ -1,0 +1,12 @@
+--- !extends:common/shared.yml
+
+provisioner:
+    nodes:
+        controller:
+            groups:
+                - sahara
+
+installer:
+    firewall:
+        rules:
+            - ' -A INPUT -p tcp -m tcp --dport 8386 -m comment --comment "001 sahara api incoming" -j ACCEPT'

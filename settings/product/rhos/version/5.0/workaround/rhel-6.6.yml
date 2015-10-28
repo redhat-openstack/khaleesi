@@ -1,0 +1,8 @@
+workaround:
+    staypuft_kickstart_template: true
+    staypuft_pxe_template: true
+    default_floating_pool: true
+    cinder_restart_backup: true
+    nova_objectstore_install: true
+    s3_objectstore_endpoint: true
+    upgrade_python_boto: true

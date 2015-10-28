@@ -1,0 +1,6 @@
+--- !extends:common/common.yml
+product:
+  name: rdo
+  short_name: rdo
+  config:
+    enable_epel: y

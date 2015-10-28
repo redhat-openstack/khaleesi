@@ -1,0 +1,13 @@
+---
+installer:
+  overcloud_images: import
+  images:
+    files:
+      - deploy-ramdisk-ironic
+      - discovery-ramdisk
+      - overcloud-full
+    url:
+      rhos:
+        '7-director':
+          rhel:
+            '7.1': !lookup private.installer.images.rhos.7_director.rhel.7.1

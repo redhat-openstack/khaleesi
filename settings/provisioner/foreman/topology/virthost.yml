@@ -1,0 +1,11 @@
+---
+provisioner:
+    nodes:
+        controller:
+            name: host0
+            fqdn: '{{ MANDATORY_FIELD }}'
+            remote_user: stack
+            rebuild: yes
+            groups:
+                - provisioned
+                - virthost

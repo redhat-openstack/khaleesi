@@ -1,0 +1,2 @@
+#internal mirror location for rhos (only) yum repositories
+user_location: blr

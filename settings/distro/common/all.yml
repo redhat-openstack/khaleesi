@@ -1,0 +1,17 @@
+distro:
+    images:
+        fedora:
+            '20':
+                remote_user: fedora
+                guest_image_name: "Fedora-x86_64-20-20140618-sda.qcow2"
+                remote_file_server: "http://dl.fedoraproject.org/pub/alt/openstack/20/x86_64/"
+            '21':
+                remote_user: fedora
+                guest_image_name: "Fedora-Cloud-Base-20141203-21.x86_64.qcow2"
+                remote_file_server: "http://mirror.pnl.gov/fedora/linux/releases/21/Cloud/Images/x86_64/"
+    config:
+        dns_servers:
+            - !lookup private.dns_servers.first_dns
+            - !lookup private.dns_servers.second_dns
+        reboot_delay: 1
+        initial_boot_timeout: 180 #seconds

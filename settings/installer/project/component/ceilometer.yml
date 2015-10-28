@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: ceilometer
+        short_name: ceil
+        dir: !join [ !env PWD, /../ceilometer]
+        dist_git: openstack-ceilometer
+        codeng: ceilometer
+        config_file: jenkins-config.yml

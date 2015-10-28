@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: python-rdomanager-oscplugin
+        short_name: p-rdo-osc
+        dir: !join [ !env PWD, /../python-rdomanager-oscplugin]
+        dist_git: openstack-python-rdomanager-oscplugin
+        codeng: python-rdomanager-oscplugin
+        config_file: jenkins-config.yml

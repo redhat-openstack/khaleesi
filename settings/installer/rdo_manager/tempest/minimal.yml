@@ -1,0 +1,4 @@
+installer:
+    tempest:
+        enabled: true
+        test_regex: tempest\.scenario\.test_minimum_basic

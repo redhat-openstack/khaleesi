@@ -1,0 +1,21 @@
+--- !extends:../../common/aio.yml
+
+nodes:
+    controller: &controller
+        name: '{{ tmp.node_prefix }}testhost'
+        hostname: '{{ installer.name }}.example.com'
+        image_id: '{{ provisioner.image[distro.name][distro.version].id }}'
+        remote_user: !lookup provisioner.image[distro.name][distro.version].remote_user
+        flavor_id: !lookup provisioner.flavor.large
+        nics:
+            - net-id: !lookup provisioner.network.nic.net_1.id
+            - net-id: !lookup provisioner.network.nic.net_2.id
+
+        net_interfaces:
+            - { interface: 'eth1',
+                network_name: !lookup provisioner.network.nic.net_2.name }
+        groups:
+            - opmtesthost
+            - !lookup installer.name
+            - !lookup product.name
+            - !lookup installer.network.plugin.name

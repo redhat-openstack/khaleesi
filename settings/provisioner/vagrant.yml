@@ -1,0 +1,8 @@
+--- !extends:common/common.yml
+provisioner:
+    type: vagrant
+    network:
+        public_subnet_cidr:
+        public_allocation_start:
+        public_allocation_end:
+        public_subnet_gateway:

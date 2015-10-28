@@ -1,0 +1,16 @@
+gating_repo: "python-rdomanager-oscplugin"
+patch:
+  upstream:
+    name: "upstream-python-rdomanager-oscplugin"
+    url: "https://git.openstack.org/openstack/python-tripleoclient"
+  gerrit:
+    name: "gerrit-python-rdomanager-oscplugin"
+    url: "{{ !lookup private.building.repos.gerrit }}python-rdomanager-oscplugin"
+    branch: "{{ lookup('env', 'GERRIT_BRANCH') }}"
+    refspec: "{{ lookup('env', 'GERRIT_REFSPEC') }}"
+  dist_git:
+    name: "python-rdomanager-oscplugin"
+    url: "{{ !lookup private.building.repos.dist_git }}python-rdomanager-oscplugin"
+    use_director: True
+    # use_director flag marks it to use the pmgr branch (old name for the director)
+    # the rule is always use pmgr if it exists. Only exception to that is python-tuskarclient

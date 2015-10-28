@@ -1,0 +1,22 @@
+provisioner:
+  image:
+    fedora:
+      "21":
+        remote_user: fedora
+        name: Fedora 21 x86_64
+        id: 2dadcc7b-3690-4a1d-97ce-011c55426477
+      "20":
+        remote_user: fedora
+        name: Fedora 20 x86_64
+        id: f97b8d36-935e-4666-9c58-8a0afc6d3796
+    centos:
+      "6.5":
+        remote_user: cloud-user
+        name: CentOS 6.5 x86_64
+        id: c8dd9096-60c1-4e23-a486-82955481df9f
+      "7.0":
+        remote_user: centos
+        name: centos-7-update-9-16
+        id: 2e4c08a9-0ecd-4541-8a45-838479a88552
+
+

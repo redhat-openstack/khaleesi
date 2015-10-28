@@ -1,0 +1,47 @@
+--- !extends:common/common.yml
+
+installer:
+    type: rdo-manager
+    short_type: rmgr
+    validate:
+        tenant_network_name: private
+        router_name: ext-to-int
+        admin_username: admin
+        admin_tenant_name: admin
+        admin_password: redhat
+        keystone_endpoint: http://127.0.0.1:5000/v2.0/
+        instance_name: khaleesi
+        image:
+            user: cirros
+            url: http://download.cirros-cloud.net/0.3.4/
+            id: cirros-0.3.4-x86_64-disk.img
+    tempest:
+        dir: tempest
+
+provisioner:
+    remote_user: 'stack'
+
+base_dir: !env WORKSPACE
+instack_user_home: /home/{{ !lookup provisioner.remote_user }}
+
+job:
+    archive:
+        - /home/stack/.instack/install-undercloud.log
+        - /home/stack/stackrc
+        - /home/stack/*.log
+        - /home/stack/*.json
+        - /home/stack/*.conf
+        - /home/stack/deploy-overcloudrc
+        - /home/stack/network-environment.yaml
+        - /home/stack/tempest/*.xml
+        - /home/stack/tempest/*.log
+        - /home/stack/tempest/etc/*.conf
+
+defaults:
+    deploy: templates
+    post_action: default
+    network: neutron
+    flavor: xsmall
+    tempest: minimal
+    updates: none
+    custom_deploy: none

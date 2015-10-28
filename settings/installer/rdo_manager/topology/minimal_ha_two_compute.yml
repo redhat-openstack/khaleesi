@@ -1,0 +1,10 @@
+--- !extends:minimal.yml
+installer:
+    topology_name: minimal_ha_two_compute
+    nodes:
+        node_count: 6
+        controller:
+            scale: 3
+        compute:
+            scale: 2
+

@@ -1,0 +1,12 @@
+--- !extends:common/bm.yml
+provisioner:
+    key_file: ~/.ssh/id_rsa
+    type: foreman
+    foreman:
+        auth_url: !lookup private.provisioner.foreman.auth_url
+        username: !lookup private.provisioner.foreman.username
+        password: !lookup private.provisioner.foreman.password
+        management:
+            strategy: foreman
+            action: cycle
+        wait_for_host: true

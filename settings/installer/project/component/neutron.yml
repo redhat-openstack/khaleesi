@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: neutron
+        short_name: ntrn
+        dir: !join [ !env PWD, /../neutron]
+        dist_git: openstack-neutron
+        codeng: neutron
+        config_file: jenkins-config.yml

@@ -1,0 +1,36 @@
+---
+installer:
+    sahara:
+        services:
+            legacy:
+                - openstack-sahara-api
+            unifiedold:
+                - openstack-sahara-all
+            unified:
+                - openstack-sahara-all
+            split:
+                - openstack-sahara-api
+                - openstack-sahara-engine
+        endpoint:
+            legacy:
+                data_processing
+            unifiedold:
+                data_processing
+            unified:
+                data-processing
+            split:
+                data-processing
+        packages:
+            legacy:
+                - openstack-sahara
+            unifiedold:
+                - openstack-sahara
+            unified:
+                - openstack-sahara
+            split:
+                - openstack-sahara-api
+                - openstack-sahara-engine
+
+job:
+    archive:
+        - /etc/sahara

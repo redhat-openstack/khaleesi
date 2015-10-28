@@ -1,0 +1,13 @@
+---
+installer:
+  overcloud_images: import
+  images:
+    files:
+      - deploy-ramdisk-ironic
+      - ironic-python-agent
+      - overcloud-full
+    url:
+      rdo:
+        'liberty':
+          centos:
+            '7.0': "https://repos.fedorapeople.org/repos/openstack-m/rdo-images-centos-liberty/"

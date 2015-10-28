@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: neutron-fwaas
+        short_name: n-fwaas
+        dir: !join [ !env PWD, /../neutron-fwaas]
+        dist_git: openstack-neutron-fwaas
+        codeng: neutron-fwaas
+        config_file: jenkins-config.yml

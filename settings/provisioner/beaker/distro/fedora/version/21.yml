@@ -1,0 +1,4 @@
+---
+provisioner:
+    beaker_family: Fedora21
+    beaker_distro: Fedora-21

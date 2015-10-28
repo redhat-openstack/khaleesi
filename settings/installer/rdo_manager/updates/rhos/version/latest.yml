@@ -1,0 +1,5 @@
+installer:
+    updates:
+        target_core_product_version: 7-director
+        target_full_version: 7-director
+        target_pin_version: latest

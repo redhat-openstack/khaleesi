@@ -1,0 +1,5 @@
+---
+storage:
+  image:
+    plugin:
+      name: image

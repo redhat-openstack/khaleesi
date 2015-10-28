@@ -1,0 +1,10 @@
+--- !extends:common/centos.yml
+
+distro:
+    version: "6.5"
+    short_version: 65
+    centos:
+        "6.5":
+            repos: []
+
+

@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: sahara
+        short_name: sah
+        dir: !join [ !env PWD, /../sahara]
+        dist_git: openstack-sahara
+        codeng: sahara
+        config_file: jenkins-config.yml

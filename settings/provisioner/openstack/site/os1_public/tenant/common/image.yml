@@ -1,0 +1,14 @@
+provisioner:
+  image:
+    centos:
+      "7.0":
+        remote_user: centos
+        name: CentOS-7-x86_64-GenericCloud-GA-7.0.1406_01
+        id: 330c54cd-b7d4-45e7-97be-96ec6d6016a9
+
+    fedora:
+      "20":
+        remote_user: fedora
+        name:  fedora-20-cloud.x86_64
+        id: 3113df99-0458-47d0-87ca-1b956b70b4fd
+

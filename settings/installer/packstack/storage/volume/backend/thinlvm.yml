@@ -1,0 +1,31 @@
+--- !extends:common/shared.yml
+
+storage:
+  services:
+    - cinder
+  volume:
+    config:
+      cinder:
+        "icehouse":
+          &cinder_cfg_old
+          DEFAULT:
+            lvm_type: "thin"
+        "juno":
+          &cinder_cfg_new
+          DEFAULT:
+            enabled_backends: "rhos-6-thinlvm"
+          rhos-6-thinlvm:
+            volume_driver: "cinder.volume.drivers.lvm.LVMISCSIDriver"
+            lvm_type: "thin"
+        "5.0":
+          *cinder_cfg_old
+        "6.0":
+          *cinder_cfg_new
+        "7.0":
+          *cinder_cfg_new
+
+tester:
+    tempest:
+        blacklist:
+          - tempest.*s3.*
+          - tempest.*ec2.*

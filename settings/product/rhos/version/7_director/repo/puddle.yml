@@ -1,0 +1,5 @@
+--- !extends:common.yml
+
+product:
+    short_repo: pu
+    repo_type: puddle

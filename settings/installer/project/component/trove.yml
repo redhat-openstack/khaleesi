@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: trove
+        short_name: trv
+        dir: !join [ !env PWD, /../trove]
+        dist_git: openstack-trove
+        codeng: trove
+        config_file: jenkins-config.yml

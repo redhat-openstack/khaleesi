@@ -1,0 +1,10 @@
+provisioner:
+    url: ''
+    network:
+        name: public
+        type: nova
+    flavor:
+        tiny:  1
+        small: 2
+        medium: 3
+        large: 4

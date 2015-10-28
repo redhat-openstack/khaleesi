@@ -1,0 +1,12 @@
+--- !extends:ml2-vlan.yml
+
+installer:
+    network:
+        plugin: ml2
+        variant: sriov
+    config:
+        ml2_conf:
+            type_drivers: vlan,flat
+            mechanism_drivers: openvswitch,sriovnicswitch
+            tenant_network_types: vlan
+

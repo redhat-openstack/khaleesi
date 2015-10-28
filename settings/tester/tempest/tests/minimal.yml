@@ -1,0 +1,6 @@
+tester:
+  tempest:
+    test_regex: tempest.scenario.test_server_basic_ops
+    whitelist: []
+    blacklist: []
+

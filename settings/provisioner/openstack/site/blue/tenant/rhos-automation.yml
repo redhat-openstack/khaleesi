@@ -1,0 +1,21 @@
+--- !extends:common/image.yml
+
+provisioner:
+    tenant_name: rhos-automation
+    key_file: rhos-jenkins.pem
+    key_name: rhos-jenkins
+    network:
+        network_list:
+            management:
+                name: Default-mgmt
+                id: 8539963e-e796-498f-a584-ffeebfe1c6b1
+            data:
+                name: Private-network
+                id: 96634720-7063-4456-8156-bd44ef93b589
+            external:
+                name: Nested-bridge
+                id: 5d7ede48-7716-4f2c-bbeb-c2d68cbd1821
+                subnet_cidr: 10.35.184.0/23
+                allocation_start: 10.35.185.1
+                allocation_end:  10.35.185.253
+                subnet_gateway:  10.35.185.254

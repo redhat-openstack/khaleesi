@@ -1,0 +1,14 @@
+installer:
+    custom_deploy:
+        type: openstack_virtual_baremetal
+        command: 'custom'
+        image:
+            remote_file_server: !lookup private.installer.custom_deploy.image.remote_file_server
+            name: CentOS-7-x86_64-GenericCloud-20150628_01
+        host_cloud_networks:
+            provision:
+                cidr: 172.25.0.0/16
+            private:
+                cidr: 12.1.1.0/24
+            public:
+                cidr: 10.0.0.0/24

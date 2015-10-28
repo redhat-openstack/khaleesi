@@ -1,0 +1,5 @@
+workaround:
+    install_juno_fedora_21: no
+    reseller_admin_role: true
+    nova_scheduler_default_filters: true
+    default_floating_pool: true

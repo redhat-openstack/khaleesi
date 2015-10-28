@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: glance
+        short_name: gl
+        dir: !join [ !env PWD, /../glance]
+        dist_git: openstack-glance
+        codeng: glance
+        config_file: jenkins-config.yml

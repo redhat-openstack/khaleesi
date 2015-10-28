@@ -1,0 +1,29 @@
+provisioner:
+  beaker_checkout_script: 'khaleesi-settings/settings/provisioner/beaker/files/beakerCheckOut.sh'
+  host_lab_controller: !env [BEAKER_HOST_CONTROLLER, lab-02.rhts.eng.brq.redhat.com]
+  whiteboard_message: 'InstackTesting'
+  network:
+    public_subnet_cidr: 172.17.0.0/16
+    public_allocation_start: 172.17.0.200
+    public_allocation_end: 172.17.0.220
+    public_subnet_gateway: 172.17.0.1
+  strategy:
+    libvirt:
+      poolpath: /var/lib/libvirt/images
+      default_ip_prefix: 192.168.122
+      ks_extra_args:
+      image:
+        fedora:
+            "20":
+                initimage: fedora20
+                os_variant: fedora20
+                install_url: [ !lookup private.distro.rhel.download_server, /released/F-20/GOLD/Fedora/x86_64/os/ ]
+        rhel:
+            "7.0":
+                initimage: rhel7
+                os_variant: rhel7
+                install_url: [ !lookup private.distro.rhel.download_server, /released/RHEL-7/7.0/Server/x86_64/os/ ]
+      node: tempest
+
+
+

@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: cinder
+        short_name: cind
+        dir: !join [ !env PWD, /../cinder]
+        dist_git: openstack-cinder
+        codeng: cinder
+        config_file: jenkins-config.yml

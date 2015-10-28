@@ -1,0 +1,4 @@
+installer:
+    post_action:
+        - scale_up_node_type
+        - delete_node

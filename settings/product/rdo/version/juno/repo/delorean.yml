@@ -1,0 +1,19 @@
+tmp:
+    anchors:
+    - &fedora_repo_url http://209.132.178.33/repos/
+    - &centos_repo_url http://trunk-mgt.rdoproject.org/repos/
+
+product:
+    short_repo: dln
+    repo_type: delorean
+    repo:
+        delorean:
+            Fedora:
+                '20': !join [*fedora_repo_url]
+            CentOS:
+                '7.0': !join [*centos_repo_url]
+                '7.0.1406': !join [*centos_repo_url]
+                '7.1.1503': !join [*centos_repo_url]
+            RedHat:
+                '7.0': !join [*centos_repo_url]
+                '7.1': !join [*centos_repo_url]

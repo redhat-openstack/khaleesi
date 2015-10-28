@@ -1,0 +1,10 @@
+---
+tester:
+    type: api
+    name: api
+    short_name: api
+    component:
+        config_file: jenkins-config.yml
+node:
+    prefix:
+        - !lookup tester.short_name

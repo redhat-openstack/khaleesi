@@ -1,0 +1,14 @@
+gating_repo: "openstack-tripleo-heat-templates"
+patch:
+  upstream:
+    name: "upstream-openstack-tripleo-heat-templates"
+    url: "https://git.openstack.org/openstack/tripleo-heat-templates"
+  gerrit:
+    name: "gerrit-openstack-tripleo-heat-templates"
+    url: "{{ !lookup private.building.repos.gerrit }}openstack-tripleo-heat-templates"
+    branch: "{{ lookup('env', 'GERRIT_BRANCH') }}"
+    refspec: "{{ lookup('env', 'GERRIT_REFSPEC') }}"
+  dist_git:
+    name: "openstack-tripleo-heat-templates"
+    url: "{{ !lookup private.building.repos.dist_git }}openstack-tripleo-heat-templates"
+    use_director: True

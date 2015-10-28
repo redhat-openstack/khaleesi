@@ -1,0 +1,5 @@
+---
+tester:
+  type: rhosqe
+  dir: rhosqe_tests
+
