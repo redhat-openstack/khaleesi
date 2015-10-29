@@ -4,3 +4,4 @@ provisioner:
     network:
         type: none
     node_count: 1
+    remote_user: root

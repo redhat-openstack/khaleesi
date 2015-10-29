@@ -1,0 +1,5 @@
+installer:
+    packstack:
+        answer_file: packstack_config.txt
+        config:
+            CONFIG_DEFAULT_PASSWORD: redhat

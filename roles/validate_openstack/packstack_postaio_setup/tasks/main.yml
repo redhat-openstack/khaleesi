@@ -1,0 +1,28 @@
+---
+- name: admin pass
+  set_fact: admin_password={{ admin_password }} | default({{ installer.validate.admin_password }})
+
+- name: auth url
+  set_fact: keystone_endpoint={{ keystone_endpoint }} | default({{ installer.validate.keystone_endpoint }})
+
+#set fact for id of provision-demo network
+- name: get neutron public subnet uuid
+  register: tenant_network_uuid_result
+  shell: >
+        source {{ instack_user_home }}/{{ instack_rc_filename }};
+        neutron net-list | grep private | awk '{print $2}'
+
+- name: get cirros image uuid
+  register: cirros_uuid_result
+  shell: >
+        source {{ instack_user_home }}/{{ instack_rc_filename }};
+        glance image-list | grep cirros | awk '{print $2}'
+
+- name: set fact
+  set_fact: glance_image_uuid_result_id="{{ cirros_uuid_result.stdout }}"
+
+- name: set fact
+  set_fact: tenant_network_uuid_result_id="{{ tenant_network_uuid_result.stdout }}"
+
+- name: set fact
+  set_fact: internal_network_name="{{ installer.validate.tenant_network_name }}"

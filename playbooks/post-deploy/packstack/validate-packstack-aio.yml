@@ -1,12 +1,12 @@
 ---
 - name: set fact for validation
-  hosts: undercloud
+  hosts: controller
   tasks:
     - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
+      set_fact: instack_user_home=/root
 
     - name: set fact instack rc filename
-      set_fact: instack_rc_filename=overcloudrc
+      set_fact: instack_rc_filename=keystonerc_admin
 
     - name: get admin password
       register: get_admin_password_result
@@ -25,8 +25,8 @@
       set_fact: keystone_endpoint={{ get_auth_url_result.stdout }}
 
 - name: validate overcloud
-  hosts: undercloud
+  hosts: controller
   gather_facts: false
   roles:
-    - validate_openstack/setup_network
+    - validate_openstack/packstack_postaio_setup
     - validate_openstack/test_instance

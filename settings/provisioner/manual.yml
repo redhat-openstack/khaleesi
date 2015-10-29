@@ -2,6 +2,7 @@
 provisioner:
     type: manual
     key_file: !env [ KEY_FILE, ~/.ssh/id_rsa ]
+    remote_user: root
 
     image:
         rhel:

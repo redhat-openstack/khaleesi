@@ -15,3 +15,13 @@
         ansible_ssh_user="{{ provisioner.remote_user }}"
         ansible_ssh_private_key_file="{{ provisioner.key_file }}"
         ansible_ssh_host="{{ lookup('env', 'TEST_MACHINE') }}"
+
+    - name: Add created host to host list
+      add_host:
+        name="host0"
+        groups="provisioned, controller, network, compute, openstack_nodes, tester"
+        ansible_fqdn="{{ lookup('env', 'TEST_MACHINE') }}"
+        ansible_ssh_user="{{ provisioner.remote_user }}"
+        ansible_ssh_private_key_file="{{ provisioner.key_file }}"
+        ansible_ssh_host="{{ lookup('env', 'TEST_MACHINE') }}"
+      when: installer.type in ['packstack']

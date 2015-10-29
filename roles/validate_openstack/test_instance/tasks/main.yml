@@ -1,0 +1,110 @@
+---
+# Creates a new key pair and the private key returned after the run
+- name: create keypair
+  nova_keypair:
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      name: "{{ installer.validate.instance_name }}"
+  register: keypair
+
+- name: Capture private ssh key
+  debug: var=keypair.key
+
+- name: cp private ssh key to host
+  ignore_errors: yes
+  when: keypair.key is defined
+  shell: 'echo "{{ keypair.key }}" > ~/"{{ installer.validate.instance_name }}"'
+
+- name: set the file attributes on the ssh key
+  file: path=~/"{{ installer.validate.instance_name }}"
+        owner={{ provisioner.remote_user }}
+        group={{ provisioner.remote_user }}
+        mode=0600
+
+# Creates a new VM and attaches to a network and passes metadata to the instance
+- name: create instance for validation test
+  nova_compute:
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      name: "{{ installer.validate.instance_name }}"
+      image_id: "{{ glance_image_uuid_result_id }}"
+      key_name: "{{ installer.validate.instance_name }}"
+      wait_for: 300
+      flavor_id: 2
+      nics:
+        - net-id: "{{ tenant_network_uuid_result_id }}"
+      security_groups: default
+
+# Assign a floating ip to the instance from an external network
+- name: assign a floating ip to the instance
+  quantum_floating_ip:
+      state: present
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      network_name: "{{ installer.network.name }}"
+      instance_name: "{{ installer.validate.instance_name }}"
+      internal_network_name: "{{ internal_network_name }}"
+  register: floating_ip
+
+- name: print floating ip address
+  debug: var=floating_ip
+
+- name: Pause to let the instance boot
+  pause: seconds=30
+
+- name: check console_log
+  register: nova_console_log_result
+  shell: >
+        source {{ instack_user_home }}/{{ instack_rc_filename }};
+        nova console-log {{ installer.validate.instance_name }} &> nova_console_log.log
+
+- name: add sec rule
+  shell: >
+         source {{ instack_user_home }}/{{ instack_rc_filename }};
+         nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0;
+         nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
+  ignore_errors: yes
+
+- name: ping instance public ip from controller
+  command: ping -c 5 "{{ floating_ip.public_ip }}"
+  retries: 3
+  until: ping_result.rc == 0
+  register: ping_result
+
+- name: print ping output
+  debug: var=ping_result.stdout_lines
+
+- name: ssh to instance
+  shell: ssh
+           -o StrictHostKeyChecking=no
+           -o PasswordAuthentication=no
+           -i ~/"{{ installer.validate.instance_name }}"
+           "{{ installer.validate.image.user }}"@"{{ floating_ip.public_ip }}" uname -a
+  register: ssh_result
+
+- name: print result of ssh
+  debug: var=ssh_result.stdout_lines
+
+- name: delete instance
+  nova_compute:
+      state: absent
+      auth_url: "{{ keystone_endpoint }}"
+      login_username: "{{ installer.validate.admin_username }}"
+      login_password: "{{ admin_password }}"
+      login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+      name: "{{ installer.validate.instance_name }}"
+      image_id: "{{ glance_image_uuid_result_id }}"
+      key_name: "{{ installer.validate.instance_name }}"
+      wait_for: 300
+      flavor_id: 2
+      nics:
+        - net-id: "{{ tenant_network_uuid_result_id }}"
+      security_groups: default
