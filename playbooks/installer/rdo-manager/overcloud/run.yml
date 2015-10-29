@@ -73,15 +73,10 @@
           source {{ instack_user_home }}/stackrc;
           openstack baremetal configure boot;
 
-# For RDO-Manager liberty, Inspection is currently not working
-# without some unmerged patches upstream.
-# TODO(trown) Remove the when's below after upstream patches are sorted out.
-
     - name: introspect nodes
       shell: >
           source {{ instack_user_home }}/stackrc;
           openstack baremetal introspection bulk start;
-      when: product.name != "rdo"
 
     - name: check instrospections status
       register: introspection_result
@@ -94,14 +89,11 @@
           TOTAL_NODES=$(echo "$OUTPUT" | grep -E '\w{8}-\w{4}' | wc -l)
           INTROSPECTED_NODES=$(echo "$OUTPUT" | grep -E ' True *\| *None ' | wc -l)
           [ "$TOTAL_NODES" == "$INTROSPECTED_NODES" ]
-      when: product.name != "rdo"
-
 
     - name: show profile
       shell: >
           source {{ instack_user_home }}/stackrc;
           instack-ironic-deployment  --show-profile;
-      when: product.name != "rdo"
 
 - include: run-matching-{{ installer.match_style | default('basic') }}.yml
 
