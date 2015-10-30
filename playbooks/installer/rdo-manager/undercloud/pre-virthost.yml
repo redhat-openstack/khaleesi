@@ -49,7 +49,7 @@
   hosts: virthost
   tasks:
     - name: install the generated rpm
-      command: yum install -y /home/{{ ansible_ssh_user }}/{{gating_repo}}*.rpm
+      shell: "yum install -y /home/{{ ansible_ssh_user }}/{{gating_repo}}*.rpm"
       sudo: yes
       when: gating_repo is defined
 
