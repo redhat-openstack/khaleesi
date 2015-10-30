@@ -22,6 +22,9 @@ tester:
     image_name: !lookup tester.images.cirros.name
     horizon:
       help_url: !lookup tmp.horizon[!lookup product.full_version].help_url
+    browser_name: firefox
+    browser_version: 38
+    browser_platform: linux
   packages:
   - python-virtualenv
   - firefox
