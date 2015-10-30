@@ -12,9 +12,9 @@ installer:
         keystone_endpoint: http://127.0.0.1:5000/v2.0/
         instance_name: khaleesi
         image:
-            user: cirros
-            url: http://download.cirros-cloud.net/0.3.4/
-            id: cirros-0.3.4-x86_64-disk.img
+            user: !lookup distro.images.fedora.21.remote_user
+            url: !lookup distro.images.fedora.21.remote_file_server
+            id: !lookup distro.images.fedora.21.guest_image_name
     tempest:
         dir: tempest
 
