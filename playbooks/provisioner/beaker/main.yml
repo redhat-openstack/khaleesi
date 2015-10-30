@@ -32,7 +32,7 @@
     - name: Get beakerCheckOut.sh file from khaleesi-settings
       shell: >
         chdir={{base_dir}}/khaleesi-settings
-        cp {{base_dir}}/khaleesi-settings/settings/provisioner/beaker/files/beakerCheckOut.sh .
+        cp {{base_dir}}/khaleesi-settings/scripts/beaker/beakerCheckOut.sh .
 
     - name: Check if beakerCheckOut.sh script exists
       stat: path="{{base_dir}}/khaleesi-settings/beakerCheckOut.sh"
