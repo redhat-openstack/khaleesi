@@ -164,7 +164,8 @@
 
     - name: get undercloud vm ip address
       shell: >
-        cat /var/lib/libvirt/dnsmasq/default.leases | grep $(tripleo get-vm-mac instack) | awk '{print $3;}'
+        export PATH='/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/stack/bin';
+        ip n | grep $(tripleo get-vm-mac instack) | awk '{print $1;}'
       when: undercloud_ip is not defined
       register: undercloud_vm_ip_result
 
