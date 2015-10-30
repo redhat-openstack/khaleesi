@@ -1,0 +1,4 @@
+---
+tester:
+    git:
+        repo: !lookup private.tester.git.horizon.integration.horizon_integration_tests

@@ -15,7 +15,7 @@ tester:
   dir: horizon-dir
   venv_dir: horizon-dir/venv
   git:
-    repo: !lookup private.tester.git.horizon.integration
+    #repo key is filled by settings/tester/integration/component/horizon/setup/git/repo
     revision: !lookup tmp.horizon[!lookup product.full_version].revision
   integration:
     horizon:
