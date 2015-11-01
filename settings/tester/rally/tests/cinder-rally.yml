@@ -97,6 +97,44 @@ tester:
                 failure_rate:
                   max: 0
 
+          CinderVolumes.create_and_update_volume:
+            -
+              args:
+                update_volume_kwargs:
+                   display_name: "name_updated"
+                   display_description: "desc_updated"
+                size: 1
+              runner:
+                type: "constant"
+                times: 2
+                concurrency: 2
+              context:
+                users:
+                  tenants: 2
+                  users_per_tenant: 2
+              sla:
+                failure_rate:
+                  max: 0
+            -
+              args:
+                update_volume_kwargs:
+                   display_name: "name_updated"
+                   display_description: "desc_updated"
+                size: 1
+                image:
+                  name: "^cirros.*"
+              runner:
+                type: "constant"
+                times: 2
+                concurrency: 2
+              context:
+                users:
+                  tenants: 2
+                  users_per_tenant: 2
+              sla:
+                failure_rate:
+                  max: 0
+
           CinderVolumes.create_and_list_volume:
             -
               args:
@@ -251,6 +289,42 @@ tester:
                 failure_rate:
                   max: 0
 
+          CinderVolumes.create_from_volume_and_delete_volume:
+            -
+              args:
+                size: 1
+              runner:
+                type: "constant"
+                times: 2
+                concurrency: 2
+              context:
+                users:
+                  tenants: 1
+                  users_per_tenant: 1
+                volumes:
+                  size: 1
+              sla:
+                failure_rate:
+                  max: 0
+            -
+              args:
+                size:
+                  min: 1
+                  max: 2
+              runner:
+                type: "constant"
+                times: 2
+                concurrency: 2
+              context:
+                users:
+                  tenants: 1
+                  users_per_tenant: 1
+                volumes:
+                  size: 1
+              sla:
+                failure_rate:
+                  max: 0
+
           CinderVolumes.create_and_attach_volume:
             -
               args:
@@ -320,42 +394,6 @@ tester:
                 failure_rate:
                   max: 0
 
-          CinderVolumes.create_from_volume_and_delete_volume:
-            -
-              args:
-                size: 1
-              runner:
-                type: "constant"
-                times: 2
-                concurrency: 2
-              context:
-                users:
-                  tenants: 1
-                  users_per_tenant: 1
-                volumes:
-                  size: 1
-              sla:
-                failure_rate:
-                  max: 0
-            -
-              args:
-                size:
-                  min: 1
-                  max: 2
-              runner:
-                type: "constant"
-                times: 2
-                concurrency: 2
-              context:
-                users:
-                  tenants: 1
-                  users_per_tenant: 1
-                volumes:
-                  size: 1
-              sla:
-                failure_rate:
-                  max: 0
-
           CinderVolumes.create_and_delete_snapshot:
             -
               args:
@@ -414,8 +452,6 @@ tester:
               args:
                 size: 1
                 do_delete: True
-                create_volume_kwargs: {}
-                create_backup_kwargs: {}
               runner:
                 type: "constant"
                 times: 2
@@ -433,8 +469,6 @@ tester:
               args:
                 size: 1
                 do_delete: False
-                create_volume_kwargs: {}
-                create_backup_kwargs: {}
               runner:
                 type: "constant"
                 times: 2
@@ -454,8 +488,6 @@ tester:
               args:
                 size: 1
                 do_delete: True
-                create_volume_kwargs: {}
-                create_backup_kwargs: {}
               runner:
                 type: "constant"
                 times: 2
@@ -473,8 +505,44 @@ tester:
               args:
                 size: 1
                 do_delete: False
-                create_volume_kwargs: {}
-                create_backup_kwargs: {}
+              runner:
+                type: "constant"
+                times: 2
+                concurrency: 2
+              context:
+                users:
+                  tenants: 1
+                  users_per_tenant: 1
+                roles:
+                  - "Member"
+              sla:
+                failure_rate:
+                  max: 0
+
+          CinderVolumes.create_and_list_volume_backups:
+            -
+              args:
+                size: 1
+                detailed: True
+                do_delete: True
+              runner:
+                type: "constant"
+                times: 2
+                concurrency: 2
+              context:
+                users:
+                  tenants: 1
+                  users_per_tenant: 1
+                roles:
+                  - "Member"
+              sla:
+                failure_rate:
+                  max: 0
+            -
+              args:
+                size: 1
+                detailed: True
+                do_delete: False
               runner:
                 type: "constant"
                 times: 2
