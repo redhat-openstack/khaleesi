@@ -33,26 +33,26 @@
 
       - name: Execute rhos-release for pinned osp-director poodle (osp)
         command: "rhos-release  -d -p {{ product.repo.poodle_pin_version }} {{ product.full_version }}"
-        register: pinnged_poodle
+        register: pinned_poodle
         when: product.repo_type in ['poodle'] and product.repo.poodle_pin_version is defined
 
       - name: Execute rhos-release for osp-director puddle (osp)
-        command: "rhos-release {{ product.full_version }}"
+        command: "rhos-release -P {{ product.full_version }}"
         when: product.repo_type in ['puddle'] and product.repo.puddle_pin_version is not defined
 
       - name: Execute rhos-release for osp-director poodle (osp)
-        command: "rhos-release  -d {{ product.full_version }}"
+        command: "rhos-release -d {{ product.full_version }}"
         when: product.repo_type in ['poodle'] and product.repo.poodle_pin_version is not defined
 
       - name: yum clean all
         command: yum clean all
 
-- name: Get build details
-  hosts: "{{ repo_host }}:&RedHat"
-  vars:
-    - ansible_ssh_user: root
-  roles:
-    - build_mark/build
+# - name: Get build details
+#   hosts: "{{ repo_host }}:&RedHat"
+#   vars:
+#     - ansible_ssh_user: root
+#   roles:
+#     - build_mark/build
 
 - name: Linux common prep (Collect performance data, etc.)
   hosts: "{{ repo_host }}"
