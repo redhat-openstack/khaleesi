@@ -1,5 +1,5 @@
 provisioner:
-  image:
+  images:
     fedora:
       "21":
         remote_user: fedora
