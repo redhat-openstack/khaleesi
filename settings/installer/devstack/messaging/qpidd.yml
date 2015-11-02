@@ -1,0 +1,8 @@
+installer:
+    messaging:
+        variant: qpid
+        host_var: QPID_HOST
+    devstack:
+      srv_distribution:
+        controller:
+         - qpid

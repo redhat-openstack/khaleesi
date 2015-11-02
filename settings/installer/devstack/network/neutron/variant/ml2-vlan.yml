@@ -1,0 +1,9 @@
+installer:
+    network:
+        plugin: ml2
+        tenant_network_type: vlan
+        vlan:
+            internal:
+                range:
+                    start: 290
+                    end: 340

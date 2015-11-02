@@ -1,0 +1,39 @@
+installer:
+  devstack:
+     srv_distribution:
+       all:
+         - sysstat
+       network: []
+       compute:
+         - n-cpu
+         - ceilometer-acompute
+       controller:
+         - g-api
+         - g-reg
+         - key
+         - n-api
+         - n-crt
+         - n-obj
+         - n-sch
+         - horizon
+         - tempest
+         - s-proxy
+         - s-account
+         - s-container
+         - s-object
+         - cinder
+         - c-api
+         - c-vol
+         - c-sch
+         - c-bak
+         - n-cond
+         - heat
+         - h-api
+         - h-api-cfn
+         - h-api-cw
+         - h-eng
+         - ceilometer-collector
+         - ceilometer-api
+         - ceilometer-alarm-evaluator
+         - ceilometer-alarm-notifier
+         - ceilometer-anotification

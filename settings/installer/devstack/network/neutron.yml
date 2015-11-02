@@ -1,0 +1,25 @@
+installer:
+    network:
+        type: neutron
+    devstack:
+      srv_distribution:
+        all:
+          - neutron
+          - quantum
+        compute:
+          - q-agt
+        controller:
+          - q-metering
+          - q-svc
+        network:
+          - q-metering
+          - q-l3
+          - q-dhcp
+          - q-meta
+          - q-lbaas
+          - q-vpn
+          - q-fwaas
+          - q-agt
+
+defaults:
+    variant: ml2-vxlan

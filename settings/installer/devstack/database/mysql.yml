@@ -1,0 +1,7 @@
+installer:
+    database:
+        type: mysql
+    devstack:
+      srv_distribution:
+        controller:
+         - mysql

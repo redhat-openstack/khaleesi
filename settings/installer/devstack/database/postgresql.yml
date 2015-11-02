@@ -1,0 +1,7 @@
+installer:
+    database:
+        type: postgresql
+    devstack:
+        srv_distribution:
+            controller:
+              - postgresql

@@ -1,0 +1,5 @@
+installer:
+    network:
+        plugin: ml2
+        tenant_network_type: gre
+

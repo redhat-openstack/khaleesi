@@ -1,0 +1,9 @@
+installer:
+    network:
+        type: nova
+    devstack:
+      srv_distribution:
+         controller:
+# Expecting centralised l3 in this setup
+           - n-net
+

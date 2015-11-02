@@ -1,0 +1,9 @@
+installer:
+    messaging:
+        variant: rabbitmq
+        host_var: RABBIT_HOST
+    devstack:
+      srv_distribution:
+        controller:
+         - rabbit
+

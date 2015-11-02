@@ -1,0 +1,20 @@
+--- !extends:common/common.yml
+installer:
+    type: devstack
+    short_type: dsvm
+
+    devstack:
+        base_template: files/local_conf.j2
+
+    firewall:
+        rules: !overwrite []
+
+job:
+    archive:
+        - /opt/stack/new/screen-logs
+
+defaults:
+    messaging: rabbitmq
+    network: neutron
+    srv_distribution: plain
+    database: mysql
