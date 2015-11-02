@@ -1,0 +1,5 @@
+[jenkins]
+user=myuser
+password=mypassword
+url=https://ci.centos.org/
+ignore_cache=true

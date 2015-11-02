@@ -1,0 +1,13 @@
+installer:
+    match_style: ahc
+    nodes:
+        controller:
+            flavor: control
+        compute:
+            flavor: compute
+        blockstorage:
+            flavor: block
+        swiftstorage:
+            flavor: swift
+        cephstorage:
+            flavor: ceph

@@ -1,0 +1,186 @@
+#osp feature virt job
+- job-template:
+    name: '{installer}-{product-version}-{feature}-feature-{installer-topology}'
+    defaults: rdo-manager-defaults
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+        <p>
+        Virthost test job for post deployment features of OSP director e.g. scale out stack, upgrade stack
+        <p>
+        Documentation available <a href="http://rdo-ci-doc.usersys.redhat.com">http://rdo-ci-doc.usersys.redhat.com</a>
+
+    scm:
+        - repo-khaleesi
+        - repo-khaleesi-settings
+    builders:
+        - ksgen-builder-rdo-manager-feature-virthost:
+            feature: '{feature}'
+            provisioner: 'centosci'
+            provisioner-site: 'default'
+            provisioner-site-user: 'rdo'
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            provisioner-options: 'skip_provision'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            installer-updates: '{installer-updates}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+    properties:
+        - ownership:
+            owner: whayutin at redhat.com
+            co-owners:
+                - adarazs at redhat.com
+    publishers:
+        - default-publishers
+        - tests-publishers
+        - email:
+            recipients: whayutin@redhat.com adarazs@redhat.com
+
+- builder:
+    name: ksgen-builder-rdo-manager-feature-virthost
+    builders:
+        - shining-panda:
+            build-environment: virtualenv
+            python-version: system-CPython-2.7
+            nature: shell
+            clear: false
+            use-distribute: true
+            system-site-packages: false
+            ignore-exit-code: false
+            command: |
+                pip install -U ansible==1.9.2 > ansible_build; ansible --version
+
+                # install ksgen
+                pushd khaleesi/tools/ksgen
+                python setup.py develop
+                popd
+
+                pushd khaleesi
+
+                cp ansible.cfg.example ansible.cfg
+                touch ssh.config.ansible
+                echo "" >> ansible.cfg
+                echo "[ssh_connection]" >> ansible.cfg
+                echo "ssh_args = -F ssh.config.ansible" >> ansible.cfg
+
+                # fetch dependent gating changes
+                if [ $GERRIT_CHANGE_COMMIT_MESSAGE ]; then
+                    ansible-playbook -i local_hosts -vv playbooks/depends-on.yml
+                fi
+
+                # generate config
+                ksgen --config-dir=settings generate \
+                    --provisioner=centosci \
+                    --provisioner-site=default \
+                    --provisioner-distro=centos \
+                    --provisioner-distro-version={provisioner-distro-version} \
+                    --provisioner-site-user=rdo \
+                    --installer={installer} \
+                    --installer-deploy={installer-deploy} \
+                    --installer-env={installer-env} \
+                    --installer-images={installer-images} \
+                    --installer-network={network} \
+                    --installer-network-isolation={network-isolation} \
+                    --installer-network-variant={network-variant} \
+                    --installer-post_action={installer-post_action} \
+                    --installer-topology={installer-topology} \
+                    --installer-tempest={installer-tempest} \
+                    --installer-updates={installer-updates} \
+                    --distro={distro} \
+                    --product={product} \
+                    --product-version-build={pin} \
+                    --product-version-repo={product-version-repo} \
+                    --product-version={product-version} \
+                    --workarounds=enabled \
+                    --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/{network-isolation}/hw_settings.yml \
+                    ksgen_settings.yml
+
+                # get nodes and run test
+                set +e
+                anscmd="stdbuf -oL -eL ansible-playbook -vv --extra-vars @ksgen_settings.yml"
+
+                $anscmd -i local_hosts playbooks/full-job-no-test.yml
+                result=$?
+
+                if [[ $result == 0 ]]; then
+                    pip install shyaml > shyaml_build.log
+                    if [[ ` shyaml get-value installer.updates.enabled < ksgen_settings.yml` == 'True' ]]; then
+                        $anscmd -i hosts playbooks/post-deploy/rdo-manager/run-update.yml
+                        result=$?
+                        if [[ $result == 0 ]]; then
+                            $anscmd -i hosts playbooks/post-deploy/rdo-manager/overcloud-validate.yml
+                            result=$?
+                        fi
+                    elif [[ ` shyaml get-value installer.post_action < ksgen_settings.yml` == *'scale_up'* ]]; then
+                        $anscmd -i hosts playbooks/post-deploy/rdo-manager/run-overcloud-scale.yml
+                        result=$?
+                        if [[ $result == 0 ]]; then
+                            $anscmd -i hosts playbooks/post-deploy/rdo-manager/overcloud-validate.yml
+                            result=$?
+                        fi
+                        if [[ $result == 0 ]]; then
+                            $anscmd -i hosts playbooks/post-deploy/rdo-manager/run-delete-nodes.yml
+                            result=$?
+                        fi
+                        if [[ $result == 0 ]]; then
+                            #$anscmd -i hosts playbooks/post-deploy/rdo-manager/overcloud-validate.yml
+                            #result=$?
+                            echo "validation is disabled until min_basic_ops works consistently in other jobs"
+                        fi
+                    fi
+                else
+                    echo "The initial deployment was not successful"
+                fi
+
+                infra_result=0
+                $anscmd -i hosts playbooks/collect_logs.yml &> collect_logs.txt || infra_result=1
+                $anscmd -i local_hosts playbooks/cleanup.yml &> cleanup.txt || infra_result=2
+
+                if [[ "$infra_result" != "0" && "$result" = "0" ]]; then
+                    # if the job/test was ok, but collect_logs/cleanup failed,
+                    # print out why the job is going to be marked as failed
+                    #FIXME: re-enable this when collect_logs and cleanup are passing again
+                    #result=$infra_result
+                    cat collect_logs.txt
+                    cat cleanup.txt
+                fi
+
+                exit $result
+
+- project:
+    name: rdo-manager-centosci-feature-jobs
+    installer: rdo_manager
+    installer-deploy: templates
+    installer-env: virthost
+    installer-images: import_rdo
+    product-version: liberty
+    pin: last_known_good
+    jobs:
+        - '{installer}-{product-version}-{feature}-feature-{installer-topology}':
+            feature: scale_out
+            installer-post_action: scale_up_delete
+            installer-topology:
+                - minimal_scale_cephstorage
+                - minimal_scale_compute
+            installer-tempest: smoke
+            installer-updates: none
+            network: neutron
+            network-isolation: none
+            product: rdo
+            network-variant: ml2-vxlan
+            product-version-repo: delorean_mgt
+            distro: centos-7.0
+            provisioner-distro: centos
+            provisioner-distro-version: 7

@@ -1,7 +1,6 @@
 tmp:
     anchors:
-    - &centos_repo_url http://209.132.178.14/centos7/
-    - &mgt_centos_repo_url http://trunk-mgt.rdoproject.org/centos-master/
+    - &centos_repo_url http://trunk.rdoproject.org/liberty/centos7/
 
 product:
     short_repo: dln
@@ -16,12 +15,12 @@ product:
             RedHat:
                 '7.0': !join [*centos_repo_url]
                 '7.1': !join [*centos_repo_url]
-        delorean_mgt:
-            repo_file: delorean-rdo-management.repo
+        delorean_deps:
+            repo_file: delorean-deps.repo
             CentOS:
-                '7.0': !join [*mgt_centos_repo_url]
-                '7.0.1406': !join [*mgt_centos_repo_url]
-                '7.1.1503': !join [*mgt_centos_repo_url]
+                '7.0': !join [*centos_repo_url]
+                '7.0.1406': !join [*centos_repo_url]
+                '7.1.1503': !join [*centos_repo_url]
             RedHat:
-                '7.0': !join [*mgt_centos_repo_url]
-                '7.1': !join [*mgt_centos_repo_url]
+                '7.0': !join [*centos_repo_url]
+                '7.1': !join [*centos_repo_url]

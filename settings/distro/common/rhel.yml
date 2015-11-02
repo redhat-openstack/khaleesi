@@ -6,6 +6,9 @@ distro:
     config:
         ntp_server: !lookup private.ntp_server
         ntp_server_ip: !lookup private.ntp_server_ip
+        dns_servers:
+            - !lookup private.dns_servers.first_dns
+            - !lookup private.dns_servers.second_dns
     images:
         rhel:
           '6.6':

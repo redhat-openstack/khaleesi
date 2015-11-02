@@ -1,0 +1,283 @@
+- defaults:
+    name: rdo-manager-defaults
+    description: |
+      <h3> Documentation: <a href=http://khaleesi.readthedocs.org/en/master/>http://khaleesi.readthedocs.org/en/master/</a> </h3>
+            <h3> How to understand the names used for these jobs </h3>
+            <b>Example: rdo_manager-periodic-7-rdo-liberty-delorean_mgt-centos-7.0-templates-virthost-minimal-neutron-ml2-vxlan-disabled </b><br>
+            <ul>
+                <li> rdo_manager = the product installer [osp_director, rdo_manager]</li>
+                <li> periodic = type of job [periodic, gate] </li>
+                <li> 7 = version of CentOS for the virtual host </li>
+                <li> rdo = distribution of openstack </li>
+                <li> liberty = version of openstack </li>
+                <li> delorean_mgt = yum repo used </li>
+                <li> centos-7.0 = operating system and distribution of undercloud and overcloud </li>
+                <li> templates = deployment type [templates, plan] </li>
+                <li> virthost = deployment environment [virthost, baremetal] </li>
+                <li> minimal = topology, minimal is single controller and a single compute [minimal_ha_no_ceph.yml, minimal_ha.yml, minimal_scale_cephstorage.yml, minimal_scale_compute.yml, minimal.yml] </li>
+                <li> single_nic_vlan = type of network isolation </li>
+                <li> neutron-ml2-vxlan = neutron configuration </li>
+                <li> disabled = tempest regular expression </li>
+            </ul>
+                <br>
+    concurrent: true
+    node: khaleesi
+    logrotate:
+        daysToKeep: 5
+        artifactDaysToKeep: 5
+    wrappers:
+        - ansicolor
+        - timestamps
+        - workspace-cleanup
+        - timeout:
+            type: elastic
+            elastic-percentage: 300
+            elastic-default-timeout: 360
+            timeout: 360
+    publishers:
+        - default-publishers
+
+- scm:
+    name: repo-khaleesi
+    scm:
+        - git:
+            basedir: khaleesi
+            url: https://github.com/redhat-openstack/khaleesi.git
+            branches:
+                - master
+
+- scm:
+    name: repo-khaleesi-settings
+    scm:
+        - git:
+            basedir: khaleesi-settings
+            url: https://github.com/redhat-openstack/khaleesi-settings.git
+            branches:
+                - master
+
+- scm:
+    name: repo-instack-undercloud
+    scm:
+        - git:
+            basedir: instack-undercloud
+            url: https://github.com/rdo-management/instack-undercloud.git
+            branches:
+                - master
+
+- scm:
+    name: repo-khaleesi-gerrit
+    scm:
+      - git:
+          url: ssh://rdo-ci-centos@review.gerrithub.io:29418/redhat-openstack/khaleesi
+          credentials-id: 'aeb3af4f-6985-4c8f-8261-ec37cacad10b'
+          branches:
+              - '$GERRIT_BRANCH'
+          refspec: '$GERRIT_REFSPEC'
+          basedir: 'khaleesi'
+          choosing-strategy: gerrit
+          skip-tag: true
+
+- scm:
+    name: repo-khaleesi-settings-gerrit
+    scm:
+      - git:
+          url: ssh://rdo-ci-centos@review.gerrithub.io:29418/redhat-openstack/khaleesi-settings
+          credentials-id: 'aeb3af4f-6985-4c8f-8261-ec37cacad10b'
+          branches:
+              - '$GERRIT_BRANCH'
+          refspec: '$GERRIT_REFSPEC'
+          basedir: 'khaleesi-settings'
+          choosing-strategy: gerrit
+          skip-tag: true
+
+- scm:
+    name: repo-instack-undercloud-gerrit
+    scm:
+      - git:
+          url: ssh://rdo-ci-centos@review.gerrithub.io:29418/rdo-management/instack-undercloud
+          credentials-id: 'aeb3af4f-6985-4c8f-8261-ec37cacad10b'
+          branches:
+              - '$GERRIT_BRANCH'
+          refspec: '$GERRIT_REFSPEC'
+          basedir: 'instack-undercloud'
+          choosing-strategy: gerrit
+          skip-tag: true
+
+- scm:
+    name: repo-oscplugin-gerrit
+    scm:
+      - git:
+          url: ssh://rdo-ci-hudson@review.gerrithub.io:29418/rdo-management/python-rdomanager-oscplugin
+          credentials-id: 'aeb3af4f-6985-4c8f-8261-ec37cacad10b'
+          branches:
+              - '$GERRIT_BRANCH'
+          refspec: '$GERRIT_REFSPEC'
+          basedir: 'python-rdomanager-oscplugin'
+          choosing-strategy: gerrit
+          skip-tag: true
+
+- publisher:
+    name: default-publishers
+    publishers:
+        - archive:
+            artifacts: '**/collected_files/*.tar.gz, **/nosetests.xml, **/ksgen_settings.yml'
+        - post-tasks:
+            - matches:
+                - log-text: Build was aborted
+                  operator: AND
+              escalate-status: false
+              script: |
+                source ~/ansible_venv/bin/activate
+                ansible --version
+                source $WORKSPACE/khaleesi-settings/jenkins/ansible_rdo_mang_settings.sh
+                cd $WORKSPACE/khaleesi
+                anscmd="stdbuf -oL -eL ansible-playbook -vv --extra-vars @ksgen_settings.yml"
+                $anscmd -i local_hosts playbooks/cleanup.yml
+
+- publisher:
+    name: tests-publishers
+    publishers:
+        - junit:
+            results: '**/nosetests.xml'
+            keep-long-stdio: False
+            test-stability: True
+
+- trigger:
+    name: trigger-rdo-manager-gate-khaleesi
+    triggers:
+        - gerrit:
+            server-name: 'rdo-ci-centos'
+            trigger-on:
+                - patchset-created-event
+                - draft-published-event
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/khaleesi'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+                  file-paths:
+                      - compare-type: 'ANT'
+                        pattern: 'playbooks/post-deploy/rdo-manager/**'
+                      - compare-type: 'ANT'
+                        pattern: 'playbooks/installer/rdo-manager/**'
+                      - compare-type: 'ANT'
+                        pattern: 'playbooks/provisioner/centosci/**'
+                      - compare-type: 'ANT'
+                        pattern: 'playbooks/provisioner/templates/**'
+                      - compare-type: 'ANT'
+                        pattern: 'playbooks/provisioner/openstack_virtual_baremetal/**'
+                      - compare-type: 'ANT'
+                        pattern: 'plugins/**'
+                      - compare-type: 'ANT'
+                        pattern: 'roles/**'
+                      - compare-type: 'ANT'
+                        pattern: 'tools/**'
+            skip-vote:
+                successful: false
+                failed: false
+                unstable: false
+                notbuilt: false
+            failure-message: 'test failed'
+            successful-message: 'test ran successfully'
+            unstable-message: 'test is unstable'
+            silent: false
+
+- trigger:
+    name: trigger-rdo-manager-gate-khaleesi-settings
+    triggers:
+        - gerrit:
+            server-name: 'rdo-ci-centos'
+            trigger-on:
+                - patchset-created-event
+                - draft-published-event
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/khaleesi-settings'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+                  file-paths:
+                      - compare-type: 'ANT'
+                        pattern: 'hardware_environments/**'
+                      - compare-type: 'ANT'
+                        pattern: 'settings/**'
+            skip-vote:
+                successful: false
+                failed: false
+                unstable: false
+                notbuilt: false
+            failure-message: 'test failed'
+            successful-message: 'test ran successfully'
+            unstable-message: 'test is unstable'
+            silent: false
+
+- trigger:
+    name: trigger-rdo-manager-gate-instack-undercloud
+    triggers:
+        - gerrit:
+            server-name: 'rdo-ci-centos'
+            trigger-on:
+                - patchset-created-event
+                - draft-published-event
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'rdo-management/instack-undercloud'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+                  file-paths:
+                      - compare-type: 'ANT'
+                        pattern: '*'
+                      - compare-type: 'ANT'
+                        pattern: 'config-generator/**'
+                      - compare-type: 'ANT'
+                        pattern: 'elements/**'
+                      - compare-type: 'ANT'
+                        pattern: 'heat-templates/**'
+                      - compare-type: 'ANT'
+                        pattern: 'imagefactory/**'
+                      - compare-type: 'ANT'
+                        pattern: 'instack-undercloud/**'
+                      - compare-type: 'ANT'
+                        pattern: 'json-files/**'
+                      - compare-type: 'ANT'
+                        pattern: 'scripts/**'
+            skip-vote:
+                successful: false
+                failed: false
+                unstable: false
+                notbuilt: false
+            failure-message: 'test failed'
+            successful-message: 'test ran successfully'
+            unstable-message: 'test is unstable'
+            silent: false
+
+- trigger:
+    name: trigger-rdo-manager-gate-oscplugin
+    triggers:
+        - gerrit:
+            server-name: 'rdo-ci-centos'
+            trigger-on:
+                - patchset-created-event
+                - draft-published-event
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'rdo-management/python-rdomanager-oscplugin'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+            skip-vote:
+                successful: false
+                failed: false
+                unstable: false
+                notbuilt: false
+            failure-message: 'test failed'
+            successful-message: 'test ran successfully'
+            unstable-message: 'test is unstable'
+            silent: false
+
+- trigger:
+    name: periodic-trigger
+    triggers:
+        - timed: 'H H/6 * * *'

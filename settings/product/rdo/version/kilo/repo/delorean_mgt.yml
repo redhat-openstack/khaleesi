@@ -1,6 +1,6 @@
 tmp:
     anchors:
-    - &centos_repo_url http://209.132.178.14/centos7-kilo/
+    - &centos_repo_url http://trunk.rdoproject.org/centos7-kilo/
     - &mgt_centos_repo_url http://trunk-mgt.rdoproject.org/centos-kilo/
 
 product:
@@ -17,7 +17,7 @@ product:
                 '7.0': !join [*centos_repo_url]
                 '7.1': !join [*centos_repo_url]
         delorean_mgt:
-            repo_file: delorean-rdo-management.repo
+            repo_file: delorean-rdo-manager-kilo.repo
             CentOS:
                 '7.0': !join [*mgt_centos_repo_url]
                 '7.0.1406': !join [*mgt_centos_repo_url]

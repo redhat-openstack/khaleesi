@@ -1,6 +1,6 @@
 tmp:
     anchors:
-    - &centos_repo_url http://209.132.178.14/centos7-kilo/
+    - &centos_repo_url http://trunk.rdoproject.org/centos7-kilo/
 
 product:
     short_repo: dln

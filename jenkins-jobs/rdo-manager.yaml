@@ -1,0 +1,458 @@
+- job-template:
+    name: '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}'
+    defaults: rdo-manager-defaults
+    triggers:
+        - periodic-trigger
+    scm:
+        - repo-khaleesi
+        - repo-khaleesi-settings
+    builders:
+        - ksgen-builder-rdo-manager:
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            provisioner-options: 'skip_provision'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+    properties:
+        - ownership:
+            owner: whayutin at redhat.com
+            co-owners:
+                - trown at redhat.com
+                - adarazs at redhat.com
+    publishers:
+        - default-publishers
+        - tests-publishers
+        - email:
+            recipients: whayutin@redhat.com trown@redhat.com adarazs@redhat.com
+
+- job-template:
+    name: '{installer}-promote-build-delorean-rdo_management-{product-version}-{installer-tempest}'
+    defaults: rdo-manager-defaults
+    triggers:
+        - periodic-trigger
+    scm:
+        - repo-khaleesi
+        - repo-khaleesi-settings
+    builders:
+        - ksgen-builder-rdo-manager:
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            provisioner-options: 'skip_provision'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+            delorean-server: 'rdo_management'
+        - promote-delorean-mgt-script
+    properties:
+        - ownership:
+            owner: whayutin at redhat.com
+            co-owners:
+                - trown at redhat.com
+                - adarazs at redhat.com
+    publishers:
+        - default-publishers
+        - tests-publishers
+        - email:
+            recipients: whayutin@redhat.com trown@redhat.com adarazs@redhat.com
+
+- job-template:
+    name: '{installer}-promote-build-delorean-rdo-{product-version}-{installer-tempest}'
+    defaults: rdo-manager-defaults
+    triggers:
+        - periodic-trigger
+    scm:
+        - repo-khaleesi
+        - repo-khaleesi-settings
+    builders:
+        - ksgen-builder-rdo-manager:
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            provisioner-options: 'skip_provision'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+            delorean-server: 'rdo'
+        - promote-delorean-rdo-script
+    properties:
+        - ownership:
+            owner: whayutin at redhat.com
+            co-owners:
+                - trown at redhat.com
+                - adarazs at redhat.com
+    publishers:
+        - default-publishers
+        - tests-publishers
+        - email:
+            recipients: whayutin@redhat.com trown@redhat.com adarazs@redhat.com
+
+- job-template:
+    name: '{installer}-gate_instack_undercloud-{product}-{product-version}-{installer-tempest}'
+    defaults: rdo-manager-defaults
+    triggers:
+        - trigger-rdo-manager-gate-instack-undercloud
+    scm:
+        - repo-instack-undercloud-gerrit
+        - repo-khaleesi
+        - repo-khaleesi-settings
+    builders:
+        - ksgen-builder-rdo-manager:
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            provisioner-options: 'skip_provision'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+
+- job-template:
+    name: '{installer}-gate_python_rdomanager_oscplugin-{product}-{product-version}-{installer-tempest}'
+    defaults: rdo-manager-defaults
+    triggers:
+        - trigger-rdo-manager-gate-oscplugin
+    scm:
+        - repo-oscplugin-gerrit
+        - repo-khaleesi
+        - repo-khaleesi-settings
+    builders:
+        - ksgen-builder-rdo-manager:
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            provisioner-options: 'skip_provision'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+
+- job-template:
+    name: '{installer}-gate_khaleesi-{product}-{product-version}-{installer-tempest}'
+    defaults: rdo-manager-defaults
+    triggers:
+        - trigger-rdo-manager-gate-khaleesi
+    scm:
+        - repo-khaleesi-gerrit
+        - repo-khaleesi-settings
+    builders:
+        - ksgen-builder-rdo-manager:
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            provisioner-options: 'skip_provision'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+    properties:
+        - ownership:
+            owner: whayutin at redhat.com
+            co-owners:
+                - adarazs at redhat.com
+    publishers:
+        - default-publishers
+        - tests-publishers
+        - email:
+            recipients: whayutin@redhat.com adarazs@redhat.com
+
+
+- job-template:
+    name: '{installer}-gate_khaleesi_settings-{product}-{product-version}-{installer-tempest}'
+    defaults: rdo-manager-defaults
+    triggers:
+        - trigger-rdo-manager-gate-khaleesi-settings
+    scm:
+        - repo-instack-undercloud
+        - repo-khaleesi
+        - repo-khaleesi-settings-gerrit
+    builders:
+        - ksgen-builder-rdo-manager:
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            provisioner-options: 'skip_provision'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+    properties:
+        - ownership:
+            owner: whayutin at redhat.com
+            co-owners:
+                - adarazs at redhat.com
+    publishers:
+        - default-publishers
+        - tests-publishers
+        - email:
+            recipients: whayutin@redhat.com adarazs@redhat.com
+
+- builder:
+    name: ksgen-builder-rdo-manager
+    builders:
+        - shining-panda:
+            build-environment: virtualenv
+            python-version: system-CPython-2.7
+            nature: shell
+            clear: false
+            use-distribute: true
+            system-site-packages: false
+            ignore-exit-code: false
+            command: |
+                pip install -U ansible==1.9.2 > ansible_build; ansible --version
+
+                # install ksgen
+                pushd khaleesi/tools/ksgen
+                python setup.py develop
+                popd
+
+                pushd khaleesi
+
+                cp ansible.cfg.example ansible.cfg
+                touch ssh.config.ansible
+                echo "" >> ansible.cfg
+                echo "[ssh_connection]" >> ansible.cfg
+                echo "ssh_args = -F ssh.config.ansible" >> ansible.cfg
+
+                # fetch dependent gating changes
+                if [ $GERRIT_CHANGE_COMMIT_MESSAGE ]; then
+                    ansible-playbook -i local_hosts -vv playbooks/depends-on.yml
+                fi
+
+                # generate config
+                ksgen --config-dir=settings generate \
+                    --provisioner=centosci \
+                    --provisioner-site=default \
+                    --provisioner-distro=centos \
+                    --provisioner-distro-version={provisioner-distro-version} \
+                    --provisioner-site-user=rdo \
+                    --product={product} \
+                    --product-version={product-version} \
+                    --product-version-build={pin} \
+                    --product-version-repo={product-version-repo} \
+                    --distro={distro} \
+                    --installer={installer} \
+                    --installer-deploy={installer-deploy} \
+                    --installer-env={installer-env} \
+                    --installer-images={installer-images} \
+                    --installer-network={network} \
+                    --installer-network-isolation={network-isolation} \
+                    --installer-network-variant={network-variant} \
+                    --installer-post_action={installer-post_action} \
+                    --installer-topology={installer-topology} \
+                    --installer-tempest={installer-tempest} \
+                    --workarounds=enabled \
+                    --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/{network-isolation}/hw_settings.yml \
+                    ksgen_settings.yml
+
+                # get nodes and run test
+                set +e
+                anscmd="stdbuf -oL -eL ansible-playbook -vv --extra-vars @ksgen_settings.yml"
+
+                $anscmd -i local_hosts playbooks/full-job-no-test.yml
+                result=$?
+
+                infra_result=0
+                $anscmd -i hosts playbooks/collect_logs.yml &> collect_logs.txt || infra_result=1
+                $anscmd -i local_hosts playbooks/cleanup.yml &> cleanup.txt || infra_result=2
+
+                if [[ "$infra_result" != "0" && "$result" = "0" ]]; then
+                    # if the job/test was ok, but collect_logs/cleanup failed,
+                    # print out why the job is going to be marked as failed
+                    result=$infra_result
+                    cat collect_logs.txt
+                    cat cleanup.txt
+                fi
+
+                exit $result
+
+
+- builder:
+    name: promote-delorean-mgt-script
+    builders:
+        - conditional-step:
+            condition-kind: current-status
+            condition-worst: UNSTABLE
+            condition-best: SUCCESS
+            steps:
+                - shell: |
+                    pushd $WORKSPACE/khaleesi;
+                    HASH=`ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -F ssh.config.ansible undercloud "cat /etc/yum.repos.d/rdo-mgt-trunk-release.repo | grep baseurl | cut -d / -f 7"`;
+                    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/rhos-ci promoter@trunk-mgt.rdoproject.org "sudo /root/promote.sh $HASH";
+                    popd
+
+
+- builder:
+    name: promote-delorean-rdo-script
+    builders:
+        - conditional-step:
+            condition-kind: current-status
+            condition-worst: UNSTABLE
+            condition-best: SUCCESS
+            steps:
+                - shell: |
+                    pushd $WORKSPACE/khaleesi;
+                    HASH=`ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -F ssh.config.ansible undercloud "cat /etc/yum.repos.d/rdo-trunk-release.repo | grep baseurl | cut -d / -f 7"`;
+                    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/rhos-ci -p 3300 promoter@209.132.178.14 "sudo /usr/local/bin/promote.sh $HASH" centos-kilo;
+                    popd
+
+
+- project:
+    name: rdo-manager-centosci-gate-jobs
+    installer: rdo_manager
+    installer-deploy: templates
+    installer-env: virthost
+    installer-images: import_rdo
+    installer-post_action: none
+    installer-topology: minimal
+    installer-tempest: smoke
+    network: neutron
+    network-isolation: none
+    network-variant: ml2-vxlan
+    product: rdo
+    product-version: liberty
+    product-version-repo: delorean_mgt
+    distro: centos-7.0
+    provisioner-distro: centos
+    provisioner-distro-version: 7
+    pin: last_known_good
+
+    jobs:
+        - '{installer}-gate_instack_undercloud-{product}-{product-version}-{installer-tempest}'
+        - '{installer}-gate_khaleesi-{product}-{product-version}-{installer-tempest}'
+        - '{installer}-gate_khaleesi_settings-{product}-{product-version}-{installer-tempest}'
+        - '{installer}-gate_python_rdomanager_oscplugin-{product}-{product-version}-{installer-tempest}'
+
+- project:
+    name: rdo-manager-centosci-promote-jobs
+    installer: rdo_manager
+    installer-deploy: templates
+    installer-env: virthost
+    installer-images: build
+    installer-post_action: none
+    installer-topology: minimal
+    installer-tempest: minimal
+    network: neutron
+    network-isolation: none
+    network-variant: ml2-vxlan
+    product: rdo
+    product-version: liberty
+    distro: centos-7.0
+    provisioner-distro: centos
+    provisioner-distro-version: 7
+    jobs:
+        - '{installer}-promote-build-delorean-rdo-{product-version}-{installer-tempest}':
+            product-version-repo: delorean_mgt
+            pin: last_known_good_mgt
+        - '{installer}-promote-build-delorean-rdo_management-{product-version}-{installer-tempest}':
+            product-version-repo: delorean_mgt_only
+            pin: latest
+
+- project:
+    name: rdo-manager-centosci-periodic-jobs
+    installer: rdo_manager
+    installer-deploy: templates
+    installer-env: virthost
+    installer-images: import_rdo
+    installer-post_action: none
+    installer-topology: minimal
+    installer-tempest: smoke
+    network: neutron
+    network-isolation: none
+    product: rdo
+    network-variant: ml2-vxlan
+    product-version: liberty
+    distro: centos-7.0
+    provisioner-distro: centos
+    provisioner-distro-version: 7
+    jobs:
+        - '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}':
+            installer-topology:
+                - minimal_ha
+                - minimal
+            product-version-repo: delorean_mgt
+            pin: last_known_good
+        - '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}':
+            installer-topology:
+                - minimal_ha
+                - minimal
+            product-version-repo: production
+            pin: latest
+
+
+

@@ -10,8 +10,5 @@ distro:
                 guest_image_name: "Fedora-Cloud-Base-20141203-21.x86_64.qcow2"
                 remote_file_server: "http://mirror.pnl.gov/fedora/linux/releases/21/Cloud/Images/x86_64/"
     config:
-        dns_servers:
-            - !lookup private.dns_servers.first_dns
-            - !lookup private.dns_servers.second_dns
         reboot_delay: 1
         initial_boot_timeout: 180 #seconds
