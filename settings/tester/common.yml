@@ -7,8 +7,10 @@ provisioner:
             rebuild: no
             # TODO(yfried): decouple tester from provisioner/openstack refs
             flavor_id: !lookup provisioner.flavor.small
-            image_id: !lookup tester.image_id
-            remote_user: !lookup tester.remote_user
+            image_name: '{{ !lookup distro.name }}'
+            image_version: '{{ !lookup distro.full_version }}'
+            image_id: !lookup provisioner.images[ !lookup provisioner.nodes.tester.image_name ][ !lookup provisioner.nodes.tester.image_version ].id
+            remote_user: !lookup provisioner.images[ !lookup provisioner.nodes.tester.image_name ][ !lookup provisioner.nodes.tester.image_version ].remote_user
             network: &network_params
                 interfaces: &interfaces
                     data: &data_interface
@@ -28,10 +30,6 @@ provisioner:
                 - openstack_nodes
 
 tester:
-    image_name: 'rhel'
-    image_version: '7.1'
-    image_id: !lookup provisioner.images[ !lookup tester.image_name ][ !lookup tester.image_version ].id
-    remote_user: !lookup provisioner.images[ !lookup tester.image_name ][ !lookup tester.image_version ].remote_user
     images:
         cirros:
             name: cirros-0.3.4-x86_64-disk
