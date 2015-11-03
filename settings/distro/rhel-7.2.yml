@@ -11,3 +11,5 @@ distro:
 workarounds:
     bz1262357:
         enabled: true
+    rhbz1265306:
+        enabled: true
