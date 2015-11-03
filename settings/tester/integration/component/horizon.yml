@@ -25,6 +25,7 @@ tester:
     browser_name: firefox
     browser_version: 38
     browser_platform: linux
+    selenium_grid_download: http://selenium-release.storage.googleapis.com/2.48/selenium-server-standalone-2.48.2.jar
   packages:
   - python-virtualenv
   - firefox
@@ -35,6 +36,7 @@ tester:
   - gcc
   - python-crypto
   - python-httplib2
+  - java-openjdk
     #- ffmpeg   # needed for future to capture video from tests
   pip_packages:
   - xvfbwrapper

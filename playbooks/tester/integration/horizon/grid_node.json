@@ -1,0 +1,17 @@
+{
+  "capabilities": [
+    {
+      "browserName": "firefox",
+      "maxInstances": 1,
+      "seleniumProtocol": "WebDriver",
+      "version": '38'
+    }
+  ],
+  "configuration": {
+    "proxy": "org.openqa.grid.selenium.proxy.DefaultRemoteProxy",
+    "maxSession": 1,
+    "port": 5555,
+    "register": true,
+    "registerCycle": 5000
+  }
+}

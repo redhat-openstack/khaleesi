@@ -5,7 +5,13 @@
   sudo: no
   tasks:
       - name: run integration tests
-        shell: source ~/{{ tester.venv_dir }}/bin/activate && SELENIUM_HEADLESS=1 INTEGRATION_TESTS=1 nosetests -v --with-xunit --xunit-file=horizon.xml openstack_dashboard/test/integration_tests/tests
+        environment:
+          INTEGRATION_TESTS: 1
+          GRID_HUB: 'http://127.0.0.1:4444/wd/hub'
+          BROWSER_NAME: "{{ lookup('env', 'BROWSER_NAME') }}"
+          BROWSER_VERSION: "{{ lookup('env', 'BROWSER_VERSION') }}"
+          BROWSER_PLATFORM: "{{ lookup('env', 'BROWSER_PLATFORM') }}"
+        shell: source ~/{{ tester.venv_dir }}/bin/activate && nosetests -v --with-xunit --xunit-file=horizon.xml openstack_dashboard/test/integration_tests/tests
         args:
             chdir: ~/{{ tester.dir }}
 

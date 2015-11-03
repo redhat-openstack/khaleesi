@@ -102,3 +102,5 @@
     - copy:
         src: "{{ lookup('env', 'PWD') }}/hosts"
         dest: "{{ lookup('env', 'PWD') }}/hosts-horizon"
+
+- include: selenium_grid.yml

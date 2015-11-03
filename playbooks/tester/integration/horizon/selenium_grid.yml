@@ -1,0 +1,40 @@
+---
+- name: Download and configure selenium grid
+  hosts: tester
+  gather_facts: no
+  sudo: yes
+  vars:
+      grid_filename: selenium_grid.jar
+      grid_path: "/opt/selenium-grid"
+      grid_node_config: grid_node.json
+      grid_hub_config: grid_hub.json
+  tasks:
+    - file:
+        path: "{{ grid_path }}"
+        state: directory
+    - get_url:
+        url: "{{ tester.integration.selenium_grid_download }}"
+        dest: "{{ grid_path }}/{{ grid_filename }}"
+    - copy:
+        src: "{{ item }}"
+        dest: "{{ grid_path }}"
+      with_items:
+        - "{{ grid_node_config }}"
+        - "{{ grid_hub_config }}"
+    - template:
+        src: "{{ item }}.service.j2"
+        dest: "/etc/systemd/system/{{ item }}.service"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+          - selenium-grid-hub
+          - selenium-grid-node
+    - command: systemctl daemon-reload
+    - service:
+        name: "{{ item }}"
+        state: restarted
+        enabled: yes
+      with_items:
+          - "selenium-grid-hub"
+          - "selenium-grid-node"
