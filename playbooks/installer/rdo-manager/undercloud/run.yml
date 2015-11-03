@@ -6,6 +6,7 @@
       get_url: >
         url="{{ distro.images[distro.name][distro.version].remote_file_server }}{{ distro.images[distro.name][distro.version].guest_image_name }}"
         dest=/home/stack/{{ distro.images[distro.name][distro.version].guest_image_name }}
+        timeout=360
 
     - name: install python-rdomanager-oscplugin
       yum: name=python-rdomanager-oscplugin state=present
