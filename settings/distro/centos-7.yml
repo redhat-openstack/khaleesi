@@ -1,12 +1,11 @@
 --- !extends:common/centos.yml
 
 distro:
-    full_version: '7.1'
+    full_version: '7'
     version:
         major: '7'
-        minor: '1'
-    short_version: '71'
+    short_version: '7'
     centos:
-        "7.1":
+        "7":
             repos: []
     epel_release: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm

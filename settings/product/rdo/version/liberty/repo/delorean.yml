@@ -9,18 +9,14 @@ product:
         delorean:
             repo_file: delorean.repo
             CentOS:
-                '7.0': !join [*centos_repo_url]
-                '7.0.1406': !join [*centos_repo_url]
-                '7.1.1503': !join [*centos_repo_url]
+                '7': !join [*centos_repo_url]
             RedHat:
                 '7.0': !join [*centos_repo_url]
                 '7.1': !join [*centos_repo_url]
         delorean_deps:
             repo_file: delorean-deps.repo
             CentOS:
-                '7.0': !join [*centos_repo_url]
-                '7.0.1406': !join [*centos_repo_url]
-                '7.1.1503': !join [*centos_repo_url]
+                '7': !join [*centos_repo_url]
             RedHat:
                 '7.0': !join [*centos_repo_url]
                 '7.1': !join [*centos_repo_url]

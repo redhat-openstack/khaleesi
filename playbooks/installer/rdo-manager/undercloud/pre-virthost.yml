@@ -57,47 +57,6 @@
       sudo: yes
       when: gating_repo is defined
 
-- name: setup the virt host
-  hosts: virthost
-  tasks:
-    - name: set fact stack user home
-      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
-
-    - name: get the guest-image
-      sudo: yes
-      get_url: >
-        url="{{ distro.images[distro.name][distro.full_version].remote_file_server }}{{ distro.images[distro.name][distro.full_version].guest_image_name }}"
-        dest=/root/{{ distro.images[distro.name][distro.full_version].guest_image_name }}
-
-    - name: copy the guest-image in stack user home
-      sudo: yes
-      command: cp /root/{{ distro.images[distro.name][distro.full_version].guest_image_name }} {{instack_user_home}}/{{ distro.images[distro.name][distro.full_version].guest_image_name }}
-
-    - name: set the right permissions for the guest-image
-      sudo: yes
-      file: >
-        path={{instack_user_home}}/{{ distro.images[distro.name][distro.full_version].guest_image_name }}
-        owner={{ provisioner.remote_user }}
-        group={{ provisioner.remote_user }}
-
-    - name: install yum-plugin-priorities for rdo-manager
-      yum: name={{item}} state=present
-      sudo: yes
-      with_items:
-        - yum-plugin-priorities
-      when: product.name == "rdo"
-
-    - name: install rdo-manager-deps
-      yum: name={{item}} state=present
-      sudo: yes
-      with_items:
-        - python-tripleoclient
-      when: product.name == "rdo" or product.full_version == "8-director"
-
-    - name: install python-rdomanager-oscplugin
-      yum: name=python-rdomanager-oscplugin state=present
-      sudo: yes
-
     - name: setup environment vars
       template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/virt-setup-env.j2 dest=~/virt-setup-env mode=0755
 
@@ -113,51 +72,11 @@
         line="    IP=$(ip n | grep $(tripleo get-vm-mac $UNDERCLOUD_VM_NAME) | awk '{print $1;}')"
       when: workarounds.enabled is defined and workarounds.enabled|bool
 
-    - name: run instack-virt-setup
-      shell: >
-        source {{ instack_user_home }}/virt-setup-env;
-        instack-virt-setup > {{ instack_user_home }}/instack-virt-setup.log;
-      register: instack_virt_setup_result
-      ignore_errors: yes
-
-    - name: destroy default pool
-      command: virsh pool-destroy default
-      sudo: yes
-      ignore_errors: true
-      when: "instack_virt_setup_result.rc != 0"
-
-    - name: update libvirtd unix_sock_group
-      lineinfile: dest=/etc/libvirt/libvirtd.conf
-                  regexp=^unix_sock_group
-                  line='unix_sock_group = "stack"'
-      when: "instack_virt_setup_result.rc != 0"
-      sudo: yes
-
-    - name: restart libvirtd
-      service: name=libvirtd state=restarted
-      when: "instack_virt_setup_result.rc != 0"
-      sudo: yes
-
-    - name: retry run instack-virt-setup
-      shell: >
-        virsh undefine instack;
-        source {{ instack_user_home }}/virt-setup-env;
-        instack-virt-setup > {{ instack_user_home }}/instack-virt-setup-retry.log;
-      when: "instack_virt_setup_result.rc != 0"
-
-    - name: print out all the VMs
-      shell: >
-        sudo virsh list --all
-
-    - name: get undercloud vm ip address
-      shell: >
-        export PATH='/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/stack/bin';
-        ip n | grep $(tripleo get-vm-mac instack) | awk '{print $1;}'
-      when: undercloud_ip is not defined
-      register: undercloud_vm_ip_result
-
-    - name: set_fact for undercloud ip
-      set_fact: undercloud_ip={{ undercloud_vm_ip_result.stdout }}
+- name: build/import undercloud vm
+  hosts: virthost
+  roles:
+    - { role: images/undercloud/build, when: "installer.undercloud_image is not defined or installer.undercloud_image in ['build','save']"}
+    - { role: images/undercloud/import, when: "installer.undercloud_image is defined and installer.undercloud_image == 'import'"}
 
 - name: setup the virt host
   hosts: localhost
@@ -227,6 +146,7 @@
   tasks:
     - name: upload the guest-image on the undercloud
       command: scp -F ssh.config.ansible {{instack_user_home}}/{{ distro.images[distro.name][distro.full_version].guest_image_name }} undercloud-from-virthost:{{ instack_user_home }}/
+      when: installer.overcloud_images == 'build'
 
 - name: test host connection
   hosts: all:!localhost

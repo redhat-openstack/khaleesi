@@ -1,0 +1,70 @@
+---
+  - name: install openstack-tripleo and libguestfs-tools
+    yum: name={{ item }} state=present
+    with_items:
+      - openstack-tripleo
+      - libguestfs-tools
+    sudo: yes
+
+  #TODO(trown) this is temporary until we get this functionality upstream
+  - name: get forked instack-virt-setup script
+    get_url: >
+      url="https://raw.githubusercontent.com/trown/instack-undercloud/undercloud-only/scripts/instack-virt-setup"
+      dest={{ instack_user_home }}/instack-virt-setup
+
+  - name: run forked instack-virt-setup script
+    shell: >
+      source {{ instack_user_home }}/virt-setup-env;
+      chmod +x {{instack_user_home }}/instack-virt-setup;
+      export UNDERCLOUD_ONLY=1;
+      {{ instack_user_home }}/instack-virt-setup;
+
+  - name: get undercloud appliance
+    get_url: url="{{ installer.images.url[product.name][product.full_version][distro.name][distro.full_version] }}{{ installer.undercloud_image_name }}"
+             dest={{ instack_user_home }}
+             timeout=360
+
+  - name: copy instackenv.json to appliance
+    command: virt-customize --upload instackenv.json:/home/stack/instackenv.json -a /home/stack/undercloud.qcow2
+
+  - name: inject ssh key to appliance
+    shell: >
+      virt-customize --mkdir /root/.ssh/ -a undercloud.qcow2;
+      cp /home/stack/.ssh/id_rsa.pub /home/stack/authorized_keys;
+      chmod 600 /home/stack/authorized_keys;
+      virt-customize --upload /home/stack/authorized_keys:/root/.ssh/authorized_keys -a undercloud.qcow2;
+      virt-customize --run-command 'sudo chown root:root /root/.ssh/authorized_keys' -a undercloud.qcow2;
+
+  - name: copy appliance to libvirt directory
+    command: cp /home/stack/undercloud.qcow2 /var/lib/libvirt/images/
+    sudo: true
+
+  - name: install virt-install utility
+    yum: name=virt-install state=present
+    sudo: true
+
+  - name: start the undercloud appliance
+    shell: >
+      virt-install \
+      --name undercloud \
+      --ram {{ installer.nodes.undercloud_node_mem | default('4096') }} \
+      --vcpus {{ installer.nodes.undercloud_node_cpu | default('1') }} \
+      --disk /var/lib/libvirt/images/undercloud.qcow2,bus=sata \
+      --network network=default,target=vnet0 \
+      --network bridge=brbm,virtualport_type=openvswitch,target=vnet1 \
+      --import \
+      --os-variant rhel7 \
+      --noautoconsole
+    sudo: true
+
+  - name: get undercloud vm ip address
+    shell: >
+      export PATH='/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/stack/bin';
+      ip n | grep $(tripleo get-vm-mac undercloud) | awk '{print $1;}'
+    register: undercloud_vm_ip_result
+    until: undercloud_vm_ip_result.stdout != ''
+    retries: 12
+    delay: 10
+
+  - name: set_fact for undercloud ip
+    set_fact: undercloud_ip={{ undercloud_vm_ip_result.stdout }}

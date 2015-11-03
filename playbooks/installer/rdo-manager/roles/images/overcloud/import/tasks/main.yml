@@ -1,0 +1,12 @@
+---
+- name: download the pre-built rdo-manager images
+  get_url: url="{{ installer.images.url[product.name][product.full_version][distro.name][distro.full_version] }}{{ item }}.tar"
+                dest={{ instack_user_home }}
+                force=no
+                timeout=360
+  with_items: "{{ installer.images[product.full_version].files|list }}"
+
+- name: install python-rdomanager-oscplugin
+  yum: name=python-rdomanager-oscplugin state=present
+  sudo: yes
+

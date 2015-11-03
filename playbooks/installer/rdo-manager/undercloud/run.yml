@@ -1,4 +1,10 @@
 ---
+- name: build/import overcloud images
+  hosts: undercloud
+  roles:
+    - { role: images/overcloud/build, when: "installer.overcloud_images is not defined or installer.overcloud_images == 'build'"}
+    - { role: images/overcloud/import, when: "installer.overcloud_images is defined and installer.overcloud_images == 'import'"}
+
 - name: Customize the answer file for baremetal deployment
   hosts: undercloud:&baremetal
   tasks:
@@ -80,7 +86,48 @@
       yum: name=python-six state=present
       sudo: yes
 
-- name: install the undercloud
+- name: Execute vendor-specific setup for baremetal environment
+  hosts: undercloud:&baremetal
+  tasks:
+    - name: copy vendor-specific setup file
+      synchronize: >
+        src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
+        delegate_to: local
+      when: hw_env.env_type != 'ovb_host_cloud'
+
+    - name: copy over vendor-specific setup file (quintupleo_host_cloud)
+      local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F {{base_dir}}/khaleesi/ssh.config.ansible -S none -o StrictHostKeyChecking=no" {{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup undercloud:{{ instack_user_home }}/vendor_specific_setup
+      when: hw_env.env_type == 'ovb_host_cloud'
+
+    - name: execute vendor-specific setup
+      shell: >
+        chmod 755 {{ instack_user_home }}/vendor_specific_setup;
+        {{ instack_user_home }}/vendor_specific_setup
+
+- name: undercloud package install
+  hosts: undercloud
+  tasks: 
+    - name: update hosts file for localhost.localhost (workaround for puppet, discovered on centos7)
+      lineinfile: dest=/etc/hosts line="127.0.0.1   localhost localhost.localhost"
+      sudo: yes
+
+    - name: create custom element list to only do package install part of undercloud install
+      template:
+        dest: "{{ instack_user_home }}/package-only.json"
+        src: "{{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/{{ distro.name }}-package-only.json.j2"
+      
+    - name: install the undercloud
+      shell: JSONFILE="{{ instack_user_home }}/package-only.json" openstack undercloud install --debug &> {{ instack_user_home }}/undercloud_package_install.log
+      ignore_errors: true
+
+- name: save undercloud vm for upload
+  hosts: virthost
+  vars:
+    - ansible_ssh_user: root
+  roles:
+    - { role: images/undercloud/save, when: "installer.undercloud_image is defined and installer.undercloud_image == 'save'"}
+
+- name: undercloud initial install
   hosts: undercloud
   tasks:
     - name: update hosts file for localhost.localhost (workaround for puppet, discovered on centos7)
@@ -128,25 +175,7 @@
         - tripleo-undercloud-passwords
         - stackrc
 
-- name: Execute vendor-specific setup for baremetal environment
-  hosts: undercloud:&baremetal
-  tasks:
-    - name: copy vendor-specific setup file
-      synchronize: >
-        src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
-        delegate_to: local
-      when: hw_env.env_type != 'ovb_host_cloud'
-
-    - name: copy over vendor-specific setup file (quintupleo_host_cloud)
-      local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F {{base_dir}}/khaleesi/ssh.config.ansible -S none -o StrictHostKeyChecking=no" {{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup undercloud:{{ instack_user_home }}/vendor_specific_setup
-      when: hw_env.env_type == 'ovb_host_cloud'
-
-    - name: execute vendor-specific setup
-      shell: >
-        chmod 755 {{ instack_user_home }}/vendor_specific_setup;
-        {{ instack_user_home }}/vendor_specific_setup
-
-- name: confirm installing the undercloud is idempotent
+- name: Check the undercloud install is idempotent
   hosts: undercloud
   tasks:
     - name: install the undercloud

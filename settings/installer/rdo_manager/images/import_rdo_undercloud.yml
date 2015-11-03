@@ -1,0 +1,14 @@
+---
+installer:
+  overcloud_images: noop
+  undercloud_image: import
+  undercloud_image_name: undercloud.qcow2
+  images:
+    'liberty':
+      files:
+        - noop
+    url:
+      rdo:
+        liberty:
+          centos:
+            '7': "http://ci.centos.org/artifacts/rdo/images/liberty/delorean/stable/"

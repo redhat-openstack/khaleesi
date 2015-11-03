@@ -7,15 +7,7 @@ distro:
         ntp_server_ip: 212.199.182.150
     images:
         centos:
-          '7.0':
-            remote_user: cloud-user
-            guest_image_name: "CentOS-7-x86_64-GenericCloud-GA-7.0.1406_01.qcow2"
-            remote_file_server: "http://cloud.centos.org/centos/7/devel/"
-          '7.0.1406':
-            remote_user: cloud-user
-            guest_image_name: "CentOS-7-x86_64-GenericCloud-GA-7.0.1406_01.qcow2"
-            remote_file_server: "http://cloud.centos.org/centos/7/devel/"
-          '7.1.1503':
+          '7':
             remote_user: cloud-user
             guest_image_name: "CentOS-7-x86_64-GenericCloud-GA-7.0.1406_01.qcow2"
             remote_file_server: "http://cloud.centos.org/centos/7/devel/"

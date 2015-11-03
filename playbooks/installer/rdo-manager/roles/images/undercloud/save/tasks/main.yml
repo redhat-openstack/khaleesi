@@ -1,0 +1,51 @@
+---
+- name: install libguestfs-tools
+  yum: name={{ item }} state=present
+  with_items:
+    - libguestfs-tools
+
+- name: dump instack config
+  shell: virsh dumpxml instack > instack.xml
+
+- name: shutdown instack vm
+  command: virsh shutdown instack
+
+- name: wait for instack vm to shutdown cleanly
+  wait_for: host={{ hostvars['localhost'].undercloud_ip }}
+        state=stopped
+        port=22
+        delay=15
+        timeout=300
+
+- name: copy instack.qcow2 to stack user home dir
+  shell: >
+         rm -f {{ instack_user_home }}/instack.qcow2;
+         cp /var/lib/libvirt/images/instack.qcow2 {{ instack_user_home }}/instack.qcow2;
+
+- name: remove unneeded files from instack.qcow
+  shell: LIBGUESTFS_BACKEND=direct virt-customize -a {{ instack_user_home }}/instack.qcow2 --run-command 'rm -f {{ instack_user_home }}/CentOS*qcow2' --run-command 'rm -rf {{ instack_user_home }}/.cache'
+
+- name: sparsify the current image
+  shell: LIBGUESTFS_BACKEND=direct virt-sparsify --compress {{ instack_user_home }}/instack.qcow2 {{ instack_user_home }}/undercloud.qcow2
+
+- name: remove ssh-keys and macs from the image
+  shell: LIBGUESTFS_BACKEND=direct virt-sysprep -a {{ instack_user_home }}/undercloud.qcow2
+
+- name: remove undercloud passwords file so it will be regenerated
+  shell: LIBGUESTFS_BACKEND=direct virt-customize -a {{ instack_user_home }}/undercloud.qcow2 --run-command 'rm -f /home/stack/undercloud-passwords.conf'
+
+- name: add .ssh dir back to /home/stack
+  shell: LIBGUESTFS_BACKEND=direct virt-customize -a {{ instack_user_home }}/undercloud.qcow2 --run-command 'mkdir {{ instack_user_home }}/.ssh' --run-command 'chown stack:stack {{ instack_user_home }}/.ssh'
+
+- name: restart instack vm
+  shell: >
+         virsh destroy instack;
+         virsh undefine instack;
+         virsh create instack.xml
+
+- name: wait until ssh is available on undercloud node
+  wait_for: host={{ hostvars['localhost'].undercloud_ip }}
+        state=started
+        port=22
+        delay=15
+        timeout=300

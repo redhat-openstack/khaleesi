@@ -11,4 +11,4 @@ installer:
       rdo:
         liberty:
           centos:
-            '7': "https://repos.fedorapeople.org/repos/openstack-m/rdo-images-centos-liberty/"
+            '7': "http://ci.centos.org/artifacts/rdo/images/liberty/delorean/stable/"

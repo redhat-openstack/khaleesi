@@ -9,9 +9,7 @@ product:
         delorean_mgt:
             repo_file: delorean-rdo-manager-mstr.repo
             CentOS:
-                '7.0': !join [*mgt_centos_repo_url]
-                '7.0.1406': !join [*mgt_centos_repo_url]
-                '7.1.1503': !join [*mgt_centos_repo_url]
+                '7': !join [*mgt_centos_repo_url]
             RedHat:
                 '7.0': !join [*mgt_centos_repo_url]
                 '7.1': !join [*mgt_centos_repo_url]
