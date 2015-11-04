@@ -25,5 +25,5 @@ provisioner:
         remote_user: cloud-user}
       '7.1': {id: 5cf5b0a3-6e65-486d-b1a8-c3443963676c, name: rhel-guest-image-7.1-20150224.0,
         remote_user: cloud-user}
-      '7.2': {id: 173a6562-8d75-4555-ac6f-9a2b365f5a75, name: rhel-guest-image-7.2-20150821.0,
+      '7.2': {id: 33cd368f-dfcc-4701-b22e-73fffd341173, name: rhel-guest-image-7.2-20151102.0,
         remote_user: cloud-user}
