@@ -328,6 +328,85 @@ And then simply run::
 
     ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/full-job-no-test.yml
 
+
+Installing Openstack on Bare Metal via rdo-manager
+--------------------------------------------------
+
+To deploy OpenStack RDO with rdo-manager you will need:
+- an Undercloud: an existing machine running CentOS 7 since we use rdo-manager,
+OSP-director requires RHEL7 instead
+- a set of computer featuring power management interface supported
+by _Ironic: .. http://docs.openstack.org/developer/tripleo-docs/environments/baremetal.html#ironic-drivers
+- the undercloud machine must be able to reach the power management interfaces IP
+- a hardware_environments in khaleesi settings as described below.
+
+
+The hardware_environments
+=========================
+
+This directory will describe your platform configuration. It comes with the following
+files:
+
+- network_configs/bond_with_vlans/bond_with_vlans.yml: The network configuration, here
+  `bond_with_vlans` is the name of our configuration, adjust the name for your configuration.
+  You can also prepare a different network profile.
+- hw_settings.yml: the configuration to pass to rdo-manager (floating_ip range, neutron
+  internal vlan name, etc)
+- vendor_specific_setup: this file is a shell script that will be use to pass extra configuration
+  to your hardware environment (RAID or NIC extract configuration). The file must exist but can
+  be just empty.
+- instackenv.json: The list of the power management interfaces. The file is documented in rdo-manager
+  documentation: .. https://repos.fedorapeople.org/repos/openstack-m/rdo-manager-docs/liberty/environments/baremetal.html#instackenv-json
+
+You can find some configuration samples in the khaleesi-settings project: .. https://github.com/redhat-openstack/khaleesi-settings/tree/master/hardware_environments
+
+Start your deployment
+=====================
+
+This is an example of a ksgen command line, adjust it to match your environment::
+
+    ksgen --config-dir=settings generate
+    --provisioner=manual \
+    --installer=rdo_manager \
+    --installer-deploy=templates \
+    --installer-env=baremetal \
+    --installer-images=import_rdo \
+    --installer-network=neutron \
+    --installer-network-isolation=bond_with_vlans \
+    --installer-network-variant=ml2-vxlan \
+    --installer-post_action=default \
+    --installer-topology=minimal \
+    --installer-tempest=minimal \
+    --installer-updates=none \
+    --distro=centos-7.0 \
+    --product=rdo \
+    --product-version-build=last_known_good \
+    --product-version-repo=delorean_mgt \
+    --product-version=liberty \
+    --workarounds=enabled \
+    --extra-vars @/khaleesi_project/khaleesi-settings/hardware_environments/my_test_lab/hw_settings.yml \
+    /khaleesi_project/ksgen_settings.yml
+
+Declare the `$TEST_MACHINE` environment. It should point on the IP of our Undercloud. You should also
+be able to open a SSH connection as root::
+
+    export TEST_MACHINE=<ip address of baremetal undercloud host>
+    ssh root@$TEST_MACHINE
+    # exit
+
+You must create a new `local_host` file. Here again adjust the IP address of your Undercloud::
+
+    cat <<EOF > local_hosts
+    [undercloud]
+    undercloud groups=undercloud ansible_ssh_host=<ip address of baremetal undercloud host> ansible_ssh_user=stack ansible_ssh_private_key_file=~/.ssh/id_rsa
+    [local]
+    localhost ansible_connection=local
+    EOF
+
+You can now call Khaleesi::
+
+    ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/full-job-no-test.yml
+
 Cleanup
 -------
 After you finished your work, you can simply remove the created instances by::
