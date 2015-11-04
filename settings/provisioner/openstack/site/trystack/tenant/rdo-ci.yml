@@ -9,13 +9,13 @@ provisioner:
         network_list:
             management:
                 name: default
-                id: e37708f7-12b0-49fa-a315-bd945ad9e3f3
+                id: 11544084-4bab-4ac3-8a3d-97ee5df93bfe
             data:
                 name: packstack_int
-                id: 15e7741b-a938-48c5-aefd-c56fe238acd0
+                id: 1b26f1df-f06a-4437-ae38-4af8c7cb68ef
             external:
                 name: packstack_pub
-                id: 385dcc92-10f3-4459-ae0e-ea904c753e4c
+                id: 73b283f8-bb73-4a4a-9a83-6bc94eb2fb65
                 public_subnet_cidr: 192.168.50.0/24
                 public_allocation_start: 192.168.50.200
                 public_allocation_end: 192.168.50.220

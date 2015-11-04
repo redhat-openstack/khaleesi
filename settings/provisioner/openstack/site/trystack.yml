@@ -3,6 +3,7 @@ provisioner:
     network:
         name: external
         type: neutron
+        use_floating_ip: true
     flavor:
         small: 2
         medium: 3
