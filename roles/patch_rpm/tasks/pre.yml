@@ -1,10 +1,3 @@
-- name: Setup git user and mail
-  sudo: yes
-  shell: >
-      git config --system http.sslverify false;
-      git config --system user.name {{ ansible_ssh_user }};
-      git config --system user.email {{ ansible_ssh_user }}@redhat.com
-
 - name: Clone upstream
   git: repo="{{ patch.upstream.url }}"
        dest="{{ tmp_dir }}/dist-git/{{ patch.upstream.name }}"
@@ -38,12 +31,6 @@
        accept_hostkey=true
   when: patch.dist_git.use_director is not defined or not patch.dist_git.use_director
 
-- name: Setup git user and mail
-  sudo: yes
-  shell: >
-      git config --system user.name {{ ansible_ssh_user }};
-      git config --system user.email {{ ansible_ssh_user }}@redhat.com
-
 - name: Setup git configurations
   shell: >
       if [ "{{ patch.upstream is defined }}" == "True" ]; then
@@ -56,10 +43,3 @@
   args:
     chdir: "{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
 
-- name: Create mock group
-  sudo: yes
-  group: name=mock state=present
-
-- name: Add user to mock group
-  sudo: yes
-  user: name={{ ansible_ssh_user }} groups=mock
