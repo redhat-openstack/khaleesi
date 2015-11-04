@@ -1,3 +1,0 @@
-- name: Workaround for RHBZ1180138 (restart cinder service to find cinder-volumes)
-  shell: openstack-service restart cinder
-  sudo: yes

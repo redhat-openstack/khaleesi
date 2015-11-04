@@ -1,3 +1,0 @@
----
-- name: Remove non-ascii from /etc/fedora-release
-  command: sed -i -e 's/ö/o/' -e "s/’/'/" /etc/fedora-release

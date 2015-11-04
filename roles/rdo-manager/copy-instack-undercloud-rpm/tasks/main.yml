@@ -1,3 +1,0 @@
----
-- name: copy instack-undercloud package
-  command: scp -F ssh.config.ansible {{ build_dir }}/instack-undercloud-{{ pkg_version.stdout }}-99999.noarch.rpm undercloud-from-virthost:{{ instack_user_home }}/

@@ -1,5 +1,0 @@
----
-- name: Set site facts
-  site_facts:
-    nodes_created_dict: "{{ nodes_created_dict }}"
-    floating_ip_dict: "{{ floating_ip_dict }}"

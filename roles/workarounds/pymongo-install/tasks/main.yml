@@ -1,3 +1,0 @@
----
-- name: bz  pymongo present
-  yum: name=pymongo state=present

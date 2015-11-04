@@ -1,5 +1,0 @@
----
-- name: fact undercloud_admin_password
-  shell: grep 'OS_PASSWORD' /root/stackrc | cut -d'=' -f2
-  register: undercloud_admin_password
-  changed_when: false

@@ -1,3 +1,0 @@
----
-- yum: state=present name=qemu-kvm
-- modprobe: state=present name=kvm_intel

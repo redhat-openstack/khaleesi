@@ -1,3 +1,0 @@
----
-- name: fetch keystonerc_admin from controller
-  fetch: src=~/stackrc dest=../../stackrc flat=yes

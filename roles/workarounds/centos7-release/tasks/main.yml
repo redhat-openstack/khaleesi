@@ -1,5 +1,0 @@
----
-- name: update puppet to check for operatingsystemmajorrelease
-  shell: "sed -i  's/operatingsystemrelease/operatingsystemmajorrelease/g' *"
-  args:
-    chdir: /usr/lib/python2.7/site-packages/packstack/puppet/templates/

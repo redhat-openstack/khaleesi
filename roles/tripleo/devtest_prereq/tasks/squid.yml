@@ -1,9 +1,0 @@
----
-- name: Install squid
-  yum: state=present name=squid
-
-- name: squid configuration file
-  template: src=squid.conf.j2
-            dest=/etc/squid/squid.conf
-
-- service: name=squid state=running

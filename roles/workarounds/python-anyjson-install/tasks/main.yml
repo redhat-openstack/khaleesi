@@ -1,3 +1,0 @@
----
-- name: workaround install python-anyjson
-  yum: name=python-anyjson state=present

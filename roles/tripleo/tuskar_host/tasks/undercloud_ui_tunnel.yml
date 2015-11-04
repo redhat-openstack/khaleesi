@@ -1,7 +1,0 @@
----
-- name: ensure daemonize is installed
-  yum: name=daemonize state=present
-
-- name: ssh tunnel port 8111 to undercloud
-  shell: "daemonize /usr/bin/ssh -N heat-admin@{{ undercloud_ip.stdout }} -L *:8111:{{ undercloud_ip.stdout }}:8111 </dev/null 2>&1 >/dev/null"
-  when: ui_tunnel_running.rc != 0

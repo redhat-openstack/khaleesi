@@ -1,3 +1,0 @@
----
-- name: Drop local.conf in devstack dir
-  template: src=local.conf.j2 dest={{ ansible_env.HOME }}/devstack/local.conf

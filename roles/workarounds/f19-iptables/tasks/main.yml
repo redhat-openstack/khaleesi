@@ -1,7 +1,0 @@
----
-  - name: ensure world can connect to port 35357
-    command: iptables -I INPUT 1 -p tcp --dport 35357 -j ACCEPT
-
-  - name: save iptables
-    shell: service iptables save
-    sudo: yes

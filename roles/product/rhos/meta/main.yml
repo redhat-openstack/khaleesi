@@ -1,7 +1,7 @@
 ---
 dependencies:
     - { role: common }
-    - { role: packstack/common }
+    - { role: common-handlers }
     - { role: product/rhos/common }
     - { role: product/rhos/rhel, when: ansible_distribution == 'RedHat' }
 

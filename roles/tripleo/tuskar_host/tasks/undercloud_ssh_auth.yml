@@ -1,3 +1,0 @@
----
-- name: sync undercloud authorized keys with host
-  shell: scp {{ devtest_user_home.stdout }}/.ssh/authorized_keys heat-admin@{{ undercloud_ip.stdout }}:~/.ssh/authorized_keys

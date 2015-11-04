@@ -1,9 +1,0 @@
----
-
-- name: Setup fixed key for encrypted volumes
-  shell: openstack-config --set /etc/nova/nova.conf keymgr fixed_key `hexdump -n 32 -v -e '/1 "%02x"' /dev/urandom`
-  sudo: yes
-
-- name: restart nova compute service to apply changes in nova.conf
-  shell: openstack-service restart nova-compute
-  sudo: yes

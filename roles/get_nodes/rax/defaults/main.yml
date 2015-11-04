@@ -1,6 +1,0 @@
----
-config:
-  verbosity:
-    - info
-
-wait_for_boot: 180

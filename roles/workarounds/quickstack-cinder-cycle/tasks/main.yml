@@ -1,8 +1,0 @@
----
-# https://github.com/redhat-openstack/astapor/pull/369
-
-- name: patch cinder.pp class inclusion
-  lineinfile:
-    dest=/usr/share/openstack-foreman-installer/puppet/modules/quickstack/manifests/cinder.pp
-    regexp="contain cinder"
-    line="contain ::cinder"

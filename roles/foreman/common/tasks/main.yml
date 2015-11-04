@@ -1,8 +1,0 @@
----
-# repos are managed by distro subtree
-#- name: Ensure optional repo
-#  ini_file: dest=/etc/yum.repos.d/rhel.repo section=rhel-6-server-optional-rpms option=enabled value=1
-#  when: ansible_distribution == "RedHat" and ansible_distribution_version != "7.0"
-
-- name: Ensure httplib2
-  yum: name=python-httplib2 state=present

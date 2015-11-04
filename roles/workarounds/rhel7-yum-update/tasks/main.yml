@@ -1,4 +1,0 @@
----
-- name: yum -y update to latest packages
-  yum: name=* state=latest
-  ignore_errors: yes

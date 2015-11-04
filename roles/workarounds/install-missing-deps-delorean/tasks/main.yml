@@ -1,5 +1,0 @@
----
-- name: install missing rpm dependencies for delorean builds
-  yum: name={{ item }} state=latest
-  with_items: delorean.deps
-  when: delorean.deps is defined

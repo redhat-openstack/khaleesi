@@ -1,6 +1,0 @@
----
-controller_name: "{{ nodes.controller.name }}"
-controller_priv_ip: "{{ hostvars[controller_name].ansible_eth1.ipv4.address }}"
-controller_pub_ip: "{{ hostvars[controller_name].ansible_eth0.ipv4.address }}"
-
-foreman_admin_password: "{{ hostvars[groups.foreman.0].foreman_admin_password }}"

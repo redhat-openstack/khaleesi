@@ -1,7 +1,0 @@
----
-rpm_list: /var/log/rpm.list
-module_list: /var/log/module_list
-#should be overridden in settings
-log_files:
-  - /var/log/messages
-

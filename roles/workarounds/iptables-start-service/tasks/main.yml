@@ -1,6 +1,0 @@
----
-- name: WORKAROUND | BZ | Ensure iptables is running
-  service: name=iptables state=started
-  tags: workaround
-  when: workarounds_disabled is not defined or
-        workarounds_disabled|bool == false

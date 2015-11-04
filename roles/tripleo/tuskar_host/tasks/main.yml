@@ -1,4 +1,0 @@
----
-- include: facts.yml
-- include: undercloud_ssh_auth.yml
-- include: undercloud_ui_tunnel.yml

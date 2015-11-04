@@ -1,6 +1,0 @@
----
-# enable forwarding from undercloud on the seed node
-
-- name: seed forwarding from undercloud
-  shell: "iptables -I FORWARD 5 -s 192.0.2.0/24 -j ACCEPT -m comment --comment forward_from_undercloud"
-  when: seed_forwarding_enabled.rc != 0

@@ -1,8 +1,0 @@
----
-
-- name: fact instack_user_home
-  shell: "su - {{ instack.user.stack.name }} -c 'echo -n $HOME'"
-  register: instack_user_home
-  changed_when: false
-  sudo_user: root
-  sudo: yes

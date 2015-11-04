@@ -1,8 +1,0 @@
----
-- name: copy stackrc from root to heat-admin
-  shell: cp /root/stackrc /home/heat-admin/stackrc
-
-- name: set stackrc owner
-  file: path=/home/heat-admin/stackrc
-        owner=heat-admin
-        group=heat-admin

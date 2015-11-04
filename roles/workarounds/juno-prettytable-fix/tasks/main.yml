@@ -1,6 +1,0 @@
----
-- name: Modify prettytable nonnegativeint validation
-  shell: |
-    sed -i 's/self._validate_nonnegativeint/#self._validate_nonnegativeint/' \
-    /usr/lib/python2.7/site-packages/prettytable.py
-

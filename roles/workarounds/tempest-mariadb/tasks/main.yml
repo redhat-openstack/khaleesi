@@ -1,8 +1,0 @@
----
-#havana
-- command: sed -i -e 's/mysql-devel/mariadb-devel/' /usr/lib/python2.7/site-packages/packstack/puppet/modules/tempest/manifests/params.pp
-  ignore_errors: yes
-
-#icehouse
-- command: sed -i -e 's/mysql-devel/mariadb-devel/' /usr/share/openstack-puppet/modules/tempest/manifests/params.pp
-  ignore_errors: yes

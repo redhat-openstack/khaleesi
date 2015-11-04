@@ -1,6 +1,0 @@
----
-- name: start the nodes
-  shell: >
-      source {{ instack_user_home }}/stackrc;
-      COMPUTE_COUNT=3 CONTROL_COUNT=0 instack-ironic-deployment --deploy-nodes
-

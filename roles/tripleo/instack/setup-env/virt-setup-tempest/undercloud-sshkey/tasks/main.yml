@@ -1,3 +1,0 @@
----
-- name: fetch undercloud /home/stack/.ssh/id_rsa
-  fetch: src=~/.ssh/id_rsa dest=../../id_rsa_undercloud flat=yes

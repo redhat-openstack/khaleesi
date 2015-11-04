@@ -1,7 +1,0 @@
----
-
-- name: fact seed_forwarding_enabled
-  shell: "iptables -L -v | grep forward_from_undercloud"
-  register: seed_forwarding_enabled
-  changed_when: false
-  failed_when: false

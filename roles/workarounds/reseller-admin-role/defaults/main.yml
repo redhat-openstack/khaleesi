@@ -1,7 +1,0 @@
----
-admin_username: admin
-admin_tenant_name: admin
-admin_password: "{{ hostvars[controller_name].admin_password | default('redhat') }}"
-swift_reseller_role: ResellerAdmin
-controller_name: "{{ nodes.controller.name }}"
-keystone_endpoint: http://{{ hostvars[controller_name].ansible_default_ipv4.address }}:5000/v2.0/

@@ -1,3 +1,0 @@
----
-- name: Run devstack
-  shell: ./stack.sh chdir={{ ansible_env.HOME }}/devstack

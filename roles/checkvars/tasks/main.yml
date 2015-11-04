@@ -1,3 +1,0 @@
----
-- name: Generate a /tmp/ansible.vars to check for hostvars
-  template: src=checkvars.j2 dest=/tmp/ansible.vars

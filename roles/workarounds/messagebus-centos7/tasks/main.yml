@@ -1,9 +1,0 @@
----
-- name: install patch program
-  yum: name=patch state=present
-
-- name: copy patch file to remote location
-  copy: src=centos7-aio.patch dest=/tmp/centos7-aio.patch owner=nobody group=nobody mode=0644
-
-- name: apply puppet patch for messagebus
-  shell: patch -f -p1 < /tmp/centos7-aio.patch chdir=/

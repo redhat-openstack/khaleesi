@@ -1,7 +1,0 @@
----
-- name: workaround for bz 1138740
-  sudo: yes
-  yum: name={{ item }} state=latest
-  with_items:
-    - python-boto
-

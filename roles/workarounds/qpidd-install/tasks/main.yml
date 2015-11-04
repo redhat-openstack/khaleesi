@@ -1,3 +1,0 @@
----
-- yum: name=qpid-cpp-server state=present
-- copy: src=qpidd.conf dest=/etc/

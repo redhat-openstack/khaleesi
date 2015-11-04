@@ -1,9 +1,0 @@
----
-- name: test ssh
-  command: hostname
-
-- name: check distro
-  command: cat /etc/redhat-release
-
-- name: set fact stack user home
-  set_fact: instack_user_home=/home/{{ instack.user.stack.name }}

@@ -1,8 +1,0 @@
----
-- include: facts.yml
-- include: resolv.yml
-- include: dev_requirements.yml
-- include: stackrc.yml
-- include: tuskar_api.yml
-- include: tuskarclient.yml
-- include: tuskar_ui.yml

@@ -1,8 +1,0 @@
----
-- name: Fix scheduler_default_filters | BZ 1150728
-  shell: openstack-config --set --list /etc/nova/nova.conf DEFAULT scheduler_default_filters ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter
-  sudo: yes
-
-- name: restart nova
-  shell: openstack-service restart nova
-  sudo: yes

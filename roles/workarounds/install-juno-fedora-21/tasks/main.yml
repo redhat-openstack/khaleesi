@@ -1,3 +1,0 @@
----
-- name: lay down the f21 juno fedora repo
-  lineinfile: dest=/etc/yum.repos.d/rdo-release.repo regexp=^baseurl line="baseurl=https://repos.fedorapeople.org/repos/openstack/openstack-juno/fedora-21/"

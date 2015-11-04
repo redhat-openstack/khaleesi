@@ -1,4 +1,0 @@
----
-cloud_init_iso_name: "cloud-init.iso"
-hypervisor_image_path: "/var/lib/libvirt/images/"
-boot_timeout: "30"

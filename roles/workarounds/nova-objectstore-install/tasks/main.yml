@@ -1,8 +1,0 @@
----
-- name: workaround install openstack-nova-objectstore bz1138740
-  yum: name=openstack-nova-objectstore state=present
-  sudo: yes
-
-- name: start and enable openstack-nova-objectstore
-  service: name=openstack-nova-objectstore state=restarted enabled=yes
-  sudo: yes

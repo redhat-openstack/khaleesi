@@ -1,9 +1,0 @@
----
-# bugzilla 1167888
-- name: workaround for bz 1167888
-  yum: name=mongodb-server state=present
-
-- name: update pid file path
-  lineinfile: "dest=//etc/mongodb.conf regexp='^pidfilepath.*' line='pidfilepath=/var/run/mongodb/mongod.pid' state=present"
-  when: product.repo_type != "stage"
-

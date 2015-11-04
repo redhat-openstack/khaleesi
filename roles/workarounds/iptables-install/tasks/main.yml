@@ -1,3 +1,0 @@
----
-- name: installs iptables
-  yum: name=iptables-services state=latest

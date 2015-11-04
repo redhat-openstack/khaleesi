@@ -1,8 +1,0 @@
-{% set ansible_var = "ansible_%s" | format(item.interface) %}
-DEVICE={{ item.interface }}
-DEVICETYPE=ovs
-TYPE=OVSPort
-BOOTPROTO=none
-OVS_BRIDGE={{ item.name }}
-ONBOOT=yes
-HWADDR={{ hostvars[inventory_hostname][ansible_var].macaddress }}

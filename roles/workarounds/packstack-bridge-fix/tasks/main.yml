@@ -1,8 +1,0 @@
----
-# This is a temporary solution until a proper ansible based solution will be in
-# place
-- name: Fix bridge MAC address
-  shell: ovs-vsctl set bridge br-myphysnet other-config:hwaddr={{ ansible_eth2.macaddress }}
-  when: installer.network.plugin.name == 'neutron'
-  notify:
-    - restart network

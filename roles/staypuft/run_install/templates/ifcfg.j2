@@ -1,6 +1,0 @@
-TYPE="Ethernet"
-NAME="{{ staypuft_provision_interface.stdout }}"
-HWADDR="{{ hostvars[inventory_hostname]['ansible_' + staypuft_provision_interface.stdout]['macaddress'] }}"
-ONBOOT="yes"
-NETMASK=255.255.255.0
-IPADDR="{{ provisioner.network.nic.net_2.ip_address | regex_replace('(\d{1,3}\.\d{1,3}\.\d{1,3})(\.\d{1,3})', '\\1') }}.{{ nodes.staypuft.provisioning_net_suffix }}"

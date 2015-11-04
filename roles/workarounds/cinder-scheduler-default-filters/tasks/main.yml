@@ -1,8 +1,0 @@
----
-- name: Workaround cinder scheduler_default_filters | BZ 1166258
-  shell: openstack-config --set /etc/cinder/cinder.conf DEFAULT scheduler_default_filters AvailabilityZoneFilter,CapacityFilter,CapabilitiesFilter
-  sudo: yes
-
-- name: restart cinder
-  shell: openstack-service restart cinder
-  sudo: yes

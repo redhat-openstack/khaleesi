@@ -1,4 +1,0 @@
----
-- name: BZ 1122968 - inhibits creation of ifcfg bridge configuration files
-  sudo: yes
-  copy: src=ovs_redhat.rb  dest=/usr/share/openstack-puppet/modules/vswitch/lib/puppet/provider/vs_bridge/ovs_redhat.rb force=yes

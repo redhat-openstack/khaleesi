@@ -1,3 +1,0 @@
-- name: Workaround for RHBZ1211961 (neutron-l3-agent service is bein started before FWaaS be enabled)
-  shell: openstack-service restart neutron-l3-agent
-  sudo: yes
