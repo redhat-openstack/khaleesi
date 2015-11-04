@@ -1,5 +1,5 @@
 provisioner:
-    url: 'http://8.21.28.222:5000/v2.0'
+    auth_url: !env OS_AUTH_URL
     network:
         name: external
         type: neutron
