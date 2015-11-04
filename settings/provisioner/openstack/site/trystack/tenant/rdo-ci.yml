@@ -6,7 +6,7 @@ provisioner:
     key_file: rdo-ci-public.pem
     key_name: rdo-ci-public
     network:
-        nic:
+        network_list:
             net_1:
                 name: default
                 id: e37708f7-12b0-49fa-a315-bd945ad9e3f3
