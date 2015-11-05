@@ -85,7 +85,6 @@
         - OpenIPMI-tools
       sudo_user: root
       sudo: yes
-      when: hw_env.remote_mgmt == "ipmi"
 
     - name: install sshpass - DRACS
       yum: name=sshpass state=latest
@@ -97,7 +96,21 @@
       shell: >
         sudo chkconfig ipmi on;
         sudo service ipmi start
-      when: hw_env.remote_mgmt == "ipmi"
+
+    - name: get tools to validate instackenv.json/nodes.json
+      git: >
+        repo="https://github.com/rthallisey/clapper.git"
+        dest="{{instack_user_home}}/clapper"
+
+    - name: validate instackenv.json
+      shell: >
+        chdir={{instack_user_home}}
+        python clapper/instackenv-validator.py -f {{ instack_user_home }}/instackenv.json
+      register: instackenv_validator_output
+
+    - name: fail if instackenv.json fails validation
+      fail: msg="instackenv.json didn't validate."
+      when: instackenv_validator_output.stdout.find("SUCCESS") == -1
 
     - name: get number of overcloud nodes
       shell: >
