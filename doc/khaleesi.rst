@@ -202,7 +202,7 @@ Generate the configuration with the following command::
         --extra-vars @../khaleesi-settings/hardware_environments/virt_default/hw_settings.yml \
         ksgen_settings.yml
 
-.. Note:: The "base_dir" key is defined by either where you execute ksgen from orby the $WORKSPACE
+.. Note:: The "base_dir" key is defined by either where you execute ksgen from or by the $WORKSPACE
    environment variable. The base_dir value should point to the directory where khaleesi and
    khaleesi-settings have been cloned.
 

@@ -129,7 +129,7 @@ jobs. You're done.
 
 
 Jenkins RDO-Manager:
---------
+--------------------
 
 For using khaleesi with Jenkins, first of all see the steps :ref:`jenkins` part for setting
 up a Jenkins slave and for use jjb.
