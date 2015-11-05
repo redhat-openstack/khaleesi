@@ -99,7 +99,6 @@
       shell: >
         source {{ instack_user_home }}/virt-setup-env;
         instack-virt-setup > {{ instack_user_home }}/instack-virt-setup.log;
-      register: instack_virt_setup_result
       ignore_errors: yes
 
     - name: update libvirtd unix_sock_group
@@ -111,52 +110,6 @@
     - name: restart libvirtd
       service: name=libvirtd state=restarted
       sudo: yes
-
-    - name: inspect virsh capabilities
-      command: 'virsh capabilities'
-      sudo: yes
-      when: "instack_virt_setup_result.rc != 0"
-      # workaround for the SATA error RHBZ#1195882
-
-    - name: remove libvirt qemu capabilities cache
-      command: rm -Rf /var/cache/libvirt/qemu/capabilities/
-      sudo: yes
-      when: "instack_virt_setup_result.rc != 0"
-      # more workaround for the SATA error RHBZ#1195882
-
-    - name: restart libvirtd
-      service: name=libvirtd state=restarted
-      sudo: yes
-      when: "instack_virt_setup_result.rc != 0"
-
-    - name: inspect virsh capabilities
-      command: 'virsh capabilities'
-      when: "instack_virt_setup_result.rc != 0"
-
-    - name: stop virbr0
-      command: ip link set virbr0 down
-      sudo: yes
-      ignore_errors: true
-      when: "instack_virt_setup_result.rc != 0"
-
-    - name: delete libvirt bridge virbr0
-      command: brctl delbr virbr0
-      sudo: yes
-      ignore_errors: true
-      when: "instack_virt_setup_result.rc != 0"
-
-    - name: start default libvirt network
-      command: virsh net-start default
-      sudo: yes
-      ignore_errors: true
-      when: "instack_virt_setup_result.rc != 0"
-
-    - name: retry run instack-virt-setup
-      shell: >
-        virsh undefine instack;
-        source {{ instack_user_home }}/virt-setup-env;
-        instack-virt-setup > {{ instack_user_home }}/instack-virt-setup-retry.log;
-      when: "instack_virt_setup_result.rc != 0"
 
     - name: print out all the VMs
       shell: >
