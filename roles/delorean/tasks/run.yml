@@ -1,0 +1,13 @@
+- name: Create logs directory
+  file: path="{{ ansible_env.HOME }}/delorean/logs" state=directory mode=0755
+
+- name: Run Delorean
+  shell: >
+    source {{ ansible_env.HOME }}/delorean-venv/bin/activate;
+    export GERRIT_BRANCH={{ lookup('env', 'GERRIT_BRANCH') }};
+    export GERRIT_HOST={{ lookup('env', 'GERRIT_HOST') }};
+    export GERRIT_PROJECT={{ lookup('env', 'GERRIT_PROJECT') }};
+    export GERRIT_REFSPEC={{ lookup('env', 'GERRIT_REFSPEC') }};
+    timeout --signal=SIGKILL 3600 ./scripts/run_tests.sh
+  args:
+      chdir: '{{ ansible_env.HOME }}/delorean'

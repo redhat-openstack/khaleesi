@@ -1,0 +1,7 @@
+- name: Create a directory to hold the delorean rpms
+  file: path={{ ansible_env.HOME }}/rpms state=directory
+
+- name: Copy and rename the generated rpms
+  shell: >
+    cp {{ ansible_env.HOME }}/delorean/repos/*/*/*/*.rpm {{ ansible_env.HOME }}/rpms/;
+    rm -rf {{ ansible_env.HOME }}/delorean;

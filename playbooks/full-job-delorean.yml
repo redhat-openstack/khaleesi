@@ -1,0 +1,27 @@
+---
+- name: Run Delorean
+  hosts: local
+  roles:
+   - delorean
+
+- include: provision.yml
+
+- name: Copy RPMs to hosts
+  hosts: controller
+  tasks:
+    - group_by: key=delorean_rpms
+      when: installer.type =! 'rdo-manager'
+
+- name: Copy RPMs to hosts
+  hosts: undercloud
+  tasks:
+    - group_by: key=delorean_rpms
+      when: installer.type == 'rdo-manager'
+
+- name: Create local repo for delorean rpms
+  hosts: delorean_rpms
+  roles:
+   - delorean_rpms
+
+- include: install.yml
+- include: test.yml
