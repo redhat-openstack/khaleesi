@@ -16,8 +16,8 @@ provisioner:
             external:
                 name: packstack_pub
                 id: 73b283f8-bb73-4a4a-9a83-6bc94eb2fb65
-                public_subnet_cidr: 192.168.50.0/24
-                public_allocation_start: 192.168.50.200
-                public_allocation_end: 192.168.50.220
-                public_subnet_gateway: 192.168.50.1
+                subnet_cidr: 192.168.50.0/24
+                allocation_start: 192.168.50.200
+                allocation_end: 192.168.50.220
+                subnet_gateway: 192.168.50.1
 
