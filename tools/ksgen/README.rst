@@ -178,18 +178,24 @@ from the given 'top-level' parameters settings files if they are defined in
 them. Defaults settings for any 'non top level' parameters that have been
 given will not been loaded.
 
-Example of defaults section in settings files::
-provisioner/openstack.yml:
-defaults:
-  site: openstack-site
-  topology: all-in-one
+Example of defaults section in settings files:
 
-provisioner/openstack/site/openstack-site.yml:
-defaults:
-  user: openstack-user
+.. code-block:: yaml
+    :caption: provisioner/openstack.yml
 
-Usage example::
-ksgen --config-dir=/settings/dir/path generate --provisioner=openstack settings.yml
+    defaults:
+      site: openstack-site
+      topology: all-in-one
+
+.. code-block:: yaml
+    :caption: provisioner/openstack/site/openstack-site.yml
+
+    defaults:
+      user: openstack-user
+
+Usage example: ::
+
+  ksgen --config-dir=/settings/dir/path generate --provisioner=openstack settings.yml
 
 _`generate`: merges settings into a single file
 -----------------------------------------------
