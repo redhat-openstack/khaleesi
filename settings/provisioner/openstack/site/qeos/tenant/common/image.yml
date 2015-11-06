@@ -14,6 +14,8 @@ provisioner:
         remote_user: fedora}
       '22': {id: a79f06f6-a219-424d-af60-a8261241bf06, name: Fedora-Cloud-Base-22-20150521.x86_64,
         remote_user: fedora}
+      '23': {id: fe4b2936-0bb4-496e-90c0-18069d79c61a, name: Fedora-Cloud-Base-23-20151113-py27.x86_64,
+        remote_user: fedora}
     rhel:
       '6.5': {id: 374c4bd9-4a46-4fa7-aa8f-087f457c3399, name: rhel-guest-image-6.5-20140930,
         remote_user: cloud-user}
