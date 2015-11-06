@@ -5,3 +5,7 @@ product:
         minor: 0
         code_name: kilo
     short_version: 7d
+
+defaults:
+  build: latest
+  repo: puddle
