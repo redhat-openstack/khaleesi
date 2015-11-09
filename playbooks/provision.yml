@@ -38,6 +38,7 @@
         dest: "/tmp/ansible_hosts"
         src: provisioner/templates/hosts.j2
       register: templatehosts
+      when: provisioner.network.domain is defined
 
     - name: Update hosts file
       shell: "cat /tmp/ansible_hosts >> /etc/hosts"
