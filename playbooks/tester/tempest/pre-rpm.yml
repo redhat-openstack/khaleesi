@@ -4,18 +4,6 @@
   gather_facts: no
   sudo: yes
   tasks:
-    # Normally tempest would be already available from the installer repos
-    # but that's not the case yet (master pkg now needs kilo rdo for deps)
-    - command: yum localinstall -y https://rdo.fedorapeople.org/openstack-kilo/rdo-release-kilo.rpm
-      when: tester.rpm.release == 'master'
-    # and atm also custom delorean repo (until it gets into trunk.rdo)
-    - template: dest=/etc/yum.repos.d/tempest.repo src=../templates/tempest-master.repo owner=root group=root mode=0644
-      register: tempest_repo
-      when: tester.rpm.release == 'master'
-
-    - command: yum clean all
-      when: tempest_repo|changed
-
     - yum: name=openstack-tempest state=present
       register: tempest_rpm
 
@@ -24,7 +12,6 @@
 
     - command: rpm -q --qf %{RELEASE} openstack-tempest
       register: tempest_rpm_release
-
 
     - debug: "msg='Build mark: tempest={{ tempest_rpm_version.stdout }}-{{ tempest_rpm_release.stdout }}'"
 

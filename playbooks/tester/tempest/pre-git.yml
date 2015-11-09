@@ -4,25 +4,18 @@
   gather_facts: no
   sudo: yes
   tasks:
-      #TODO(tkammer): move the list of packages to khaleesi-settings
-    - name: Install support packages for pip-based deps building
+    - name: Install pip
+      command: easy_install pip
+
+    - name: Install devel packages for package build dependencies
       yum: name={{ item }} state=present
-      with_items:
-        - gcc
-        - git
-        - libffi-devel
-        - libxml2-devel
-        - libxslt-devel
-        - mariadb-devel
-        - openssl-devel
-        - python-virtualenv
-    - command: easy_install pip
+      with_items: "{{ tester.packages }}"
 
 - name: Install tempest from source
   hosts: tester
   gather_facts: no
   tasks:
-    - git: repo={{ tester.git.repo }} version={{ tester.git.revision }}
+    - git: repo={{ tester.git.repo }} version={{ tester.git.revision | default('HEAD') }}
            dest={{ tester.dir }}
       register: tempest_repo
       when: tester.git.local_dir is not defined
@@ -41,17 +34,7 @@
       command: "python {{ tester.dir }}/tools/install_venv.py {{ tester.dir }}"
       when: tempest_repo|changed or tempest_local_dir|changed
 
-      #TODO(tkammer): move this to khaleesi-settings
-    - name: prepare list of extra/specific pip pkgs to install
-      copy:
-        dest: "{{ tester.dir }}/extra-requirements.txt"
-        content: |
-          junitxml
-          unittest2
-          nose
-          python-ceilometerclient==1.0.10 # fix: tempest failure
-      register: extra_reqs
-
-    - name: pip install extra requirements
-      pip: requirements="~/{{ tester.dir }}/extra-requirements.txt" state=present virtualenv="~/{{ tester.dir }}/.venv"
-      when: tempest_repo|changed or tempest_local_dir|changed or extra_reqs|changed
+    - name: Install extra pip requirements
+      pip: name={{ item }} state=present virtualenv="~/{{ tester.dir }}/.venv"
+      with_items: "{{ tester.pip_packages }}"
+      when: tempest_repo|changed or tempest_local_dir|changed

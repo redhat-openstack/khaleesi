@@ -36,14 +36,3 @@ product:
 packstack:
     config:
         CONFIG_NEUTRON_FWAAS: n
-
-# tempest.rdo.rpm = what rdo openstack clients to install
-# tempest.rdo.version = what branch of https://github.com/redhat-openstack/tempest to use
-# tempest.rpm.version = pin the version of the rpm used
-# tempest.use_custom_repo = specify the repo vs.. use rdo repos
-# custom repos for tempest RPM are defined in settings/tester/tempest/setup/rpm.yml
-tempest:
-    rdo:
-        rpm: http://rdoproject.org/repos/openstack-liberty/rdo-release-liberty.rpm
-        version: liberty
-    use_custom_repo: false

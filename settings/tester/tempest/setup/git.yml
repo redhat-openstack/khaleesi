@@ -1,13 +1,8 @@
 tester:
     setup: git
+    # The tester.git.revision parameter can be used as extra vars to specify the branch to use
     git:
         repo: https://github.com/redhat-openstack/tempest.git
-        revision: HEAD
-    use_virtual_env: true
-
-    rpms:
-        - https://repos.fedorapeople.org/repos/openstack/openstack-juno/rdo-release-juno-1.noarch.rpm
-
     packages:
         - facter
         - gcc
@@ -17,12 +12,10 @@ tester:
         - libxslt-devel
         - mariadb-devel
         - openssl-devel
-        - python-pip
         - python-virtualenv
-
     pip_packages:
+        - python-subunit
         - junitxml
         - unittest2
         - nose
         - testtools==0.9.36 # Tempest needs at least 0.9.36 (assertIn problem)
-        - python-subunit==0.0.15

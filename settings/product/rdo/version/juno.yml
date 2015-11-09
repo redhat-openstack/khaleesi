@@ -34,14 +34,3 @@ product:
                 '6.7': !join [*repo_url, epel-6]
                 '7.0': !join [*repo_url, epel-7]
                 '7.1': !join [*repo_url, epel-7]
-
-# tempest.rdo.rpm = what rdo openstack clients to install
-# tempest.rdo.version = what branch of https://github.com/redhat-openstack/tempest to use
-# tempest.rpm.version = pin the version of the rpm used
-# tempest.use_custom_repo = specify the repo vs.. use rdo repos
-# custom repos for tempest RPM are defined in settings/tester/tempest/setup/rpm.yml
-tempest:
-    rdo:
-        rpm: https://repos.fedorapeople.org/repos/openstack/openstack-kilo/rdo-release-kilo-1.noarch.rpm
-        version: kilo
-    use_custom_repo: false
