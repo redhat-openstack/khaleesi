@@ -17,7 +17,7 @@
 
 - name: Clone director dist-git
   git: repo="{{ patch.dist_git.url }}"
-       version="{{ product.name }}-{{ product.version.major }}.{{ product.version.minor }}-pmgr-rhel-{{ product.version.major }}"
+       version="{{ product.name }}-{{ product.version.major }}.{{ product.version.minor }}-pmgr-rhel-{{ distro.major }}"
        dest="{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
        accept_hostkey=true
   when: patch.dist_git.use_director is defined and patch.dist_git.use_director
@@ -26,7 +26,7 @@
 
 - name: Clone dist-git
   git: repo="{{ patch.dist_git.url }}"
-       version="{{ product.name }}-{{ product.version.major }}.{{ product.version.minor }}-rhel-{{ product.version.major }}"
+       version="{{ product.name }}-{{ product.version.major }}.{{ product.version.minor }}-rhel-{{ distro.major }}"
        dest="{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
        accept_hostkey=true
   when: patch.dist_git.use_director is not defined or not patch.dist_git.use_director

@@ -4,7 +4,9 @@
     chdir: "{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
 
 - name: Write the epoch so the package does not get updated by older versions
-  shell: "(grep -q \"^Epoch:\" *.spec && sed -i \"s/^Epoch.*/Epoch: 99999/\" *.spec) ||sed -i \"/^Release.*/a Epoch: 99999\" *.spec "
+  shell: >
+    (grep -q "^Epoch:" *.spec && sed -i "s/^Epoch.*/Epoch: 99999/" *.spec) || sed -i "/^Summary.*/a Epoch: 99999" *.spec;
+    sed -i -e's/\(^Requires.*\)\(%{version}-%{release}\)/\1%{epoch}:\2/' *.spec
   args:
     chdir: "{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
 
