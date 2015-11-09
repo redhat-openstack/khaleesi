@@ -1,0 +1,37 @@
+- job-template:
+    name: 'packstack-gate_khaleesi-{product}-{product-version}'
+    defaults: rdo-manager-defaults
+    triggers:
+        - trigger-packstack-gate-khaleesi
+    scm:
+        - repo-khaleesi-gerrit
+        - repo-khaleesi-settings
+    builders:
+        - ksgen-builder-packstack:
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            network: '{network}'
+    properties:
+        - ownership:
+            owner: whayutin at redhat.com
+            co-owners:
+                - slinaber at redhat.com
+
+- project:
+    name: packstack-centosci-gate-jobs
+    installer: packstack
+    network: none
+    product: rdo
+    product-version: liberty
+    product-version-repo: production
+    distro: centos-7.0
+    provisioner-distro: centos
+    provisioner-distro-version: 7
+
+    jobs:
+        - 'packstack-gate_khaleesi-{product}-{product-version}'

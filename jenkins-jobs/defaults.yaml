@@ -200,6 +200,61 @@
             silent: false
 
 - trigger:
+    name: trigger-packstack-gate-khaleesi
+    triggers:
+        - gerrit:
+            server-name: 'rdo-ci-centos'
+            trigger-on:
+                - patchset-created-event
+                - draft-published-event
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/khaleesi'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+                  file-paths:
+                      - compare-type: 'ANT'
+                        pattern: 'playbooks/post-deploy/packstack/**'
+                      - compare-type: 'ANT'
+                        pattern: 'playbooks/installer/packstack**'
+                      - compare-type: 'ANT'
+                        pattern: 'playbooks/provisioner/centosci**'
+                      - compare-type: 'ANT'
+                        pattern: 'playbooks/provision.yml'
+                      - compare-type: 'ANT'
+                        pattern: 'plugins/**'
+                      - compare-type: 'ANT'
+                        pattern: 'roles/**'
+                      - compare-type: 'ANT'
+                        pattern: 'settings/distro/**'
+                      - compare-type: 'ANT'
+                        pattern: 'settings/installer/common/**'
+                      - compare-type: 'ANT'
+                        pattern: 'settings/installer/packstack**'
+                      - compare-type: 'ANT'
+                        pattern: 'settings/product/common/**'
+                      - compare-type: 'ANT'
+                        pattern: 'settings/product/rdo**'
+                      - compare-type: 'ANT'
+                        pattern: 'settings/provisioner/centosci**'
+                      - compare-type: 'ANT'
+                        pattern: 'settings/provisioner/common/**'
+                      - compare-type: 'ANT'
+                        pattern: 'settings/workarounds/**'
+                      - compare-type: 'ANT'
+                        pattern: 'tools/**'
+            skip-vote:
+                successful: false
+                failed: false
+                unstable: false
+                notbuilt: false
+            failure-message: 'test failed'
+            successful-message: 'test ran successfully'
+            unstable-message: 'test is unstable'
+            silent: false
+
+- trigger:
     name: trigger-rdo-manager-gate-khaleesi-settings
     triggers:
         - gerrit:

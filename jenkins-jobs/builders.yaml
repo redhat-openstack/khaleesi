@@ -1,0 +1,300 @@
+- builder:
+    name: ksgen-builder-rdo-manager
+    builders:
+        - shining-panda:
+            build-environment: virtualenv
+            python-version: system-CPython-2.7
+            nature: shell
+            clear: false
+            use-distribute: true
+            system-site-packages: false
+            ignore-exit-code: false
+            command: |
+                pip install -U ansible==1.9.2 > ansible_build; ansible --version
+
+                # install ksgen
+                pushd khaleesi/tools/ksgen
+                python setup.py develop
+                popd
+
+                pushd khaleesi
+
+                cp ansible.cfg.example ansible.cfg
+                touch ssh.config.ansible
+                echo "" >> ansible.cfg
+                echo "[ssh_connection]" >> ansible.cfg
+                echo "ssh_args = -F ssh.config.ansible" >> ansible.cfg
+
+                # fetch dependent gating changes
+                if [ $GERRIT_CHANGE_COMMIT_MESSAGE ]; then
+                    ansible-playbook -i local_hosts -vv playbooks/depends-on.yml
+                fi
+
+                # generate config
+                ksgen --config-dir=settings generate \
+                    --provisioner=centosci \
+                    --provisioner-site=default \
+                    --provisioner-distro=centos \
+                    --provisioner-distro-version={provisioner-distro-version} \
+                    --provisioner-site-user=rdo \
+                    --product={product} \
+                    --product-version={product-version} \
+                    --product-version-build={pin} \
+                    --product-version-repo={product-version-repo} \
+                    --distro={distro} \
+                    --installer={installer} \
+                    --installer-deploy={installer-deploy} \
+                    --installer-env={installer-env} \
+                    --installer-images={installer-images} \
+                    --installer-network={network} \
+                    --installer-network-isolation={network-isolation} \
+                    --installer-network-variant={network-variant} \
+                    --installer-post_action={installer-post_action} \
+                    --installer-topology={installer-topology} \
+                    --installer-tempest={installer-tempest} \
+                    --workarounds=enabled \
+                    --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/{network-isolation}/hw_settings.yml \
+                    ksgen_settings.yml
+
+                # get nodes and run test
+                set +e
+                anscmd="stdbuf -oL -eL ansible-playbook -vv --extra-vars @ksgen_settings.yml"
+
+                $anscmd -i local_hosts playbooks/full-job-no-test.yml
+                result=$?
+
+                infra_result=0
+                $anscmd -i hosts playbooks/collect_logs.yml &> collect_logs.txt || infra_result=1
+                $anscmd -i local_hosts playbooks/cleanup.yml &> cleanup.txt || infra_result=2
+
+                if [[ "$infra_result" != "0" && "$result" = "0" ]]; then
+                    # if the job/test was ok, but collect_logs/cleanup failed,
+                    # print out why the job is going to be marked as failed
+                    result=$infra_result
+                    cat collect_logs.txt
+                    cat cleanup.txt
+                fi
+
+                exit $result
+
+
+- builder:
+    name: ksgen-builder-packstack
+    builders:
+        - shining-panda:
+            build-environment: virtualenv
+            python-version: system-CPython-2.7
+            nature: shell
+            clear: false
+            use-distribute: true
+            system-site-packages: false
+            ignore-exit-code: false
+            command: |
+                pip install -U ansible==1.9.2 > ansible_build; ansible --version
+
+                # install ksgen
+                pushd khaleesi/tools/ksgen
+                python setup.py develop
+                popd
+
+                pushd khaleesi
+
+                cp ansible.cfg.example ansible.cfg
+                touch ssh.config.ansible
+                echo "" >> ansible.cfg
+                echo "[ssh_connection]" >> ansible.cfg
+                echo "ssh_args = -F ssh.config.ansible" >> ansible.cfg
+
+                # fetch dependent gating changes
+                if [ $GERRIT_CHANGE_COMMIT_MESSAGE ]; then
+                    ansible-playbook -i local_hosts -vv playbooks/depends-on.yml
+                fi
+
+                # generate config
+                ksgen --config-dir=settings generate \
+                    --provisioner=centosci \
+                    --provisioner-site=default \
+                    --provisioner-distro={provisioner-distro} \
+                    --provisioner-distro-version={provisioner-distro-version} \
+                    --provisioner-site-user=rdo \
+                    --provisioner-topology=all-in-one \
+                    --product={product} \
+                    --product-version={product-version} \
+                    --product-version-repo={product-version-repo} \
+                    --distro={distro} \
+                    --installer={installer} \
+                    --installer-network={network} \
+                    --installer-messaging=none \
+                    --installer-config=no_change \
+                    --workarounds=enabled \
+                    --extra-vars @../khaleesi-settings/hardware_environments/virt_default/hw_settings.yml \
+                    ksgen_settings.yml
+
+
+                # get nodes and run test
+                set +e
+                anscmd="stdbuf -oL -eL ansible-playbook -vv --extra-vars @ksgen_settings.yml"
+
+                $anscmd -i local_hosts playbooks/full-job-no-test.yml
+                result=$?
+
+                if [[ $result == 0 ]]; then
+                    $anscmd -i hosts playbooks/post-deploy/packstack/validate-packstack-aio.yml
+                    result=$?
+                fi
+
+                infra_result=0
+                $anscmd -i hosts playbooks/collect_logs.yml &> collect_logs.txt || infra_result=1
+                $anscmd -i local_hosts playbooks/cleanup.yml &> cleanup.txt || infra_result=2
+
+                if [[ "$infra_result" != "0" && "$result" = "0" ]]; then
+                    # if the job/test was ok, but collect_logs/cleanup failed,
+                    # print out why the job is going to be marked as failed
+                    result=$infra_result
+                    cat collect_logs.txt
+                    cat cleanup.txt
+                fi
+
+                exit $result
+
+
+- builder:
+    name: ksgen-builder-rdo-manager-feature-virthost
+    builders:
+        - shining-panda:
+            build-environment: virtualenv
+            python-version: system-CPython-2.7
+            nature: shell
+            clear: false
+            use-distribute: true
+            system-site-packages: false
+            ignore-exit-code: false
+            command: |
+                pip install -U ansible==1.9.2 > ansible_build; ansible --version
+
+                # install ksgen
+                pushd khaleesi/tools/ksgen
+                python setup.py develop
+                popd
+
+                pushd khaleesi
+
+                cp ansible.cfg.example ansible.cfg
+                touch ssh.config.ansible
+                echo "" >> ansible.cfg
+                echo "[ssh_connection]" >> ansible.cfg
+                echo "ssh_args = -F ssh.config.ansible" >> ansible.cfg
+
+                # fetch dependent gating changes
+                if [ $GERRIT_CHANGE_COMMIT_MESSAGE ]; then
+                    ansible-playbook -i local_hosts -vv playbooks/depends-on.yml
+                fi
+
+                # generate config
+                ksgen --config-dir=settings generate \
+                    --provisioner=centosci \
+                    --provisioner-site=default \
+                    --provisioner-distro=centos \
+                    --provisioner-distro-version={provisioner-distro-version} \
+                    --provisioner-site-user=rdo \
+                    --installer={installer} \
+                    --installer-deploy={installer-deploy} \
+                    --installer-env={installer-env} \
+                    --installer-images={installer-images} \
+                    --installer-network={network} \
+                    --installer-network-isolation={network-isolation} \
+                    --installer-network-variant={network-variant} \
+                    --installer-post_action={installer-post_action} \
+                    --installer-topology={installer-topology} \
+                    --installer-tempest={installer-tempest} \
+                    --installer-updates={installer-updates} \
+                    --distro={distro} \
+                    --product={product} \
+                    --product-version-build={pin} \
+                    --product-version-repo={product-version-repo} \
+                    --product-version={product-version} \
+                    --workarounds=enabled \
+                    --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/{network-isolation}/hw_settings.yml \
+                    ksgen_settings.yml
+
+                # get nodes and run test
+                set +e
+                anscmd="stdbuf -oL -eL ansible-playbook -vv --extra-vars @ksgen_settings.yml"
+
+                $anscmd -i local_hosts playbooks/full-job-no-test.yml
+                result=$?
+
+                if [[ $result == 0 ]]; then
+                    pip install shyaml > shyaml_build.log
+                    if [[ ` shyaml get-value installer.updates.enabled < ksgen_settings.yml` == 'True' ]]; then
+                        $anscmd -i hosts playbooks/post-deploy/rdo-manager/run-update.yml
+                        result=$?
+                        if [[ $result == 0 ]]; then
+                            $anscmd -i hosts playbooks/post-deploy/rdo-manager/overcloud-validate.yml
+                            result=$?
+                        fi
+                    elif [[ ` shyaml get-value installer.post_action < ksgen_settings.yml` == *'scale_up'* ]]; then
+                        $anscmd -i hosts playbooks/post-deploy/rdo-manager/run-overcloud-scale.yml
+                        result=$?
+                        if [[ $result == 0 ]]; then
+                            $anscmd -i hosts playbooks/post-deploy/rdo-manager/overcloud-validate.yml
+                            result=$?
+                        fi
+                        if [[ $result == 0 ]]; then
+                            $anscmd -i hosts playbooks/post-deploy/rdo-manager/run-delete-nodes.yml
+                            result=$?
+                        fi
+                        if [[ $result == 0 ]]; then
+                            #$anscmd -i hosts playbooks/post-deploy/rdo-manager/overcloud-validate.yml
+                            #result=$?
+                            echo "validation is disabled until min_basic_ops works consistently in other jobs"
+                        fi
+                    fi
+                else
+                    echo "The initial deployment was not successful"
+                fi
+
+                infra_result=0
+                $anscmd -i hosts playbooks/collect_logs.yml &> collect_logs.txt || infra_result=1
+                $anscmd -i local_hosts playbooks/cleanup.yml &> cleanup.txt || infra_result=2
+
+                if [[ "$infra_result" != "0" && "$result" = "0" ]]; then
+                    # if the job/test was ok, but collect_logs/cleanup failed,
+                    # print out why the job is going to be marked as failed
+                    #FIXME: re-enable this when collect_logs and cleanup are passing again
+                    #result=$infra_result
+                    cat collect_logs.txt
+                    cat cleanup.txt
+                fi
+
+                exit $result
+
+- builder:
+    name: promote-delorean-mgt-script
+    builders:
+        - conditional-step:
+            condition-kind: current-status
+            condition-worst: UNSTABLE
+            condition-best: SUCCESS
+            steps:
+                - shell: |
+                    pushd $WORKSPACE/khaleesi;
+                    HASH=`ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -F ssh.config.ansible undercloud "cat /etc/yum.repos.d/rdo-mgt-trunk-release.repo | grep baseurl | cut -d / -f 7"`;
+                    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/rhos-ci promoter@trunk-mgt.rdoproject.org "sudo /root/promote.sh $HASH";
+                    popd
+
+
+- builder:
+    name: promote-delorean-rdo-script
+    builders:
+        - conditional-step:
+            condition-kind: current-status
+            condition-worst: UNSTABLE
+            condition-best: SUCCESS
+            steps:
+                - shell: |
+                    pushd $WORKSPACE/khaleesi;
+                    HASH=`ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -F ssh.config.ansible undercloud "cat /etc/yum.repos.d/rdo-trunk-release.repo | grep baseurl | cut -d / -f 7"`;
+                    ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/rhos-ci -p 3300 promoter@209.132.178.14 "sudo /usr/local/bin/promote.sh $HASH" centos-kilo;
+                    popd
+
