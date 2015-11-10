@@ -55,5 +55,11 @@
 - name: collect performance data, memory
   command: free -m
 
+- name: collect performance data, cpu
+  shell: >
+    cat /proc/cpuinfo | grep processor | wc -l;
+    cat /proc/cpuinfo | grep 'core id';
+    cat /proc/cpuinfo | grep 'model name'
+
 - name: collect performance data, vmstat
   command: vmstat
