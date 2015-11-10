@@ -181,7 +181,7 @@ Export the ip or fqdn hostname of the test box you will use as the virtual host 
 
 Generate the configuration with the following command::
 
-    ksgen --config-dir=../khaleesi-settings/settings generate \
+    ksgen --config-dir settings generate \
         --provisioner=manual \
         --product=rdo \
         --product-version=liberty \
@@ -190,16 +190,14 @@ Generate the configuration with the following command::
         --distro=centos-7.0 \
         --installer=rdo_manager \
         --installer-env=virthost \
-        --installer-images=build \
-        --installer-network=neutron \
+        --installer-images=import_rdo \
         --installer-network-isolation=none \
         --installer-network-variant=ml2-vxlan \
-        --installer-topology=minimal \
-        --installer-deploy=templates \
         --installer-post_action=none \
-        --installer-tempest=disabled \
+        --installer-topology=minimal \
+        --installer-tempest=smoke \
         --workarounds=enabled \
-        --extra-vars @../khaleesi-settings/hardware_environments/virt_default/hw_settings.yml \
+        --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/none/hw_settings.yml \
         ksgen_settings.yml
 
 .. Note:: The "base_dir" key is defined by either where you execute ksgen from or by the $WORKSPACE
@@ -244,29 +242,27 @@ Installing rdo-manager with centosci provisioner
 Here the installation is quite similar with Beaker provisioner.
 Just notice the changes into the configuration for ksgen::
 
-    ksgen --config-dir=../khaleesi-settings/settings generate \
-    --provisioner=centosci \
-    --provisioner-site=default \
-    --provisioner-distro=centos \
-    --provisioner-distro-version=7 \
-    --provisioner-site-user=rdo \
-    --product=rdo \
-    --product-version=kilo \
-    --product-version-build=last_known_good \
-    --product-version-repo=delorean_mgt \
-    --distro=centos-7.0 \
-    --installer=rdo_manager \
-    --installer-env=virthost \
-    --installer-images=build \
-    --installer-network=neutron \
-    --installer-network-isolation=none \
-    --installer-network-variant=ml2-vxlan \
-    --installer-topology=minimal \
-    --installer-post_action=none \
-    --installer-tempest=disabled \
-    --installer-deploy=templates \
-    --workarounds=enabled \
-    --extra-vars @../khaleesi-settings/hardware_environments/virt_default/hw_settings.yml \
+    ksgen --config-dir settings generate \
+        --provisioner=centosci \
+        --provisioner-site=default \
+        --provisioner-distro=centos \
+        --provisioner-distro-version=7 \
+        --provisioner-site-user=rdo \
+        --product=rdo \
+        --product-version=liberty \
+        --product-version-build=last_known_good \
+        --product-version-repo=delorean_mgt \
+        --distro=centos-7.0 \
+        --installer=rdo_manager \
+        --installer-env=virthost \
+        --installer-images=import_rdo \
+        --installer-network-isolation=none \
+        --installer-network-variant=ml2-vxlan \
+        --installer-post_action=none \
+        --installer-topology=minimal \
+        --installer-tempest=smoke \
+        --workarounds=enabled \
+        --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/none/hw_settings.yml \
     ksgen_settings.yml
 
 
@@ -299,7 +295,7 @@ All the steps are the same as the All-in-one case. The only difference is
 running the ksgen with differents paramters:
 Please change the below settings to match your environment::
 
-    ksgen --config-dir=/khaleesi_project/khaleesi-settings/settings generate \
+    ksgen --config-dir settings generate \
     --provisioner=foreman \
     --provisioner-topology="all-in-one" \
     --distro=rhel-7.1 \

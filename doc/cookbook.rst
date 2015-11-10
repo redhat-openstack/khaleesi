@@ -18,8 +18,8 @@ has the following minimum system requirements::
 
 Khaleesi driven RDO-Manager deployments only support the following operating systems::
 
-    CentOS 7 x86_64 
-    RHEL 7.1 x86_64 ( Red Hat internal deployments only ) 
+    CentOS 7 x86_64
+    RHEL 7.1 x86_64 ( Red Hat internal deployments only )
 
 See the following documentation for system requirements::
 
@@ -98,7 +98,7 @@ Export the ip or fqdn hostname of the test box you will use as the virtual host 
 Create a ksgen-settings file for Khaleesi to be able to get options and
 settings::
 
-    ksgen --config-dir=../khaleesi-settings/settings generate \
+    ksgen --config-dir settings generate \
         --provisioner=manual \
         --product=rdo \
         --product-version=liberty \
@@ -106,15 +106,13 @@ settings::
         --product-version-repo=delorean_mgt \
         --distro=centos-7.0 \
         --installer=rdo_manager \
-        --installer-deploy=templates \
         --installer-env=virthost \
-        --installer-images=build \
-        --installer-network=neutron \
+        --installer-images=import_rdo \
         --installer-network-isolation=none \
         --installer-network-variant=ml2-vxlan \
         --installer-post_action=none \
         --installer-topology=minimal \
-        --installer-tempest=disabled \
+        --installer-tempest=smoke \
         --workarounds=enabled \
         --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/none/hw_settings.yml \
         ksgen_settings.yml
