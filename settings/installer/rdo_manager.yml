@@ -41,7 +41,7 @@ defaults:
     deploy: templates
     post_action: default
     network: neutron
-    flavor: xsmall
+    flavor: justright
     tempest: minimal
     updates: none
     custom_deploy: none
