@@ -1,0 +1,8 @@
+installer:
+   component:
+       name: python-cinderclient
+       short_name: py-cndrclnt
+       dir: !join [ !env WORKSPACE, /python-cinderclient]
+       dist_git: python-cinderclient
+       codeng: python-cinderclient
+       config_file: jenkins-config.yml
