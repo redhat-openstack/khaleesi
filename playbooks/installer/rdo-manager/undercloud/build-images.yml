@@ -4,8 +4,8 @@
   tasks:
     - name: get the guest-image
       get_url: >
-        url="{{ distro.images[distro.name][distro.version].remote_file_server }}{{ distro.images[distro.name][distro.version].guest_image_name }}"
-        dest=/home/stack/{{ distro.images[distro.name][distro.version].guest_image_name }}
+        url="{{ distro.images[distro.name][distro.full_version].remote_file_server }}{{ distro.images[distro.name][distro.full_version].guest_image_name }}"
+        dest=/home/stack/{{ distro.images[distro.name][distro.full_version].guest_image_name }}
         timeout=360
 
     - name: install python-rdomanager-oscplugin
@@ -34,7 +34,7 @@
       when: installer.overcloud_images | default('build') == "build"
 
     - name: download the pre-built rdo-manager images
-      get_url: url="{{ installer.images.url[product.name][product.full_version][distro.name][distro.version]}}{{ item }}.tar"
+      get_url: url="{{ installer.images.url[product.name][product.full_version][distro.name][distro.full_version]}}{{ item }}.tar"
                     dest={{ instack_user_home }}
                     force=no
                     timeout=360

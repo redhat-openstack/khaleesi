@@ -1,5 +1,7 @@
 --- !extends:common/fedora.yml
 
 distro:
-    version: "19"
+    full_version: 19
+    version:
+        major: 19
     short_version: 19

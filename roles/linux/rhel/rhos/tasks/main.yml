@@ -131,7 +131,7 @@
 
 # copr repos
 - name: enable tripleo copr repository
-  shell: "sudo curl -o /etc/yum.repos.d/slagle-openstack-m.repo {{ product.repo.copr[ ansible_distribution ][distro.version] }}"
+  shell: "sudo curl -o /etc/yum.repos.d/slagle-openstack-m.repo {{ product.repo.copr[ ansible_distribution ][distro.full_version] }}"
   when: product.repo.copr is defined
   register: rdo_repo_output
 

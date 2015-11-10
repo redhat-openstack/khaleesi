@@ -1,7 +1,9 @@
 --- !extends:common/all.yml
 
 distro:
-    version: '22'
+    full_version: 22
+    version:
+        major: 22
     short_version: '22'
     name: fedora
     short_name: f

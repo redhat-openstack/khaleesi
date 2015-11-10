@@ -1,9 +1,10 @@
 --- !extends:common/rhel.yml
 
 distro:
-    version: "6.7"
-    major: 6
-    minor: 7
+    full_version: 6.7
+    version:
+        major: 6
+        minor: 7
     short_version: 67
     epel_release: https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
 

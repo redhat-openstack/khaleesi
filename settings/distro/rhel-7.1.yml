@@ -1,11 +1,11 @@
 --- !extends:common/rhel.yml
 
 distro:
-    version: "7.1"
-    major: 7
-    minor: 1
-    version: "7.1"
-    short_version: 71
+    full_version: "7.1"
+    version:
+        major: '7'
+        minor: '1'
+    short_version: '71'
     epel_release: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     repo:
         rdopkg: https://copr.fedoraproject.org/coprs/jruzicka/rdopkg/repo/epel-7/jruzicka-rdopkg-epel-7.repo

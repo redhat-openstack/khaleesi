@@ -6,8 +6,8 @@ provisioner:
             hostname:
             rebuild: no
             flavor_id: !lookup provisioner.flavor.large
-            image_id: !lookup provisioner.images[ !lookup distro.name ][ !lookup distro.version ].id
-            remote_user: !lookup provisioner.images[ !lookup distro.name ][ !lookup distro.version ].remote_user
+            image_id: !lookup provisioner.images[ !lookup distro.name ][ !lookup distro.full_version ].id
+            remote_user: !lookup provisioner.images[ !lookup distro.name ][ !lookup distro.full_version ].remote_user
             network: &network_params
                 interfaces: &interfaces
                     data: &data_interface
