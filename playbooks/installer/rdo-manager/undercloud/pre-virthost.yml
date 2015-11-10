@@ -99,7 +99,6 @@
       shell: >
         source {{ instack_user_home }}/virt-setup-env;
         instack-virt-setup > {{ instack_user_home }}/instack-virt-setup.log;
-      ignore_errors: yes
 
     - name: update libvirtd unix_sock_group
       lineinfile: dest=/etc/libvirt/libvirtd.conf
