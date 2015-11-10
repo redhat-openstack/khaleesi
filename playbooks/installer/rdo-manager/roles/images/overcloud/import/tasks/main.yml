@@ -1,9 +1,11 @@
 ---
+- name: ensure wget is installed
+  yum: name=wget state=latest
+  sudo: yes
 - name: download the pre-built rdo-manager images
-  get_url: url="{{ installer.images.url[product.name][product.full_version][distro.name][distro.full_version] }}{{ item }}.tar"
-                dest={{ instack_user_home }}
-                force=no
-                timeout=360
+  shell: >
+        wget --quiet -c -O {{ instack_user_home }}/{{ item }}.tar
+        "{{ installer.images.url[product.name][product.full_version][distro.name][distro.full_version] }}{{ item }}.tar"
   with_items: "{{ installer.images[product.full_version].files|list }}"
 
 - name: install python-rdomanager-oscplugin
