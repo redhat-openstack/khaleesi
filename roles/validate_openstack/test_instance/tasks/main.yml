@@ -58,7 +58,7 @@
   debug: var=floating_ip
 
 - name: Pause to let the instance boot
-  pause: seconds=30
+  pause: seconds=60
 
 - name: check console_log
   register: nova_console_log_result
@@ -72,6 +72,9 @@
          nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0;
          nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
   ignore_errors: yes
+
+- name: ensure ssh is available
+  wait_for: host={{ floating_ip.public_ip }} port=22 delay=30 state=started
 
 - name: ping instance public ip from controller
   command: ping -c 5 "{{ floating_ip.public_ip }}"
