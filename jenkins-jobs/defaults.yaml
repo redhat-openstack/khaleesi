@@ -120,7 +120,7 @@
     name: default-publishers
     publishers:
         - archive:
-            artifacts: '**/collected_files/*.tar.gz, **/nosetests.xml, **/ksgen_settings.yml'
+            artifacts: '**/collected_files/*.tar.gz, **/nosetests.xml, **/ksgen_settings.yml, **/full_logs_url.txt'
         - post-tasks:
             - matches:
                 - log-text: Build was aborted
@@ -150,6 +150,8 @@
             trigger-on:
                 - patchset-created-event
                 - draft-published-event
+                - comment-added-contains-event:
+                    comment-contains-value:  '(?i)^(Patch Set [0-9]+:)?( [\w\\+-]*)*(\n\n)?\s*(rdo)? ?(recheck)'
             projects:
                 - project-compare-type: 'PLAIN'
                   project-pattern: 'redhat-openstack/khaleesi'
@@ -182,10 +184,10 @@
                 failed: false
                 unstable: false
                 notbuilt: false
-            failure-message: 'test failed'
-            successful-message: 'test ran successfully'
-            unstable-message: 'test is unstable'
-            silent: false
+            failure-message: 'FAILURE'
+            successful-message: 'SUCCESS'
+            unstable-message: 'UNSTABLE'
+            custom-url: "* $JOB_NAME $BUILD_URL"
 
 - trigger:
     name: trigger-packstack-gate-khaleesi
@@ -195,6 +197,8 @@
             trigger-on:
                 - patchset-created-event
                 - draft-published-event
+                - comment-added-contains-event:
+                    comment-contains-value:  '(?i)^(Patch Set [0-9]+:)?( [\w\\+-]*)*(\n\n)?\s*(rdo)? ?(recheck)'
             projects:
                 - project-compare-type: 'PLAIN'
                   project-pattern: 'redhat-openstack/khaleesi'
@@ -227,10 +231,10 @@
                 failed: false
                 unstable: false
                 notbuilt: false
-            failure-message: 'test failed'
-            successful-message: 'test ran successfully'
-            unstable-message: 'test is unstable'
-            silent: false
+            failure-message: 'FAILURE'
+            successful-message: 'SUCCESS'
+            unstable-message: 'UNSTABLE'
+            custom-url: "* $JOB_NAME $BUILD_URL"
 
 - trigger:
     name: trigger-rdo-manager-gate-khaleesi-settings
@@ -240,6 +244,8 @@
             trigger-on:
                 - patchset-created-event
                 - draft-published-event
+                - comment-added-contains-event:
+                    comment-contains-value:  '(?i)^(Patch Set [0-9]+:)?( [\w\\+-]*)*(\n\n)?\s*(rdo)? ?(recheck)'
             projects:
                 - project-compare-type: 'PLAIN'
                   project-pattern: 'redhat-openstack/khaleesi-settings'
@@ -256,10 +262,10 @@
                 failed: false
                 unstable: false
                 notbuilt: false
-            failure-message: 'test failed'
-            successful-message: 'test ran successfully'
-            unstable-message: 'test is unstable'
-            silent: false
+            failure-message: 'FAILURE'
+            successful-message: 'SUCCESS'
+            unstable-message: 'UNSTABLE'
+            custom-url: "* $JOB_NAME $BUILD_URL"
 
 - trigger:
     name: trigger-rdo-manager-gate-instack-undercloud
@@ -269,6 +275,8 @@
             trigger-on:
                 - patchset-created-event
                 - draft-published-event
+                - comment-added-contains-event:
+                    comment-contains-value:  '(?i)^(Patch Set [0-9]+:)?( [\w\\+-]*)*(\n\n)?\s*(rdo)? ?(recheck)'
             projects:
                 - project-compare-type: 'PLAIN'
                   project-pattern: 'rdo-management/instack-undercloud'
@@ -297,10 +305,10 @@
                 failed: false
                 unstable: false
                 notbuilt: false
-            failure-message: 'test failed'
-            successful-message: 'test ran successfully'
-            unstable-message: 'test is unstable'
-            silent: false
+            failure-message: 'FAILURE'
+            successful-message: 'SUCCESS'
+            unstable-message: 'UNSTABLE'
+            custom-url: "* $JOB_NAME $BUILD_URL"
 
 - trigger:
     name: trigger-rdo-manager-gate-oscplugin
@@ -310,6 +318,8 @@
             trigger-on:
                 - patchset-created-event
                 - draft-published-event
+                - comment-added-contains-event:
+                    comment-contains-value:  '(?i)^(Patch Set [0-9]+:)?( [\w\\+-]*)*(\n\n)?\s*(rdo)? ?(recheck)'
             projects:
                 - project-compare-type: 'PLAIN'
                   project-pattern: 'rdo-management/python-rdomanager-oscplugin'
@@ -321,10 +331,10 @@
                 failed: false
                 unstable: false
                 notbuilt: false
-            failure-message: 'test failed'
-            successful-message: 'test ran successfully'
-            unstable-message: 'test is unstable'
-            silent: false
+            failure-message: 'FAILURE'
+            successful-message: 'SUCCESS'
+            unstable-message: 'UNSTABLE'
+            custom-url: "* $JOB_NAME $BUILD_URL"
 
 - trigger:
     name: periodic-trigger
