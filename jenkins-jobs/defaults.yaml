@@ -158,7 +158,7 @@
                         branch-pattern: 'master'
                   file-paths:
                       - compare-type: 'REG_EXP'
-                        pattern: '(playbooks|settings)/.*rdo-manager.*'
+                        pattern: '(playbooks|settings)/.*rdo[-_]manager.*'
                       - compare-type: 'REG_EXP'
                         pattern: '.*centosci.*'
                       - compare-type: 'REG_EXP'
