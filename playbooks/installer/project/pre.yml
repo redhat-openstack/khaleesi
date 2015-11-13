@@ -15,13 +15,13 @@
         include_vars: "{{test_deps_file}}"
         register: result
 
-      #TODO(abregman): add major and minor version in distro settings 
+      #TODO(abregman): add major and minor version in distro settings
       - name: set major release
         set_fact: major_release="{{ ansible_distribution + '-' + ansible_distribution_version.split('.')[0] }}"
 
       - name: set full release
         set_fact: full_release="{{ ansible_distribution + '-' + ansible_distribution_version }}"
-      
+
       - name: set test_env
         set_fact: test_env="{{ test_config.virt[item]|default(omit) }}"
         with_items:
@@ -55,6 +55,9 @@
       - name: Create the RHOS poodle repository
         shell: "rhos-release  -x {{ product.full_version|int }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.full_version|int }}"
         when: product.repo.type is defined and product.repo.type in ['poodle']
+
+      - name: Print installed repositores
+        shell: "yum repolist -d 7"
 
 - name: print out test env
   hosts: controller
