@@ -132,9 +132,9 @@
   hosts: undercloud:&openstack_virtual_baremetal
   tasks:
     - name: clone openstack-virtual-baremetal repo
-      shell: >
-        chdir={{instack_user_home}}
-        git clone https://github.com/cybertron/openstack-virtual-baremetal/
+      git:
+        repo=https://github.com/cybertron/openstack-virtual-baremetal/
+        dest={{instack_user_home}}/openstack-virtual-baremetal
 
     - name: pin openstack virtual baremetal to a specific hash
       shell: >
@@ -282,9 +282,9 @@
         echo {{ overcloud_deploy_command.stdout }} | grep -o -e '\-e .*yaml' | sed s'/\-e //g' | sed s'#[A-Z a-z 0-9 _ -]*\.yaml##g'
 
     - name: clone template validation tools
-      shell: >
-        chdir={{instack_user_home}}
-        git clone https://github.com/openstack/tripleo-heat-templates.git
+      git:
+        repo=https://github.com/openstack/tripleo-heat-templates.git
+        dest={{instack_user_home}}/tripleo-heat-templates
 
     - name: validate the yaml files
       shell: >
