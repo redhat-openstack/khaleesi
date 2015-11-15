@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: glance_store
+        short_name: glnc_str
+        dir: !join [ !env WORKSPACE, /glance_store]
+        dist_git: glance_store
+        codeng: glance_store
+        config_file: jenkins-config.yml

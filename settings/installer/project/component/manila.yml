@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: manila
+        short_name: manil
+        dir: !join [ !env PWD, /../manila]
+        dist_git: openstack-manila
+        codeng: manila
+        config_file: jenkins-config.yml

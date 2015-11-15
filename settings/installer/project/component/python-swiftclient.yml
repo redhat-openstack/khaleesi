@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: python-swiftclient
+        short_name: py-swftclnt
+        dir: !join [ !env WORKSPACE, /python-swiftclient]
+        dist_git: python-swiftclient
+        codeng: python-swiftclient
+        config_file: jenkins-config.yml

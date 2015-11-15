@@ -1,0 +1,8 @@
+installer:
+    component:
+        name:  python-manilaclient
+        short_name:  pthn-mnlclnt
+        dir: !join [ !env WORKSPACE, /python-manilaclient]
+        dist_git:  python-manilaclient
+        codeng:  python-manilaclient
+        config_file: jenkins-config.yml

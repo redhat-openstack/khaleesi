@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: python-saharaclient
+        short_name: pthn-shrclnt
+        dir: !join [ !env WORKSPACE, /python-saharaclient ]
+        dist_git: python-saharaclient
+        codeng: python-saharaclient
+        config_file: jenkins-config.yml

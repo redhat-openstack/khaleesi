@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: python-glanceclient
+        short_name: py-glncclnt
+        dir: !join [ !env WORKSPACE, /python-glanceclient]
+        dist_git: python-glanceclient
+        codeng: python-glanceclient.yml
+        config_file: jenkins-config.yml

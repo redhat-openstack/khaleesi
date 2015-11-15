@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: python-troveclient
+        short_name: py-trvclnt
+        dir: !join [ !env WORKSPACE, /python-troveclient]
+        dist_git: python-troveclient
+        codeng: python-troveclient
+        config_file: jenkins-config.yml

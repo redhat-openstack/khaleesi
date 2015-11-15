@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: sahara-image-elements
+        short_name: shr-img-elmnts
+        dir: !join [ !env PWD, /../sahara-image-elements]
+        dist_git: sahara-image-elements
+        codeng: sahara-image-elements
+        config_file: jenkins-config.yml
