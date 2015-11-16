@@ -1,0 +1,6 @@
+---
+- include: ../../../provisioner/openstack/main.yml
+- include: run.yml
+- include: test.yml
+- include: ../../../provisioner/openstack/cleanup.yml
+- include: post.yml

@@ -1,0 +1,69 @@
+---
+- name: test created slave
+  hosts: openstack_nodes
+  vars:
+  - ansible_ssh_user: "rhos-ci"
+  tasks:
+      - set_fact:
+            return_errors: []
+
+
+      - name: rhos-ci can connect
+        ignore_errors: true
+        shell: pwd
+        register: test_connect
+
+      - set_fact:
+            return_errors: "{{ return_errors + [test_connect] }}"
+        when: test_connect.rc != 0
+
+      - name: rhos-ci does not sudo
+        ignore_errors: true
+        shell: sudo -n ls
+        register: test_sudo
+
+        #inverse test. it has to fail
+      - set_fact:
+            return_errors: "{{ return_errors + ['rhos-ci does not sudo'] }}"
+        when: test_sudo.rc==0
+
+      - name: get list of packages
+        ignore_errors: true
+        shell: rpm -qa
+        register: rpm_list
+
+      - name: verify pacakges
+        ignore_errors: true
+        register: verify
+        assert:
+          that:
+            - item in rpm_list.stdout
+        with_items:
+          - rdopkg
+          - rdopkg-bsources
+          - rhpkg
+          - python-rdoupdate
+          - gcc
+          - python-crypto
+          - rpm-build
+          - python-pbr
+          - python-devel-2
+          - python-d2to1
+          - createrepo
+          - git
+
+      - set_fact:
+            return_errors: "{{ return_errors + [verify] }}"
+        when: verify.failed|default(False)
+
+- name: Set local variables
+  hosts: local
+  tasks:
+      - debug: var=hostvars.keys
+
+      - set_fact:
+            return_errors="{{ hostvars[inventory_hostname]['return_errors'] + hostvars[groups.openstack_nodes.0]['return_errors'] }}"
+        when: hostvars[groups.openstack_nodes.0]['return_errors'] != []
+
+      - debug: var=return_errors
+

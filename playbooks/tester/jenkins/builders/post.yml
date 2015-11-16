@@ -1,0 +1,9 @@
+---
+- name: Set status for testing job
+  hosts: local
+  tasks:
+      - name: Return status
+        fail: msg="{{ item }}"
+        with_flattened:
+          - "{{ return_errors }}"
+        when: return_errors != []

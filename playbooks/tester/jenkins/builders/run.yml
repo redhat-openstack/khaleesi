@@ -1,0 +1,40 @@
+---
+- name: Run the slave playbook
+  hosts: local
+  tasks:
+      - name:
+        set_fact:
+          return_errors: []
+          slavedir: "{{ base_dir }}/khaleesi-settings/jenkins/slaves/"
+
+      - name: create hosts file
+        template: src=../../templates/hosts_slave.conf.j2 dest="{{ slavedir }}/hosts_slave"
+
+      - shell: "cat {{ slavedir }}/hosts_slave"
+
+      - name: Set up ansible.cfg for the slave
+        register: set_ansible_cfg
+        shell: >
+            cp ansible.cfg.sample ansible.cfg;
+        args:
+            chdir: "{{ slavedir }}"
+
+      - name: Set the slave with the ansible playbook
+        register: setup_slave
+        ignore_errors: True
+        shell: >
+            ansible-playbook -i hosts_slave playbooks/basic_internal_slave.yml -v;
+        args:
+            chdir: "{{ slavedir }}"
+
+      - name: slave building return code
+        debug: var=setup_slave.rc
+
+      - set_fact:
+            return_errors: "{{ return_errors + [setup_slave] }}"
+        when: setup_slave.rc != 0
+
+      - name: debug ran ansible
+        debug: var=setup_slave.stdout
+
+
