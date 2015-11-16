@@ -1,10 +1,11 @@
 Using Khaleesi
 ==============
 
-Khaleesi is an ansible based deployment tool Red Hat Openstack CI is using for
-automation. In order to work, khaleesi need a configuration file which is
-provided by khaleesi-settings project. Khaleesi-settings provide the config
-file using ksgen tool, located in khaleesi project.
+Khaleesi is an ansible based deployment tool for OpenStack. It was developed
+by the Red Hat Openstack CI team and is used to simplify automation and builds.
+In order to work, khaleesi needs a configuration file which can either be
+provided by khaleesi-settings project. Khaleesi-settings populates the config
+file using the ksgen (Khaleesi settings generator) tool, located in khaleesi project.
 
     https://github.com/redhat-openstack/khaleesi-settings
     or
@@ -42,9 +43,9 @@ Install the OpenStack clients::
 Installation
 ------------
 
-Create or enter a folder where you want to check out the repos. We assume that
-both repo and your virtual environment are in the same directory. Clone the
-repos::
+Create or enter the directory where you want to check out the repositories. We assume that
+both the repositories and your virtual environment are in the same directory. Clone the
+repositories::
 
     git clone https://github.com/redhat-openstack/khaleesi.git
     or
@@ -58,7 +59,7 @@ Gerrit::
 
     https://review.gerrithub.io/#/q/project:redhat-openstack/khaleesi
 
-Create the virtual envionment, install ansible, ksgen and kcli utils::
+Create the virtual environment, install ansible, ksgen and kcli utils::
 
     virtualenv venv
     source venv/bin/activate
@@ -74,10 +75,10 @@ Create the appropriate ansible.cfg for khaleesi::
 
     cp ansible.cfg.example ansible.cfg
 
-If you don't have a key you need to create it and upload it to your remote host
-or your tenant in blue if you are using the Openstack provisoner.
+If you are using the OpenStack provisioner, ensure that you have a key
+uploaded on your remote host or tenant.
 
-Copy your private key file that you will use to access instances to
+Copy the private key file that you will use to access instances to
 ``khaleesi/``. We're going to use the common ``example.key.pem`` key.::
 
     cp ../khaleesi-settings/settings/provisioner/openstack/site/qeos/tenant/keys/example.key.pem  <dir>/khaleesi/
@@ -88,44 +89,52 @@ Copy your private key file that you will use to access instances to
 Overview
 --------
 
-By using Khaleesi you will need to choose which installer you want to use, on
-which provisioner.The provisioners corresponding to the remote machines which
-will host your environment.
-Khaleesi provide two installers: rdo-manager and packstack,
-and four provisioners: beaker, centosci, openstack and manual.
-For all of those, the settings are provided by khaleesi-settings through ksgen
-tool.
-You will find configuration variable under the folder "settings":
+To use Khaleesi you will need to choose an installer as well as
+onto which type of provisioner you wish to deploy.The provisioners correspond to the
+remote machines which will host your environment. Khaleesi currently provide five
+installers and ten provisioners. For all combinations, the settings are provided
+by khaleesi-settings through ksgen tool.
+You will find configuration variables under in the *settings* directory:
 
 settings::
 
     |-- provisioner
     |   |-- beaker
-    |   |-- libvirt
-    |   |-- openstack
-    |   `-- rackspace
-    |-- installer
+    |   |-- centosci
+    |   |-- ec2
     |   |-- foreman
+    |   |-- libvirt
+    |   |-- manual
+    |   |-- openstack
+    |   |-- openstack_virtual_baremetal
+    |   |-- rackspace
+    |   | -- vagrant
+    |-- installer
+    |   |-- devstack
     |   |-- opm
     |   |-- packstack
+    |   |-- project
     |   |-- rdo_manager
-    |   `-- staypuft
     |-- tester
+    |   |-- api
+    |   |-- component
+    |   |-- functional
     |   |-- integration
     |   |-- pep8
     |   |-- rally
     |   |-- rhosqe
     |   |-- tempest
-    |   `-- unittest
+    |   |-- unittest
     |-- product
     |   |-- rdo
-    |   `-- rhos
+    |   |-- rhos
     |-- distro
 
-The whole idea of the configuration repo is to break everything into small units.
-Let's use the installer folder as an example to describe how the configuration
+One of Khaleesi's primary goals is to break everything into small units.
+Let's use the installer directory as an example to describe how the configuration
 tree is built.
-When using ksgen with the following flags::
+
+Using ksgen with the following flags::
 
     --installer=packstack \
     --installer-topology=multi-node \
@@ -133,19 +142,17 @@ When using ksgen with the following flags::
     --installer-network-variant=ml2-vxlan \
     --installer-messaging=rabbitmq \
 
-When the given --installer=packstack, ksgen is going to the folder called
-"installer" in khaleesi-settings and looking for a "packstack.yml" file.
+When ksgen reads **--installer=packstack**, it will locate the *packstack.yml* file located within the *settings/installer* directory.
 
-after that, it goes down the tree to the folder
-"packstack/topology/multi-node.yml" (because of the flag
---installer-topology=multi-node), "packstack/network/neutron.yml", etc
-(according to the additional flags) and list all yml files it finds under those
-folders.
+next it goes down the tree to the directory
+*settings/packstack/topology/multi-node.yml* (because of the flag
+--installer-topology=multi-node), *settings/packstack/network/neutron.yml*, etc
+(according to the additional flags) and list all yml files it finds within those directories.
 
-Then ksgen starts merging all YAML files using the parent folders as a base,
-that means, that packstack.yml (which holds configuration that is common to
+Then ksgen starts merging all YAML files using the parent directories as a base.
+This means that *packstack.yml* (which holds configuration that is common to
 packstack) will be used as base and be merged with
-"packstack/topology/multi-node.yml" and "packstack/network/neutron.yml"
+*settings/packstack/topology/multi-node.yml*, *settings/packstack/network/neutron.yml*,
 and so on.
 
 .. _usage:
@@ -153,10 +160,10 @@ and so on.
 Usage
 -----
 
-After you have everything set up, let's see how you can create machines using
+Once everything is set up we can see machines are created using either the
 rdo-manager or packstack installer. In both cases we're going to use
-ksgen_ (Khaleesi Settings Generator) for supplying Khaleesi's ansible
-playbooks_ with a correct configuration.
+ksgen to supply Khaleesi's ansible
+playbooks_ with a correct configuration file.
 
 .. _ksgen: https://github.com/redhat-openstack/khaleesi/tree/master/tools/ksgen
 .. _playbooks: http://docs.ansible.com/playbooks_intro.html
@@ -168,7 +175,7 @@ playbooks_ with a correct configuration.
 Installing rdo-manager with the manual provisioner
 --------------------------------------------------
 
-Here, we will deploy a RDO-Manager environment using the manual environment.
+Here, we will deploy using the RDO-Manager provisioner and manual installer.
 
 First, we create the appropriate configuration file with ksgen. Make sure that
 you are in your virtual environment that you previously created. ::
@@ -206,8 +213,8 @@ Generate the configuration with the following command::
 
 
 The result is a YAML file collated from all the small YAML snippets from
-``khaleesi-settings/settings``. All the options are quite self-explanatory and
-changing them is simple as well. The rule file is currently only used for
+``khaleesi-settings/settings`` (as described in ksgen_). All the options are quite self-explanatory and
+changing them is simple. The rule file is currently only used for
 deciding the installer+product+topology configuration. Check out ksgen_ for
 detailed documentation.
 
@@ -216,7 +223,7 @@ The next step will run your intended deployment::
     ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/full-job-no-test.yml
 
 
-If any part fails, you can ask for help on freenode #rdo channel. Don't
+If any part fails, you can ask for help on the freenode #rdo channel. Don't
 forget to save the relevant error lines on something like pastebin_.
 
 Using your new undercloud / overcloud
@@ -239,8 +246,8 @@ Here you could play with your newly created Overcloud
 Installing rdo-manager with centosci provisioner
 ------------------------------------------------
 
-Here the installation is quite similar with Beaker provisioner.
-Just notice the changes into the configuration for ksgen::
+Here the installation is similiar to manual_ but we will use the centosci provisioner.
+Notice the changes into the configuration for ksgen::
 
     ksgen --config-dir settings generate \
         --provisioner=centosci \
@@ -292,7 +299,7 @@ Installing Openstack on Bare Metal via Packstack
 ------------------------------------------------
 
 All the steps are the same as the All-in-one case. The only difference is
-running the ksgen with differents paramters:
+running the ksgen with different parameters:
 Please change the below settings to match your environment::
 
     ksgen --config-dir settings generate \

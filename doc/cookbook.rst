@@ -23,7 +23,7 @@ Khaleesi driven RDO-Manager deployments only support the following operating sys
 
 See the following documentation for system requirements::
 
-    http://docs.openstack.org/developer/tripleo-docs/environments/virtual.html
+    http://docs.openstack.org/developer/tripleo-docs/environments/environments.html#minimum-system-requirements
 
 .. Note:: There is an internal khaleesi-settings git repository that contains the settings and configuration for RHEL deployments.
      Do not attempt to use a RHEL bare metal host or RHEL options in ksgen using these instructions
@@ -33,6 +33,8 @@ Deploy rdo-manager
 
 Installation:
 `````````````
+
+.. Note:: The following steps should be executed from the machine that will be operating Khaleesi, not the machine it will be installing the undercloud and overcloud on.
 
 Get the code :
 
@@ -127,16 +129,14 @@ If you want to have more informations about the options used by ksgen launch::
 .. Note:: This output will give you all options available in ksgen tools, You
     can also check into :ref:`usage` for more examples.
 
-Once all theses steps is done, you have a ksgen-settings file which contains all
-settings for your deployment. Khaleesi will load all the variables from this
-YAML file.
+Once all of these steps have been completed you will have a ksgen-settings file containing all the settings needed for deployment. Khaleesi will load all of the variables from this YAML file.
 
-Review the ksgen_settings.yml file
+Review the ksgen_settings.yml file:
 
 Deployment Execution:
 `````````````````````
 
-And then simply run::
+Run your intended deployment::
 
     ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/full-job-no-test.yml
 
