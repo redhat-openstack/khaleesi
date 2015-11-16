@@ -70,7 +70,7 @@ options:
    network_name:
      description:
         - Name of the external network which should be attached to the router.
-     required: true
+     required: no
      default: None
 requirements: ["quantumclient", "neutronclient", "keystoneclient"]
 '''
@@ -142,18 +142,15 @@ def _get_net_id(neutron, module):
         return None
     return networks['networks'][0]['id']
 
-def _get_port_id(neutron, module, router_id, network_id):
-    kwargs = {
-        'device_id': router_id,
-        'network_id': network_id,
-    }
+def _get_external_network(neutron, module, router_id):
     try:
-        ports = neutron.list_ports(**kwargs)
+        router = neutron.show_router(router_id)
+        gw_info = router.get("router", {}).get("external_gateway_info")
     except Exception, e:
-        module.fail_json( msg = "Error in listing ports: %s" % e.message)
-    if not ports['ports']:
-        return None
-    return ports['ports'][0]['id']
+        module.fail_json( msg = "Error in getting router details: %s" % e.message)
+    if gw_info:
+        return gw_info.get("network_id")
+    return gw_info
 
 def _add_gateway_router(neutron, module, router_id, network_id):
     kwargs = {
@@ -177,7 +174,7 @@ def main():
     argument_spec = openstack_argument_spec()
     argument_spec.update(dict(
             router_name        = dict(required=True),
-            network_name       = dict(required=True),
+            network_name       = dict(required=False, default=None),
             state              = dict(default='present', choices=['absent', 'present']),
     ))
     module = AnsibleModule(argument_spec=argument_spec)
@@ -188,20 +185,20 @@ def main():
     if not router_id:
         module.fail_json(msg="failed to get the router id, please check the router name")
 
-    network_id = _get_net_id(neutron, module)
-    if not network_id:
-        module.fail_json(msg="failed to get the network id, please check the network name and make sure it is external")
-
     if module.params['state'] == 'present':
-        port_id = _get_port_id(neutron, module, router_id, network_id)
-        if not port_id:
+        network_id = _get_net_id(neutron, module)
+        if not network_id:
+            module.fail_json(msg="failed to get the network id, please check the network name and make sure it is external")
+
+        external_net_id = _get_external_network(neutron, module, router_id)
+        if external_net_id != network_id:
             _add_gateway_router(neutron, module, router_id, network_id)
             module.exit_json(changed=True, result="created")
         module.exit_json(changed=False, result="success")
 
     if module.params['state'] == 'absent':
-        port_id = _get_port_id(neutron, module, router_id, network_id)
-        if not port_id:
+        external_net_id = _get_external_network(neutron, module, router_id)
+        if not external_net_id:
             module.exit_json(changed=False, result="Success")
         _remove_gateway_router(neutron, module, router_id)
         module.exit_json(changed=True, result="Deleted")
