@@ -17,6 +17,7 @@ installer:
             id: !lookup distro.images.fedora.21.guest_image_name
     tempest:
         dir: tempest
+    dib_dir: /home/{{ !lookup provisioner.remote_user }}/DIB
 
 provisioner:
     remote_user: 'stack'

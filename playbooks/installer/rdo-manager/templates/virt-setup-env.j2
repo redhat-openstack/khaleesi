@@ -2,7 +2,7 @@ export PATH='/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/stack/
 
 {% if product.repo_type is defined and product.repo_type in ["poodle", "puddle"] %}
 export DIB_LOCAL_IMAGE={{ distro.images[distro.name][distro.full_version].guest_image_name }}
-export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-{{product.repo.core_product_version}}-director.repo /etc/yum.repos.d/rhos-release-{{product.repo.core_product_version}}.repo /etc/yum.repos.d/rhos-release-rhel-{{ansible_distribution_version}}.repo"
+export DIB_YUM_REPO_CONF="{{installer.dib_dir}}/rhos-release-{{product.repo.core_product_version}}-director.repo {{installer.dib_dir}}/rhos-release-{{product.repo.core_product_version}}.repo {{installer.dib_dir}}/rhos-release-rhel-{{distro.full_version}}.repo"
 export USE_DELOREAN_TRUNK=0
 export RHOS=1
 export NODE_DIST=rhel7

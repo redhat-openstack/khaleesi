@@ -4,7 +4,7 @@
   tasks:
     - name: untar the overcloud images
       shell: tar -xvf "{{ instack_user_home }}/{{ item }}.tar"
-      with_items: "{{ installer.images.files|list }}"
+      with_items: "{{ installer.images[product.full_version].files|list }}"
       when: installer.overcloud_images is defined and installer.overcloud_images == "import"
 
     - name: download the fedora-user image

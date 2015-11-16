@@ -1,7 +1,7 @@
 export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
 
 {% if product.repo_type is defined and product.repo_type in ["poodle", "puddle"] %}
-export DIB_YUM_REPO_CONF="/etc/yum.repos.d/rhos-release-{{product.repo.core_product_version}}-director.repo /etc/yum.repos.d/rhos-release-{{product.repo.core_product_version}}.repo /etc/yum.repos.d/rhos-release-rhel-{{ansible_distribution_version}}.repo"
+export DIB_YUM_REPO_CONF="{{installer.dib_dir}}/rhos-release-{{product.repo.core_product_version}}-director.repo {{installer.dib_dir}}/rhos-release-{{product.repo.core_product_version}}.repo {{installer.dib_dir}}/rhos-release-rhel-{{distro.full_version}}.repo"
 export DIB_LOCAL_IMAGE={{ distro.images[distro.name][ansible_distribution_version].guest_image_name }}
 export USE_DELOREAN_TRUNK=0
 export NODE_DIST=rhel7

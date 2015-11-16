@@ -21,33 +21,55 @@
       - name: Install release tool on machine
         command: "yum localinstall -y {{ product.rpm }}"
 
+      #this will uncouple the virthost version from the undercloud and overcloud rhel versions
+      - name: create directory for DIB yum repo configurations
+        file: path={{installer.dib_dir}} state=directory mode=0755
+
       - name: Execute rhos-release for pinned osp-director puddle (osp)
-        command: "rhos-release -p {{ product.repo.puddle_director_pin_version }} {{ product.full_version }}"
+        sudo: yes
+        shell: >
+          rhos-release -p {{ product.repo.puddle_director_pin_version }} {{ product.full_version }};
+          rhos-release -r {{ distro.full_version }} -t {{installer.dib_dir}} {{ product.repo.puddle_director_pin_version }} {{ product.full_version }};
         register: pinned_puddle
         when: product.repo_type in ['puddle'] and product.repo.puddle_director_pin_version not in ['latest']
 
       - name: Execute rhos-release for latest osp-director puddle (osp)
-        command: "rhos-release -P {{ product.full_version }}"
+        sudo: yes
+        shell: >
+          rhos-release -P {{ product.full_version }};
+          rhos-release -r {{ distro.full_version }} -t {{installer.dib_dir}} -P {{ product.full_version }};
         register: pinned_puddle
         when: product.repo_type in ['puddle'] and product.repo.puddle_director_pin_version == 'latest'
 
       - name: Execute rhos-release for core rhos puddle (osp)
-        command: "rhos-release -p {{ product.repo.puddle_pin_version }} {{ product.repo.core_product_version }}"
+        sudo: yes
+        shell: >
+          rhos-release -p {{ product.repo.puddle_pin_version }} {{ product.repo.core_product_version }};
+          rhos-release -r {{ distro.full_version }} -t {{installer.dib_dir}} -p {{ product.repo.puddle_pin_version }} {{ product.repo.core_product_version }};
         register: pinned_puddle
         when: product.repo_type == 'puddle' and product.repo.puddle_pin_version not in  ['latest']
 
       - name: Execute rhos-release for core rhos puddle (osp)
-        command: "rhos-release -P {{ product.repo.core_product_version }}"
+        sudo: yes
+        shell: >
+          rhos-release -P {{ product.repo.core_product_version }};
+          rhos-release -r {{ distro.full_version }} -t {{installer.dib_dir}} -P {{ product.repo.core_product_version }};
         register: pinned_puddle
         when: product.repo_type in ['puddle'] and product.repo.puddle_pin_version == 'latest'
 
       - name: Execute rhos-release for pinned osp-director poodle (osp)
-        command: "rhos-release  -d -p {{ product.repo.poodle_pin_version }} {{ product.full_version }}"
+        sudo: yes
+        shell: >
+          rhos-release  -d -p {{ product.repo.poodle_pin_version }} {{ product.full_version }};
+          rhos-release -r {{ distro.full_version }} -t {{installer.dib_dir}} -d -p {{ product.repo.poodle_pin_version }} {{ product.full_version }};
         register: pinned_poodle
         when: product.repo_type in ['poodle'] and product.repo.poodle_pin_version not in ['latest']
 
       - name: Execute rhos-release for pinned osp-director poodle (osp)
-        command: "rhos-release  -d -P {{ product.full_version }}"
+        sudo: yes
+        shell: >
+          rhos-release -d -P {{ product.full_version }};
+          rhos-release -r {{ distro.full_version }} -t {{installer.dib_dir}} -d -P {{ product.full_version }};
         register: pinned_poodle
         when: product.repo_type in ['poodle']  and product.repo.poodle_pin_version == 'latest'
 

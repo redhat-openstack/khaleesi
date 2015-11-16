@@ -38,6 +38,6 @@
                     dest={{ instack_user_home }}
                     force=no
                     timeout=360
-      with_items: "{{ installer.images.files|list }}"
+      with_items: "{{ installer.images[product.full_version].files|list }}"
       when: installer.overcloud_images is defined and installer.overcloud_images == "import"
 

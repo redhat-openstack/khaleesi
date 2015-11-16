@@ -2,10 +2,11 @@
 installer:
   overcloud_images: import
   images:
-    files:
-      - deploy-ramdisk-ironic
-      - ironic-python-agent
-      - overcloud-full
+    'liberty':
+      files:
+        - deploy-ramdisk-ironic
+        - ironic-python-agent
+        - overcloud-full
     url:
       rdo:
         'liberty':
