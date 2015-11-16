@@ -48,7 +48,7 @@
         changed_when: "shell_result == 0"
 
       - name: Create the COPR repos required for component tests
-        template: src=templates/apevec-copr-repo.j2 dest=/etc/yum.repos.d/apevec-copr.repo
+        template: src=templates/component-test-copr-repo.j2 dest=/etc/yum.repos.d/component-test-copr.repo
         sudo: yes
         when: ansible_distribution_version|int >= 6
 

@@ -1,0 +1,7 @@
+[abregman-el{{ ansible_distribution_version|int }}-rhos{{ product.version.major }}-test-deps]
+name=Copr repo for el{{ ansible_distribution_version|int }}-rhos{{ product.version.major }}-test-deps owned by abregman
+baseurl=https://copr-be.cloud.fedoraproject.org/results/abregman/el{{ ansible_distribution_version|int }}-rhos{{ product.version.major}}-test-deps/epel-{{ ansible_distribution_version|int }}-$basearch/
+skip_if_unavailable=True
+gpgcheck=0
+gpgkey=https://copr-be.cloud.fedoraproject.org/results/abregman/el{{ ansible_distribution_version|int }}-rhos{{ product.version.major}}-test-deps/pubkey.gpg
+enabled=1
