@@ -38,7 +38,7 @@ def get_hosts(url, key, ver, arch, count):
                     "?key=", key,
                     "&arch=", arch,
                     "$ver=", ver,
-                    "&i_count=", count]
+                    "&count=", count]
     req = urllib2.Request(''.join(url_elements))
     req.add_header('Accept', 'application/json')
     try:
