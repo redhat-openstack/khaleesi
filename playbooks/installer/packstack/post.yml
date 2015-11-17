@@ -84,18 +84,26 @@
     - name: Restart neutron service to apply changes in floating ip pool
       shell: openstack-service restart neutron
 
-- name: Enable l3-ha (VRRP) for Neutron networkers
+- name:  Post install for Neutron server
   hosts: controller
   gather_facts: no
   sudo: yes
   tasks:
-    - name: Enable ha in neutron conf
+    - name: Enable l3-ha (VRRP) in neutron
       ini_file:
         dest: /etc/neutron/neutron.conf
         section: DEFAULT
         option: l3_ha
         value: true
       when: installer.network.ha is defined and installer.network.ha
+
+    - name: Enable port-security in neutron
+      ini_file:
+        dest: /etc/neutron/plugins/ml2/ml2_conf.ini
+        section: ml2
+        option: extension_drivers
+        value: port_security
+      when: installer.network.type == 'neutron' and product.version.major >= 7
 
     - name: restart neutron server
       service:
