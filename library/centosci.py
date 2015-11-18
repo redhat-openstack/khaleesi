@@ -89,18 +89,26 @@ def main():
             arch=dict(default='x86_64', choices=['x86_64', 'i386']),
             count=dict(default='1', type='str'),
             # needed for done or fail
-            ssid=dict(default=None, type='str')
+            ssid=dict(default=None, type='str'),
+            # needed for selecting non-hufty nodes for rdo-manager jobs
+            ram_gb=dict(default=1, type='int')
         )
     )
     key = os.environ.get('PROVISIONER_KEY')
     if key is None:
         module.fail_json(msg="Set the PROVISIONER_KEY environment variable.")
     if module.params["request"] == "get":
-        result = get_hosts(module.params["url"],
-                           key,
-                           module.params["ver"],
-                           module.params["arch"],
-                           module.params["count"])
+        result = None
+        while result is None:
+            result = get_hosts(module.params["url"],
+                               key,
+                               module.params["ver"],
+                               module.params["arch"],
+                               module.params["count"])
+            if module.params.get("ram_gb", 1) > 16 and 'hufty' in result['hosts'][0]['hostname']:
+                return_hosts(module.params["url"], 'done', result['ssid'])
+                result = None
+
     else:
         result = return_hosts(module.params["url"],
                               module.params["request"],

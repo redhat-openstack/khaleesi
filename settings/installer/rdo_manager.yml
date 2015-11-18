@@ -21,6 +21,7 @@ installer:
 
 provisioner:
     remote_user: 'stack'
+    ram_gb: 32
 
 base_dir: !env WORKSPACE
 instack_user_home: /home/{{ !lookup provisioner.remote_user }}

@@ -10,6 +10,7 @@
            ver="{{ provisioner.distro.version }}"
            arch="{{ provisioner.arch }}"
            count="{{ provisioner.node_count }}"
+           ram_gb="{{ provisioner.ram_gb |default(1) }}"
       register: provisioned_nodes
       until: provisioned_nodes|success
       retries: 5
