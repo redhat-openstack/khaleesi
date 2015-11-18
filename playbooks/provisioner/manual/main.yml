@@ -24,4 +24,4 @@
         ansible_ssh_user="{{ provisioner.remote_user }}"
         ansible_ssh_private_key_file="{{ provisioner.key_file }}"
         ansible_ssh_host="{{ lookup('env', 'TEST_MACHINE') }}"
-      when: installer.type in ['packstack']
+      when: installer.type in ['packstack', 'project']
