@@ -3,7 +3,7 @@
 nodes:
   controller:
     packages:
-      - glusterfs-fuse
+      default: glusterfs-fuse
 
 storage:
   services:

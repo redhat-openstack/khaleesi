@@ -3,7 +3,7 @@
 nodes:
   controller:
     packages:
-      - ceph-common
+      default: ceph-common
 
 storage:
   services:

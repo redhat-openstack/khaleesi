@@ -1,5 +1,11 @@
 --- !extends:common/shared.yml
 
+nodes:
+  controller:
+    packages:
+      default: targetcli
+      '6.0': scsi-target-utils
+
 storage:
   services:
     - cinder
@@ -17,6 +23,7 @@ storage:
           rhos-6-thinlvm:
             volume_driver: "cinder.volume.drivers.lvm.LVMISCSIDriver"
             lvm_type: "thin"
+            iscsi_helper: "lioadm"
         "5.0":
           *cinder_cfg_old
         "6.0":
