@@ -27,6 +27,9 @@ tester:
     browser_platform: linux
     selenium_grid_download: http://selenium-release.storage.googleapis.com/2.48/selenium-server-standalone-2.48.2.jar
     chrome_webdriver_download: http://chromedriver.storage.googleapis.com/2.20/chromedriver_linux64.zip
+    subscription:
+      username: !lookup private.distro.rhel.subscription.username
+      password: !lookup private.distro.rhel.subscription.password
   packages:
   - python-virtualenv
   - firefox

@@ -42,6 +42,10 @@
       shell: heat-manage service list | grep -v Binary |grep up |awk '{print $2;}' ORS=',' | grep -v -e '^$' | sed 's/,$//'
       register: integration_orchestration_services
 
+    - name: Get the status of the redhat-access-plugin-openstak plugin
+      shell: if yum list installed redhat-access-plugin-openstack > /dev/null 2>&1; then echo "True"; else echo "False"; fi;
+      register: redhat_access_status
+
     - name: Register facts with enabled services
       set_fact:
         integration_enabled_services="{{ integration_enabled_services.stdout_lines }}"
@@ -49,6 +53,7 @@
         integration_cinder_services="{{ integration_cinder_services.stdout }}"
         integration_network_agents="{{ integration_network_agents.stdout }}"
         integration_orchestration_services="{{ integration_orchestration_services.stdout }}"
+        redhat_plugin_status="{{ redhat_access_status.stdout }}"
 
 - name: Prepare repository with tests
   hosts: tester
@@ -66,6 +71,7 @@
         block_storage_services: "{{ hostvars[controller_name].integration_cinder_services }}"
         network_agents: "{{ hostvars[controller_name].integration_network_agents }}"
         orchestration_services: "{{ hostvars[controller_name].integration_orchestration_services }}"
+        redhat_plugin: "{{ hostvars[controller_name].redhat_plugin_status }}"
       horizon_conf_dest: ~/{{ tester.dir }}/openstack_dashboard/test/integration_tests/horizon.conf
 
   tasks:
@@ -78,6 +84,9 @@
         with_items:
             - { section: 'identity', key: 'password', value: "{{ horizon_tests.demo_password }}"}
             - { section: 'identity', key: 'admin_password', value: "{{ horizon_tests.admin_password }}"}
+            - { section: 'identity', key: 'rh_portal_login', value: "{{ tester.integration.subscription.username  }}" }
+            - { section: 'identity', key: 'rh_portal_pass', value: "{{ tester.integration.subscription.password }}" }
+            - { section: 'service_available', key: 'redhat_access_plugin', value: "{{ services_status.redhat_plugin }}"}
             - { section: 'dashboard', key: 'login_url', value: "http://{{ tmp_controller_host }}/dashboard"}
             - { section: 'dashboard', key: 'dashboard_url', value: "http://{{ tmp_controller_host }}"}
             - { section: 'dashboard', key: 'help_url', value: "{{ tester.integration.horizon.help_url }}"}
