@@ -64,14 +64,6 @@
       shell: >
         cat {{ instack_user_home }}/virt-setup-env
 
-    - name: Patch instack-virt-setup to ensure dhcp.leases is not used to determine ip (workaround https://review.openstack.org/#/c/232584)
-      sudo: yes
-      lineinfile:
-        dest=/usr/bin/instack-virt-setup
-        regexp="/var/lib/libvirt/dnsmasq/default.leases"
-        line="    IP=$(ip n | grep $(tripleo get-vm-mac $UNDERCLOUD_VM_NAME) | awk '{print $1;}')"
-      when: workarounds.enabled is defined and workarounds.enabled|bool
-
 - name: build/import undercloud vm
   hosts: virthost
   roles:
