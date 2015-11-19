@@ -6,3 +6,7 @@ installer:
         dist_git: openstack-heat
         codeng: heat
         config_file: jenkins-config.yml
+
+job:
+    archive:
+        - /etc/yum.repos.d/*
