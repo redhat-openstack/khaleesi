@@ -30,6 +30,8 @@ provisioner:
           remote_user: cloud-user}
         '7.1': {id: 46424043-b38e-493f-a886-faf92e20f983, name: rhel-guest-image-7.1-20150224.0.x86_64.qcow2,
           remote_user: cloud-user}
+        '7.2': {id: 71a30380-d124-4284-9373-0d3a7650a2b3, name: rhel-guest-image-7.2-20151102.0.x86_64.qcow2,
+          remote_user: cloud-user}
 
     flavor:
         tiny:  1
