@@ -61,14 +61,42 @@
 - name: update libvirtd unix_sock_group
   lineinfile: dest=/etc/libvirt/libvirtd.conf
               regexp=^unix_sock_group
-              line='unix_sock_group = "stack"'
+              line='unix_sock_group = "{{ provisioner.remote_user }}"'
   when: "instack_virt_setup_result.rc !=0"
   sudo: yes
 
+- name: remove libvirt qemu capabilities cache
+  command: rm -Rf /var/cache/libvirt/qemu/capabilities/
+  sudo: yes
+  when: "instack_virt_setup_result.rc != 0"
+  # more workaround for the SATA error RHBZ#1195882
+
 - name: restart libvirtd
   service: name=libvirtd state=restarted
-  when: "instack_virt_setup_result.rc !=0"
   sudo: yes
+  when: "instack_virt_setup_result.rc != 0"
+
+- name: inspect virsh capabilities
+  command: 'virsh capabilities'
+  when: "instack_virt_setup_result.rc != 0"
+
+- name: stop virbr0
+  command: ip link set virbr0 down
+  sudo: yes
+  ignore_errors: true
+  when: "instack_virt_setup_result.rc != 0"
+
+- name: delete libvirt bridge virbr0
+  command: brctl delbr virbr0
+  sudo: yes
+  ignore_errors: true
+  when: "instack_virt_setup_result.rc != 0"
+
+- name: start default libvirt network
+  command: virsh net-start default
+  sudo: yes
+  ignore_errors: true
+  when: "instack_virt_setup_result.rc != 0"
 
 - name: retry run instack-virt-setup
   shell: >
