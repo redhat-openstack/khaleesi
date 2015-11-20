@@ -49,6 +49,8 @@ storage:
           *cinder_cfg
         "7.0":
           *cinder_cfg
+        "8.0":
+          *cinder_cfg
       nova:
         "icehouse":
           &nova_cfg
@@ -63,6 +65,8 @@ storage:
         "6.0":
           *nova_cfg
         "7.0":
+          *nova_cfg
+        "8.0":
           *nova_cfg
       glance:
         "icehouse":
@@ -92,6 +96,8 @@ storage:
         "6.0":
           *glance_cfg_new
         "7.0":
+          *glance_cfg_new
+        "8.0":
           *glance_cfg_new
 
 tester:

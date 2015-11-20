@@ -20,3 +20,5 @@ storage:
           *swift_cfg
         "7.0":
           *swift_cfg
+        "8.0":
+          *swift_cfg

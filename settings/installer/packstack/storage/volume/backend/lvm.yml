@@ -16,8 +16,8 @@ storage:
         "juno":
           &cinder_cfg_new
           DEFAULT:
-            enabled_backends: "rhos-6-lvm"
-          rhos-6-lvm:
+            enabled_backends: "rhos-lvm"
+          rhos-lvm:
             lvm_type: "default"
             volume_driver: "cinder.volume.drivers.lvm.LVMISCSIDriver"
         "5.0":
@@ -25,12 +25,15 @@ storage:
         "6.0":
           *cinder_cfg_new
         "7.0":
+          &cinder_cfg
           DEFAULT:
-            enabled_backends: "rhos-7-lvm"
-          rhos-7-lvm:
+            enabled_backends: "rhos-lvm"
+          rhos-lvm:
             lvm_type: "default"
             iscsi_helper: "lioadm"
             volume_driver: "cinder.volume.drivers.lvm.LVMISCSIDriver"
+        "8.0":
+          *cinder_cfg
 
 tester:
     tempest:

@@ -36,6 +36,8 @@ storage:
           *cinder_cfg_new
         "7.0":
           *cinder_cfg_new
+        "8.0":
+          *cinder_cfg_new
 
 tester:
     tempest:

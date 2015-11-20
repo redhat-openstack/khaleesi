@@ -33,6 +33,8 @@ storage:
           *glance_cfg_new
         "7.0":
           *glance_cfg_new
+        "8.0":
+          *glance_cfg_new
 
 tester:
     tempest:
