@@ -1,0 +1,4 @@
+---
+provisioner:
+    beaker_family: RedHatEnterpriseLinux7
+    beaker_distro: RHEL-7.2-20151030.0
