@@ -6,8 +6,5 @@ ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/i
 To *only* boot an undercloud and build overcloud images:
 ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/installer/rdo-manager/build_images.yml
 
-To *only* install the undercloud:
-ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/installer/rdo-manager/install_undercloud.yml
-
 To *only* deploy the overcloud
 ansible-playbook -vv --extra-vars @ksgen_settings.yml -i hosts playbooks/installer/rdo-manager/overcloud/main.yml
