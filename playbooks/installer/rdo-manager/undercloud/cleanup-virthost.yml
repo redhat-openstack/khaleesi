@@ -132,6 +132,7 @@
         - tripleo-*
         - python-rdomanager-*
         - jq
+        - python-tripleo*
 
     - name: remove any instack rpms from the host
       yum: name={{item}} state=absent
