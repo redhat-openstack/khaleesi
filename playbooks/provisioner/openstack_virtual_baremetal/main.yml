@@ -74,7 +74,7 @@
       register: admin_tenant_result
       shell: >
         source {{ instack_user_home }}/overcloudrc;
-        keystone tenant-list | grep admin | cut -d ' ' -f2
+        openstack project list | grep admin  | egrep -v '_admin' | cut -d ' ' -f2
 
     - name: set nova quota to unlimited
       ignore_errors: true
@@ -181,7 +181,7 @@
         login_password: "{{ get_admin_password_result.stdout }}"
         login_tenant_name: admin
         router_name: "{{ tmp.node_prefix }}router"
-        network_name: nova
+        network_name: "{{ installer.network.name }}"
 
     - name: create router interface - private
       quantum_router_interface:
@@ -222,58 +222,17 @@
         source {{ instack_user_home }}/overcloudrc;
         nova keypair-add --pub_key ~/.ssh/id_rsa.pub "{{ tmp.node_prefix }}default"
 
-    - name: change permissions on file to copy
-      local_action: shell chmod 755 {{base_dir}}/khaleesi/playbooks/provisioner/openstack_virtual_baremetal/files/copy_modify_env_yaml.sh
-
-    - name: get file to modify env.yaml
-      copy:
-        src={{base_dir}}/khaleesi/playbooks/provisioner/openstack_virtual_baremetal/files/copy_modify_env_yaml.sh
-        dest={{ instack_user_home }}/copy_modify_env_yaml.sh
+    - name: copy template env file
+      template:
+        src=templates/env.yml.j2
+        dest={{ instack_user_home }}/openstack-virtual-baremetal/{{ tmp.node_prefix }}env.yaml
         mode=0755
 
-    - name: copy the example env file and edit it to reflect the host environment
-      shell: >
-        source {{ instack_user_home }}/overcloudrc;
-        cp {{ instack_user_home }}/openstack-virtual-baremetal/templates/env.yaml.example {{ instack_user_home }}/openstack-virtual-baremetal/{{ tmp.node_prefix }}env.yaml;
-        {{ instack_user_home }}/copy_modify_env_yaml.sh
-
-    - name: change from centos-related to RHEL-related repos
-      shell: >
-         chdir={{ instack_user_home }}/openstack-virtual-baremetal
-         sed -i 's#yum -y update centos-release#yum localinstall -y {{ product.rpm }}#g' templates/virtual-baremetal-servers.yaml
-      when: provisioner.distro.name == "rhel"
-
-    - name: Execute rhos-release for pinned osp-director puddle (osp)
-      lineinfile: >
-        dest={{ instack_user_home }}/openstack-virtual-baremetal/templates/virtual-baremetal-servers.yaml 
-        line="            rhos-release -p {{ product.repo.puddle_director_pin_version }} {{ product.full_version }}"
-        state=present
-        insertafter="^            yum localinstall"
-      when: product.repo_type in ['puddle'] and product.repo.puddle_director_pin_version is defined
-
-    - name: Execute rhos-release for core rhos puddle (osp)
-      shell: > 
-         chdir={{ instack_user_home }}/openstack-virtual-baremetal
-         sed -i 's#yum install -y https://rdo.fedorapeople.org/rdo-release.rpm#rhos-release -p {{ product.repo.puddle_pin_version }} {{ product.repo.core_product_version }}#g' templates/virtual-baremetal-servers.yaml
-      when: product.repo_type in ['puddle'] and product.repo.puddle_pin_version is defined
-
-    - name: Execute rhos-release for pinned osp-director poodle (osp)
-      shell: >
-         chdir={{ instack_user_home }}/openstack-virtual-baremetal
-         sed -i 's#yum install -y https://rdo.fedorapeople.org/rdo-release.rpm#rhos-release  -d -p {{ product.repo.poodle_pin_version }} {{ product.full_version }}#g' templates/virtual-baremetal-servers.yaml
-      when: product.repo_type in ['poodle'] and product.repo.poodle_pin_version is defined
-
-    - name: Execute rhos-release for osp-director puddle (osp)
-      shell: >
-         chdir={{ instack_user_home }}/openstack-virtual-baremetal
-         sed -i 's#yum install -y https://rdo.fedorapeople.org/rdo-release.rpm#rhos-release {{ product.full_version }}}#g' templates/virtual-baremetal-servers.yaml
-      when: product.repo_type in ['puddle'] and product.repo.puddle_pin_version is not defined
-
-    - name: Execute rhos-release for osp-director poodle (osp)
-      shell: >
-         chdir={{ instack_user_home }}/openstack-virtual-baremetal
-         sed -i 's#yum install -y https://rdo.fedorapeople.org/rdo-release.rpm#rhos-release  -d {{ product.full_version }}#g' templates/virtual-baremetal-servers.yaml
-      when: product.repo_type in ['poodle'] and product.repo.poodle_pin_version is not defined
+    - name: copy install openstack bmc file
+      template:
+        src=templates/install_openstackbmc.sh.j2
+        dest={{ instack_user_home }}/openstack-virtual-baremetal/bin/install_openstackbmc.sh
+        mode=0755
 
     - name: deploy the stack
       shell: >
