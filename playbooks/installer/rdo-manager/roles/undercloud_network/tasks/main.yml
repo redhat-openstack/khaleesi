@@ -1,0 +1,14 @@
+---
+#to-do move shell commands to ansible where possible
+#to-do replace ip's with variables from settings
+- name: add interface in vlan 10
+  sudo: yes
+  shell: >
+    ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
+    ip l set dev vlan10 up;
+    ip addr add 172.16.23.251/24 dev vlan10;
+
+- name: add masquerade rule for external net subnet
+  sudo: yes
+  shell: iptables -A BOOTSTACK_MASQ -s 172.16.23.0/24 ! -d 172.16.23.0/24 -j MASQUERADE -t nat
+

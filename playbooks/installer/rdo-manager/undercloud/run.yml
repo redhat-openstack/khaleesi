@@ -231,3 +231,8 @@
       shell: >
         chmod 755 {{ instack_user_home }}/vendor_specific_setup;
         {{ instack_user_home }}/vendor_specific_setup
+
+- name: create the requisite networks for network isolation
+  hosts: undercloud
+  roles:
+    - { role: undercloud_network, when: "product.full_version != '7-director' and installer.network.isolation != 'none'"}
