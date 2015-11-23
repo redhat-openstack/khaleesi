@@ -15,6 +15,20 @@
   vars:
     - ansible_ssh_user: root
   tasks:
+    - name: delete user (workaround for BZ 1284717)
+      user: name="{{ provisioner.remote_user }}" state=absent remove=yes force=yes
+      tags: workaround
+
+    - name: inspect user removal
+      shell: >
+        ls /home | grep "{{ provisioner.remote_user }}";
+        cat /etc/passwd | grep "{{ provisioner.remote_user }}";
+        cat /etc/group | grep "{{ provisioner.remote_user }}";
+        cat /etc/shadow | grep "{{ provisioner.remote_user }}";
+        ls /var/spool/mail | grep "{{ provisioner.remote_user }}";
+      register: result
+      failed_when: result.rc != 1
+
     - name: create user
       user: name="{{ provisioner.remote_user }}" state=present password=stack
 
