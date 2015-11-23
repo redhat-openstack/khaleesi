@@ -1,6 +1,4 @@
 ---
-- include: repo-{{ product.name }}.yml repo_host=undercloud
-
 - name: Update packages on the host
   hosts: undercloud
   vars:
@@ -53,6 +51,8 @@
 
     - name: set fact for the stack user home
       set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
+
+- include: repo-{{ product.name }}.yml repo_host=undercloud
 
 - name: Configure the baremetal undercloud
   hosts: undercloud

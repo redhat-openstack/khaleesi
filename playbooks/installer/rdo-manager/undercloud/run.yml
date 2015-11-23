@@ -86,27 +86,9 @@
       yum: name=python-six state=present
       sudo: yes
 
-- name: Execute vendor-specific setup for baremetal environment
-  hosts: undercloud:&baremetal
-  tasks:
-    - name: copy vendor-specific setup file
-      synchronize: >
-        src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
-        delegate_to: local
-      when: hw_env.env_type != 'ovb_host_cloud'
-
-    - name: copy over vendor-specific setup file (quintupleo_host_cloud)
-      local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F {{base_dir}}/khaleesi/ssh.config.ansible -S none -o StrictHostKeyChecking=no" {{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup undercloud:{{ instack_user_home }}/vendor_specific_setup
-      when: hw_env.env_type == 'ovb_host_cloud'
-
-    - name: execute vendor-specific setup
-      shell: >
-        chmod 755 {{ instack_user_home }}/vendor_specific_setup;
-        {{ instack_user_home }}/vendor_specific_setup
-
 - name: undercloud package install
   hosts: undercloud
-  tasks: 
+  tasks:
     - name: update hosts file for localhost.localhost (workaround for puppet, discovered on centos7)
       lineinfile: dest=/etc/hosts line="127.0.0.1   localhost localhost.localhost"
       sudo: yes
@@ -115,7 +97,7 @@
       template:
         dest: "{{ instack_user_home }}/package-only.json"
         src: "{{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/{{ distro.name }}-package-only.json.j2"
-      
+
     - name: install the undercloud
       shell: JSONFILE="{{ instack_user_home }}/package-only.json" openstack undercloud install --debug &> {{ instack_user_home }}/undercloud_package_install.log
       ignore_errors: true
@@ -222,3 +204,20 @@
         systemctl restart openstack-ironic-conductor
       when: workarounds.enabled is defined and workarounds.enabled|bool
 
+- name: Execute vendor-specific setup for baremetal environment
+  hosts: undercloud:&baremetal
+  tasks:
+    - name: copy vendor-specific setup file
+      synchronize: >
+        src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
+        delegate_to: local
+      when: hw_env.env_type != 'ovb_host_cloud'
+
+    - name: copy over vendor-specific setup file (quintupleo_host_cloud)
+      local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F {{base_dir}}/khaleesi/ssh.config.ansible -S none -o StrictHostKeyChecking=no" {{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup undercloud:{{ instack_user_home }}/vendor_specific_setup
+      when: hw_env.env_type == 'ovb_host_cloud'
+
+    - name: execute vendor-specific setup
+      shell: >
+        chmod 755 {{ instack_user_home }}/vendor_specific_setup;
+        {{ instack_user_home }}/vendor_specific_setup
