@@ -14,7 +14,7 @@
           source {{ instack_user_home }}/stackrc;
           heat stack-list;
           nova list;
-          openstack baremetal list;
+          ironic node-list;
           openstack server list;
 
     - name: heat debug deploy-overcloud failure
