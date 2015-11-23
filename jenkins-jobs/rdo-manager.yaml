@@ -267,7 +267,7 @@
     installer: rdo_manager
     installer-deploy: templates
     installer-env: virthost
-    installer-images: import_rdo
+    installer-images: import_rdo_undercloud
     installer-post_action: none
     installer-topology: minimal
     installer-tempest: smoke
@@ -276,7 +276,7 @@
     network-variant: ml2-vxlan
     product: rdo
     product-version: liberty
-    product-version-repo: delorean_mgt
+    product-version-repo: delorean
     distro: centos-7.0
     provisioner-distro: centos
     provisioner-distro-version: 7
@@ -318,7 +318,7 @@
     installer: rdo_manager
     installer-deploy: templates
     installer-env: virthost
-    installer-images: import_rdo
+    installer-images: import_rdo_undercloud
     installer-post_action: none
     installer-topology: minimal
     installer-tempest: smoke
@@ -335,7 +335,7 @@
             installer-topology:
                 - minimal_ha
                 - minimal
-            product-version-repo: delorean_mgt
+            product-version-repo: delorean
             pin: last_known_good
         - '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}':
             installer-topology:
