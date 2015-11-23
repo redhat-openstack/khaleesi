@@ -217,6 +217,12 @@ def _update_floating_ip(neutron, module, port_id, floating_ip_id):
         module.fail_json(msg="There was an error in updating the floating ip address: %s" % e.message)
     module.exit_json(changed=True, result=result)
 
+def _delete_floatingip(neutron, module, floating_ip_id):
+    try:
+        neutron.delete_floatingip(floating_ip_id)
+    except Exception, e:
+        module.fail_json(msg="There was an error in deleting the floating ip address: %s" % e.message)
+    module.exit_json(changed=True, msg = "Floating IP %s deleted" % floating_ip_id)
 
 def main():
 
@@ -256,8 +262,9 @@ def main():
 
     if module.params['state'] == 'absent':
         if floating_ip:
-            _update_floating_ip(neutron, module, None, floating_id)
-        module.exit_json(changed=False)
+            _delete_floatingip(neutron, module, floating_id)
+        module.exit_json(changed=False, msg="Floating IP not found for "
+                                            "fixed IP %s" % fixed_ip)
 
 # this is magic, see lib/ansible/module.params['common.py
 from ansible.module_utils.basic import *
