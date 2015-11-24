@@ -14,7 +14,7 @@
 
                 # install ksgen
                 pushd khaleesi/tools/ksgen
-                python setup.py develop
+                python setup.py install
                 popd
 
                 pushd khaleesi
@@ -94,7 +94,7 @@
 
                 # install ksgen
                 pushd khaleesi/tools/ksgen
-                python setup.py develop
+                python setup.py install
                 popd
 
                 pushd khaleesi
@@ -174,7 +174,7 @@
 
                 # install ksgen
                 pushd khaleesi/tools/ksgen
-                python setup.py develop
+                python setup.py install
                 popd
 
                 pushd khaleesi
