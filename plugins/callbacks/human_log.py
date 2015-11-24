@@ -1,33 +1,93 @@
-# based on https://gist.github.com/cliffano/9868180
-# makes Ansible command output readable if added as a callback plugin
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals
+# Inspired from: https://gist.github.com/cliffano/9868180
+# Further improved output and added results field
 
-FIELDS = ['cmd', 'command', 'start', 'end', 'delta', 'msg', 'stdout', 'stderr']
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
-def human_log(res):
-    if isinstance(res, dict):
-        for field in FIELDS:
-            if field in res.keys():
-                # this is needed because the stdout is not unicode compatible
-                # during the ansible run, results in "?" chars in place of the
-                # unicode characters
-                if isinstance(res[field], unicode):
-                    res[field] = res[field].encode('ascii','replace')
-                print '\n{0}:\n{1}'.format(field, res[field])
+# Fields to reformat output for
+FIELDS = ['cmd', 'command', 'start', 'end', 'delta', 'msg', 'stdout',
+          'stderr', 'results']
 
 
 class CallbackModule(object):
+    def human_log(self, data):
+        if type(data) == dict:
+            for field in FIELDS:
+                if field in data.keys():
+                    output = self._format_output(data[field])
+                    print("\n{0}: {1}".format(field, output.replace("\\n","\n")))
+
+    def _format_output(self, output):
+        # Strip unicode
+        if type(output) == unicode:
+            output = output.encode('ascii', 'replace')
+
+        # If output is a dict
+        if type(output) == dict:
+            return json.dumps(output, indent=2)
+
+        # If output is a list of dicts
+        if type(output) == list and type(output[0]) == dict:
+            # This gets a little complicated because it potentially means
+            # nested results, usually because of with_items.
+            real_output = list()
+            for index, item in enumerate(output):
+                copy = item
+                if type(item) == dict:
+                    for field in FIELDS:
+                        if field in item.keys():
+                            copy[field] = self._format_output(item[field])
+                real_output.append(copy)
+            return json.dumps(output, indent=2)
+
+        # If output is a list of strings
+        if type(output) == list and type(output[0]) != dict:
+            # Strip newline characters
+            real_output = list()
+            for item in output:
+                if "\n" in item:
+                    for string in item.split("\n"):
+                        real_output.append(string)
+                else:
+                    real_output.append(item)
+
+            # Reformat lists with line breaks only if the total length is
+            # >75 chars
+            if len("".join(real_output)) > 75:
+                return "\n" + "\n".join(real_output)
+            else:
+                return " ".join(real_output)
+
+        # Otherwise it's a string, (or an int, float, etc.) just return it
+        return str(output)
 
     def on_any(self, *args, **kwargs):
         pass
 
     def runner_on_failed(self, host, res, ignore_errors=False):
-        human_log(res)
+        self.human_log(res)
 
     def runner_on_ok(self, host, res):
-        human_log(res)
+        self.human_log(res)
+
 
     def runner_on_error(self, host, msg):
         pass
@@ -36,19 +96,19 @@ class CallbackModule(object):
         pass
 
     def runner_on_unreachable(self, host, res):
-        human_log(res)
+        self.human_log(res)
 
     def runner_on_no_hosts(self):
         pass
 
     def runner_on_async_poll(self, host, res, jid, clock):
-        human_log(res)
+        self.human_log(res)
 
     def runner_on_async_ok(self, host, res, jid):
-        human_log(res)
+        self.human_log(res)
 
     def runner_on_async_failed(self, host, res, jid):
-        human_log(res)
+        self.human_log(res)
 
     def playbook_on_start(self):
         pass
