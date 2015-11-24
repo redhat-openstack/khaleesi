@@ -7,6 +7,11 @@
   gather_facts: yes
   sudo: yes
   tasks:
+      - name: Ensure yum-plugin-priorities is installed
+        yum:
+          name: yum-plugin-priorities
+          state: present
+
       - name: clean release rpms
         command: yum remove -y {{ item }}
         with_items:
@@ -43,4 +48,3 @@
   roles:
     - { role: linux/fedora }
     - { role: product/rdo/fedora }
-
