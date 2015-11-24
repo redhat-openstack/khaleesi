@@ -89,6 +89,11 @@
 - name: undercloud package install
   hosts: undercloud
   tasks:
+    - name: make sure yum-plugin-priorities is installed
+      yum: name='yum-plugin-priorities' state=present
+      sudo: yes
+      when: product.name != 'rhos'
+
     - name: update hosts file for localhost.localhost (workaround for puppet, discovered on centos7)
       lineinfile: dest=/etc/hosts line="127.0.0.1   localhost localhost.localhost"
       sudo: yes
