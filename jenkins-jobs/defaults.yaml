@@ -120,7 +120,7 @@
     name: default-publishers
     publishers:
         - archive:
-            artifacts: '**/collected_files/*.tar.gz, **/nosetests.xml, **/ksgen_settings.yml, **/full_logs.html'
+            artifacts: '**/collected_files/*.tar.gz, **/collect_logs.txt, **/cleanup.txt, **/nosetests.xml, **/ksgen_settings.yml, **/full_logs.html'
         - post-tasks:
             - matches:
                 - log-text: Build was aborted
