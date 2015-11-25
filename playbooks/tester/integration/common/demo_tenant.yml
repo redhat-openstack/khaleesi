@@ -55,7 +55,8 @@
         tenant_name: demo
         network_name: private
         name: private_subnet
-        enable_dhcp: False
+        enable_dhcp: True
+        dns_nameservers: "8.8.8.8,8.8.4.4"
         cidr: "192.168.100.0/24"
     - quantum_router:
         state: present
