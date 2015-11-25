@@ -10,7 +10,7 @@ installer:
     '8-director':
       files:
         - deploy-ramdisk-ironic
-        - agent-ramdisk
+        - ironic-python-agent
         - overcloud-full
     url:
       rhos:

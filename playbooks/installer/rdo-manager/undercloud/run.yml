@@ -94,6 +94,11 @@
       sudo: yes
       when: product.name != 'rhos'
 
+    - name: set selinux to permissive for ospd-8 (workaround bug bz 1284133)
+      selinux: policy=targeted state=permissive
+      sudo: yes
+      when: (workarounds['rhbz1284133']['enabled'] is defined and workarounds['rhbz1284133']['enabled'] | bool)
+
     - name: update hosts file for localhost.localhost (workaround for puppet, discovered on centos7)
       lineinfile: dest=/etc/hosts line="127.0.0.1   localhost localhost.localhost"
       sudo: yes
