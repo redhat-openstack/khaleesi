@@ -1,10 +1,10 @@
 tmp:
     anchors:
-    - &centos_repo_url http://trunk.rdoproject.org/liberty/centos7/
+      - &centos_repo_url http://trunk.rdoproject.org/centos7/
 
 product:
     short_repo: dln
-    repo_type: delorean_mgt
+    repo_type: delorean
     repo:
         delorean:
             repo_file: delorean.repo
@@ -16,9 +16,7 @@ product:
         delorean_deps:
             repo_file: delorean-deps.repo
             CentOS:
-                '7.0': !join [*centos_repo_url]
-                '7.0.1406': !join [*centos_repo_url]
-                '7.1.1503': !join [*centos_repo_url]
+                '7': !join [*centos_repo_url]
             RedHat:
                 '7.0': !join [*centos_repo_url]
                 '7.1': !join [*centos_repo_url]

@@ -1,11 +1,9 @@
 tmp:
     anchors:
     - &rpmurl 'https://repos.fedorapeople.org/repos/openstack/openstack-juno/rdo-release-juno-1.noarch.rpm'
-    - &repo_url 'http://repos.fedorapeople.org/repos/openstack/openstack-juno/'
 
 product:
     full_version: juno
-    short_version: ju
     version:
         major: 6
         minor: 0
@@ -14,23 +12,3 @@ product:
         CentOS: *rpmurl
         Fedora: *rpmurl
         RedHat: *rpmurl
-### NOTE ###
-# khaleesi require details about the production repo for all jobs since it does
-# a repodiff against production for all other repos.
-    repo:
-        production:         # by default have production available for all jobs
-            CentOS:
-                '6.5': !join [*repo_url, epel-6]
-                '7.0': !join [*repo_url, epel-7]
-                '7.0.1406': !join [*repo_url, epel-7]
-                '7.1.1503': !join [*repo_url, epel-7]
-            Fedora:
-                '20': !join [*repo_url, fedora-20]
-                '21': !join [*repo_url, fedora-21]
-
-            RedHat:
-                '6.5': !join [*repo_url, epel-6]
-                '6.6': !join [*repo_url, epel-6]
-                '6.7': !join [*repo_url, epel-6]
-                '7.0': !join [*repo_url, epel-7]
-                '7.1': !join [*repo_url, epel-7]

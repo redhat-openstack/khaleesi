@@ -43,7 +43,7 @@
         command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/{{ product.name }}-release-latest.noarch.rpm"
 
       - name: Execute the release tool
-        shell: "{{ product.name }}-release {{ product.full_version|int }}"
+        shell: "{{ product.name }}-release {{ product.version.major }}"
         register: shell_result
         changed_when: "shell_result == 0"
 
@@ -53,7 +53,7 @@
         when: ansible_distribution_version|int >= 6
 
       - name: Create the RHOS poodle repository
-        shell: "rhos-release  -x {{ product.full_version|int }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.full_version|int }}"
+        shell: "rhos-release  -x {{ product.version.major }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.version.major }}"
         when: product.repo.type is defined and product.repo.type in ['poodle']
 
       - name: Print installed repositores

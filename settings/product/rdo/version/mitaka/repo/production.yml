@@ -1,5 +1,5 @@
 product:
     short_repo: prod
     repo_type: production
-    # production repo details are in liberty.yml itself
+    # production repo details are in mitaka.yml itself
     # since it is needed by default

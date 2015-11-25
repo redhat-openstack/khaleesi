@@ -4,7 +4,6 @@ product:
         major: 7
         minor: 0
         code_name: kilo
-    short_version: 7d
 
 defaults:
   build: latest

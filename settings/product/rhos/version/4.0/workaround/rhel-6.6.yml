@@ -1,5 +1,0 @@
-#oddly getting a ksgen error when this blank
-workaround:
-  foo: false
-  cinder_restart_backup: true
-  default_floating_pool: true

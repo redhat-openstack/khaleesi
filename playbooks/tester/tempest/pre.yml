@@ -10,7 +10,7 @@
   gather_facts: no
   sudo: no
   vars:
-    deployer_input: ~/{{ tester.dir }}/etc/deployer-input-{{ product.version.code_name }}.conf
+    deployer_input: "~/{{ tester.dir }}/etc/deployer-input-{{ product.version.code_name }}.conf"
   tasks:
     - name: Create a command to use tempest with our venv if needed
       copy:

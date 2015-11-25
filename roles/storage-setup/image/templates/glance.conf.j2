@@ -1,6 +1,6 @@
 # jinja glance configuration template
 
-{% for (key, value) in nodes.controller.storage_object.glance.config[product.full_version|string].iteritems() %}
+{% for (key, value) in nodes.controller.storage_object.glance.config[product.full_version].iteritems() %}
 [{{ key }}]
 {% for (subkey, subvalue) in value.iteritems() %}
 {{ subkey }}={{ subvalue }}

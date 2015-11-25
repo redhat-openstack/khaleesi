@@ -1,11 +1,9 @@
 tmp:
     anchors:
     - &rpmurl 'https://rdoproject.org/repos/openstack-kilo/rdo-release-kilo.rpm'
-    - &repo_url 'https://rdoproject.org/repos/openstack-kilo/'
 
 product:
     full_version: kilo
-    short_version: ki
     version:
         major: 7
         minor: 0

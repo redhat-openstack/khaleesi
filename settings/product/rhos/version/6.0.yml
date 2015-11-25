@@ -1,10 +1,9 @@
 product:
-    full_version: 6.0
+    full_version: "6.0"
     version:
         major: 6
         minor: 0
         code_name: juno
-    short_version: 60
 
 workarounds:
     bz1261491: {}

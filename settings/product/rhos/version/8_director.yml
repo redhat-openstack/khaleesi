@@ -4,7 +4,6 @@ product:
         major: 8
         minor: 0
         code_name: liberty
-    short_version: 8d
 
 defaults:
   build: latest

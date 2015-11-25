@@ -15,7 +15,7 @@
         command: "yum localinstall -y {{ product.rpm }}"
 
       - name: Execute rhos-release for packstack poodle/puddle
-        command: "rhos-release {{ product.full_version|int }} {{ product.repo.rhos_release.extra_args|join(' ') }}"
+        command: "rhos-release {{ product.version.major }} {{ product.repo.rhos_release.extra_args|join(' ') }}"
 
       - name: repolist
         command: yum -d 7 repolist

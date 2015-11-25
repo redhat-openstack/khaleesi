@@ -3,11 +3,11 @@ tmp:
     - &rpmurl 'http://rdoproject.org/repos/openstack-liberty/rdo-release-liberty.rpm'
 
 product:
-    full_version: liberty
+    full_version: mitaka
     version:
-        major: 8
+        major: 9
         minor: 0
-        code_name: liberty
+        code_name: mitaka
     rpmrepo:
         CentOS: *rpmurl
         Fedora: *rpmurl

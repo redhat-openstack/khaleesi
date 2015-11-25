@@ -14,17 +14,17 @@
     - database_password: redhat
   tasks:
     - set_fact: sahara_install_profile="legacy"
-      when: (product.name == "rhos" and product.full_version|string == "5.0")
-             or (product.name == "rdo" and product.full_version|string == "icehouse")
+      when: (product.name == "rhos" and product.full_version == "5.0")
+             or (product.name == "rdo" and product.full_version == "icehouse")
 
     - set_fact: sahara_install_profile="unifiedold"
-      when: (product.name == "rhos" and product.full_version|string == "6.0")
-             or (product.name == "rdo" and product.full_version|string == "juno")
+      when: (product.name == "rhos" and product.full_version == "6.0")
+             or (product.name == "rdo" and product.full_version == "juno")
 
     # packstack installs in unified mode for now
     - set_fact: sahara_install_profile="unified"
-      when: ((product.name == "rhos" and product.full_version|string == "7.0")
-              or (product.name == "rdo" and product.full_version|string == "kilo"))
+      when: ((product.name == "rhos" and product.full_version == "7.0")
+              or (product.name == "rdo" and product.full_version == "kilo"))
             and installer.packstack.config.CONFIG_SAHARA_INSTALL | default('n') == 'y'
 
     - set_fact: sahara_install_profile="split"
@@ -101,8 +101,8 @@
   hosts: controller:&sahara
   tasks:
     - group_by: key=legacysaharadashboard
-      when: (product.name == "rhos" and product.full_version|string == "5.0")
-            or (product.name == "rdo" and product.full_version|string == "icehouse")
+      when: (product.name == "rhos" and product.full_version == "5.0")
+            or (product.name == "rdo" and product.full_version == "icehouse")
 
 - name: Install the legacy dashboard
   hosts: legacysaharadashboard
