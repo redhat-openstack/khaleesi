@@ -37,6 +37,23 @@
     publishers:
         - default-publishers
 
+- defaults:
+    name: script-defaults
+    concurrent: false
+    node: khaleesi
+    logrotate:
+        daysToKeep: 5
+        artifactDaysToKeep: 5
+    wrappers:
+        - ansicolor
+        - timestamps
+        - workspace-cleanup
+        - timeout:
+            type: elastic
+            elastic-percentage: 300
+            elastic-default-timeout: 360
+            timeout: 360
+
 - scm:
     name: repo-khaleesi
     scm:

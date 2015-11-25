@@ -299,3 +299,36 @@
                     ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/.ssh/rhos-ci -p 3300 promoter@209.132.178.14 "sudo /usr/local/bin/promote.sh $HASH" centos-kilo;
                     popd
 
+
+- builder:
+    name: promote-get-hash
+    builders:
+        - conditional-step:
+            condition-kind: current-status
+            condition-worst: UNSTABLE
+            condition-best: SUCCESS
+            steps:
+                - shell: |
+                    foo
+
+- builder:
+    name: promote-get-upload
+    builders:
+        - conditional-step:
+            condition-kind: current-status
+            condition-worst: UNSTABLE
+            condition-best: SUCCESS
+            steps:
+                - shell: |
+                    foo
+
+- builder:
+    name: promote-get-promote
+    builders:
+        - conditional-step:
+            condition-kind: current-status
+            condition-worst: UNSTABLE
+            condition-best: SUCCESS
+            steps:
+                - shell: |
+                    foo
