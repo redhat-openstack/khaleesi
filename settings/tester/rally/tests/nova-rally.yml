@@ -1,4 +1,3 @@
-{% set image_name = "^(cirros.*uec|TestVM)$" %}
 tester:
     rally:
         task:
@@ -24,7 +23,7 @@ tester:
                 flavor:
                   name: "m1.tiny"
                 image:
-                  name: {{image_name}}
+                  name: "{{ !lookup tester.guest_images.name }}"
               runner:
                 type: "constant"
                 times: 2
@@ -51,7 +50,7 @@ tester:
                   flavor:
                     name: "m1.tiny"
                   image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
                   servers_per_tenant: 2
               sla:
                 failure_rate:
@@ -95,7 +94,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
               runner:
                 type: "constant"
                 times: 2
@@ -113,7 +112,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
               runner:
                 type: "constant"
                 times: 2
@@ -131,7 +130,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
                 force_delete: true
               runner:
                 type: "constant"
@@ -151,7 +150,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
                 detailed: True
               runner:
                 type: "constant"
@@ -171,7 +170,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
               runner:
                 type: "constant"
                 times: 2
@@ -190,7 +189,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
               runner:
                 type: "constant"
                 times: 2
@@ -209,7 +208,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
               runner:
                 type: "constant"
                 times: 2
@@ -228,9 +227,9 @@ tester:
                 flavor:
                   name: "m1.tiny"
                 from_image:
-                  name: {{image_name}}
+                  name: "{{ !lookup tester.guest_images.name }}"
                 to_image:
-                  name: {{image_name}}
+                  name: "{{ !lookup tester.guest_images.name }}"
               runner:
                 type: "constant"
                 times: 2
@@ -249,7 +248,7 @@ tester:
                 flavor:
                   name: "m1.tiny"
                 image:
-                  name: {{image_name}}
+                  name: "{{ !lookup tester.guest_images.name }}"
               runner:
                 type: "constant"
                 times: 2
@@ -279,7 +278,7 @@ tester:
                   flavor:
                       name: "m1.tiny"
                   image:
-                      name: {{image_name}}
+                      name: "{{ !lookup tester.guest_images.name }}"
                   servers_per_tenant: 2
                 network:
                   networks_per_tenant: 2
@@ -293,7 +292,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
                 to_flavor:
                     name: "m1.small"
                 confirm: true
@@ -315,7 +314,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
                 actions:
                   -
                     hard_reboot: 1
@@ -341,7 +340,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
               runner:
                 type: "constant"
                 times: 2
@@ -360,7 +359,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
                 volume_size: 1
               runner:
                 type: "constant"
@@ -380,7 +379,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
                 volume_size: 1
               runner:
                 type: "constant"
@@ -401,7 +400,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
               runner:
                 type: "constant"
                 times: 2
@@ -420,7 +419,7 @@ tester:
                 flavor:
                     name: "^ram64$"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
                 auto_assign_nics: false
               runner:
                 type: "constant"
@@ -442,7 +441,7 @@ tester:
                 flavor:
                     name: "m1.tiny"
                 image:
-                    name: {{image_name}}
+                    name: "{{ !lookup tester.guest_images.name }}"
               runner:
                 type: "constant"
                 times: 2
@@ -550,7 +549,7 @@ tester:
                 flavor:
                   name: "m1.tiny"
                 image:
-                  name: {{image_name}}
+                  name: "{{ !lookup tester.guest_images.name }}"
                 security_group_count: 5
                 rules_per_security_group: 5
               runner:
@@ -619,7 +618,7 @@ tester:
                 flavor:
                   name: "m1.tiny"
                 image:
-                  name: {{image_name}}
+                  name: "{{ !lookup tester.guest_images.name }}"
               runner:
                 type: "constant"
                 times: 2
@@ -638,7 +637,7 @@ tester:
                 flavor:
                   name: "m1.tiny"
                 image:
-                  name: {{image_name}}
+                  name: "{{ !lookup tester.guest_images.name }}"
                 key_type: "x509"
               runner:
                 type: "constant"
@@ -663,7 +662,7 @@ tester:
                 flavor:
                   name: "m1.tiny"
                 image:
-                  name: {{image_name}}
+                  name: "{{ !lookup tester.guest_images.name }}"
                 count: 5
               runner:
                 type: "constant"
@@ -712,7 +711,7 @@ tester:
                 flavor:
                   name: "m1.tiny"
                 image:
-                  name: {{image_name}}
+                  name: "{{ !lookup tester.guest_images.name }}"
                 floating_network: "public"
                 use_floatingip: true
                 command:
@@ -747,7 +746,7 @@ tester:
                 flavor:
                   name: "m1.tiny"
                 image:
-                  name: {{image_name}}
+                  name: "{{ !lookup tester.guest_images.name }}"
                 volume_args:
                     size: 2
                 use_floatingip: true
@@ -772,7 +771,7 @@ tester:
                 flavor:
                   name: "m1.tiny"
                 image:
-                  name: {{image_name}}
+                  name: "{{ !lookup tester.guest_images.name }}"
                 use_floatingip: false
                 command:
                   script_file: "~/.rally/extra/instance_dd_test.sh"

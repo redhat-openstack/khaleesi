@@ -89,10 +89,9 @@ tester:
                   max: 0
 
           ManilaShares.create_security_service_and_delete:
-          {% for s in ("ldap", "kerberos", "active_directory") %}
             -
               args:
-                security_service_type: {{s}}
+                security_service_type: "kerberos"
                 dns_ip: "fake_dns_ip"
                 server: "fake-server"
                 domain: "fake_domain"
@@ -111,13 +110,11 @@ tester:
               sla:
                 failure_rate:
                   max: 0
-          {% endfor %}
 
           ManilaShares.attach_security_service_to_share_network:
-          {% for s in ("ldap", "kerberos", "active_directory") %}
             -
               args:
-                security_service_type: {{s}}
+                security_service_type: "kerberos"
               runner:
                 type: "constant"
                 times: 10
@@ -132,4 +129,3 @@ tester:
               sla:
                 failure_rate:
                   max: 0
-          {% endfor %}
