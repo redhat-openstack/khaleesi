@@ -7,6 +7,8 @@ provisioner:
         remote_user: centos}
       '7.1': {id: c064b47b-f1a3-47cc-8634-c774f4023fcc, name: CentOS-7.1.1503-x86_64-GenericCloud,
         remote_user: centos}
+      '7': {id: c064b47b-f1a3-47cc-8634-c774f4023fcc, name: CentOS-7.1.1503-x86_64-GenericCloud,
+        remote_user: centos}
     fedora:
       '19': {id: 470965f4-8c50-4803-818d-cf8f6dfbbf78, name: fedora-19_jeos, remote_user: fedora}
       '20': {id: f7012a55-1969-413c-a362-47d773f1d667, name: fedora-20_jeos, remote_user: fedora}

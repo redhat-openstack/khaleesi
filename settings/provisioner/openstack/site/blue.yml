@@ -19,6 +19,8 @@ provisioner:
       centos:
         '7.0': {id: 58059085-6af7-4d9c-9d35-b83dec39c5bc, name: CentOS-7-x86_64-GenericCloud-1503,
           remote_user: centos}
+        '7': {id: 58059085-6af7-4d9c-9d35-b83dec39c5bc, name: CentOS-7-x86_64-GenericCloud-1503,
+          remote_user: centos}
       fedora:
         '20': {id: 144c3661-ea76-4607-ba5f-c3e97fd5869b, name: fedora20_64, remote_user: fedora}
         '21': {id: 58428022-1ff8-4807-8e8a-e03dbb49ae51, name: Fedora21_Cloud-Base-20141203-21.x86_64.qcow2, remote_user: fedora}

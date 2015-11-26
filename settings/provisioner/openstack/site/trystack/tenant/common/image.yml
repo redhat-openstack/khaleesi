@@ -10,6 +10,10 @@ provisioner:
         name: Fedora 20 x86_64
         id: d281ed21-e336-4842-a56a-7274e8ca3a85
     centos:
+      "7":
+        remote_user: centos
+        name: centos7
+        id: 57332ce0-43b6-4e81-891d-55cb481f45ed
       "7.0":
         remote_user: centos
         name: centos7
