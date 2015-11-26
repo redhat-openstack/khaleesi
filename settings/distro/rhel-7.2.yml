@@ -12,7 +12,5 @@ distro:
         rhpkg: "{{ !lookup private.distro.rhel.download_server }}/rel-eng/dist-git/rhel/rhpkg.repo"
 
 workarounds:
-    bz1262357:
-        enabled: true
     rhbz1265306:
         enabled: true
