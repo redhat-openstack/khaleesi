@@ -1,18 +1,4 @@
 ---
-installer:
-    validate:
-        tenant_network_name: private
-        router_name: ext-to-int
-        admin_username: admin
-        admin_tenant_name: admin
-        admin_password: redhat
-        keystone_endpoint: http://127.0.0.1:5000/v2.0/
-        instance_name: khaleesi
-        image:
-            user: cirros
-            id: cirros
-    network:
-        name: public
 provisioner:
     nodes:
         controller: &controller

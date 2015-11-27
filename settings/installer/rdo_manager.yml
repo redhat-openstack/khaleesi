@@ -11,6 +11,7 @@ installer:
         admin_password: redhat
         keystone_endpoint: http://127.0.0.1:5000/v2.0/
         instance_name: khaleesi
+        key_name: instance-key
         image:
             user: !lookup distro.images.fedora.21.remote_user
             url: !lookup distro.images.fedora.21.remote_file_server
