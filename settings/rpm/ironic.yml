@@ -1,0 +1,14 @@
+gating_repo: "openstack-ironic"
+patch:
+  upstream:
+    name: "upstream-ironic"
+    url: "https://git.openstack.org/openstack/ironic"
+  gerrit:
+    name: "gerrit-openstack-ironic"
+    url: "{{ !lookup private.building.repos.gerrit }}ironic"
+    branch: "{{ lookup('env', 'GERRIT_BRANCH') }}"
+    refspec: "{{ lookup('env', 'GERRIT_REFSPEC') }}"
+  dist_git:
+    name: "openstack-ironic"
+    url: "{{ !lookup private.building.repos.dist_git }}openstack-ironic"
+    use_director: False
