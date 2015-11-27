@@ -7,36 +7,18 @@
             installer.updates.enabled|bool
 
 - name: Update the Undercloud
+  gather_facts: no
   hosts: update:!overcloud
-  sudo: yes
   tasks:
     - name: repolist
+      sudo: yes
       command: yum -d 7 repolist
 
-    - name: stop OS services - BZ 1257642
-      service: name={{ item }} state=stopped
-      with_items:
-        - openstack-nova-api.service
-        - openstack-nova-compute.service
-        - openstack-ironic-api.service
-        - openstack-ironic-discoverd.service
-        - openstack-ironic-conductor.service
-
     - name: update packages
+      sudo: yes
       register: yum_update_result
       yum: name=* state=latest
 
     - name: fail when no package has been updated
       fail: msg="Failed, no package has been updated on the undercloud"
       when: not yum_update_result.changed|bool
-
-    - name: reboot host
-      local_action:
-        wait_for_ssh
-          reboot_first=true
-          host="{{ ansible_ssh_host }}"
-          user="stack"
-          ssh_opts="-F {{ base_dir }}/khaleesi/ssh.config.ansible"
-          key="{{ ansible_ssh_private_key_file }}"
-          timeout=900
-          sudo=true

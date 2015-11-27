@@ -1,19 +1,26 @@
 #!/bin/bash
 
-export UPDATE_COMMAND="/usr/bin/yes '' | openstack overcloud update stack -i overcloud"
+export UPDATE_COMMAND="/usr/bin/yes '' | openstack overcloud update stack -i overcloud --debug"
 
 {% if installer.deploy.type == 'plan' %}
 export UPDATE_COMMAND="$UPDATE_COMMAND --plan {{ overcloud_uuid }}"
 {% endif %}
 
 {% if installer.deploy.type == 'templates' %}
-export UPDATE_COMMAND="$UPDATE_COMMAND --templates /usr/share/openstack-tripleo-heat-templates "
+export UPDATE_COMMAND="$UPDATE_COMMAND --templates /usr/share/openstack-tripleo-heat-templates -e /usr/share/openstack-tripleo-heat-templates/overcloud-resource-registry-puppet.yaml "
 {% endif %}
 
 {% if installer.network.isolation != 'none' %}
-export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/network-environment.yaml "
+export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml "
+export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml "
 {% endif %}
 
 {% if installer.network.isolation != 'none' and installer.deploy.type == 'plan' %}
 export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/plan-parameter-neutron-bridge.yaml "
+{% endif %}
+# Workaround : BZ 1272347
+export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/upgrade.yml "
+
+{% if installer.network.isolation != 'none' %}
+export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/network-environment.yaml "
 {% endif %}

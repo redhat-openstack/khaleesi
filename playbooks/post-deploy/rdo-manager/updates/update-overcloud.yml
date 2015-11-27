@@ -6,15 +6,72 @@
       when: installer.updates is defined and
             installer.updates.enabled|bool
 
+- name: Fetch updates files
+  hosts: update:!overcloud
+  tasks:
+    - name: fetch 55-heat-config script BZ 1278181
+      fetch:
+        src: "/usr/share/openstack-heat-templates/software-config/elements/heat-config/os-refresh-config/configure.d/55-heat-config"
+        dest: "{{ lookup('env', 'PWD') }}/55-heat-config"
+        flat: yes
+      when: workarounds | bug('rhbz1278181')
+
 - name: Dump packages list
   hosts: update:!undercloud
   tasks:
     - name: dump package list
       shell: rpm -qa &> {{ ansible_ssh_host }}-rpm.log
 
+    - name: copy file to node BZ 1278181
+      sudo: yes
+      copy:
+        src: "{{ lookup('env', 'PWD') }}/55-heat-config"
+        dest: "/usr/libexec/os-refresh-config/configure.d/55-heat-config"
+        mode: 755
+      when: workarounds | bug('rhbz1278181')
+
+    - name: set default route
+      sudo: yes
+      shell: >
+        echo 'default via 192.0.2.1 dev br-ex' &> /etc/sysconfig/network-scripts/route-eth0
+      when: installer.network.isolation != 'none'
+
 - name: Update the Overcloud
   hosts: update:!overcloud
   tasks:
+    - name: set vlan up
+      ignore_errors: yes
+      sudo: yes
+      shell: >
+        sudo ip l set dev vlan10 up
+      when: installer.network.isolation != 'none'
+
+    - name: get external subnet
+      register: external_subnet_id
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        neutron net-list | grep external | awk '{ print $6; }'
+      when: installer.network.isolation != 'none'
+
+    - name: set routes for external subnet
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        neutron subnet-update {{ external_subnet_id.stdout }} --host_routes type=dict list=true destination=172.16.23.0/24,nexthop=0.0.0.0
+      when: installer.network.isolation != 'none'
+
+    - name: get ctlplane subnet
+      register: ctlplane_subnet_id
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        neutron net-list | grep ctlplane | awk '{ print $6; }'
+      when: installer.network.isolation != 'none'
+
+    - name: set routes for ctlplane subnet
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        neutron subnet-update {{ ctlplane_subnet_id.stdout }} --host_routes type=dict list=true destination=0.0.0.0/24,nexthop=192.0.2.1
+      when: installer.network.isolation != 'none'
+
     - name: get plan list
       register: overcloud_uuid_result
       shell: >
@@ -26,6 +83,13 @@
       set_fact:
         overcloud_uuid: "{{ overcloud_uuid_result.stdout }}"
       when: installer.deploy.type == 'plan'
+
+    - name: copy template file for update overcloud workaround BZ 1272347
+      template:
+        src=templates/upgrade.yml.j2
+        dest={{ instack_user_home }}/upgrade.yml
+        mode=0755
+      when: workarounds | bug('rhbz1272347')
 
     - name: copy template file for update overcloud
       template:
@@ -48,20 +112,16 @@
           export HEAT_INCLUDE_PASSWORD=1;
           {{ overcloud_update_command.stdout }} &> update_overcloud_console.log
 
-    - name: check update status
+    - name: heat stack-list
       register: update_status
+      ignore_errors: yes
       shell: >
-        cat update_overcloud_console.log | grep 'COMPLETE'
+          source {{ instack_user_home }}/stackrc;
+          heat stack-list | grep 'UPDATE_COMPLETE'
 
     - name: fail when status is not COMPLETE
       fail: msg="Overcloud update failed"
       when: update_status.rc != 0
-
-    - name: heat stack-list
-      ignore_errors: yes
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          heat stack-list
 
 - name: Check update status
   hosts: update:!undercloud
@@ -80,4 +140,3 @@
     - name: fail when rpm list checksum are equal
       fail: msg="Failed, no package has been updated..."
       when: rpm_list_result.stat.checksum == rpm_list_updated_result.stat.checksum
-

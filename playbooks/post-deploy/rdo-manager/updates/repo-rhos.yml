@@ -12,7 +12,7 @@
   tasks:
     - name: update dns server
       sudo: yes
-      lineinfile: regexp="nameserver" line="nameserver {{ distro.config.dns_servers[0] }}" dest="/etc/resolv.conf"
+      lineinfile: regexp="nameserver" line="nameserver {{ hw_env.dns_server }}" dest="/etc/resolv.conf"
 
 - name: Update yum repo
   hosts: update
@@ -27,24 +27,20 @@
         register: target_puddle
         when: installer.updates.repo_type == 'puddle'
 
-      - name: Execute rhos-release for pinned osp-director poodle (osp)
-        command: "rhos-release -d -p {{ installer.updates.target_pin_version }} {{ installer.updates.target_full_version }}"
-        register: target_puddle
-        when: installer.updates.repo_type == 'poodle'
-
       - name: Execute rhos-release for core rhos puddle (osp)
         command: "rhos-release -p {{ installer.updates.target_pin_version }} {{ installer.updates.target_core_product_version }}"
         register: pinned_puddle
         when: installer.updates.repo_type == 'puddle'
 
-      - name: Execute rhos-release for core rhos poodle (osp)
-        command: "rhos-release -d -p {{ installer.updates.target_pin_version }} {{ installer.updates.target_core_product_version }}"
-        register: pinned_puddle
-        when: installer.updates.repo_type== 'poodle'
-
       - name: Execute rhos-release for osp-director puddle (osp)
-        command: "rhos-release {{ installer.updates.target_full_version }}"
+        command: "rhos-release -P {{ installer.updates.target_full_version }}"
         when: installer.updates.repo_type == 'puddle'
+
+
+      - name: Execute rhos-release for pinned osp-director poodle (osp)
+        command: "rhos-release -d -p {{ installer.updates.target_pin_version }} {{ installer.updates.target_full_version }}"
+        register: target_poodle
+        when: installer.updates.repo_type == 'poodle'
 
       - name: Execute rhos-release for osp-director poodle (osp)
         command: "rhos-release -d {{ installer.updates.target_full_version }}"

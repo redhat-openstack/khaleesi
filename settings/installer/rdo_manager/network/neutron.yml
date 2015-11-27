@@ -5,6 +5,7 @@ installer:
         label: &network_label myphysnet
         auto_assign_floating_ip: false
         name: nova
+        overcloud_dns: 192.168.122.1
         external:
             vlan:
                 tag: ''

@@ -3,5 +3,8 @@ installer:
         name: rdo
         enabled: true
 
+#required to not pre-update in repo-rdo.yml
+yum_update: false
+
 defaults:
     version: latest
