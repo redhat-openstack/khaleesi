@@ -6,10 +6,10 @@
       sudo: yes
       yum: name=ahc-tools state=present
 
-    - name: copy configuration from discoverd
+    - name: copy configuration from inspector
       sudo: yes
       shell: >
-          sed 's/\[discoverd/\[ironic/' /etc/ironic-discoverd/discoverd.conf | sudo tee /etc/ahc-tools/ahc-tools.conf > /dev/null;
+          sed 's/\[inspector/\[ironic/' /etc/ironic-inspector/inspector.conf | sudo tee /etc/ahc-tools/ahc-tools.conf > /dev/null;
           chmod 0600 /etc/ahc-tools/ahc-tools.conf
 
     - name: create edeploy state file
