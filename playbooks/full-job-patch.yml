@@ -32,12 +32,12 @@
     - name: Setup repository for patched rpm
       sudo: yes
       template: "src={{ lookup('env', 'PWD') }}/roles/patch_rpm/templates/patched_rpms.j2 dest=/etc/yum.repos.d/patched_rpms.repo"
-      when: hostvars["localhost"].rpm_build_rc == 0
+      when: "{{ hostvars['localhost'].rpm_build_rc }} == 0"
 
     - name: Create local repo for patched rpm
       sudo: yes
       shell: "createrepo /home/{{ ansible_ssh_user }}/dist-git/{{ patch.dist_git.name }}"
-      when: hostvars["localhost"].rpm_build_rc == 0
+      when: "{{ hostvars['localhost'].rpm_build_rc }} == 0"
 
 - include: install.yml
 - include: test.yml
