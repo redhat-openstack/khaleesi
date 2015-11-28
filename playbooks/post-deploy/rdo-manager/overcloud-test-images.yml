@@ -1,0 +1,31 @@
+---
+- name: set fact for validation
+  hosts: undercloud
+  tasks:
+    - name: set fact stack user home
+      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
+
+    - name: set fact instack rc filename
+      set_fact: instack_rc_filename=overcloudrc
+
+    - name: get admin password
+      register: get_admin_password_result
+      shell: >
+            grep 'OS_PASSWORD' {{ instack_user_home }}/{{ instack_rc_filename }} | cut -d '=' -f2
+
+    - name: get auth url
+      register: get_auth_url_result
+      shell: >
+            grep 'OS_AUTH_URL' {{ instack_user_home }}/{{ instack_rc_filename }} | cut -d '=' -f2
+
+    - name: admin pass
+      set_fact: admin_password={{ get_admin_password_result.stdout }}
+
+    - name: auth url
+      set_fact: keystone_endpoint={{ get_auth_url_result.stdout }}
+
+- name: upload cirros test images to glance
+  hosts: undercloud
+  gather_facts: false
+  roles:
+    - images/cirros

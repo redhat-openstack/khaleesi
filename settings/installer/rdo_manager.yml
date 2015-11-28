@@ -17,6 +17,14 @@ installer:
             id: !lookup distro.images.fedora.21.guest_image_name
     tempest:
         dir: tempest
+        cirros:
+            name: cirros-0.3.4-x86_64-disk.img
+            url: http://download.cirros-cloud.net/0.3.4/
+            id: cirros-0.3.4-x86_64-disk.img
+        cirros_alt:
+            name: cirros-0.3.4-x86_64-disk.img_alt
+            url: http://download.cirros-cloud.net/0.3.4/
+            id: cirros-0.3.4-x86_64-disk.img_alt
     dib_dir: /home/{{ !lookup provisioner.remote_user }}/DIB
 
 provisioner:
