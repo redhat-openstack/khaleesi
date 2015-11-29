@@ -1,9 +1,0 @@
-- name: Install openstack-neutron-vpnaas
-  sudo: yes
-  yum: pkg=openstack-neutron-vpnaas state=latest
-
-- name: Add vpnaas to neutron configuration file
-  sudo: yes
-  notify:
-    - restart neutron-server
-  shell: sed -i '/^service_plugins/ s/$/,neutron.services.vpn.plugin.VPNDriverPlugin/' /etc/neutron/neutron.conf

@@ -43,8 +43,3 @@
             echo "export OS_PASSWORD=secrete" >> ~/.bash_profile;
             echo "export OS_TENANT_NAME=demo" >> ~/.bash_profile;
             echo "export OS_AUTH_URL=http://127.0.0.1:5000/v2.0" >> ~/.bash_profile
-
-- name: Install vpnaas
-  hosts: controller
-  roles:
-    - component-test/neutron/vpnaas

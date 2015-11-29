@@ -1,4 +1,0 @@
----
-- name: restart neutron-server
-  sudo: yes
-  service: name=neutron-server state=restarted
