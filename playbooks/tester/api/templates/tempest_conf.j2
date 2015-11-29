@@ -22,12 +22,42 @@ admin_password = {{ hostvars[provisioner.nodes.controller.name].admin_password|d
 uri_v3 = http://{{ hostvars[provisioner.nodes.controller.name].ansible_default_ipv4.address }}:5000/v3/
 
 [oslo_concurrency]
-lock_path = ~
+lock_path = /tmp
+
+[volume-feature-enabled]
+bootable = true
+api_extensions = OS-SCH-HNT,os-hosts,os-vol-tenant-attr,os-quota-sets,os-types-manage,os-volume-encryption-metadata,os-volume-replication,os-snapshot-actions,backups,os-volume-actions,os-used-limits,os-volume-type-access,consistencygroups,os-vol-host-attr,encryption,os-availability-zone,cgsnapshots,os-types-extra-specs,os-vol-mig-status-attr,os-volume-unmanage,os-volume-manage,os-image-create,os-extended-services,os-extended-snapshot-attributes,qos-specs,os-quota-class-sets,os-volume-transfer,os-vol-image-meta,os-admin-actions,os-services,scheduler-stats
+api_v1 = True
+api_v2 = True
+
+[compute-feature-enabled]
+live_migration = false
+live_migrate_paused_instances = true
+preserve_ports = true
+api_extensions = NMN,OS-DCF,OS-EXT-AZ,OS-EXT-IMG-SIZE,OS-EXT-IPS,OS-EXT-IPS-MAC,OS-EXT-SRV-ATTR,OS-EXT-STS,OS-EXT-VIF-NET,OS-FLV-DISABLED,OS-FLV-EXT-DATA,OS-SCH-HNT,OS-SRV-USG,os-admin-actions,os-agents,os-aggregates,os-assisted-volume-snapshots,os-attach-interfaces,os-availability-zone,os-baremetal-ext-status,os-baremetal-nodes,os-block-device-mapping-v2-boot,os-cell-capacities,os-cells,os-certificates,os-cloudpipe,os-cloudpipe-update,os-config-drive,os-console-auth-tokens,os-console-output,os-consoles,os-create-server-ext,os-deferred-delete,os-evacuate,os-extended-evacuate-find-host,os-extended-floating-ips,os-extended-hypervisors,os-extended-networks,os-extended-quotas,os-extended-rescue-with-image,os-extended-services,os-extended-services-delete,os-extended-volumes,os-fixed-ips,os-flavor-access,os-flavor-extra-specs,os-flavor-manage,os-flavor-rxtx,os-flavor-swap,os-floating-ip-dns,os-floating-ip-pools,os-floating-ips,os-floating-ips-bulk,os-fping,os-hide-server-addresses,os-hosts,os-hypervisor-status,os-hypervisors,os-instance-actions,os-instance_usage_audit_log,os-keypairs,os-migrations,os-multiple-create,os-networks,os-networks-associate,os-preserve-ephemeral-rebuild,os-quota-class-sets,os-quota-sets,os-rescue,os-security-group-default-rules,os-security-groups,os-server-diagnostics,os-server-external-events,os-server-group-quotas,os-server-groups,os-server-list-multi-status,os-server-password,os-server-sort-keys,os-server-start-stop,os-services,os-shelve,os-simple-tenant-usage,os-tenant-networks,os-used-limits,os-used-limits-for-admin,os-user-data,os-user-quotas,os-virtual-interfaces,os-volume-attachment-update,os-volumes
+
+[network-feature-enabled]
+ipv6_subnet_attributes = true
+api_extensions = ext-gw-mode,binding,metering,agent,subnet_allocation,l3_agent_scheduler,external-net,fwaasrouterinsertion,net-mtu,quotas,l3-ha,provider,multi-provider,lbaas,extraroute,lbaas_agent_scheduler,fwaas,router,extra_dhcp_opt,service-type,security-group,dhcp_agent_scheduler,port-security,allowed-address-pairs,dvr
+
+[telemetry-feature-enabled]
+events = true
 
 [service_available]
-{{ tester.component.name }} = True
+neutron=True
+nova=True
+cinder=True
+glance=True
+
+[image-feature-enabled]
+api_v1 = True
+api_v2 = True
+
+[identity-feature-enabled]
+api_v2 = True
+api_v3 = True
+
+[boto]
+ec2_url = http://{{ hostvars[provisioner.nodes.controller.name].ansible_default_ipv4.address }}:8773/services/Cloud
 
 [network]
-default_network = 10.0.0.0/24
-tenant_networks_reachable = false
-api_version = 2.0
