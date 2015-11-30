@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: ironic
+        short_name: irnc
+        dir: !join [ !env PWD, /../ironic]
+        dist_git: openstack-ironic
+        codeng: ironic
+        config_file: jenkins-config.yml
