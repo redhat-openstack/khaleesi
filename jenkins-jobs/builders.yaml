@@ -121,7 +121,6 @@
                     --product={product} \
                     --product-version={product-version} \
                     --product-version-repo={product-version-repo} \
-                    --product-version-build={pin} \
                     --distro={distro} \
                     --installer={installer} \
                     --installer-network={network} \
