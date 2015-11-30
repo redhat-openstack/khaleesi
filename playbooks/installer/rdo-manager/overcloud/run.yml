@@ -102,11 +102,32 @@
       local_action: shell pushd {{ base_dir }}/khaleesi; rsync --delay-updates -F --compress --archive --rsh "ssh -F ssh.config.ansible -S none -o StrictHostKeyChecking=no" {{base_dir}}/khaleesi-settings/hardware_environments/common/plan-parameter-neutron-bridge.yaml undercloud:{{ instack_user_home }}/plan-parameter-neutron-bridge.yaml
       when: installer.network.isolation != 'none' and installer.env.type == "virthost" and installer.deploy.type == 'plan'
 
-    - name: copy over nic-configs default directory
+    - name: make a nic-configs dir
       shell: >
-        mkdir {{ instack_user_home }}/nic-configs;
+        mkdir {{ instack_user_home }}/nic-configs
+      when: installer.network.isolation != 'none'
+
+    - name: copy over standard nic-configs default directory
+      shell: >
         cp /usr/share/openstack-tripleo-heat-templates/network/config/{{ installer.network.isolation | replace('_', '-') }}/*.yaml {{ instack_user_home }}/nic-configs
       when: installer.network.isolation != 'none' and installer.network.isolation != 'default'
+
+    - name: check if env-specific nic-configs exist
+      local_action: stat path={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation }}/nic-configs/
+      register: nic_config_dir
+      when: installer.network.isolation != 'none' and installer.env.type != 'virthost'
+
+    - name: copy nic-configs saved version if available
+      synchronize: >
+        src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation }}/nic-configs/{{ item }}.yaml
+        dest={{ instack_user_home }}/nic-configs
+      with_items:
+        - controller
+        - compute
+        - ceph-storage
+        - cinder-storage
+        - swift-storage
+      when: installer.network.isolation != 'none' and installer.env.type != "virthost" and nic_config_dir.stat.exists == True
 
     - name: poll for files to exist
       wait_for: path={{ instack_user_home }}/nic-configs/swift-storage.yaml
@@ -151,7 +172,7 @@
     - name: check that param.ini file exists
       local_action: wait_for path="{{ base_dir }}/param.ini"
 
-    - name: add oter variables to param.ini file
+    - name: add other variables to param.ini file
       local_action: shell echo -e "PARENT_WORKSPACE_DIR={{ base_dir }}\nREMOTE_FILE_SERVER={{ installer.custom_deploy.image.remote_file_server }}\nIMAGE_NAME={{ installer.custom_deploy.image.name }}\nPROVISION_CIDR={{ installer.custom_deploy.host_cloud_networks.provision.cidr }}\nPRIVATE_CIDR={{ installer.custom_deploy.host_cloud_networks.private.cidr }}\nPUBLIC_CIDR={{ installer.custom_deploy.host_cloud_networks.public.cidr }}" >> {{ base_dir }}/param.ini
 
     - name: get ctlplane subnet uuid
@@ -206,20 +227,20 @@
         source {{ instack_user_home }}/stackrc;
         neutron subnet-list | grep {{ hw_env.network }} | sed -e 's/|//g' | awk '{print $1}'
       register: subnet_uuid
-      when: hw_env.env_type is defined and hw_env.env_type == 'ovb_host_cloud'
+      when: hw_env.env_type is defined and hw_env.env_type in ['ovb_host_cloud', 'scale_lab']
 
     - name: get nameserver
       shell: >
         cat /etc/resolv.conf | grep -m 1 'nameserver' | sed -n -e 's/^.*nameserver //p'
       register: nameserver
       sudo: yes
-      when: hw_env.env_type is defined and hw_env.env_type == 'ovb_host_cloud'
+      when: hw_env.env_type is defined and hw_env.env_type in ['ovb_host_cloud', 'scale_lab']
 
     - name: configure a nameserver for the overcloud
       shell: >
         source {{ instack_user_home }}/stackrc;
         neutron subnet-update {{ subnet_uuid.stdout }} --dns-nameserver {{ nameserver.stdout }}
-      when: hw_env.env_type is defined and hw_env.env_type == 'ovb_host_cloud'
+      when: hw_env.env_type is defined and hw_env.env_type in ['ovb_host_cloud', 'scale_lab']
 
 
     - name: get plan list

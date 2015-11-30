@@ -44,6 +44,34 @@
       lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#local_interface line=local_interface={{ hw_env.answers_local_interface }}
       when: conf_file_present.stat.exists == True
 
+    - name: edit undercloud.conf file - dhcp_start
+      lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#dhcp_start line=dhcp_start={{ hw_env.dhcp_start }}
+      when: conf_file_present.stat.exists == True and hw_env.dhcp_start is defined
+
+    - name: edit undercloud.conf file - dhcp_end
+      lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#dhcp_end line=dhcp_end={{ hw_env.dhcp_end }}
+      when: conf_file_present.stat.exists == True and hw_env.dhcp_end is defined
+
+    - name: edit undercloud.conf file - discovery_iprange
+      lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#discovery_iprange line=discovery_iprange={{ hw_env.discovery_iprange }}
+      when: conf_file_present.stat.exists == True and hw_env.discovery_iprange is defined
+
+    - name: edit undercloud.conf file - network_gateway
+      lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#network_gateway line=network_gateway={{ hw_env.undercloud_network_gateway }}
+      when: conf_file_present.stat.exists == True and hw_env.undercloud_network_gateway is defined
+
+    - name: edit undercloud.conf file - local_ip
+      lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#local_ip line=local_ip={{ hw_env.undercloud_local_ip }}
+      when: conf_file_present.stat.exists == True and hw_env.undercloud_local_ip is defined
+
+    - name: edit undercloud.conf file - undercloud_public_vip
+      lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#undercloud_public_vip line=undercloud_public_vip={{ hw_env.undercloud_public_vip }}
+      when: conf_file_present.stat.exists == True and hw_env.undercloud_public_vip is defined
+
+    - name: edit undercloud.conf file - undercloud_admin_vip
+      lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#undercloud_admin_vip line=undercloud_admin_vip={{ hw_env.undercloud_admin_vip }}
+      when: conf_file_present.stat.exists == True and hw_env.undercloud_admin_vip is defined
+
     - name: edit undercloud.conf file - network
       shell: >
         sed -i 's/192.0.2/{{ hw_env.network }}/g' {{ instack_user_home }}/undercloud.conf;
@@ -78,6 +106,12 @@
     - name: add short and full hostname to /etc/hosts
       shell: "sed -i 's/localhost4.localdomain4/localhost4.localdomain4 {{ short_hostname.stdout }} {{ full_hostname.stdout }} {{ short_hostname.stdout }}.{{ search_domain.stdout }}/g' /etc/hosts"
       sudo: yes
+
+    - name: add images and templates folders
+      shell: >
+        mkdir {{ instack_user_home }}/images;
+        mkdir {{ instack_user_home }}/templates
+      when: hw_env.env_type == 'scale_lab'
 
     - name: copy instackenv.json to nodes.json
       shell: cp {{ instack_user_home }}/instackenv.json {{ instack_user_home }}/nodes.json

@@ -1,0 +1,13 @@
+--- !extends:minimal.yml
+installer:
+    topology_name: minimal_ha_no_ceph_six_compute
+    post_action:
+        - ha_fencing
+    nodes:
+        node_count: 9
+        controller:
+            scale: 3
+        compute:
+            scale: 6
+        cephstorage:
+            scale: 0
