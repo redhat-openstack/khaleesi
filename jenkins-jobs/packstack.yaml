@@ -13,6 +13,7 @@
             product: '{product}'
             product-version: '{product-version}'
             product-version-repo: '{product-version-repo}'
+            pin: '{pin}'
             distro: '{distro}'
             installer: '{installer}'
             network: '{network}'
@@ -29,6 +30,7 @@
     product: rdo
     product-version: liberty
     product-version-repo: production
+    pin: last_known_good
     distro: centos-7.0
     provisioner-distro: centos
     provisioner-distro-version: 7
