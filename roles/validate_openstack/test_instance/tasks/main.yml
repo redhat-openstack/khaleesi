@@ -92,6 +92,9 @@
            -i ~/"{{ installer.validate.instance_name }}"
            "{{ installer.validate.image.user }}"@"{{ floating_ip.public_ip }}" uname -a
   register: ssh_result
+  until: ssh_result.stdout.find("Linux khaleesi") != -1
+  retries: 6
+  delay: 30
 
 - name: print result of ssh
   debug: var=ssh_result.stdout_lines
