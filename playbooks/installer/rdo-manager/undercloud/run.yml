@@ -97,7 +97,7 @@
     - name: set selinux to permissive for ospd-8 (workaround bug bz 1284133)
       selinux: policy=targeted state=permissive
       sudo: yes
-      when: (workarounds['rhbz1284133']['enabled'] is defined and workarounds['rhbz1284133']['enabled'] | bool)
+      when: (workarounds['rhbz1280101']['enabled'] is defined and workarounds['rhbz1280101']['enabled'] | bool)
 
     - name: update hosts file for localhost.localhost (workaround for puppet, discovered on centos7)
       lineinfile: dest=/etc/hosts line="127.0.0.1   localhost localhost.localhost"
@@ -232,7 +232,20 @@
         chmod 755 {{ instack_user_home }}/vendor_specific_setup;
         {{ instack_user_home }}/vendor_specific_setup
 
-- name: create the requisite networks for network isolation
+- name: setup networking on virt for network isolation
+  hosts: undercloud:&virthost
+  tasks:
+    - name: net-iso virt setup vlans
+      when: installer.network.isolation == 'single_nic_vlans'
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          sudo ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
+          sudo ip l set dev vlan10 up; sudo ip addr add 172.16.23.251/24 dev vlan10;
+
+- name: update neutron values for undercloud
   hosts: undercloud
-  roles:
-    - { role: undercloud_network, when: "product.full_version != '7-director' and installer.network.isolation != 'none'"}
+  tasks:
+    - name: update neutron quota to unlimited
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          neutron quota-update --port -1;

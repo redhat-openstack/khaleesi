@@ -3,3 +3,7 @@
 product:
     short_repo: pu
     repo_type: puddle
+
+workarounds:
+    rhbz1280101:
+        enabled: true

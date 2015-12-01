@@ -5,5 +5,5 @@ product:
     repo_type: poodle
 
 workarounds:
-    rhbz1284133:
+    rhbz1280101:
         enabled: true

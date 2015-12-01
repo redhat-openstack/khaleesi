@@ -159,25 +159,6 @@
     - name: add oter variables to param.ini file
       local_action: shell echo -e "PARENT_WORKSPACE_DIR={{ base_dir }}\nREMOTE_FILE_SERVER={{ installer.custom_deploy.image.remote_file_server }}\nIMAGE_NAME={{ installer.custom_deploy.image.name }}\nPROVISION_CIDR={{ installer.custom_deploy.host_cloud_networks.provision.cidr }}\nPRIVATE_CIDR={{ installer.custom_deploy.host_cloud_networks.private.cidr }}\nPUBLIC_CIDR={{ installer.custom_deploy.host_cloud_networks.public.cidr }}" >> {{ base_dir }}/param.ini
 
-#note this is part of the instructions, not sure if this is a workaround anymore
-- name: setup networking on virt for network isolation
-  hosts: undercloud:&virthost
-  tasks:
-    - name: net-iso virt setup vlans
-      when: installer.network.isolation == 'single_nic_vlans'
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          sudo ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
-          sudo ip l set dev vlan10 up; sudo ip addr add 172.16.23.251/24 dev vlan10;
-
-- name: update neutron values for undercloud
-  hosts: undercloud
-  tasks:
-    - name: update neutron quota to unlimited
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          neutron quota-update --port -1;
-
 - name: deploy the overcloud
   hosts: undercloud
   tasks:
