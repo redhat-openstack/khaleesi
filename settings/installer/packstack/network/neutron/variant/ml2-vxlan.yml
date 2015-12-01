@@ -12,3 +12,4 @@ installer:
             CONFIG_NEUTRON_OVS_TENANT_NETWORK_TYPE: !lookup installer.network.variant
             CONFIG_NEUTRON_OVS_TUNNEL_RANGES: "1:1000"
             CONFIG_NEUTRON_ML2_VNI_RANGES: "10:50000"
+            CONFIG_NEUTRON_OVS_TUNNEL_IF: !overwrite ""
