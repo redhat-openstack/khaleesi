@@ -11,6 +11,7 @@ product:
             Fedora:
                 '20': !join [*fedora_repo_url]
             CentOS:
+                '7': !join [*centos_repo_url]
                 '7.0': !join [*centos_repo_url]
                 '7.0.1406': !join [*centos_repo_url]
                 '7.1.1503': !join [*centos_repo_url]
