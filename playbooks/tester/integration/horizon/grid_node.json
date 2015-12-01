@@ -5,6 +5,12 @@
       "maxInstances": 1,
       "seleniumProtocol": "WebDriver",
       "version": '38'
+    },
+    {
+      "browserName": "chrome",
+      "maxInstances": 1,
+      "seleniumProtocol": "WebDriver",
+      "version": "46"
     }
   ],
   "configuration": {
@@ -12,6 +18,8 @@
     "maxSession": 1,
     "port": 5555,
     "register": true,
-    "registerCycle": 5000
+    "registerCycle": 2000,
+    "nodePolling": 5000,
+    "nodeStatusCheckTimeout": 1000
   }
 }

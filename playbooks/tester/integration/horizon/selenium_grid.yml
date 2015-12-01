@@ -8,10 +8,22 @@
       grid_path: "/opt/selenium-grid"
       grid_node_config: grid_node.json
       grid_hub_config: grid_hub.json
+      webdriver_chrome_zip: /tmp/chrome-webdriver.zip
   tasks:
     - file:
         path: "{{ grid_path }}"
         state: directory
+    - copy:
+        src: google-chrome.repo
+        dest: /etc/yum.repos.d/
+    - yum: name=google-chrome-stable state=installed
+    - get_url:
+        url: "{{ tester.integration.chrome_webdriver_download }}"
+        dest: "{{ webdriver_chrome_zip }}"
+    - unarchive:
+        src: "{{ webdriver_chrome_zip }}"
+        dest: "{{ grid_path }}/"
+        copy: no
     - get_url:
         url: "{{ tester.integration.selenium_grid_download }}"
         dest: "{{ grid_path }}/{{ grid_filename }}"
