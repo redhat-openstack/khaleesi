@@ -79,6 +79,39 @@
       shell: "[[ -f /usr/lib64/sa/sa2 ]] && /usr/lib64/sa/sa2 -A"
       ignore_errors: true
 
+    - name: Search for AVC denied
+      sudo: yes
+      shell: "! grep -i denied /var/log/audit/audit*"
+      register: result
+      ignore_errors: yes
+
+    - name: Publish the count as fact
+      set_fact:
+        selinux_problems_found: "{{ result.stdout_lines }}"
+      ignore_errors: yes
+
+    - name: Search for segfault in logs
+      sudo: yes
+      shell: "! grep -v ansible-command /var/log/messages | grep segfault"
+      register: result
+      ignore_errors: yes
+
+    - name: Publish the count as fact
+      set_fact:
+        segfault_problems_found: "{{ result.stdout_lines }}"
+      ignore_errors: yes
+
+    - name: Publish the count as fact
+      sudo: yes
+      shell: "! grep -v ansible-command /var/log/messages | grep oom-killer"
+      register: result
+      ignore_errors: yes
+
+    - name: Set fact
+      set_fact:
+        oom_killer_problems_found: "{{ result.stdout_lines }}"
+      ignore_errors: yes
+
     - name: erase temporary log directory if exists
       file: path=/tmp/{{ inventory_hostname }} state=absent
       ignore_errors: true
