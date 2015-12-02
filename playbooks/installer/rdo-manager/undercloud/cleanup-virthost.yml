@@ -57,7 +57,6 @@
         yum-complete-transaction;
         yum clean all;
         rm -Rfv /var/cache/yum;
-        rm -Rfv /etc/yum.repos.d/*.repo;
       ignore_errors: true
 
     - name: remove files from /tmp
