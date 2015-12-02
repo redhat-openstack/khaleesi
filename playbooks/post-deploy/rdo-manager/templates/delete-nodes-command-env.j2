@@ -1,3 +1,4 @@
+#!/bin/bash
 export DELETE_COMMAND="openstack overcloud node delete {{ node_id_to_delete.stdout }} --debug {{ installer.deploy.command }} --stack overcloud "
 
 {% if installer.network.isolation != 'none' and installer.env.type != "virthost" %}

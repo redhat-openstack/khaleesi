@@ -1,3 +1,4 @@
+#!/bin/bash
 {% if installer.nodes.compute.scale_change is defined %}
 export NODE_TO_SCALE_PLAN_TYPE={{installer.nodes.compute.type}}-{{installer.nodes.compute.type_number | default('1')}}
 export NODE_SCALE_CHANGE={{installer.nodes.compute.scale_change | int}}

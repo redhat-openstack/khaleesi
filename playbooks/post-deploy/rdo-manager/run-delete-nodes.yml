@@ -54,6 +54,12 @@
       debug: var=node_name_to_delete.stdout
       when: node_type_to_delete is defined
 
+    - name: copy template file with environment variables for nodes
+      template:
+        src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/deploy-nodes.j2
+        dest={{ instack_user_home }}/deploy-nodesrc
+        mode=0755
+
     - name: setup command vars
       template: src=templates/delete-nodes-command-env.j2 dest=~/delete-nodes-command-env mode=0755
       when: node_type_to_delete is defined
@@ -62,6 +68,7 @@
     - name: get command to delete the node by id
       shell: >
         source {{ instack_user_home }}/stackrc;
+        source {{ instack_user_home }}/deploy-nodesrc;
         source {{ instack_user_home }}/delete-nodes-setup-env;
         source {{ instack_user_home }}/delete-nodes-command-env;
         echo $DELETE_COMMAND
@@ -71,6 +78,7 @@
     - name: run command to delete the node by id
       shell: >
         source {{ instack_user_home }}/stackrc;
+        source {{ instack_user_home }}/deploy-nodesrc;
         source {{ instack_user_home }}/delete-nodes-setup-env;
         source {{ instack_user_home }}/delete-nodes-command-env;
         {{ delete_command_output.stdout }} &> overcloud_deployment_delete.log

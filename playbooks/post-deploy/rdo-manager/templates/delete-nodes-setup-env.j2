@@ -1,3 +1,4 @@
+#!/bin/bash
 {% if installer.nodes.compute.scale_change is defined %}
 export NODE_TO_DELETE_TYPE={{installer.nodes.compute.nova_list_type}}
 {%endif %}
