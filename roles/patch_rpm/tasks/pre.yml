@@ -35,6 +35,7 @@
   shell: >
       git remote add -f patches {{ tmp_dir }}/dist-git/{{ patch.gerrit.name }};
       git fetch patches;
+      git fetch patches --tags;
       git branch {{ product.name }}-{{ product.version.major }}.{{ product.version.minor }}-patches patches/gerrit-patch;
       if [ "{{ patch.upstream is defined }}" == "True" ]; then
           git remote add -f upstream {{ tmp_dir }}/dist-git/{{ patch.upstream is defined and patch.upstream.name }};
