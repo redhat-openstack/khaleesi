@@ -1,0 +1,13 @@
+provisioner:
+    nodes:
+        host0:
+            name: host0
+            hostname: '{{ tmp.node_prefix }}host0'
+            remote_user: !lookup provisioner.remote_user
+            groups:
+                - provisioned
+                - controller
+                - network
+                - compute
+                - openstack_nodes
+                - tester

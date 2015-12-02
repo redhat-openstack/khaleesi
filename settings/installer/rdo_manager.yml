@@ -3,6 +3,7 @@
 installer:
     type: rdo-manager
     short_type: rmgr
+    remote_user: stack
     validate:
         tenant_network_name: private
         router_name: ext-to-int

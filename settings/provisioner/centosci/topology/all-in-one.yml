@@ -3,8 +3,8 @@ provisioner:
     nodes:
         controller: &controller
             name: '{{ tmp.node_prefix }}controller'
-            hostname:
             rebuild: no
+            remote_user: root
             network: &network_params
                 interfaces: &interfaces
                     external: &data_interface
@@ -14,3 +14,5 @@ provisioner:
                 - network
                 - compute
                 - openstack_nodes
+                - tester
+

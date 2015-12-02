@@ -6,22 +6,21 @@
     - name: Group by provisioner type
       group_by: key={{ provisioner.type }}
 
+    - debug: var={{item}}
+      with_dict: provisioner.nodes
+
     - name: Add the host to the inventory
       when: installer.type in ['rdo-manager']
       add_host:
-        name="host0"
-        groups="provisioned"
-        ansible_fqdn="{{ lookup('env', 'TEST_MACHINE') }}"
-        ansible_ssh_user="{{ provisioner.remote_user }}"
+        name="{{ item.value.name }}"
+        groups="{{ item.value.groups
+            if item.value.groups is string
+            else item.value.groups| join(',') }}"
+        ansible_fqdn="{{ item.value.hostname }}"
+        ansible_ssh_user="{{ item.value.remote_user }}"
         ansible_ssh_private_key_file="{{ provisioner.key_file }}"
-        ansible_ssh_host="{{ lookup('env', 'TEST_MACHINE') }}"
+        ansible_ssh_host="{{ item.value.hostname }}"
+      with_dict: provisioner.nodes
 
-    - name: Add created host to host list
-      add_host:
-        name="host0"
-        groups="provisioned, controller, network, compute, openstack_nodes, tester"
-        ansible_fqdn="{{ lookup('env', 'TEST_MACHINE') }}"
-        ansible_ssh_user="{{ provisioner.remote_user }}"
-        ansible_ssh_private_key_file="{{ provisioner.key_file }}"
-        ansible_ssh_host="{{ lookup('env', 'TEST_MACHINE') }}"
-      when: installer.type in ['packstack', 'project']
+
+- include: "{{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/undercloud/cleanup-virthost.yml"

@@ -2,8 +2,6 @@
 provisioner:
     type: manual
     key_file: !env [ KEY_FILE, ~/.ssh/id_rsa ]
-    remote_user: root
-
     image:
         rhel:
             '6.5':
@@ -20,3 +18,6 @@ provisioner:
             '20':
                 id:
                 remote_user: fedora
+
+defaults:
+    topology: virthost

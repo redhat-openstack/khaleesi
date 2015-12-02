@@ -1,0 +1,9 @@
+provisioner:
+    nodes:
+        host0:
+            name: host0
+            remote_user: !lookup installer.remote_user
+            hostname: "{{ lookup('env', 'TEST_MACHINE') }}"
+            groups:
+                - provisioned
+                - virthost

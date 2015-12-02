@@ -1,0 +1,8 @@
+provisioner:
+    nodes:
+        host0:
+            name: host0
+            remote_user: !lookup installer.remote_user
+            groups:
+                - provisioned
+                - virthost

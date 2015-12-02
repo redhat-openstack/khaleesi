@@ -1,15 +1,22 @@
 ---
-
 - name: Cleanup
   hosts: localhost
   gather_facts: no
   tasks:
+    - name: find the list of centosci_ssid files
+      shell: >
+          ls {{ lookup('env', 'PWD') }} | grep centosci_ssid
+      register: result
+
     - name: Retrieve the SSID
       shell: >
-          cat {{ lookup('env', 'PWD') }}/centosci_ssid
+          cat {{ lookup('env', 'PWD') }}/{{item}}
       register: centosci_ssid
+      with_items: result.stdout_lines
+
     - name: Return nodes
       centosci:
            request="done"
            url="{{ provisioner.url }}"
-           ssid="{{ centosci_ssid.stdout }}"
+           ssid="{{ item.stdout }}"
+      with_items: centosci_ssid.results

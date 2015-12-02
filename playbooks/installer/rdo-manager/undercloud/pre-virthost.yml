@@ -1,14 +1,4 @@
 ---
-- name: Assign provisioned host as virthost
-  hosts: host0
-  vars:
-    - ansible_ssh_user: root
-  tasks:
-    - group_by: key=virthost
-      when: provisioner.type in ['centosci', 'beaker', 'manual', 'foreman']
-
-- include: cleanup-virthost.yml
-
 - name: Create the stack user on the virthost
   hosts: virthost
   vars:

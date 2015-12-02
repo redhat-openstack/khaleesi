@@ -5,3 +5,6 @@ provisioner:
         type: none
     node_count: 1
     remote_user: root
+
+defaults:
+  topology: virthost

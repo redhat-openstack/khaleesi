@@ -9,8 +9,9 @@
            url="{{ provisioner.url }}"
            ver="{{ provisioner.distro.version }}"
            arch="{{ provisioner.arch }}"
-           count="{{ provisioner.node_count }}"
+           count="1"
            ram_gb="{{ provisioner.ram_gb |default(1) }}"
+      with_dict: provisioner.nodes
       register: provisioned_nodes
       until: provisioned_nodes|success
       retries: 5
@@ -18,29 +19,20 @@
 
     - name: Save SSID to file
       shell: >
-          echo "{{ provisioned_nodes.ssid }}" > {{ lookup('env', 'PWD') }}/centosci_ssid
+          echo "{{ provisioned_nodes.results.0.ssid }}" > {{ lookup('env', 'PWD') }}/centosci_ssid_{{provisioned_nodes.results.0.ssid}}
+      with_dict: provisioner.nodes
 
     - name: Add created hosts to host list
       add_host:
-        name="{{ item.name }}"
-        groups="provisioned"
-        ansible_fqdn="{{ item.hostname }}"
+        name="{{ item.hosts.0.name }}"
+        groups="{{ item.item.value.groups
+            if item.item.value.groups is string
+            else item.item.value.groups| join(',') }}"
+        ansible_fqdn="{{ item.hosts.0.hostname }}"
         ansible_ssh_user="{{ provisioner.remote_user }}"
         ansible_ssh_private_key_file="{{ provisioner.key_file }}"
-        ansible_ssh_host="{{ item.hostname }}"
-      with_items: provisioned_nodes.hosts
-      when: installer.type in ['rdo-manager']
-
-    - name: Add created hosts to host list
-      add_host:
-        name="packstack_host"
-        groups="provisioned, controller, network, compute, openstack_nodes, tester"
-        ansible_fqdn="{{ item.hostname }}"
-        ansible_ssh_user="{{ provisioner.remote_user }}"
-        ansible_ssh_private_key_file="{{ provisioner.key_file }}"
-        ansible_ssh_host="{{ item.hostname }}"
-      with_items: provisioned_nodes.hosts
-      when: installer.type in ['packstack']
+        ansible_ssh_host="{{ item.hosts.0.hostname }}"
+      with_items: provisioned_nodes.results
 
 - name: wait for hosts to get reachable
   hosts: provisioned
