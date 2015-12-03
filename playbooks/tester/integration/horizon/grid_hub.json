@@ -8,7 +8,7 @@
   "jettyMaxThreads": -1,
   "nodePolling": 5000,
   "cleanUpCycle": 5000,
-  "timeout": 10000,
+  "timeout": 300000,
   "browserTimeout": 0,
   "maxSession": 5,
   "unregisterIfStillDownAfter": 10000
