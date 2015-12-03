@@ -59,6 +59,12 @@
         rm -Rfv /var/cache/yum;
       ignore_errors: true
 
+    - name: ensure yum repos are clean
+      shell: >
+        rm -Rfv /etc/yum.repos.d/*
+      ignore_errors: true
+      when: provisioner.type == "manual"
+
     - name: remove files from /tmp
       shell: >
         rm -Rfv /tmp/*;
