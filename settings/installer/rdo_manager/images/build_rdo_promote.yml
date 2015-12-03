@@ -6,3 +6,6 @@ installer:
     'liberty':
       files:
         - no_op
+    'mitaka':
+      files:
+        - no_op

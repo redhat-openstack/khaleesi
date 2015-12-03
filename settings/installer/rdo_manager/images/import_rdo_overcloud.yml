@@ -7,8 +7,16 @@ installer:
         - deploy-ramdisk-ironic
         - ironic-python-agent
         - overcloud-full
+    'mitaka':
+      files:
+        - deploy-ramdisk-ironic
+        - ironic-python-agent
+        - overcloud-full
     url:
       rdo:
         liberty:
           centos:
             '7': "http://artifacts.ci.centos.org/artifacts/rdo/images/liberty/delorean/stable/"
+        mitaka:
+          centos:
+            '7': "http://artifacts.ci.centos.org/artifacts/rdo/images/mitaka/delorean/stable/"
