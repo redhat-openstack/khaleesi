@@ -22,6 +22,7 @@
 
       - name: Install release tool on machine
         command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}"
+        when: product.repo_type is defined and product.repo_type == 'production'
 
         #remove this step when rdo and rhos diverge
       - name: Install extra release tool on machine
