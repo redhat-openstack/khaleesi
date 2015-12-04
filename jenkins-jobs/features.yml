@@ -69,7 +69,7 @@
             network-isolation: none
             product: rdo
             network-variant: ml2-vxlan
-            product-version-repo: delorean_mgt
+            product-version-repo: delorean
             distro: centos-7.0
             provisioner-distro: centos
             provisioner-distro-version: 7
