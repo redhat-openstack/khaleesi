@@ -89,11 +89,6 @@
 - name: undercloud package install
   hosts: undercloud
   tasks:
-    - name: make sure yum-plugin-priorities is installed
-      yum: name='yum-plugin-priorities' state=present
-      sudo: yes
-      when: product.name != 'rhos'
-
     - name: set selinux to permissive for ospd-8 (workaround bug bz 1284133)
       selinux: policy=targeted state=permissive
       sudo: yes
