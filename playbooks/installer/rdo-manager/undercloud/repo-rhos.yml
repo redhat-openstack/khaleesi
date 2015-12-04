@@ -65,7 +65,7 @@
         register: pinned_poodle
         when: product.repo_type in ['poodle'] and product.repo.poodle_pin_version not in ['latest']
 
-      - name: Execute rhos-release for pinned osp-director poodle (osp)
+      - name: Execute rhos-release for latest osp-director poodle (osp)
         sudo: yes
         shell: >
           rhos-release -d -P {{ product.full_version }};

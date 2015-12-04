@@ -178,3 +178,35 @@ to disable (or force enable) specific one::
 
     ksgen ... --extra-vars '{"workarounds": {"rhbz1138740": {"enabled": true}}}'
 
+
+Variables meaning
+^^^^^^^^^^^^^^^^^
+
+- product.build:
+  This variable can come with the following values: `latest`, `ga`, `last_known_good`. It is used to
+  construct the path to the images, like:
+  `product.images.url.rhos.8-directory.latest.7.2`
+- product.full_version:
+  The component to test, can be either:
+  - OSP: `7`, `7-director`, `8`, `8-director` or
+  - RDO: `Juno`, `Kilo`, `Liberty`
+- product.core_product_version:
+  The major version number of the product, e.g: `7` or `8`.
+- product.repo_type:
+  Can be either `puddle` or `poodle` for OSP or `delorean` and `deorean_mgt` for RDO.
+  - puddle: automatic snapshot of the development repositories (core and OSP-d)
+  - poodle: a poodle is a stabilized version of the repository (core only)
+  - delorean: a delorean build result or RDO
+  - delorean_mgt: a delorean build result of RDO-manager (deprecated)
+- product.repo.poodle_pin_version:
+  Define a specific version of the poodle. The value can either be `latest` or
+  specify a given version like `2015-12-03.1`. The variable is in use only if
+  `product.repo_type` is `poodle`.
+- product.repo.puddle_pin_version:
+  Like for `product.repo.poodle_pin_version` but for a core puddle. The variable is in use only if
+  `product.repo_type` is `poodle`.
+- product.repo.puddle_director_pin_version:
+  The OSP-d puddle version to test. Default is `latest`. This variable is enable only if
+  `product.repo_type` is `puddle`.
+- product.repo.delorean_pin_version:
+  Pin on this dolorean build hash.
