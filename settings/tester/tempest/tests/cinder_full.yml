@@ -1,0 +1,10 @@
+tester:
+    tempest:
+        test_regex: tempest\.api\.volume\|tempest\.scenario\.*volume
+        whitelist: []
+        blacklist: [tempest.scenario.test_security_groups_basic_ops.TestSecurityGroupsBasicOps.test_in_tenant_traffic,
+                    tempest.scenario.test_security_groups_basic_ops.TestSecurityGroupsBasicOps.test_multiple_security_groups,
+                    tempest.scenario.test_network_basic_ops.TestNetworkBasicOps.test_connectivity_between_vms_on_different_networks,
+                    tempest.scenario.test_network_v6.TestGettingAddress.test_dhcp6_stateless_from_os,
+                    tempest.scenario.test_snapshot_pattern.TestSnapshotPattern.test_snapshot_pattern]
+
