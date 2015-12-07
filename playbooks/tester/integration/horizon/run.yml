@@ -11,7 +11,7 @@
           BROWSER_NAME: "{{ lookup('env', 'BROWSER_NAME') }}"
           BROWSER_VERSION: "{{ lookup('env', 'BROWSER_VERSION') }}"
           BROWSER_PLATFORM: "{{ lookup('env', 'BROWSER_PLATFORM') }}"
-        shell: source ~/{{ tester.venv_dir }}/bin/activate && nosetests -v --with-xunit --xunit-file=horizon.xml openstack_dashboard/test/integration_tests/tests
+        shell: 'source ~/{{ tester.venv_dir }}/bin/activate && nosetests -v -a "{{ tester.integration.tests_tag }}" --with-xunit --xunit-file=horizon.xml openstack_dashboard/test/integration_tests/tests'
         args:
             chdir: ~/{{ tester.dir }}
 
