@@ -1,0 +1,9 @@
+---
+product:
+  build: ga
+  build_version: ga-7.1
+  repo:
+    puddle_pin_version: 'GA'
+    poodle_pin_version: 'GA'
+    core_product_version: 7
+    puddle_director_pin_version: 'GA'

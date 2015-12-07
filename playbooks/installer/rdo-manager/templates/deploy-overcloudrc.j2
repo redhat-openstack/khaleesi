@@ -42,7 +42,7 @@ export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-temp
 export DEPLOY_COMMAND="$DEPLOY_COMMAND -e ~/plan-parameter-neutron-bridge.yaml "
 {% endif %}
 
-{% if installer.deploy.type == 'templates' %}
+{% if installer.deploy.type == 'templates' and product.build is defined and product.build != 'ga' %}
 if [ "$CEPHSTORAGESCALE" -gt "0" ]; then
   export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/storage-environment.yaml"
 fi

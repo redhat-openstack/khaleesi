@@ -29,7 +29,7 @@
         sudo: yes
         shell: >
           rhos-release -p {{ product.repo.puddle_director_pin_version }} {{ product.full_version }};
-          rhos-release -r {{ distro.full_version }} -t {{installer.dib_dir}} {{ product.repo.puddle_director_pin_version }} {{ product.full_version }};
+          rhos-release -r {{ distro.full_version }} -t {{installer.dib_dir}} -p {{ product.repo.puddle_director_pin_version }} {{ product.full_version }};
         register: pinned_puddle
         when: product.repo_type in ['puddle'] and product.repo.puddle_director_pin_version not in ['latest']
 
