@@ -5,7 +5,7 @@
 - name: download the pre-built rdo-manager images
   shell: >
         wget --quiet -c -O {{ instack_user_home }}/{{ item }}.tar
-        "{{ installer.images.url[product.name][product.full_version][distro.name][distro.full_version] }}{{ item }}.tar"
+        "{{ installer.images.url[product.name][product.full_version][product.build][installer.images.version] }}{{ item }}.tar"
   with_items: "{{ installer.images[product.full_version].files|list }}"
 
 - name: install python-rdomanager-oscplugin

@@ -20,7 +20,7 @@
       {{ instack_user_home }}/instack-virt-setup;
 
   - name: get undercloud appliance
-    get_url: url="{{ installer.images.url[product.name][product.full_version][distro.name][distro.full_version] }}{{ installer.undercloud_image_name }}"
+    get_url: url="{{ installer.images.url[product.name][product.full_version][product.build][installer.images.version] }}{{ item }}.tar"
              dest={{ instack_user_home }}
              timeout=360
 

@@ -5,3 +5,7 @@ product:
     poodle_pin_version: 'GA'
     core_product_version: 8-director
     puddle_director_pin_version: 'GA'
+
+installer:
+  images:
+      version: '8.0'

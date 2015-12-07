@@ -7,3 +7,11 @@ product:
     poodle_pin_version: 'GA'
     core_product_version: 7
     puddle_director_pin_version: 'GA'
+
+installer:
+  images:
+      version: '7.1'
+      files:
+        - deploy-ramdisk-ironic
+        - discovery-ramdisk
+        - overcloud-full

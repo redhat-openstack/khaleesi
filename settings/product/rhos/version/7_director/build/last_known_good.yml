@@ -8,3 +8,11 @@ product:
     poodle_pin_version: 'latest'
     foreman_pin_version: 'latest'
     foreman_poodle_pin_version: 'latest'
+
+installer:
+  images:
+      version: '7.1'
+      files:
+        - deploy-ramdisk-ironic
+        - discovery-ramdisk
+        - overcloud-full
