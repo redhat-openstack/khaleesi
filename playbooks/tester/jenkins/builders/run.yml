@@ -23,6 +23,8 @@
         register: setup_slave
         ignore_errors: True
         shell: >
+            ANSIBLE_ROLES_PATH=`pwd`/roles
+            ANSIBLE_SSH_ARGS=""
             ansible-playbook -i hosts_slave playbooks/basic_internal_slave.yml -v;
         args:
             chdir: "{{ slavedir }}"
