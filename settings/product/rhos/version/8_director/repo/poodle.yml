@@ -1,4 +1,4 @@
---- !extends:common.yml
+---
 
 product:
     short_repo: pood

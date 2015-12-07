@@ -1,11 +1,23 @@
 --- !extends:common/common.yml
 product:
-  name: rhos
-  short_name: rh
-  config:
-    enable_epel: n
-  rpmrepo:
-    RedHat: !lookup private.distro.rhel.rhos_release_path
+    name: rhos
+    short_name: rh
+    config:
+        enable_epel: n
+    rpmrepo:
+        RedHat: !lookup private.distro.rhel.rhos_release_path
+
+location:
+    defaultrepo_string: !lookup private.location.defaultrepo_string
+    map:
+        bos: !lookup private.location.map.bos
+        brq: !lookup private.location.map.brq
+        nay: !lookup private.location.map.nay
+        bne: !lookup private.location.map.bne
+        tlv: !lookup private.location.map.tlv
+        blr: !lookup private.location.map.blr
+        pnq: !lookup private.location.map.pnq
+        rdu: !lookup private.location.map.rdu
 
 defaults:
     version: 7.0
