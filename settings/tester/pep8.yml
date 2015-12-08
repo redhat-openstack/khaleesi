@@ -2,9 +2,10 @@
 tester:
     type: unittest
     name: pep8
+    short_name: p8
     component:
         config_file: !lookup installer.component.config_file
         tox_target: pep8
 node:
     prefix:
-        - !lookup tester.name
+        - !lookup tester.short_name

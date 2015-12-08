@@ -2,9 +2,10 @@
 tester:
     type: unittest
     name: unittest
+    short_name: ut
     component:
         config_file: !lookup installer.component.config_file
         tox_target: unittest
 node:
     prefix:
-        - !lookup tester.type
+        - !lookup tester.short_name
