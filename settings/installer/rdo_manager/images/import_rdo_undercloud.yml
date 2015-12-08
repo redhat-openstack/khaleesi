@@ -13,8 +13,12 @@ installer:
     url:
       rdo:
         liberty:
-          centos:
-            '7': "http://artifacts.ci.centos.org/artifacts/rdo/images/liberty/delorean/stable/"
+          latest:
+            latest: "http://artifacts.ci.centos.org/artifacts/rdo/images/liberty/delorean/stable/"
+          last_known_good:
+            last_known_good: "http://artifacts.ci.centos.org/artifacts/rdo/images/liberty/delorean/stable/"
         mitaka:
-          centos:
-            '7': "http://artifacts.ci.centos.org/artifacts/rdo/images/mitaka/delorean/stable/"
+          latest:
+            latest: "http://artifacts.ci.centos.org/artifacts/rdo/images/mitaka/delorean/stable/"
+          last_known_good:
+            last_known_good: "http://artifacts.ci.centos.org/artifacts/rdo/images/mitaka/delorean/stable/"

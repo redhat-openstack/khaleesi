@@ -10,5 +10,7 @@ installer:
     url:
       rdo:
         liberty:
-          centos:
-            '7': "https://repos.fedorapeople.org/repos/openstack-m/rdo-images-centos-liberty/"
+          latest:
+            latest: "http://artifacts.ci.centos.org/artifacts/rdo/images/liberty/delorean/stable/"
+          last_known_good:
+            last_known_good: "http://artifacts.ci.centos.org/artifacts/rdo/images/liberty/delorean/stable/"
