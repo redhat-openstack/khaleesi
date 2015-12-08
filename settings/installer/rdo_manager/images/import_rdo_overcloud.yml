@@ -23,4 +23,4 @@ installer:
           latest:
             latest: "http://artifacts.ci.centos.org/artifacts/rdo/images/mitaka/delorean/stable/"
           last_known_good:
-            last_known_good: "http://artifacts.ci.centos.org/artifacts/rdo/images/mitaka/delorean/stable/""
+            last_known_good: "http://artifacts.ci.centos.org/artifacts/rdo/images/mitaka/delorean/stable/"
