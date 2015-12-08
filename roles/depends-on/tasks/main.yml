@@ -1,4 +1,13 @@
 ---
+- name: register hostname
+  debug: var={{ lookup('env', 'JENKINS_URL')}}
+  register: jenkins_url
+
+- name: is this slave internal to Red Hat
+  shell: echo {{ jenkins_url.var }} | grep redhat
+  ignore_errors: yes
+  register: is_internal
+
 - name: search and fetch dependent changes
   script: depends_on.py {{ lookup('env', 'WORKSPACE') }}
-  when: "\"\" != \"{{ lookup('env', 'GERRIT_CHANGE_COMMIT_MESSAGE') }}\""
+  when: ("\"\" != \"{{ lookup('env', 'GERRIT_CHANGE_COMMIT_MESSAGE') }}\"" and {{ is_internal.rc }} == 0)
