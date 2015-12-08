@@ -1,5 +1,6 @@
 ---
 product:
+  build: latest
   repo:
     core_product_version: 8
     puddle_pin_version: 'latest'
