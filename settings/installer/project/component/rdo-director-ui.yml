@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: rdo-director-ui
+        short_name: rdo-ui
+        dir: !join [ !env PWD, /../rdo-director-ui]
+        dist_git: openstack-rdo-director-ui
+        codeng: rdo-director-ui
+        config_file: jenkins-config.yml
