@@ -14,7 +14,7 @@
         src: "/usr/share/openstack-heat-templates/software-config/elements/heat-config/os-refresh-config/configure.d/55-heat-config"
         dest: "{{ lookup('env', 'PWD') }}/55-heat-config"
         flat: yes
-      when: workarounds | bug('rhbz1278181')
+      when: workaround.rhbz1278181.enabled|bool
 
 - name: Dump packages list
   hosts: update:!undercloud
@@ -28,7 +28,7 @@
         src: "{{ lookup('env', 'PWD') }}/55-heat-config"
         dest: "/usr/libexec/os-refresh-config/configure.d/55-heat-config"
         mode: 755
-      when: workarounds | bug('rhbz1278181')
+      when: workaround.rhbz1278181.enabled|bool
 
     - name: set default route
       sudo: yes
@@ -89,7 +89,7 @@
         src=templates/upgrade.yml.j2
         dest={{ instack_user_home }}/upgrade.yml
         mode=0755
-      when: workarounds | bug('rhbz1272347')
+      when: workaround.rhbz1272347.enabled|bool
 
     - name: copy template file for update overcloud
       template:
