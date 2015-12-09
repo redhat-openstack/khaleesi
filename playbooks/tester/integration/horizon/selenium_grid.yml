@@ -50,3 +50,5 @@
       with_items:
           - "selenium-grid-hub"
           - "selenium-grid-node"
+    - name: Wait for selenium grid to became ready
+      script: wait_for_grid.sh
