@@ -20,6 +20,21 @@
     publishers:
         - default-publishers
 
+- defaults:
+    name: parent-promote-defaults
+    description: |
+      <h3> Documentation: <a href=http://khaleesi.readthedocs.org/en/master/>http://khaleesi.readthedocs.org/en/master/</a> </h3>
+
+    concurrent: false
+    node: khaleesi
+    logrotate:
+        daysToKeep: 5
+        artifactDaysToKeep: 5
+    wrappers:
+        - ansicolor
+        - timestamps
+        - workspace-cleanup
+
 - job-template:
     name: 'packstack-promote-{product}-{product-version}'
     defaults: rdo-manager-defaults
@@ -27,7 +42,7 @@
         - repo-khaleesi
         - repo-khaleesi-settings
     builders:
-        - ksgen-builder-packstack:
+        - ksgen-builder-packstack-promote:
             provisioner-distro: '{provisioner-distro}'
             provisioner-distro-version: '{provisioner-distro-version}'
             product: '{product}'
@@ -50,7 +65,7 @@
         - repo-khaleesi
         - repo-khaleesi-settings
     builders:
-        - ksgen-builder-rdo-manager:
+        - ksgen-builder-rdo-manager-promote:
             provisioner-distro: '{provisioner-distro}'
             provisioner-distro-version: '{provisioner-distro-version}'
             provisioner-options: 'skip_provision'
@@ -127,15 +142,13 @@
     project-type: multijob
     triggers:
         - timed: "H H * * 6"
-    defaults: promote-defaults
+    defaults: parent-promote-defaults
     builders:
         - phase-get-hash
         - phase-test-build
         - phase-test-import
         - phase-upload
         - phase-execute-promote-centos-liberty
-    publishers:
-        - default-publishers
     properties:
         - ownership:
             owner: whayutin@redhat.com
@@ -239,7 +252,7 @@
     network: none
     product: rdo
     product-version: liberty
-    product-version-repo: production
+    product-version-repo: delorean
     distro: centos-7.0
     provisioner-distro: centos
     provisioner-distro-version: 7
