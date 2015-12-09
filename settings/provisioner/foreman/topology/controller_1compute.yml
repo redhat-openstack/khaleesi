@@ -21,6 +21,11 @@ provisioner:
                             device: !lookup provisioner.nodes.controller.network.interfaces.data.label
                     external: &external_interface
                         label: eth2
+                        config_params: &external_interface_params
+                            <<: *data_interface_params
+                            ipaddr: ""
+                            netmask: ""
+                            device: !lookup provisioner.nodes.controller.network.interfaces.external.label
             groups:
                 - controller
                 - openstack_nodes
