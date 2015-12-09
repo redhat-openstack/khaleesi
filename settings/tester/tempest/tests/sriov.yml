@@ -5,7 +5,9 @@ tester:
        test_regex: all
        whitelist:
            - tempest.scenario.test_network_basic_ops
-       blacklist: null
+       blacklist:
+           # RHBZ#1293097
+           - tempest.scenario.test_network_basic_ops.TestNetworkBasicOps.test_port_security_macspoofing_port
        config_options:
            - 'network.port_vnic_type direct'
            - 'compute.image_ssh_user fedora'
@@ -14,5 +16,3 @@ tester:
            - 'compute-feature-enabled.preserve_ports True'
            - 'compute-feature-enabled.suspend False'
            - 'scenario.dhcp_client dhclient'
-
-
