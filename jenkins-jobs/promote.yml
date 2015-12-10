@@ -141,7 +141,7 @@
     name: rdo-delorean-promote-liberty
     project-type: multijob
     triggers:
-        - timed: "H H * * 6"
+        - timed: "H */8 * * *"
     defaults: parent-promote-defaults
     builders:
         - phase-get-hash
