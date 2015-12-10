@@ -40,11 +40,6 @@
           source {{ instack_user_home }}/stackrc;
           openstack baremetal configure boot
 
-    - name: assign kernel and ramdisk to nodes
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          openstack baremetal configure boot;
-
     - name: introspect nodes
       shell: >
           source {{ instack_user_home }}/stackrc;
