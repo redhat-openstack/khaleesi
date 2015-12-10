@@ -18,16 +18,41 @@
       register: overcloud_nodes
       ignore_errors: yes
 
-    - name: add each overcloud node to ansible
+    - name: add each overcloud controller node to ansible
+      with_dict: overcloud_nodes.stdout
+      ignore_errors: yes
       add_host:
         name={{ item.key }}
-        groups=overcloud
+        groups=overcloud,controller
         ansible_ssh_host={{ item.key }}
         ansible_fqdn={{ item.value }}
         ansible_ssh_user="heat-admin"
         ansible_ssh_private_key_file="{{ lookup('env', 'PWD') }}/id_rsa_undercloud"
-      ignore_errors: yes
+      when: item.key.startswith('overcloud-controller')
+
+    - name: add each overcloud compute node to ansible
       with_dict: overcloud_nodes.stdout
+      ignore_errors: yes
+      add_host:
+        name={{ item.key }}
+        groups=overcloud,compute
+        ansible_ssh_host={{ item.key }}
+        ansible_fqdn={{ item.value }}
+        ansible_ssh_user="heat-admin"
+        ansible_ssh_private_key_file="{{ lookup('env', 'PWD') }}/id_rsa_undercloud"
+      when: item.key.startswith('overcloud-compute')
+
+    - name: add each overcloud ceph node to ansible
+      with_dict: overcloud_nodes.stdout
+      ignore_errors: yes
+      add_host:
+        name={{ item.key }}
+        groups=overcloud,ceph
+        ansible_ssh_host={{ item.key }}
+        ansible_fqdn={{ item.value }}
+        ansible_ssh_user="heat-admin"
+        ansible_ssh_private_key_file="{{ lookup('env', 'PWD') }}/id_rsa_undercloud"
+      when: item.key.startswith('overcloud-ceph')
 
 - name: regenerate the inventory file after adding hosts
   hosts: localhost
