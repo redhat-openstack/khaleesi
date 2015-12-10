@@ -358,19 +358,15 @@ def _add_floating_ip_list(module, server, ips):
 
 
 def _add_auto_floating_ip(module, nova, server):
+    floating_ip_obj = floating_ips.FloatingIPManager(nova)
+    for f_ip in floating_ip_obj.list():
+        if f_ip.instance_id is None:
+            ip = f_ip.ip
+            break
+    else:
+        ip = nova.floating_ips.create()
 
-    try:
-        new_ip = nova.floating_ips.create()
-    except Exception as e:
-        module.fail_json(msg = "Unable to create floating ip: %s" % (e.message))
-
-    try:
-        server.add_floating_ip(new_ip)
-    except Exception as e:
-        # Clean up - we auto-created this ip, and it's not attached
-        # to the server, so the cloud will not know what to do with it
-        server.floating_ips.delete(new_ip)
-        module.fail_json(msg = "Error attaching IP %s to instance %s: %s " % (ip, server.id, e.message))
+    server.add_floating_ip(ip)
 
 
 def _add_floating_ip(module, nova, server):
