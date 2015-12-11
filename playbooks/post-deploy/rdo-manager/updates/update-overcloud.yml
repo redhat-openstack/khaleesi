@@ -109,7 +109,6 @@
       ignore_errors: yes
       shell: >
           source {{ instack_user_home }}/stackrc;
-          export HEAT_INCLUDE_PASSWORD=1;
           {{ overcloud_update_command.stdout }} &> update_overcloud_console.log
 
     - name: heat stack-list
@@ -122,6 +121,17 @@
     - name: fail when status is not COMPLETE
       fail: msg="Overcloud update failed"
       when: update_status.rc != 0
+
+    - name: get neutron debug info after updates
+      register: neutron_port_list_output
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          neutron port-list;
+
+    - name: get openstack-tripleo-heat-template version after updates
+      register: openstack-tripleo-heat-template_version
+      shell: >
+          rpm -qa | grep openstack-tripleo-heat-template
 
 - name: Check update status
   hosts: update:!undercloud

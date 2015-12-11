@@ -14,6 +14,17 @@
       sudo: yes
       command: yum -d 7 repolist
 
+    - name: get neutron debug info
+      register: neutron_port_list_output
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          neutron port-list;
+
+    - name: get openstack-tripleo-heat-template version
+      register: openstack-tripleo-heat-template_version
+      shell: >
+          rpm -qa | grep openstack-tripleo-heat-template
+
     - name: update packages
       sudo: yes
       register: yum_update_result
