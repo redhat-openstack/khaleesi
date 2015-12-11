@@ -46,5 +46,8 @@
         command: "rhos-release -d {{ installer.updates.target_full_version }}"
         when: installer.updates.repo_type == 'poodle'
 
+      - name: Execute rhos-release for RHEL release
+        shell: rhos-release -p {{ distro.version.major }} {{ distro.name }}-{{ distro.latest_version }}
+
       - name: yum clean all
         command: yum clean all
