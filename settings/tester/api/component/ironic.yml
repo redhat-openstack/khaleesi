@@ -1,0 +1,6 @@
+tester:
+   component:
+       name: ironic
+       short_name: irnc
+       dir: !join [ !env WORKSPACE, /ironic]
+       tox_target: api
