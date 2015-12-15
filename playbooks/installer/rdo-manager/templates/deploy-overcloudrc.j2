@@ -24,7 +24,7 @@ export NEUTRON_PUBLIC_INTERFACE={{ hw_env.neutron_public_interface }}
 export DEPLOY_COMMAND="$DEPLOY_COMMAND --neutron-public-interface=$NEUTRON_PUBLIC_INTERFACE "
 {% endif %}
 
-export DEPLOY_TIMEOUT={{ hw_env.deploy_timeout | default('240') }}
+export DEPLOY_TIMEOUT={{ hw_env.deploy_timeout | default('90') }}
 export DEPLOY_COMMAND="$DEPLOY_COMMAND --timeout=$DEPLOY_TIMEOUT "
 
 {% if installer.network.isolation != 'none' and installer.env.type != "virthost" %}
