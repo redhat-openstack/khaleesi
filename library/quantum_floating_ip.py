@@ -171,9 +171,9 @@ def _get_port_info(neutron, module, instance_id, internal_network_name=None):
         return None, None
     return fixed_ip_address, port_id
 
-def _get_floating_ip(module, neutron, fixed_ip_address):
+def _get_floating_ip(module, neutron, port_id):
     kwargs = {
-            'fixed_ip_address': fixed_ip_address
+            'port_id': port_id
     }
     try:
         ips = neutron.list_floatingips(**kwargs)
@@ -181,6 +181,9 @@ def _get_floating_ip(module, neutron, fixed_ip_address):
         module.fail_json(msg = "error in fetching the floatingips's %s" % e.message)
     if not ips['floatingips']:
         return None, None
+    if len(ips['floatingips']) > 1:
+        module.fail_json(msg = "Multiple floatingips found",
+                         floatingips = ips['floatingips'])
     return ips['floatingips'][0]['id'], ips['floatingips'][0]['floating_ip_address']
 
 def _create_floating_ip(neutron, module, port_id, net_id, fixed_ip):
@@ -250,7 +253,7 @@ def main():
     if not port_id:
         module.fail_json(msg="Cannot find a port for this instance, maybe fixed ip is not assigned")
 
-    floating_id, floating_ip = _get_floating_ip(module, neutron, fixed_ip)
+    floating_id, floating_ip = _get_floating_ip(module, neutron, port_id)
 
     if module.params['state'] == 'present':
         if floating_ip:
