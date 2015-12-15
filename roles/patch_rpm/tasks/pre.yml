@@ -15,28 +15,25 @@
       cd {{ tmp_dir }}/dist-git/{{ patch.gerrit.name }};
       git fetch {{ patch.gerrit.url }} {{ patch.gerrit.refspec}} && git checkout FETCH_HEAD -b gerrit-patch
 
-- name: Clone director dist-git
-  git: repo="{{ patch.dist_git.url }}"
-       version="{{ product.name }}-{{ product.version.major }}.{{ product.version.minor }}-pmgr-rhel-{{ distro.version.major }}"
-       dest="{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
-       accept_hostkey=true
-  when: patch.dist_git.use_director is defined and patch.dist_git.use_director
-  # this is due to this rule of building:
-  # the directive is always use pmgr if it exists. Only exception to that is python-tuskarclient
-
 - name: Clone dist-git
   git: repo="{{ patch.dist_git.url }}"
-       version="{{ product.name }}-{{ product.version.major }}.{{ product.version.minor }}-rhel-{{ distro.version.major }}"
        dest="{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
        accept_hostkey=true
-  when: patch.dist_git.use_director is not defined or not patch.dist_git.use_director
+
+- name: Set branch_name
+  set_fact: branch_name={{ patch.dist_git.get("branch", {}).get(product.full_version, "{}-{}.{}-rhel-{}".format(product.name, product.version.major, product.version.minor, distro.version.major))}}
+
+- name: Setup dist-git branch
+  shell: >
+      cd {{ tmp_dir }}/dist-git/{{ patch.dist_git.name }};
+      git checkout {{ branch_name }};
 
 - name: Setup git configurations
   shell: >
       git remote add -f patches {{ tmp_dir }}/dist-git/{{ patch.gerrit.name }};
       git fetch patches;
       git fetch patches --tags;
-      git branch {{ product.name }}-{{ product.version.major }}.{{ product.version.minor }}-patches patches/gerrit-patch;
+      git branch {{ branch_name }}-patches patches/gerrit-patch;
       if [ "{{ patch.upstream is defined }}" == "True" ]; then
           git remote add -f upstream {{ tmp_dir }}/dist-git/{{ patch.upstream is defined and patch.upstream.name }};
           git fetch upstream;

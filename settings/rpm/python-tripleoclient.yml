@@ -1,0 +1,15 @@
+gating_repo: "python-tripleoclient"
+patch:
+    upstream:
+        name: "upstream-python-tripleoclient"
+        url: "https://git.openstack.org/openstack/python-tripleoclient"
+    gerrit:
+        name: "gerrit-python-tripleoclient"
+        url: "{{ !lookup private.building.repos.gerrit }}python-tripleoclient"
+        branch: "{{ lookup('env', 'GERRIT_BRANCH') }}"
+        refspec: "{{ lookup('env', 'GERRIT_REFSPEC') }}"
+    dist_git:
+        name: "python-tripleoclient"
+        url: "{{ !lookup private.building.repos.dist_git }}python-tripleoclient"
+        branch:
+            8-director: "rhos-8.0-director-rhel-7"
