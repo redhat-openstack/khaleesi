@@ -160,6 +160,32 @@
             test-stability: True
 
 - trigger:
+    name: trigger-upstream-gate-rdo-manager
+    triggers:
+        - gerrit:
+            server-name: 'rdo-ci-openstack.org'
+            trigger-on:
+                - patchset-created-event
+                - comment-added-contains-event:
+                    comment-contains-value:  '(?i)^(Patch Set [0-9]+:)?( [\w\\+-]*)*(\n\n)?\s*(rdo)? ?(recheck)'
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'openstack/{project}'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: '{branch}'
+            skip-vote:
+                successful: true
+                failed: true
+                unstable: true
+                notbuilt: true
+            failure-message: 'FAILURE'
+            successful-message: 'SUCCESS'
+            unstable-message: 'UNSTABLE'
+            custom-url: "* $JOB_NAME $BUILD_URL"
+            silent: true
+
+- trigger:
     name: trigger-rdo-manager-gate-khaleesi
     triggers:
         - gerrit:

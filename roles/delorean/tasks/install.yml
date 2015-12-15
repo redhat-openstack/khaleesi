@@ -1,5 +1,5 @@
 - name: Ensure delorean package dependencies
-  yum: name=mock,python-virtualenv state=installed
+  yum: name=createrepo,mock,python-virtualenv,rpm-build state=installed
   sudo: yes
 
 - name: Create mock group
@@ -8,7 +8,7 @@
 
 - name: Add user to mock group
   sudo: yes
-  user: name=rhos-ci groups=mock
+  user: name={{ ansible_ssh_user }} groups=mock
 
 - name: Create virtualenv for Delorean
   command: virtualenv {{ ansible_env.HOME }}/delorean-venv creates='{{ ansible_env.HOME }}/delorean-venv'
@@ -28,8 +28,3 @@
   pip:
     name: tox
     virtualenv: '{{ ansible_env.HOME }}/delorean-venv'
-
-- name: Apply temporary fix
-  shell: 'git fetch https://review.gerrithub.io/openstack-packages/delorean refs/changes/75/255375/2 && git checkout FETCH_HEAD'
-  args:
-    chdir: "{{ ansible_env.HOME }}/delorean"

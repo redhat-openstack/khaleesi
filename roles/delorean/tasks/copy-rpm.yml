@@ -1,7 +1,26 @@
 - name: Create a directory to hold the delorean rpms
-  file: path={{ ansible_env.HOME }}/rpms state=directory
+  file:
+    path: "{{ ansible_env.HOME }}/delorean_rpms"
+    state: directory
 
-- name: Copy and rename the generated rpms
-  shell: >
-    cp {{ ansible_env.HOME }}/delorean/repos/*/*/*/*.rpm {{ ansible_env.HOME }}/rpms/;
-    rm -rf {{ ansible_env.HOME }}/delorean;
+- name: Copy the generated rpms
+  shell: |
+    find {{ ansible_env.HOME }}/delorean/data/repos -type f -name '*.rpm' -print0| xargs -0 cp -t {{ ansible_env.HOME }}/delorean_rpms/
+    rm -rf {{ ansible_env.HOME }}/delorean
+
+- name: Run createrepo on generated rpms
+  sudo: yes
+  shell: "createrepo delorean_rpms"
+  args:
+    chdir: "{{ ansible_env.HOME }}"
+
+- name: Compress the repo before fetching
+  shell: "tar czf delorean_rpms.tar.gz delorean_rpms"
+  args:
+    chdir: "{{ ansible_env.HOME }}"
+
+- name: Fetch the repo to the slave
+  fetch:
+    flat: yes
+    src: "{{ ansible_env.HOME }}/delorean_rpms.tar.gz"
+    dest: "{{ base_dir }}/delorean_rpms.tar.gz"

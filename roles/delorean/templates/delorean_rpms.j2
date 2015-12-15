@@ -1,6 +1,6 @@
 [delorean-rpms]
 name=Delorean rpms
-baseurl=file:///home/{{ ansible_ssh_user }}/delorean_rpms
+baseurl=file://{{ ansible_env.HOME }}/delorean_rpms
 enabled=1
 gpgcheck=0
 priority=1
