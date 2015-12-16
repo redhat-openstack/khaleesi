@@ -22,6 +22,9 @@
       - name: Install release tool
         command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/{{ product.name }}-release-latest.noarch.rpm"
 
+      - name: Remove repo
+        command: "rhos-release -x"
+
       - name: Execute rhos-release for pinned osp-director puddle (osp)
         command: "rhos-release -p {{ installer.updates.target_pin_version }} {{ installer.updates.target_full_version }}"
         register: target_puddle
@@ -36,7 +39,6 @@
         command: "rhos-release -P {{ installer.updates.target_full_version }}"
         when: installer.updates.repo_type == 'puddle'
 
-
       - name: Execute rhos-release for pinned osp-director poodle (osp)
         command: "rhos-release -d -p {{ installer.updates.target_pin_version }} {{ installer.updates.target_full_version }}"
         register: target_poodle
@@ -47,7 +49,7 @@
         when: installer.updates.repo_type == 'poodle'
 
       - name: Execute rhos-release for RHEL release
-        shell: rhos-release -r {{ distro.latest_version }} {{ distro.name }}
+        shell: rm /etc/yum.repos.d/rhos-release-rhel-7.1.repo; rhos-release -r {{ distro.latest_version }} {{ distro.name }}
 
       - name: yum clean all
         command: yum clean all

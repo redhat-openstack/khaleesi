@@ -45,6 +45,16 @@
           timeout=900
           sudo=true
 
+    - name: create vlan10 if doesn't exist
+      ignore_errors: yes
+      sudo: yes
+      shell: >
+        ifconfig vlan10;
+        if [[ $? != 0 ]]; then \
+        ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 \
+        type=internal; fi
+      when: installer.network.isolation == 'single_nic_vlans'
+
     - name: set vlan up
       ignore_errors: yes
       sudo: yes
