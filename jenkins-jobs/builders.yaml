@@ -63,6 +63,9 @@
                 $anscmd -i local_hosts playbooks/full-job-no-test.yml
                 result=$?
 
+                $anscmd -i hosts playbooks/post-deploy/rdo-manager/overcloud-virt-fencing.yml
+                $anscmd -i hosts playbooks/post-deploy/rdo-manager/overcloud-test.yml
+
                 infra_result=0
                 $anscmd -i hosts playbooks/collect_logs.yml &> collect_logs.txt || infra_result=1
                 $anscmd -i local_hosts playbooks/cleanup.yml &> cleanup.txt || infra_result=2
@@ -144,6 +147,9 @@
 
                 $anscmd -i local_hosts playbooks/full-job-no-test.yml
                 result=$?
+
+                $anscmd -i hosts playbooks/post-deploy/rdo-manager/overcloud-virt-fencing.yml
+                $anscmd -i hosts playbooks/post-deploy/rdo-manager/overcloud-test.yml
 
                 pip install shyaml > shyaml_build.log
                 if [[ ` shyaml get-value installer.undercloud_image < ksgen_settings.yml` == 'save' ]]; then
