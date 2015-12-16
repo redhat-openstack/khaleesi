@@ -9,6 +9,23 @@
 - name: auth url
   set_fact: keystone_endpoint={{ keystone_endpoint }} | default({{ installer.validate.keystone_endpoint }})
 
+- name: get public ip
+  register: public_ip
+  shell: >
+    echo '{{ keystone_endpoint }}' | cut -d '/' -f3 | cut -d ':' -f1
+
+- name: get public port
+  register: public_port
+  shell: >
+    echo '{{ keystone_endpoint }}' | cut -d '/' -f3 | cut -d ':' -f2
+
+- name: check if openstack api is available
+  wait_for:
+      host: "{{ public_ip.stdout }}"
+      port: "{{ public_port.stdout }}"
+      timeout: 60
+      connect_timeout: 10
+
 - name: get the guest-image
   get_url: >
     url="{{ installer.validate.image.url }}{{ installer.validate.image.id }}"
