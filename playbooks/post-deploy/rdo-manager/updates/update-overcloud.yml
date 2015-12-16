@@ -30,48 +30,9 @@
         mode: 755
       when: workaround.rhbz1278181.enabled|bool
 
-    - name: set default route
-      sudo: yes
-      shell: >
-        echo 'default via 192.0.2.1 dev br-ex' &> /etc/sysconfig/network-scripts/route-eth0
-      when: installer.network.isolation != 'none'
-
 - name: Update the Overcloud
   hosts: update:!overcloud
   tasks:
-    - name: set vlan up
-      ignore_errors: yes
-      sudo: yes
-      shell: >
-        sudo ip l set dev vlan10 up
-      when: installer.network.isolation != 'none'
-
-    - name: get external subnet
-      register: external_subnet_id
-      shell: >
-        source {{ instack_user_home }}/stackrc;
-        neutron net-list | grep external | awk '{ print $6; }'
-      when: installer.network.isolation != 'none'
-
-    - name: set routes for external subnet
-      shell: >
-        source {{ instack_user_home }}/stackrc;
-        neutron subnet-update {{ external_subnet_id.stdout }} --host_routes type=dict list=true destination=172.16.23.0/24,nexthop=0.0.0.0
-      when: installer.network.isolation != 'none'
-
-    - name: get ctlplane subnet
-      register: ctlplane_subnet_id
-      shell: >
-        source {{ instack_user_home }}/stackrc;
-        neutron net-list | grep ctlplane | awk '{ print $6; }'
-      when: installer.network.isolation != 'none'
-
-    - name: set routes for ctlplane subnet
-      shell: >
-        source {{ instack_user_home }}/stackrc;
-        neutron subnet-update {{ ctlplane_subnet_id.stdout }} --host_routes type=dict list=true destination=0.0.0.0/24,nexthop=192.0.2.1
-      when: installer.network.isolation != 'none'
-
     - name: get plan list
       register: overcloud_uuid_result
       shell: >
@@ -111,17 +72,6 @@
           source {{ instack_user_home }}/stackrc;
           {{ overcloud_update_command.stdout }} &> update_overcloud_console.log
 
-    - name: heat stack-list
-      register: update_status
-      ignore_errors: yes
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          heat stack-list | grep 'UPDATE_COMPLETE'
-
-    - name: fail when status is not COMPLETE
-      fail: msg="Overcloud update failed"
-      when: update_status.rc != 0
-
     - name: get neutron debug info after updates
       register: neutron_port_list_output
       shell: >
@@ -132,6 +82,17 @@
       register: openstack-tripleo-heat-template_version
       shell: >
           rpm -qa | grep openstack-tripleo-heat-template
+
+    - name: heat stack-list
+      register: update_status
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          heat stack-list | grep 'UPDATE_COMPLETE'
+
+    - name: fail when status is not COMPLETE
+      fail: msg="Overcloud update failed"
+      when: update_status.rc != 0
 
 - name: Check update status
   hosts: update:!undercloud

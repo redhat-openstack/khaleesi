@@ -44,3 +44,10 @@
           key="{{ ansible_ssh_private_key_file }}"
           timeout=900
           sudo=true
+
+    - name: set vlan up
+      ignore_errors: yes
+      sudo: yes
+      shell: >
+        ip l set dev vlan10 up; ip addr add 172.16.23.251/24 dev vlan10;
+      when: installer.network.isolation == 'single_nic_vlans'
