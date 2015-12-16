@@ -2,13 +2,10 @@
 tmp:
   horizon:
     '5.0':
-      help_url: https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux_OpenStack_Platform/5/index.html
       revision: rhos-5.0
     '6.0':
-      help_url: https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux_OpenStack_Platform/6/index.html
       revision: rhos-6.0
     '7.0':
-      help_url: https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux_OpenStack_Platform/7/index.html
       revision: rhos-7.0
 tester:
   component: horizon
@@ -21,7 +18,7 @@ tester:
     image_url: !lookup tester.images.cirros.url
     image_name: !lookup tester.images.cirros.name
     horizon:
-      help_url: !lookup tmp.horizon[!lookup product.full_version].help_url
+      help_url: https://access.redhat.com/documentation/en/red-hat-enterprise-linux-openstack-platform/
     browser_name: firefox
     browser_version: 38
     browser_platform: linux
