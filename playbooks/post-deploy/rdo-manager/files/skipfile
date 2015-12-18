@@ -1,10 +1,6 @@
 # BZ 1253709
 -tempest.api.compute.certificates.test_certificates.CertificatesV2TestJSON.test_create_root_certificate
 -tempest.api.compute.certificates.test_certificates.CertificatesV2TestJSON.test_get_root_certificate
-# BZ 1253299
--tempest.api.image.v1.test_images.CreateRegisterImagesTest.test_register_http_image
--tempest.api.image.v1.test_images.CreateRegisterImagesTest.test_register_remote_image
--tempest.api.image.v1.test_images.ListImagesTest
 # BZ 1253765
 -tempest.api.object_storage.test_container_staticweb.StaticWebTest.test_web_index
 -tempest.api.object_storage.test_container_staticweb.StaticWebTest
@@ -22,11 +18,6 @@
 -tempest.api.volume.test_volumes_snapshots.VolumesV2SnapshotTestJSON.test_volume_from_snapshot
 # BZ 1266947
 -tempest.api.identity.admin.v3
-# BZ 1272289
--tempest.scenario.test_volume_boot_pattern.TestVolumeBootPattern.test_volume_boot_pattern
--tempest.api.telemetry.test_telemetry_notification_api.TelemetryNotificationAPITestJSON.test_check_glance_v1_notifications
--tempest.api.telemetry.test_telemetry_notification_api.TelemetryNotificationAPITestJSON.test_check_glance_v2_notifications
--tempest.scenario.test_volume_boot_pattern.TestVolumeBootPatternV2.test_volume_boot_pattern
 # BZ 1274308
 -tempest.api.object_storage.test_container_services.ContainerTest.test_create_container
 -tempest.api.object_storage.test_object_services.ObjectTest.test_update_object_metadata
