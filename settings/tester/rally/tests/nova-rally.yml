@@ -124,6 +124,9 @@ tester:
                 network:
                   start_cidr: "10.2.0.0/24"
                   networks_per_tenant: 2
+              sla:
+                failure_rate:
+                  max: 0
 
             -
               args:
@@ -566,6 +569,9 @@ tester:
                   nova:
                     security_groups: -1
                     security_group_rules: -1
+              sla:
+                failure_rate:
+                  max: 0
 
           NovaKeypair.create_and_delete_keypair:
             -
@@ -672,6 +678,9 @@ tester:
                 users:
                   tenants: 2
                   users_per_tenant: 2
+              sla:
+                failure_rate:
+                  max: 0
 
           NovaFloatingIpsBulk.create_and_list_floating_ips_bulk:
             -

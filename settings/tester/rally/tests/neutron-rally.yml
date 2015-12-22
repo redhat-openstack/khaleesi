@@ -703,6 +703,9 @@ tester:
                   tenants: 2
                   users_per_tenant: 2
                 network: {}
+              sla:
+                failure_rate:
+                  max: 0
 
           VMTasks.boot_runcommand_delete_custom_image:
             -
@@ -730,3 +733,6 @@ tester:
                   tenants: 1
                   users_per_tenant: 1
                 network: {}
+              sla:
+                failure_rate:
+                  max: 0
