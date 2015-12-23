@@ -345,6 +345,134 @@ by _Ironic: .. http://docs.openstack.org/developer/tripleo-docs/environments/bar
 - the undercloud machine must be able to reach the power management interfaces IP
 - a hardware_environments in khaleesi settings as described below.
 
+Testing Openstack Components
+----------------------------
+
+OpenStack components have various set of tests that are referred to as testers.
+Below is a list of all testers that are supported in khaleesi, for running
+tests on OpenStack components.The list is sorted by complexity of setting
+up the environment needed for running the tests:
+
+- pep8
+- Unit tests
+- Functional
+- Integration
+- API (in component repo)
+- Tempest
+
+Testers are passed to the ksgen CLI as '--tester=' argument value:
+pep8, unittest, functional, integration, api, tempest
+
+Below are examples on how to use the different testers:
+
+To run pep8 you would use the following ksgen invocation:
+
+  ksgen --config-dir settings \
+  generate \
+    --provisioner=openstack \
+    --provisioner-site=qeos \
+    --product=rhos \
+    --distro=rhel-7.2 \
+    --installer=project \
+    --installer-component=nova \ # OpenStack component on which tests will run
+    --tester=pep8
+  ksgen_settings.yml
+
+To run unit tests you would use the following ksgen invocation:
+
+  ksgen --config-dir settings \
+  generate \
+    --provisioner=openstack \
+    --provisioner-site=qeos \
+    --product=rhos \
+    --distro=rhel-7.2 \
+    --installer=project \
+    --installer-component=cinder
+    --tester=unittest
+  ksgen_settings.yml
+
+To run functional tests, you would use:
+
+  ksgen --config-dir settings \
+  generate \
+    --provisioner=openstack \
+    --provisioner-site=qeos \
+    --distro=rhel-7.2 \
+    --product=rhos \
+    --installer=packstack \
+    --installer-config=full \ # To install single component use basic_neutron
+    --tester=functional \
+    --installer-component=neutron
+  ksgen_settings.yml
+
+To run API in-tree tests, you would use:
+
+  ksgen --config-dir settings \
+  generate \
+    --provisioner=openstack \
+    --provisioner-site=qeos \
+    --distro=rhel-7.2 \
+    --product=rhos \
+    --installer=packstack \
+    --installer-config=basic_glance \
+    --tester=api \
+    --installer-component=glance
+  ksgen_settings.yml
+
+To run tempest tests, use this invocation:
+
+  ksgen --config-dir settings \
+  generate \
+    --provisioner=openstack \
+    --provisioner-site=qeos \
+    --distro=rhel-7.2 \
+    --product=rhos \
+    --installer=packstack \
+    --installer-config=basic_cinder \
+    --tester=tempest \
+    --tester-tests=cinder_full \ # For single component tests use cinder_full
+    --tester-setup=git \ # To install with existing package, use 'rpm'
+  ksgen_settings.yml
+
+Key differences between testers:
+
+- pep8 and unittest
+  Do not require installed OpenStack environment while other testers does.
+
+  That is why for the pep8 and unittest the installer is the actual project
+  repo: '--installer=project'.
+
+  For pep8 and unittest khaleesi run would look like this:
+  provision -> install component git repo -> run tests.
+
+  For any other tester khaleesi run would look like this:
+  provision -> install OpenStack* -> copy tests to tester node -> run tests.
+
+  * Using packstack or rdo-manager
+
+- Tempest
+  Holds all the tests in separate project.
+
+  While any other testser can only run on single component, Tempest
+  holds system wide tests that can test multiple component in single run.
+  That's why you need to define the tests to run with
+  '--tester-tests=neutron_full' in order to run single component tests.
+  To run all tests simply use '--tester-tests=all'.
+
+  Tempest itself, as tester framework, can be installed via source or rpm.
+  You can control it with '--tester-setup=git' or '--tester-setup=rpm'.
+
+For all testers khaleesi is collecting logs.
+There are two type of logs:
+
+    1. The actual tests run. Those are subunit streams that khaleesi converts
+       to junitxml.
+    2. Any additional files that are defined by user for archiving.
+
+Note that pep8 doesn't generate subunit stream, so in this case, the tests
+logs are simply capture of output redirection from running the tests and not
+the subunit stream itself.
+
 
 The hardware_environments
 =========================
