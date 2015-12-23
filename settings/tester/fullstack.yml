@@ -1,0 +1,10 @@
+---
+tester:
+    type: fullstack
+    name: fullstack
+    short_name: fstck
+    component:
+        config_file: jenkins-config.yml
+node:
+    prefix:
+        - !lookup tester.short_name

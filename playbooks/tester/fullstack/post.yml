@@ -1,0 +1,4 @@
+---
+- name: Post tester steps
+  gather_facts: no
+  hosts: controller

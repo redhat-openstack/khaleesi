@@ -1,0 +1,6 @@
+tester:
+    component:
+        name: neutron
+        short_name: ntrn
+        dir: !join [ !env WORKSPACE, /neutron]
+        tox_target: dsvm-fullstack

@@ -1,0 +1,6 @@
+tester:
+   component:
+       name: python-neutronclient
+       short_name: py-ntrnclnt
+       dir: !join [ !env WORKSPACE, /python-neutronclient]
+       tox_target: functional

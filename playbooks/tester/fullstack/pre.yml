@@ -1,0 +1,6 @@
+---
+- name: Run pre tasks
+  hosts: controller
+  gather_facts: yes
+  roles:
+    - component-test/pre
