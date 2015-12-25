@@ -1,7 +1,7 @@
 ---
 - name: Run horizon integration tests
   hosts: tester
-  gather_facts: no
+  gather_facts: yes
   sudo: no
   tasks:
       - name: run integration tests
@@ -11,8 +11,7 @@
           BROWSER_NAME: "{{ lookup('env', 'BROWSER_NAME') }}"
           BROWSER_VERSION: "{{ lookup('env', 'BROWSER_VERSION') }}"
           BROWSER_PLATFORM: "{{ lookup('env', 'BROWSER_PLATFORM') }}"
-        shell: 'source ~/{{ tester.venv_dir }}/bin/activate && nosetests -v -a "{{ tester.integration.tests_tag }}" --with-xunit --xunit-file=horizon.xml openstack_dashboard/test/integration_tests/tests'
-        args:
-            chdir: ~/{{ tester.dir }}
-
+        shell: source ~/{{ tester.venv_dir }}/bin/activate && nosetests -v -a "{{ tester.integration.tests_tag }}" --with-xunit --xunit-file=horizon.xml openstack_dashboard/test/integration_tests/tests chdir=~/{{ tester.dir }}
         ignore_errors: True
+        async: 21600
+        poll: 30
