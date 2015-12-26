@@ -1,0 +1,11 @@
+---
+- name: Disable any existing repos
+  sudo: yes
+  shell: sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/*
+  register: shell_result
+  changed_when: "shell_result.rc == 0"
+  failed_when: "shell_result.rc > 2"
+
+- name: Install the COPR repo required for component tests
+  sudo: yes
+  template: src=../templates/component-test-copr-repo.j2 dest=/etc/yum.repos.d/test-reqs-copr.repo
