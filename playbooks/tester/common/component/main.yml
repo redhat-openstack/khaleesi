@@ -1,2 +1,0 @@
----
-- include: testrun.yml test_cfg={{ test_env }}
