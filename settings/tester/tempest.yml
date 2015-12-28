@@ -1,5 +1,6 @@
 --- !extends:common.yml
 tester:
+    host: controller
     type: tempest
     dir: tempest-dir
     guest_image:

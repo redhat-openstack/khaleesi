@@ -1,6 +1,6 @@
 ---
 - name: "Collect test results xml"
-  hosts: controller
+  hosts: "{{ tester.host }}"
   gather_facts: no
   sudo: yes
   tasks:

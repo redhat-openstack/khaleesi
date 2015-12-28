@@ -1,5 +1,6 @@
 ---
 tester:
-  type: rhosqe
-  dir: rhosqe_tests
+    host: controller
+    type: rhosqe
+    dir: rhosqe_tests
 

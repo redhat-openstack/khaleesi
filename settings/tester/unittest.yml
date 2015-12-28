@@ -1,5 +1,6 @@
 ---
 tester:
+    host: controller
     type: unittest
     name: unittest
     short_name: ut

@@ -1,6 +1,6 @@
 ---
 - name: Preparation tasks
-  hosts: controller
+  hosts: "{{ tester.host }}"
   gather_facts: yes
   roles:
     - component-test/pre

@@ -1,6 +1,7 @@
 ---
 # unittest and pep8 can use the same playbooks. That is why the type is unittest
 tester:
+    host: controller
     type: unittest
     name: pep8
     short_name: p8

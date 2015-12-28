@@ -1,5 +1,6 @@
 --- !extends:common.yml
 tester:
+    host: controller
     guest_image:
         url: !lookup tester.images.cirros.url
         name: !lookup tester.images.cirros.name

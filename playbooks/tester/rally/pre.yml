@@ -46,7 +46,7 @@
         creates: "{{ tester.rally.path }}/bin/rally"
 
 - name: Prepare Openstack
-  hosts: controller
+  hosts: "{{ tester.host }}"
   tasks:
     - name: Create nano falvor
       shell: "source /root/keystonerc_admin && nova flavor-create m1.nano 42 64 0 1"

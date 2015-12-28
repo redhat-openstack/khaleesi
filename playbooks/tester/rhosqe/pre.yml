@@ -1,6 +1,6 @@
 ---
 - name: Install rhosqe tests from source
-  hosts: controller
+  hosts: "{{ tester.host }}"
   gather_facts: no
   sudo: yes
   tasks:

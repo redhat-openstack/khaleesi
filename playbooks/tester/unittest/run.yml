@@ -1,5 +1,5 @@
 ---
 - name: Run tests
-  hosts: controller
+  hosts: "{{ tester.host }}"
   roles:
     - component-test/run
