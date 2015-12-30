@@ -27,6 +27,16 @@ tester:
     browser_platform: linux
     selenium_grid_download: http://selenium-release.storage.googleapis.com/2.48/selenium-server-standalone-2.48.2.jar
     chrome_webdriver_download: http://chromedriver.storage.googleapis.com/2.20/chromedriver_linux64.zip
+    java:
+      use_oracle: true
+      oracle_download_url: http://download.oracle.com/otn-pub/java/jdk/8u65-b17/jdk-8u65-linux-x64.tar.gz
+      download_folder: /opt
+      name: "jdk1.8.0_65"
+      archive: "jdk-8u65-linux-x64.tar.gz"
+    xvfb:
+      service_name: xvfb.service
+      display_num: 99
+      resolution: "1024x767x24"
     subscription:
       username: !lookup private.distro.rhel.subscription.username
       password: !lookup private.distro.rhel.subscription.password

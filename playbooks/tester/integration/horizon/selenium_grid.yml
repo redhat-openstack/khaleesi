@@ -9,6 +9,17 @@
       grid_node_config: grid_node.json
       grid_hub_config: grid_hub.json
       webdriver_chrome_zip: /tmp/chrome-webdriver.zip
+  roles:
+    - role: linux/java/oracle
+      java_oracle_download_url: "{{ tester.integration.java.oracle_download_url }}"
+      java_download_folder: "{{ tester.integration.java.download_folder }}"
+      java_name: "{{ tester.integration.java.download_folder }}/{{ tester.integration.java.name }}"
+      java_archive: "{{ tester.integration.java.download_folder }}/{{ tester.integration.java.archive }}"
+      when: tester.integration.java.use_oracle == true
+    - role: linux/xvfb
+      xvfb_screen_num: "{{ tester.integration.xvfb.display_num }}"
+      xvfb_resolution: "{{ tester.integration.xvfb.resolution }}"
+      xvfb_service_name: "{{ tester.integration.xvfb.service_name }}"
   tasks:
     - file:
         path: "{{ grid_path }}"

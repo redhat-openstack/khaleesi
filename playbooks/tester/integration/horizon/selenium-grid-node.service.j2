@@ -1,12 +1,13 @@
 [Unit]
 Description=Selenium grid node
-Requires=selenium-grid-hub.service
+Requires=selenium-grid-hub.service {{tester.integration.xvfb.service_name }}
 After=network-online.target selenium-grid-hub.service
 
 [Service]
 Type=simple
 Restart=always
-ExecStart=/usr/bin/xvfb-run -s '-screen 0 1920x1080x24' -a java -jar {{ grid_path }}/{{ grid_filename }} -Dwebdriver.chrome.driver="{{ grid_path }}/chromedriver" -role node -nodeConfig {{ grid_path }}/{{ grid_node_config }}
+Environment=DISPLAY=:{{ tester.integration.xvfb.display_num }}
+ExecStart=/usr/bin/java -Xms32m -jar {{ grid_path }}/{{ grid_filename }} -Dwebdriver.chrome.driver={{ grid_path }}/chromedriver -role node -nodeConfig {{ grid_path }}/{{ grid_node_config }}
 
 [Install]
 WantedBy=multi-user.target
