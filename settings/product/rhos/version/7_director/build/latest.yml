@@ -11,7 +11,7 @@ product:
 
 installer:
   images:
-      version: '7.1'
+      version: '7.2'
       files:
         - deploy-ramdisk-ironic
         - discovery-ramdisk
