@@ -1,6 +1,7 @@
 ---
 - name: Change key file permissions
   hosts: localhost
+  gather_facts: no
   tasks:
     - file:
         path: "{{ provisioner.key_file }}"
@@ -10,6 +11,7 @@
 
 - name: clean old inventory file
   hosts: localhost
+  gather_facts: no
   tasks:
     - file:
         dest: "{{ lookup('env', 'PWD') }}/hosts"
@@ -20,6 +22,7 @@
 
 - name: generate inventory file
   hosts: localhost
+  gather_facts: no
   tasks:
     - template:
         dest: "{{ lookup('env', 'PWD') }}/hosts-{{ tmp.node_prefix }}"
@@ -31,6 +34,7 @@
 
 - name: extend hosts file
   hosts: openstack_nodes
+  gather_facts: no
   sudo: yes
   tasks:
     - name: Template of nodes

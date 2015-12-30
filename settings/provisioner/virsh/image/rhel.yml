@@ -1,0 +1,12 @@
+---
+provisioner:
+    image:
+        base_url: !lookup distro.images[ !lookup distro.name ][ !lookup distro.full_version ].remote_file_server
+        name: !lookup distro.images[ !lookup distro.name ][ !lookup distro.full_version ].guest_image_name
+        memory: "16384"
+        cpu: "4"
+        os:
+            variant: rhel7
+        disk:
+            size: "40"
+
