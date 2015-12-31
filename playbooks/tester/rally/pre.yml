@@ -83,4 +83,5 @@
         src: "{{ provisioner.key_file }}"
         dest: "{{ tester.rally.tmp.private_key }}"
         mode: 0600
+      when: tester.rally.tmp is defined and tester.rally.tmp.private_key is defined
 
