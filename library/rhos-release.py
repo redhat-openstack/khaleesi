@@ -177,7 +177,7 @@ def _parse_output(module, stdout):
 
     installed_releases = map(released, release_lines)
     if len(installed_releases) > 2 or (len(installed_releases) == 2 and
-                                       set(r["channel"] for r in installed_releases) != {"ospd", "core"}):
+                                       set(r["channel"] for r in installed_releases) != set(("ospd", "core"))):
         module.fail_json(msg="Can't handle more than 2 channels. 1 core, 1 ospd. Found %s" % installed_releases)
 
     return dict(

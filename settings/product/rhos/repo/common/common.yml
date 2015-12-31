@@ -1,6 +1,7 @@
 product:
     rpm: !lookup private.distro.rhel.rhos_release_rpm
     repo:
+        state: pinned
         release: latest
         location: bos
         mirror: download.eng.{{ !lookup product.repo.location }}.redhat.com

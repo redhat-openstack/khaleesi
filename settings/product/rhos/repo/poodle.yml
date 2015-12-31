@@ -4,6 +4,3 @@ product:
     repo:
         type: poodle
         short_type: pod
-        rhos_release:
-            extra_args:
-                - "-d"

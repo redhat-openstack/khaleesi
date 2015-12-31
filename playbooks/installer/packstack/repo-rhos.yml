@@ -14,8 +14,13 @@
       - name: Install release tool on machines
         command: "yum localinstall -y {{ product.rpm }}"
 
-      - name: Execute rhos-release for packstack poodle/puddle
-        command: "rhos-release {{ product.version.major }} {{ product.repo.rhos_release.extra_args|join(' ') }}"
+      - name: Get RHOS repo files
+        rhos-release:
+            release: "{{ product.version.major }}"
+            repo_type: "{{ product.repo.type }}"
+            state: "{{ product.repo.state }}"
+            distro: "{{ product.repo.distro | default(omit) }}"
+            dest: "{{ product.repo.dest | default(omit) }}"
 
       - name: repolist
         command: yum -d 7 repolist
