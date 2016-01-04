@@ -1,0 +1,3 @@
+installer:
+    tempest:
+        skip_file: rdoci-rhos-8-director-rdo-manager

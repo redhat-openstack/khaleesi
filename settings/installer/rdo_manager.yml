@@ -56,5 +56,6 @@ defaults:
     network: neutron
     flavor: justright
     tempest: minimal
+    tempest_skip_file: none
     updates: none
     custom_deploy: none

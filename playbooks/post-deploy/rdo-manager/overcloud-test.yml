@@ -61,7 +61,7 @@
             installer.tempest.test_regex != "tempest\.scenario\.test_minimum_basic"
 
     - name: copy skipfile into stack home
-      copy: src=files/skipfile dest={{ instack_user_home }}/skipfile owner=stack group=stack
+      copy: src=files/tempest_skip/{{ installer.tempest.skip_file }} dest={{ instack_user_home }}/skipfile owner=stack group=stack
 
     - name: run tempest based overcloud tests
       ignore_errors: yes

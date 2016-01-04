@@ -52,6 +52,7 @@
                     --installer-post_action={installer-post_action} \
                     --installer-topology={installer-topology} \
                     --installer-tempest={installer-tempest} \
+                    --installer-tempest_skip_file=rdoci-{product}-{product-version}-{installer} \
                     --workarounds=enabled \
                     --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/{network-isolation}/hw_settings.yml \
                     ksgen_settings.yml
@@ -134,6 +135,7 @@
                     --installer-post_action={installer-post_action} \
                     --installer-topology={installer-topology} \
                     --installer-tempest={installer-tempest} \
+                    --installer-tempest_skip_file=rdoci-{product}-{product-version}-{installer} \
                     --workarounds=enabled \
                     --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/{network-isolation}/hw_settings.yml \
                     --extra-vars product.repo.delorean_pin_version=$delorean_current_hash \
@@ -387,6 +389,7 @@
                     --installer-post_action={installer-post_action} \
                     --installer-topology={installer-topology} \
                     --installer-tempest={installer-tempest} \
+                    --installer-tempest_skip_file=rdoci-{product}-{product-version}-{installer} \
                     --installer-updates={installer-updates} \
                     --distro={distro} \
                     --product={product} \

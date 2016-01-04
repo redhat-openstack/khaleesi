@@ -1,0 +1,32 @@
+# rhbz1253709
+-tempest.api.compute.certificates.test_certificates.CertificatesV2TestJSON.test_create_root_certificate
+-tempest.api.compute.certificates.test_certificates.CertificatesV2TestJSON.test_get_root_certificate
+# rhbz1253765
+-tempest.api.object_storage.test_container_staticweb.StaticWebTest.test_web_index
+-tempest.api.object_storage.test_container_staticweb.StaticWebTest
+-tempest.api.object_storage.test_object_slo.ObjectSloTest.test_delete_large_object
+-tempest.api.object_storage.test_object_slo.ObjectSloTest.test_list_large_object_metadata
+-tempest.api.object_storage.test_object_slo.ObjectSloTest.test_retrieve_large_object
+-tempest.api.object_storage.test_object_slo.ObjectSloTest.test_upload_manifest
+-tempest.api.object_storage.test_object_version.ContainerTest.test_versioned_container
+-tempest.api.orchestration.stacks.test_swift_resources.SwiftResourcesTestJSON.test_acl
+-tempest.api.orchestration.stacks.test_swift_resources.SwiftResourcesTestJSON.test_metadata
+# rhbz1254938
+-tempest.api.volume.admin.test_volumes_backup.VolumesBackupsV1Test.test_volume_backup_create_get_detailed_list_restore_delete
+-tempest.api.volume.admin.test_volumes_backup.VolumesBackupsV2Test.test_volume_backup_create_get_detailed_list_restore_delete
+-tempest.api.volume.test_volumes_snapshots.VolumesV1SnapshotTestJSON.test_volume_from_snapshot
+-tempest.api.volume.test_volumes_snapshots.VolumesV2SnapshotTestJSON.test_volume_from_snapshot
+# rhbz1266947
+-tempest.api.identity.admin.v3
+# rhbz1274308
+-tempest.api.object_storage.test_container_services.ContainerTest.test_create_container
+-tempest.api.object_storage.test_object_services.ObjectTest.test_update_object_metadata
+# rhbz1240816
+-tempest.scenario.test_volume_boot_pattern
+# rhbz1295556
+-tempest.api.volume.test_volumes_get
+# rhbz1295561
+-tempest.api.image.v2.test_images.BasicOperationsImagesTest.test_update_image
+# rhbz1295565
+-tempest.api.network.test_ports.PortsTestJSON.test_create_port_in_allowed_allocation_pools
+-tempest.api.network.test_ports.PortsIpV6TestJSON.test_create_port_in_allowed_allocation_pools
