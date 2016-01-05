@@ -1,3 +1,7 @@
 --- !extends:common.yml
 tester:
     type: integration
+    accounts:
+        - username: 'demo'
+          tenant_name: 'demo'
+          password: 'secrete'

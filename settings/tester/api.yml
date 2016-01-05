@@ -5,6 +5,11 @@ tester:
     short_name: api
     component:
         config_file: jenkins-config.yml
+    accounts:
+        - username: 'demo'
+          tenant_name: 'demo'
+          password: 'secrete'
+
 node:
     prefix:
         - !lookup tester.short_name

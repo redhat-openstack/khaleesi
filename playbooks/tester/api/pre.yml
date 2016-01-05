@@ -7,6 +7,11 @@
 
 - name: Configure Tempest
   hosts: controller
+  vars:
+      controller_auth_url: "http://127.0.0.1:5000/v2.0"
+      admin_password: "{{ hostvars[provisioner.nodes.controller.name].admin_password | default('redhat') }}"
+  roles:
+      - openstack/create_users
   tasks:
       - name: Ensure tempest configuration directory exists
         sudo: yes
@@ -20,26 +25,15 @@
         sudo: yes
         environment:
             OS_USERNAME: admin
-            OS_PASSWORD: redhat
+            OS_PASSWORD: "{{ admin_password }}"
             OS_TENANT_NAME: admin
-            OS_AUTH_URL: http://127.0.0.1:5000/v2.0
+            OS_AUTH_URL: "{{ controller_auth_url }}"
         shell: >
             echo "public_network_id = $(neutron net-list | grep public | awk '{print $2}')" >> {{ tester.component.conf_dir | default('/opt/stack/tempest/etc') }}/tempest.conf;
 
-      - name: Create demo user and tenant
-        sudo: yes
-        environment:
-            OS_USERNAME: admin
-            OS_PASSWORD: redhat
-            OS_TENANT_NAME: admin
-            OS_AUTH_URL: http://127.0.0.1:5000/v2.0
-        shell: >
-            keystone tenant-create --name demo;
-            keystone user-create --name demo --pass secrete --tenant-id `keystone tenant-get demo | grep id | awk -F'|' '{print $3}' | tr -d ' '`
-
       - name: Set tempest api environment
         shell: >
-            echo "export OS_USERNAME=demo" >> ~/.bash_profile;
-            echo "export OS_PASSWORD=secrete" >> ~/.bash_profile;
-            echo "export OS_TENANT_NAME=demo" >> ~/.bash_profile;
-            echo "export OS_AUTH_URL=http://127.0.0.1:5000/v2.0" >> ~/.bash_profile
+            echo "export OS_USERNAME={{ tester.accounts[0].username }}" >> ~/.bash_profile;
+            echo "export OS_PASSWORD={{ tester.accounts[0].password }}" >> ~/.bash_profile;
+            echo "export OS_TENANT_NAME={{ tester.accounts[0].tenant_name }}" >> ~/.bash_profile;
+            echo "export OS_AUTH_URL={{ controller_auth_url }}" >> ~/.bash_profile

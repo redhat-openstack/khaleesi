@@ -10,7 +10,7 @@
         - python-keystoneclient
         - python-neutronclient
 
-- name: Create demo tenant and private network
+- name: Create private network
   hosts: tester
   sudo: no
   gather_facts: yes
@@ -19,24 +19,7 @@
       tmp_controller_host: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"
       controller_auth_url: "http://{{ tmp_controller_host }}:35357/v2.0/"
       admin_password: "{{ hostvars[controller_name].admin_password | default('redhat') }}"
-      demo_password: "{{ hostvars[controller_name].demo_password | default('redhat') }}"
   tasks:
-    - keystone_user:
-        tenant: demo
-        login_user: admin
-        login_password: "{{ admin_password }}"
-        login_tenant_name: admin
-        endpoint: "{{ controller_auth_url }}"
-        state: present
-    - keystone_user:
-        user: demo
-        password: "{{ demo_password }}"
-        tenant: demo
-        login_user: admin
-        login_password: "{{ admin_password }}"
-        login_tenant_name: admin
-        endpoint: "{{ controller_auth_url }}"
-        state: present
     # create tenant network
     - quantum_network:
         state: present

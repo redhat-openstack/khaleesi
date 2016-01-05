@@ -1,0 +1,28 @@
+---
+- yum:
+      name: "{{ item }}"
+      state: present
+  sudo: yes
+  with_items:
+    - python-keystoneclient
+
+# create the requested users and tenants
+- keystone_user:
+      tenant: "{{ item.tenant_name }}"
+      login_user: admin
+      login_password: "{{ admin_password }}"
+      login_tenant_name: admin
+      endpoint: "{{ controller_auth_url }}"
+      state: present
+  with_items: tester.accounts
+
+- keystone_user:
+      user: "{{ item.username }}"
+      password: "{{ item.password }}"
+      tenant: "{{ item.tenant_name }}"
+      login_user: admin
+      login_password: "{{ admin_password }}"
+      login_tenant_name: admin
+      endpoint: "{{ controller_auth_url }}"
+      state: present
+  with_items: tester.accounts

@@ -1,4 +1,14 @@
 ---
+- name: Prepare the environment (users and tenant)
+  hosts: controller
+  sudo: no
+  gather_facts: yes
+  vars:
+      controller_auth_url: "http://{{ ansible_default_ipv4.address }}:35357/v2.0/"
+      admin_password: "{{ admin_password | default('redhat') }}"
+  roles:
+      - openstack/create_users
+
 - include: ../common/demo_tenant.yml
 - include: ../common/upload_image.yml
 
