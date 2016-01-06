@@ -1,19 +1,11 @@
 ---
-tmp:
-  horizon:
-    '5.0':
-      revision: rhos-5.0
-    '6.0':
-      revision: rhos-6.0
-    '7.0':
-      revision: rhos-7.0
 tester:
   component: horizon
   dir: horizon-dir
   venv_dir: horizon-dir/venv
   git:
     #repo key is filled by settings/tester/integration/component/horizon/setup/git/repo
-    revision: !lookup tmp.horizon[!lookup product.full_version].revision
+    revision: rhos-{{!lookup product.full_version}}
   integration:
     image_url: !lookup tester.images.cirros.url
     image_name: !lookup tester.images.cirros.name
