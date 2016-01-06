@@ -133,7 +133,13 @@
       wait_for: path={{ instack_user_home }}/nic-configs/swift-storage.yaml
       when: installer.network.isolation != 'none' and installer.network.isolation != 'default'
 
-    - name : Custom Network config for node profiles
+    - name: Check for additional network config files
+      local_action: shell ls "{{ base_dir }}/khaleesi-settings/hardware_environments/{{ hw_env.env_type }}/network_configs/{{ installer.network.isolation }}/"
+      register: nic_configs
+
+    - debug: var=nic_configs.stdout_lines
+
+    - name: Custom Network config for node profiles
       synchronize: >
         src={{ base_dir }}/khaleesi-settings/hardware_environments/{{ hw_env.env_type }}/network_configs/{{ installer.network.isolation }}/{{ item }} dest=/home/stack/nic-configs/
       ignore_errors: yes
@@ -143,6 +149,7 @@
         - cinder-storage.yaml
         - swift-storage.yaml
         - ceph-storage.yaml
+      when: item in nic_configs.stdout_lines
 
 - name: Set up for custom template deploy with nova change
   hosts: undercloud:&openstack_virtual_baremetal
