@@ -16,13 +16,17 @@ provisioner:
     centos:
       "7":
         remote_user: centos
-        name: centos7
-        id: 5e60cdfd-d6a5-47bb-8b8a-b2bd7f7177f1
+        name: CentOS-7-x86_64-GenericCloud-1511
+        id: f1e2c717-b8c6-4ae0-ad7d-7943d9333e69
       "7.0":
         remote_user: centos
-        name: centos7
-        id: 5e60cdfd-d6a5-47bb-8b8a-b2bd7f7177f1
+        name: CentOS-7-x86_64-GenericCloud-1511
+        id: f1e2c717-b8c6-4ae0-ad7d-7943d9333e69
       "7.1":
         remote_user: centos
-        name: centos7
-        id: 5e60cdfd-d6a5-47bb-8b8a-b2bd7f7177f1
+        name: CentOS-7-x86_64-GenericCloud-1511
+        id: f1e2c717-b8c6-4ae0-ad7d-7943d9333e69
+      "7.2":
+        remote_user: centos
+        name: CentOS-7-x86_64-GenericCloud-1511
+        id: f1e2c717-b8c6-4ae0-ad7d-7943d9333e69
