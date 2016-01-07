@@ -188,7 +188,7 @@
             name: "INSTALL / TEST (IMPORT IMAGES)"
             condition: UNSTABLE
             projects:
-                - name: rdo-manager-promote-rdo-liberty-minimal_no_ceph-import_rdo_undercloud
+                - name: rdo-manager-promote-rdo-liberty-minimal_no_ceph-build
                   kill-phase-on: NEVER
                   property-file: /tmp/delorean_current_hash
                 - name: rdo-manager-promote-rdo-liberty-minimal_no_ceph-import_rdo_overcloud
@@ -239,7 +239,7 @@
                 - minimal_ha_no_ceph
                 - minimal_no_ceph
             installer-images:
-                - import_rdo_undercloud
+                - build
                 - import_rdo_overcloud
                 - import
                 - build_rdo_promote

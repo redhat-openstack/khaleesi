@@ -1,10 +1,16 @@
 ---
 installer:
-  overcloud_images: build
-  images:
-    '7-director':
-      files:
-        - no_op
-    '8-director':
-      files:
-        - no_op
+    overcloud_images: build
+    images:
+        '7-director':
+            files:
+                - no_op
+        '8-director':
+            files:
+                - no_op
+        'liberty':
+            files:
+                - no_op
+        'mitaka':
+            files:
+                - no_op

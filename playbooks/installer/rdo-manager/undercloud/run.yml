@@ -1,9 +1,33 @@
 ---
-- name: build/import overcloud images
+- name: install the undercloud packages and get the guest image
   hosts: undercloud
-  roles:
-    - { role: images/overcloud/build, when: "installer.overcloud_images is not defined or installer.overcloud_images == 'build'"}
-    - { role: images/overcloud/import, when: "installer.overcloud_images is defined and installer.overcloud_images == 'import'"}
+  tasks:
+    - name: install python-rdomanager-oscplugin
+      yum: name=python-rdomanager-oscplugin state=present
+      sudo: yes
+
+    - name: install yum-plugin-priorities rdo-manager
+      yum: name={{item}} state=present
+      sudo: yes
+      with_items:
+        - yum-plugin-priorities
+      when: product.name == "rdo"
+
+    - name: install rdo-manager-deps
+      yum: name={{item}} state=present
+      sudo: yes
+      with_items:
+        - python-tripleoclient
+      when: product.name == "rdo" or product.full_version == "8-director"
+
+    - name: install python-rdomanager-oscplugin
+      yum: name=python-rdomanager-oscplugin state=present
+      sudo: yes
+
+    - name: install python-passlib
+      yum: name=python-passlib state=present
+      sudo: yes
+
 
 - name: Customize the answer file for baremetal deployment
   hosts: undercloud:&baremetal
@@ -120,7 +144,7 @@
       yum: name=python-six state=present
       sudo: yes
 
-- name: undercloud package install
+- name: install the undercloud
   hosts: undercloud
   tasks:
     - name: set selinux to permissive for ospd-8 (workaround bug bz 1284133)
@@ -132,41 +156,46 @@
       lineinfile: dest=/etc/hosts line="127.0.0.1   localhost localhost.localhost"
       sudo: yes
 
-    - name: create custom element list to only do package install part of undercloud install
-      template:
-        dest: "{{ instack_user_home }}/package-only.json"
-        src: "{{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/{{ distro.name }}-package-only.json.j2"
-
-    - name: install the undercloud
-      shell: JSONFILE="{{ instack_user_home }}/package-only.json" openstack undercloud install --debug &> {{ instack_user_home }}/undercloud_package_install.log
-      ignore_errors: true
-
-- name: save undercloud vm for upload
-  hosts: virthost
-  vars:
-    - ansible_ssh_user: root
-  roles:
-    - { role: images/undercloud/save, when: "installer.undercloud_image is defined and installer.undercloud_image == 'save'"}
-
-- name: undercloud initial install
-  hosts: undercloud
-  tasks:
-    - name: update hosts file for localhost.localhost (workaround for puppet, discovered on centos7)
-      lineinfile: dest=/etc/hosts line="127.0.0.1   localhost localhost.localhost"
-      sudo: yes
-
     - name: install the undercloud
       shell: openstack undercloud install --debug &> {{ instack_user_home }}/undercloud_install_initial_install.log
+
+    - name: copy files to home
+      sudo: yes
+      command: cp /root/{{ item }} {{ instack_user_home }}/{{ item }}
+      with_items:
+        - tripleo-undercloud-passwords
+        - stackrc
+
+    - name: chown files for stack user
+      sudo: yes
+      command: chown stack:stack {{ instack_user_home }}/{{ item }}
+      with_items:
+        - tripleo-undercloud-passwords
+        - stackrc
+
+- name: confirm installing the undercloud is idempotent
+  hosts: undercloud
+  tasks:
+    - name: install the undercloud
+      shell: openstack undercloud install &> {{ instack_user_home }}/undercloud_install_idempotent_check.log
+
+- name: undercloud post install workarounds
+  hosts: undercloud
+  tasks:
+    - name: disable haproxy check (workaround bug bz 1246525)
+      sudo: yes
+      replace: dest=/etc/haproxy/haproxy.cfg regexp='(listen ironic\n.*\n.*)\n.*option httpchk GET \/' replace='\1'
+      when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
+
+    - name: restart haproxy service (workaround bug bz 1246525)
+      command: systemctl restart haproxy
+      sudo: yes
+      when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
 
     - name: increase stack_action_timeout to 4 hours (workaround for bz 1243365)
       command: openstack-config --set /etc/heat/heat.conf DEFAULT stack_action_timeout 14400
       sudo: yes
       when: workarounds.enabled is defined and workarounds.enabled|bool
-
-    - name: increase num_engine_workers to 4 (workaround for bz 1290949)
-      command: openstack-config --set /etc/heat/heat.conf DEFAULT num_engine_workers 4
-      sudo: yes
-      when: workarounds | bug('rhbz1290949')
 
     - name: restart openstack-heat-engine (workaround for bz 1243365)
       command: systemctl restart openstack-heat-engine
@@ -187,39 +216,23 @@
       sudo: yes
       when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
 
-    - name: copy files to home
-      sudo: yes
-      command: cp /root/{{ item }} {{ instack_user_home }}/{{ item }}
-      with_items:
-        - tripleo-undercloud-passwords
-        - stackrc
-
-    - name: chown files for stack user
-      sudo: yes
-      command: chown stack:stack {{ instack_user_home }}/{{ item }}
-      with_items:
-        - tripleo-undercloud-passwords
-        - stackrc
-
-- name: Check the undercloud install is idempotent
-  hosts: undercloud
+- name: Execute vendor-specific setup for baremetal environment
+  hosts: undercloud:&baremetal
   tasks:
-    - name: install the undercloud
-      shell: openstack undercloud install &> {{ instack_user_home }}/undercloud_install_idempotent_check.log
+    - name: copy vendor-specific setup file
+      synchronize: >
+        src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
+        delegate_to: local
+      when: hw_env.env_type != 'ovb_host_cloud'
 
-    - name: check if haproxy is present (workaround bug bz 1246525)
-      stat: path=/etc/haproxy/haproxy.cfg
-      register: ha_config_file
+    - name: copy over vendor-specific setup file (quintupleo_host_cloud)
+      local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F {{base_dir}}/khaleesi/ssh.config.ansible -S none -o StrictHostKeyChecking=no" {{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup undercloud:{{ instack_user_home }}/vendor_specific_setup
+      when: hw_env.env_type == 'ovb_host_cloud'
 
-    - name: disable haproxy check (workaround bug bz 1246525)
-      sudo: yes
-      replace: dest=/etc/haproxy/haproxy.cfg regexp='(listen ironic\n.*\n.*)\n.*option httpchk GET \/' replace='\1'
-      when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
-
-    - name: restart haproxy service (workaround bug bz 1246525)
-      command: systemctl restart haproxy
-      sudo: yes
-      when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
+    - name: execute vendor-specific setup
+      shell: >
+        chmod 755 {{ instack_user_home }}/vendor_specific_setup;
+        {{ instack_user_home }}/vendor_specific_setup
 
 - name: Set ironic to control the power state
   hosts: undercloud:&baremetal

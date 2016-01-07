@@ -19,13 +19,42 @@
             grep 'OS_AUTH_URL' {{ instack_user_home }}/{{ instack_rc_filename }} | cut -d '=' -f2
 
     - name: admin pass
-      set_fact: admin_password={{ get_admin_password_result.stdout }}
+      set_fact: admin_password={{ get_admin_password_result.stdout }} | default({{ installer.validate.admin_password }})
 
     - name: auth url
-      set_fact: keystone_endpoint={{ get_auth_url_result.stdout }}
+      set_fact: keystone_endpoint={{ get_auth_url_result.stdout }} | default({{ installer.validate.keystone_endpoint }})
 
-- name: upload cirros test images to glance
-  hosts: undercloud
-  gather_facts: false
-  roles:
-    - images/cirros
+    - name: get the cirros guest-image
+      get_url: >
+        url="{{ installer.tempest.cirros.url }}{{ installer.tempest.cirros.id }}"
+        dest={{ instack_user_home }}/{{ installer.tempest.cirros.id }}
+
+    - name: create the cirros_alt guest-image
+      command: cp {{ instack_user_home }}/{{ installer.tempest.cirros.id }} {{ instack_user_home }}/{{ installer.tempest.cirros_alt.id }}
+
+    - name: upload cirros image
+      glance_image:
+          auth_url: "{{ keystone_endpoint }}"
+          login_username: "{{ installer.validate.admin_username }}"
+          login_password: "{{ admin_password }}"
+          login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+          name: "{{ installer.tempest.cirros.id }}"
+          container_format: bare
+          disk_format: raw
+          state: present
+          is_public: yes
+          file: "{{ instack_user_home }}/{{ installer.tempest.cirros.id }}"
+
+    - name: upload cirros_alt image
+      glance_image:
+          auth_url: "{{ keystone_endpoint }}"
+          login_username: "{{ installer.validate.admin_username }}"
+          login_password: "{{ admin_password }}"
+          login_tenant_name: "{{ installer.validate.admin_tenant_name }}"
+          name: "{{ installer.tempest.cirros_alt.id }}"
+          container_format: bare
+          disk_format: raw
+          state: present
+          is_public: yes
+          file: "{{ instack_user_home }}/{{ installer.tempest.cirros_alt.id }}"
+

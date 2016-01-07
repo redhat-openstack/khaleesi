@@ -185,7 +185,7 @@
     installer: rdo_manager
     installer-deploy: templates
     installer-env: virthost
-    installer-images: import_rdo_undercloud
+    installer-images: build
     installer-post_action: none
     installer-topology: minimal_no_ceph
     installer-tempest: smoke
@@ -211,7 +211,7 @@
     installer: rdo_manager
     installer-deploy: templates
     installer-env: virthost
-    installer-images: import_rdo_undercloud
+    installer-images: build
     installer-post_action: none
     installer-tempest: smoke
     network: neutron
