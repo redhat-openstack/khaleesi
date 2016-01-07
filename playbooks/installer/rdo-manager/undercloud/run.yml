@@ -163,6 +163,11 @@
       sudo: yes
       when: workarounds.enabled is defined and workarounds.enabled|bool
 
+    - name: increase num_engine_workers to 4 (workaround for bz 1290949)
+      command: openstack-config --set /etc/heat/heat.conf DEFAULT num_engine_workers 4
+      sudo: yes
+      when: workarounds | bug('rhbz1290949')
+
     - name: restart openstack-heat-engine (workaround for bz 1243365)
       command: systemctl restart openstack-heat-engine
       sudo: yes

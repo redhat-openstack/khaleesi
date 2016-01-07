@@ -3,3 +3,8 @@
 product:
     short_repo: pood
     repo_type: poodle
+
+workarounds:
+    rhbz1290949:
+        desc: "Workaround BZ#1290949: Increase num_engine_workers in heat.conf"
+        enabled: true
