@@ -20,9 +20,15 @@
       {{ instack_user_home }}/instack-virt-setup;
 
   - name: get undercloud appliance
-    get_url: url="{{ installer.images.url[product.name][product.full_version][product.build][installer.images.version] }}{{ installer.undercloud_image_name }}"
-             dest={{ instack_user_home }}
-             timeout=360
+    shell: >
+      curl --silent -o undercloud.qcow2.md5 {{ installer.images.url[product.name][product.full_version][product.build][installer.images.version] }}{{ installer.undercloud_image_name }}.md5 &&
+      curl --silent -o undercloud.qcow2 {{ installer.images.url[product.name][product.full_version][product.build][installer.images.version] }}{{ installer.undercloud_image_name }} &&
+      md5sum -c undercloud.qcow2.md5
+    args:
+      chdir: "{{ instack_user_home }}"
+    register: undercloud_download
+    retries: 8
+    until: undercloud_download|success
 
   - name: copy instackenv.json to appliance
     command: virt-customize --upload instackenv.json:/home/stack/instackenv.json -a /home/stack/undercloud.qcow2
@@ -62,9 +68,9 @@
       export PATH='/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/stack/bin';
       ip n | grep $(tripleo get-vm-mac undercloud) | awk '{print $1;}'
     register: undercloud_vm_ip_result
-    until: undercloud_vm_ip_result.stdout != ''
     retries: 12
     delay: 10
+    until: undercloud_vm_ip_result.stdout != ''
 
   - name: set_fact for undercloud ip
     set_fact: undercloud_ip={{ undercloud_vm_ip_result.stdout }}
