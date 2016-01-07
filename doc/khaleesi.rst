@@ -66,9 +66,9 @@ Create the virtual environment, install ansible, ksgen and kcli utils::
     pip install ansible==1.9.2
     cd khaleesi
     cd tools/ksgen
-    python setup.py develop
+    python setup.py install
     cd ../kcli
-    python setup.py develop
+    python setup.py install
     cd ../..
 
 Create the appropriate ansible.cfg for khaleesi::
@@ -108,7 +108,7 @@ settings::
     |   |-- openstack
     |   |-- openstack_virtual_baremetal
     |   |-- rackspace
-    |   | -- vagrant
+    |   |-- vagrant
     |-- installer
     |   |-- devstack
     |   |-- opm

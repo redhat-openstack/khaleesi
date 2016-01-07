@@ -9,7 +9,7 @@ It's advised to use ksgen in a virtual Python environment. ::
 
   $ virtualenv ansible # you skip this and use an existing one
   $ source ansible/bin/activate
-  $ python setup.py develop # do this in the ksgen directory
+  $ python setup.py install # do this in the ksgen directory
 
 Running ksgen
 =============

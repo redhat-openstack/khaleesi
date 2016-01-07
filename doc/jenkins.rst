@@ -186,7 +186,7 @@ And put the above informations into the shell command::
 
     # install ksgen
     pushd khaleesi/tools/ksgen
-    python setup.py develop
+    python setup.py install
     popd
 
     pushd khaleesi

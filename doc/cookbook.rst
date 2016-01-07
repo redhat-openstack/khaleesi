@@ -54,15 +54,13 @@ or on Fedora 22::
 
     sudo dnf install -y python-virtualenv gcc
 
-Create the virtual envionment, install ansible, ksgen and kcli utils::
+Create the virtual envionment, install ansible, and ksgen util::
 
     virtualenv venv
     source venv/bin/activate
     pip install ansible==1.9.2
     cd khaleesi/tools/ksgen
-    python setup.py develop
-    cd ../kcli
-    python setup.py develop
+    python setup.py install
     cd ../..
 
 .. Note:: If you get a errors with kcli installation make sure you have all
