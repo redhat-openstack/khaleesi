@@ -187,7 +187,7 @@
     installer-env: virthost
     installer-images: import_rdo_undercloud
     installer-post_action: none
-    installer-topology: minimal
+    installer-topology: minimal_no_ceph
     installer-tempest: smoke
     network: neutron
     network-isolation: none
@@ -213,7 +213,6 @@
     installer-env: virthost
     installer-images: import_rdo_undercloud
     installer-post_action: none
-    installer-topology: minimal
     installer-tempest: smoke
     network: neutron
     network-isolation: none
@@ -226,14 +225,14 @@
     jobs:
         - '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}':
             installer-topology:
-                - minimal_ha
-                - minimal
+                - minimal_ha_no_ceph
+                - minimal_no_ceph
             product-version-repo: delorean
             pin: last_known_good
         - '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}':
             installer-topology:
-                - minimal_ha
-                - minimal
+                - minimal_ha_no_ceph
+                - minimal_no_ceph
             product-version-repo: production
             pin: latest
 

@@ -174,7 +174,7 @@
             name: "INSTALL / TEST (BUILD IMAGES)"
             condition: UNSTABLE
             projects:
-                - name: rdo-manager-promote-rdo-liberty-minimal-build_rdo_promote
+                - name: rdo-manager-promote-rdo-liberty-minimal_no_ceph-build_rdo_promote
                   kill-phase-on: NEVER
                   property-file: /tmp/delorean_current_hash
                 - name: packstack-promote-rdo-liberty
@@ -188,13 +188,13 @@
             name: "INSTALL / TEST (IMPORT IMAGES)"
             condition: UNSTABLE
             projects:
-                - name: rdo-manager-promote-rdo-liberty-minimal-import_rdo_undercloud
+                - name: rdo-manager-promote-rdo-liberty-minimal_no_ceph-import_rdo_undercloud
                   kill-phase-on: NEVER
                   property-file: /tmp/delorean_current_hash
-                - name: rdo-manager-promote-rdo-liberty-minimal-import_rdo_overcloud
+                - name: rdo-manager-promote-rdo-liberty-minimal_no_ceph-import_rdo_overcloud
                   kill-phase-on: NEVER
                   property-file: /tmp/delorean_current_hash
-                - name: rdo-manager-promote-rdo-liberty-minimal_ha-import_rdo_overcloud
+                - name: rdo-manager-promote-rdo-liberty-minimal_ha_no_ceph-import_rdo_overcloud
                   kill-phase-on: NEVER
                   property-file: /tmp/delorean_current_hash
 
@@ -236,8 +236,8 @@
     jobs:
         - 'rdo-manager-promote-rdo-{product-version}-{installer-topology}-{installer-images}':
             installer-topology:
-                - minimal_ha
-                - minimal
+                - minimal_ha_no_ceph
+                - minimal_no_ceph
             installer-images:
                 - import_rdo_undercloud
                 - import_rdo_overcloud
