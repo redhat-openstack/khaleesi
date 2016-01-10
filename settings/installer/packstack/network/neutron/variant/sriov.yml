@@ -6,7 +6,7 @@ installer:
         variant: sriov
     config:
         ml2_conf:
-            type_drivers: vlan,flat
+            type_drivers: vlan,flat,gre,vxlan
             mechanism_drivers: openvswitch,sriovnicswitch
             tenant_network_types: vlan
 

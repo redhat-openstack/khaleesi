@@ -9,13 +9,6 @@
            grub_params="intel_iommu=on igb.max_vfs=7";
            grubby --update-kernel=${kernel_path} --args="${grub_params}";
 
-    - name: set tunnel_types
-      ini_file:
-          dest=/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
-          section=ovs
-          option=tunnel_types
-          value=''
-
     - name: set allow_unsafe_interrupts=1
       shell: echo "options vfio_iommu_type1 allow_unsafe_interrupts=1" > /etc/modprobe.d/dist.conf
 
@@ -31,6 +24,19 @@
           section=DEFAULT
           option=pci_passthrough_whitelist
           value='{"devname":"{{ pf_name }}", "physical_network":"{{ installer.network.internal.label }}"}'
+
+    - name: Install openstack-neutron-sriov-nic-agent
+      yum: name=openstack-neutron-sriov-nic-agent state=installed
+
+    - name: Configure openstack-neutron-sriov-nic-agent
+      ini_file:
+          dest=/etc/neutron/plugins/ml2/sriov_agent.ini
+          section=sriov_nic
+          option=physical_device_mappings
+          value="{{ installer.network.internal.label }}":"{{ pf_name }}"
+
+    - name: Enable neutron-sriov-nic-agent
+      service: name=neutron-sriov-nic-agent state=started enabled=yes
 
     - local_action:
           module: wait_for_ssh reboot_first=true host={{ hostvars[inventory_hostname].ansible_ssh_host }} user={{ hostvars[inventory_hostname].ansible_ssh_user }} key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
