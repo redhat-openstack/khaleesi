@@ -153,14 +153,14 @@
   hosts: openstack_nodes
   gather_facts: no
   max_fail_percentage: 0
+  sudo: no
   tasks:
     - name: Wait for Reachable Nodes
-      wait_for_ssh:
-          host: "{{ hostvars[inventory_hostname].ansible_ssh_host }}"
-          user: "{{ hostvars[inventory_hostname].ansible_ssh_user }}"
-          key: "{{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}"
-          timeout: "{{ provisioner.ssh_timeout | default(omit) }}"
-      sudo: no
+      wait_for:
+          host: "{{ ansible_ssh_host }}"
+          port: 22
+          search_regex: OpenSSH
+          timeout: 600
       delegate_to: localhost
 
 - name: Ensure hostname is configured properly
@@ -198,7 +198,13 @@
           line: "IPADDR={{ hostvars[inventory_hostname].eth1_interface_ip }}"
       register: update_ifcfg1
 
-    - local_action:
-        module: wait_for_ssh reboot_first=true host={{ hostvars[inventory_hostname].ansible_ssh_host }} user={{ hostvars[inventory_hostname].ansible_ssh_user }} key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
+    - name: reboot and wait for ssh
       when: update_ifcfgs|changed or update_ifcfg1|changed
+      delegate_to: localhost
       sudo: no
+      wait_for_ssh:
+          reboot_first: "true"
+          # delegate_to changes the context for ansible_vars
+          host: "{{ hostvars[inventory_hostname].ansible_ssh_host }}"
+          user: "{{ hostvars[inventory_hostname].ansible_ssh_user }}"
+          key: "{{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}"
