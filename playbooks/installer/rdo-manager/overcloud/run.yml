@@ -21,6 +21,19 @@
           source {{ instack_user_home }}/stackrc;
           openstack baremetal configure boot
 
+    - name: get nodes UUID
+      shell: >
+           source {{ instack_user_home }}/stackrc;
+           ironic node-list | grep 'power' |  awk '{print $2}' | tail -3
+      register: ironic_node_list_uuid
+
+    - name: update nodes with disk size hint
+      shell: >
+           source {{ instack_user_home }}/stackrc;
+           ironic node-update {{ item }} add properties/root_device='{"size": {{ hw_env.disk_root_device_size | int }}}'
+      with_items: ironic_node_list_uuid.stdout_lines
+      when: (hw_env is defined) and (hw_env.disk_root_device_size is defined) and product.full_version == '8-director'
+
     - name: introspect nodes
       shell: >
           source {{ instack_user_home }}/stackrc;
