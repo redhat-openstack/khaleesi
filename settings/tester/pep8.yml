@@ -1,4 +1,5 @@
---- !extends:common.yml
+---
+# unittest and pep8 can use the same playbooks. That is why the type is unittest
 tester:
     type: unittest
     name: pep8
