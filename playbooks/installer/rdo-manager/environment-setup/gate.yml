@@ -1,0 +1,2 @@
+---
+- include: virthost/gate.yml

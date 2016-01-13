@@ -1,159 +1,115 @@
 ---
-- name: Update packages on the host
-  hosts: undercloud
-  vars:
-    - ansible_ssh_user: root
+- name: Customize the answer file for baremetal deployment
+  hosts: undercloud:&baremetal
   tasks:
-    - name: repolist
-      command: yum -d 7 repolist
+      - name: check if answers file exists
+        stat: path="/usr/share/instack-undercloud/instack.answers.sample"
+        register: answers_file_present
 
-    - name: update all packages
-      yum: name=* state=latest
+      - name: check if conf file exists
+        stat: path="/usr/share/instack-undercloud/undercloud.conf.sample"
+        register: conf_file_present
 
-- name: Create the stack user on the undercloud
-  hosts: undercloud
-  vars:
-    - ansible_ssh_user: root
-  tasks:
-    - name: delete user (workaround for BZ 1284717)
-      user: name="{{ provisioner.remote_user }}" state=absent remove=yes force=yes
-      tags: workaround
+      - name: fail if there is no answers file and no conf file
+        fail: msg="Neither a conf file nor an answers file exists"
+        when: answers_file_present.stat.exists == False and conf_file_present.stat.exists == False
 
-    - name: inspect user removal
-      shell: >
-        ls /home | grep "{{ provisioner.remote_user }}";
-        cat /etc/passwd | grep "{{ provisioner.remote_user }}";
-        cat /etc/group | grep "{{ provisioner.remote_user }}";
-        cat /etc/shadow | grep "{{ provisioner.remote_user }}";
-        ls /var/spool/mail | grep "{{ provisioner.remote_user }}";
-      register: result
-      failed_when: result.rc != 1
+      - name: copy baremetal answers file
+        shell: cp /usr/share/instack-undercloud/instack.answers.sample {{ instack_user_home }}/instack.answers
+        when: answers_file_present.stat.exists == True
 
-    - name: create user
-      user: name="{{ provisioner.remote_user }}" state=present password=stack
+      - name: edit instack.answers file - local_interface
+        lineinfile: dest={{ instack_user_home }}/instack.answers regexp=^LOCAL_INTERFACE line=LOCAL_INTERFACE={{ hw_env.answers_local_interface }}
+        when: answers_file_present.stat.exists == True
 
-    - name: copy the .bash_profile file
-      command:  cp /root/.bash_profile /home/{{ provisioner.remote_user }}/
+      - name: edit instack.answers file - network
+        replace: dest={{ instack_user_home }}/instack.answers regexp='192.0.2' replace={{ hw_env.network }}
+        when: hw_env.network is defined and answers_file_present.stat.exists == True
 
-    - name: create .ssh dir
-      file: path=/home/{{ provisioner.remote_user }}/.ssh mode=0700 owner=stack group=stack state=directory
+      - name: edit instack.answers file - network gateway
+        lineinfile: dest={{ instack_user_home }}/instack.answers regexp=^NETWORK_GATEWAY line=NETWORK_GATEWAY={{ hw_env.network_gateway }}
+        when: answers_file_present.stat.exists == True
 
-    - name: copy the authorized_keys file
-      command:  cp /root/.ssh/authorized_keys /home/{{ provisioner.remote_user }}/.ssh/
+      - name: copy baremetal conf file
+        shell: cp /usr/share/instack-undercloud/undercloud.conf.sample {{ instack_user_home }}/undercloud.conf
+        when: conf_file_present.stat.exists == True
 
-    - name: set file permissions on authorized_hosts
-      file: path=/home/{{ provisioner.remote_user }}/.ssh/authorized_keys mode=0600 owner=stack group=stack
+      - name: edit undercloud.conf file - local_interface
+        lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#local_interface line=local_interface={{ hw_env.answers_local_interface }}
+        when: conf_file_present.stat.exists == True
 
-    - name: copy ssh keys
-      command:  cp /root/.ssh/id_rsa /home/{{ provisioner.remote_user }}/.ssh/
-      when: hw_env.env_type == 'ovb_host_cloud'
+      - name: edit undercloud.conf file - dhcp_start
+        lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#dhcp_start line=dhcp_start={{ hw_env.dhcp_start }}
+        when: conf_file_present.stat.exists == True and hw_env.dhcp_start is defined
 
-    - name: copy ssh pub keys
-      command:  cp /root/.ssh/id_rsa.pub /home/{{ provisioner.remote_user }}/.ssh/
-      when: hw_env.env_type == 'ovb_host_cloud'
+      - name: edit undercloud.conf file - dhcp_end
+        lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#dhcp_end line=dhcp_end={{ hw_env.dhcp_end }}
+        when: conf_file_present.stat.exists == True and hw_env.dhcp_end is defined
 
-    - name: set permission on keys
-      file: path=/home/{{ provisioner.remote_user }}/.ssh/id_rsa mode=0600 owner=stack group=stack
-      when: hw_env.env_type == 'ovb_host_cloud'
+      - name: edit undercloud.conf file - discovery_iprange
+        lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#discovery_iprange line=discovery_iprange={{ hw_env.discovery_iprange }}
+        when: conf_file_present.stat.exists == True and hw_env.discovery_iprange is defined
 
-    - name: set permission on pub keys
-      file: path=/home/{{ provisioner.remote_user }}/.ssh/id_rsa.pub mode=0644 owner=stack group=stack
-      when: hw_env.env_type == 'ovb_host_cloud'
+      - name: edit undercloud.conf file - network_gateway
+        lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#network_gateway line=network_gateway={{ hw_env.undercloud_network_gateway }}
+        when: conf_file_present.stat.exists == True and hw_env.undercloud_network_gateway is defined
 
-    - name: add user to sudoers
-      lineinfile: dest=/etc/sudoers line="stack ALL=(root) NOPASSWD:ALL"
+      - name: edit undercloud.conf file - local_ip
+        lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#local_ip line=local_ip={{ hw_env.undercloud_local_ip }}
+        when: conf_file_present.stat.exists == True and hw_env.undercloud_local_ip is defined
 
-    - name: set fact for the stack user home
-      set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
+      - name: edit undercloud.conf file - undercloud_public_vip
+        lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#undercloud_public_vip line=undercloud_public_vip={{ hw_env.undercloud_public_vip }}
+        when: conf_file_present.stat.exists == True and hw_env.undercloud_public_vip is defined
 
-    - name: enabling ip forwarding
-      lineinfile: dest=/etc/sysctl.conf line='net.ipv4.ip_forward = 1' insertafter=EOF state=present
-      when: hw_env.ip_forwarding is defined and hw_env.ip_forwarding == 'true'
+      - name: edit undercloud.conf file - undercloud_admin_vip
+        lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#undercloud_admin_vip line=undercloud_admin_vip={{ hw_env.undercloud_admin_vip }}
+        when: conf_file_present.stat.exists == True and hw_env.undercloud_admin_vip is defined
 
-    - name: check ip forwarding
-      shell: sysctl -p /etc/sysctl.conf
-      when: hw_env.ip_forwarding is defined and hw_env.ip_forwarding == 'true'
+      - name: edit undercloud.conf file - network
+        shell: >
+            sed -i 's/192.0.2/{{ hw_env.network }}/g' {{ instack_user_home }}/undercloud.conf;
+            sed -i '/{{ hw_env.network }}/s/#//g' {{ instack_user_home }}/undercloud.conf
+        when: hw_env.network is defined and conf_file_present.stat.exists == True
 
-- include: repo-{{ product.name }}.yml repo_host=undercloud
+      - name: register short hostname
+        shell: "hostname -s"
+        register: short_hostname
 
-- name: Configure the baremetal undercloud
-  hosts: undercloud
-  tasks:
-    - name: check if instackenv.json exists in root
-      stat: path="/root/instackenv.json"
-      register: instackenv_json_root
-      sudo_user: root
-      sudo: yes
+      - name: register full hostname
+        shell: "cat /etc/hostname"
+        register: full_hostname
 
-    - name: copy instackenv.json from root if it exists there
-      shell: cp /root/instackenv.json {{ instack_user_home }}/instackenv.json
-      when: instackenv_json_root.stat.exists == True
-      sudo_user: root
-      sudo: yes
+      - name: set the hostname
+        sudo: yes
+        shell: >
+            hostnamectl set-hostname {{ full_hostname.stdout }};
+            hostnamectl set-hostname --transient {{ full_hostname.stdout }}
 
-    - name: get instackenv.json
-      synchronize: src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/instackenv.json dest={{ instack_user_home }}/instackenv.json
-      when: instackenv_json_root.stat.exists == False
+      - name: Set /etc/hostname for those that need it
+        sudo: yes
+        lineinfile: >
+            dest=/etc/hosts
+            line="127.0.1.1 {{ short_hostname.stdout }} {{ full_hostname.stdout }}"
 
-    - name: chown instackenv.json
-      file: path={{ instack_user_home }}/instackenv.json owner=stack group=stack
-      sudo_user: root
-      sudo: yes
+      - name: get domain from /etc/resolv.conf
+        sudo: yes
+        shell: cat /etc/resolv.conf | grep search | sed -n -e 's/^.*search //p'
+        register: search_domain
 
-    - name: install ipmitool
-      yum: name={{ item }} state=latest
-      with_items:
-        - OpenIPMI
-        - OpenIPMI-tools
-      sudo_user: root
-      sudo: yes
+      - name: add short and full hostname to /etc/hosts
+        sudo: yes
+        shell: "sed -i 's/localhost4.localdomain4/localhost4.localdomain4 {{ short_hostname.stdout }} {{ full_hostname.stdout }} {{ short_hostname.stdout }}.{{ search_domain.stdout }}/g' /etc/hosts"
 
-    - name: install sshpass - DRACS
-      yum: name=sshpass state=latest
-      sudo_user: root
-      sudo: yes
-      when: hw_env.remote_mgmt == "dracs"
+      - name: add images and templates folders
+        shell: >
+            mkdir {{ instack_user_home }}/images;
+            mkdir {{ instack_user_home }}/templates
+        when: hw_env.env_type == 'scale_lab'
 
-    - name: start IMPI service
-      shell: >
-        sudo chkconfig ipmi on;
-        sudo service ipmi start
+      - name: copy instackenv.json to nodes.json
+        shell: cp {{ instack_user_home }}/instackenv.json {{ instack_user_home }}/nodes.json
 
-    - name: get tools to validate instackenv.json/nodes.json
-      git: >
-        repo="https://github.com/rthallisey/clapper.git"
-        dest="{{instack_user_home}}/clapper"
-
-    - name: validate instackenv.json
-      shell: >
-        chdir={{instack_user_home}}
-        python clapper/instackenv-validator.py -f {{ instack_user_home }}/instackenv.json
-      register: instackenv_validator_output
-
-    - name: fail if instackenv.json fails validation
-      fail: msg="instackenv.json didn't validate."
-      when: instackenv_validator_output.stdout.find("SUCCESS") == -1
-
-    - name: get number of overcloud nodes
-      shell: >
-        export IP_LENGTH=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | wc -l`);
-        echo $(($IP_LENGTH))
-      register: node_length
-
-    - name: power off node boxes - IPMI
-      shell: >
-         export IP=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | sed 's/[},\"]//g'`);
-         export USER=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_user.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/[},\"]//g'`);
-         export PASSWORD=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_password.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/[},\"]//g'`);
-         ipmitool -I lanplus -H ${IP[item]} -U ${USER[item]} -P ${PASSWORD[item]} power off
-      with_sequence: count="{{node_length.stdout}}"
-      when: hw_env.remote_mgmt == "ipmi"
-
-    - name: power off node boxes - DRACS
-      shell: >
-         export IP=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_addr.*' | cut -f2-  -d':' | sed 's/[},\"]//g'`);
-         export USER=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_user.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/[},\"]//g'`);
-         export PASSWORD=(`cat {{ instack_user_home }}/instackenv.json | grep -o 'pm_password.*' | cut -f2-  -d':' |rev | cut -c 2- | rev | sed 's/[},\"]//g'`);
-         sshpass -p ${PASSWORD[item]} ssh -o "StrictHostKeyChecking=no" ${USER[item]}@${IP[item]} "racadm serveraction powerdown"
-      with_sequence: count="{{node_length.stdout}}"
-      when: hw_env.remote_mgmt == "dracs"
+      - name: installing python-six (workaround)
+        sudo: yes
+        yum: name=python-six state=present

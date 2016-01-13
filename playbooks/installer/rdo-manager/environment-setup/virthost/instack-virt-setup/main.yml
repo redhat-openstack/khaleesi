@@ -1,0 +1,3 @@
+- include: "{{base_dir}}/khaleesi/playbooks/installer/rdo-manager/yum_repos/repo-{{ product.name }}.yml repo_host=virthost"
+- include: run.yml
+- include: post.yml

@@ -1,0 +1,2 @@
+---
+- include: environment-setup/main.yml

@@ -1,0 +1,203 @@
+---
+- name: setup the virt host
+  hosts: virthost
+  tasks:
+      - name: set fact stack user home
+        set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
+
+      - name: get the guest-image
+        sudo: yes
+        get_url: >
+            url="{{ distro.images[distro.name][distro.full_version].remote_file_server }}{{ distro.images[distro.name][distro.full_version].guest_image_name }}"
+            dest=/root/{{ distro.images[distro.name][distro.full_version].guest_image_name }}
+
+      - name: copy the guest-image in stack user home
+        sudo: yes
+        command: cp /root/{{ distro.images[distro.name][distro.full_version].guest_image_name }} {{instack_user_home}}/{{ distro.images[distro.name][distro.full_version].guest_image_name }}
+
+      - name: set the right permissions for the guest-image
+        sudo: yes
+        file: >
+            path={{instack_user_home}}/{{ distro.images[distro.name][distro.full_version].guest_image_name }}
+            owner={{ provisioner.remote_user }}
+            group={{ provisioner.remote_user }}
+
+      - name: install yum-plugin-priorities for rdo-manager
+        sudo: yes
+        yum: name={{item}} state=present
+        with_items:
+          - yum-plugin-priorities
+        when: product.name == "rdo"
+
+      - name: install rdo-manager-deps
+        sudo: yes
+        yum: name={{item}} state=present
+        with_items:
+          - python-tripleoclient
+        when: product.name == "rdo" or product.full_version == "8-director"
+
+      - name: install python-rdomanager-oscplugin
+        sudo: yes
+        yum: name=python-rdomanager-oscplugin state=present
+
+      - name: setup environment vars
+        template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/virt-setup-env.j2 dest=~/virt-setup-env mode=0755
+
+      - name: Contents of virt-setup-env
+        shell: >
+            cat {{ instack_user_home }}/virt-setup-env
+
+      - name: Patch instack-virt-setup to ensure dhcp.leases is not used to determine ip (workaround https://review.openstack.org/#/c/232584)
+        sudo: yes
+        lineinfile:
+            dest: /usr/bin/instack-virt-setup
+            regexp: "/var/lib/libvirt/dnsmasq/default.leases"
+            line: "    IP=$(ip n | grep $(tripleo get-vm-mac $UNDERCLOUD_VM_NAME) | awk '{print $1;}')"
+        when: workarounds.enabled is defined and workarounds.enabled|bool
+
+      - name: run instack-virt-setup
+        shell: >
+            source {{ instack_user_home }}/virt-setup-env;
+            instack-virt-setup > {{ instack_user_home }}/instack-virt-setup.log;
+        register: instack_virt_setup_result
+        ignore_errors: yes
+
+      - name: destroy default pool
+        sudo: yes
+        command: virsh pool-destroy default
+        ignore_errors: true
+        when: "instack_virt_setup_result.rc !=0"
+
+      - name: update libvirtd unix_sock_group
+        sudo: yes
+        lineinfile:
+            dest: /etc/libvirt/libvirtd.conf
+            regexp: ^unix_sock_group
+            line: 'unix_sock_group = "{{ provisioner.remote_user }}"'
+        when: "instack_virt_setup_result.rc !=0"
+
+      - name: remove libvirt qemu capabilities cache
+        sudo: yes
+        command: rm -Rf /var/cache/libvirt/qemu/capabilities/
+        when: "instack_virt_setup_result.rc != 0"
+        # more workaround for the SATA error RHBZ#1195882
+
+      - name: restart libvirtd
+        sudo: yes
+        service: name=libvirtd state=restarted
+        when: "instack_virt_setup_result.rc != 0"
+
+      - name: inspect virsh capabilities
+        command: 'virsh capabilities'
+        when: "instack_virt_setup_result.rc != 0"
+
+      - name: stop virbr0
+        sudo: yes
+        command: ip link set virbr0 down
+        ignore_errors: true
+        when: "instack_virt_setup_result.rc != 0"
+
+      - name: delete libvirt bridge virbr0
+        sudo: yes
+        command: brctl delbr virbr0
+        ignore_errors: true
+        when: "instack_virt_setup_result.rc != 0"
+
+      - name: start default libvirt network
+        sudo: yes
+        command: virsh net-start default
+        ignore_errors: true
+        when: "instack_virt_setup_result.rc != 0"
+
+      - name: retry run instack-virt-setup
+        shell: >
+            virsh undefine instack;
+            source {{ instack_user_home }}/virt-setup-env;
+            instack-virt-setup > {{ instack_user_home }}/instack-virt-setup-retry.log;
+        when: "instack_virt_setup_result.rc !=0"
+
+      - name: print out all the VMs
+        shell: >
+            sudo virsh list --all
+
+      - name: get undercloud vm ip address
+        shell: >
+            export PATH='/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/stack/bin';
+            ip n | grep $(tripleo get-vm-mac instack) | awk '{print $1;}'
+        when: undercloud_ip is not defined
+        register: undercloud_vm_ip_result
+
+      - name: set_fact for undercloud ip
+        set_fact: undercloud_ip={{ undercloud_vm_ip_result.stdout }}
+
+- name: set the undercloud ip as a fact
+  hosts: localhost
+  tasks:
+      - name: set_fact for undercloud ip
+        set_fact: undercloud_ip={{ hostvars['host0'].undercloud_ip }}
+
+      - name: debug undercloud_ip
+        debug: var=hostvars['localhost'].undercloud_ip
+
+- name: add the host to the ansible inventory and setup ssh keys
+  hosts: virthost
+  tasks:
+      - name: wait until ssh is available on undercloud node
+        wait_for:
+            host={{ hostvars['localhost'].undercloud_ip }}
+            state=started
+            port=22
+            delay=15
+            timeout=300
+
+      - name: add undercloud host
+        add_host:
+            name=undercloud
+            groups=undercloud
+            ansible_ssh_host=undercloud
+            ansible_fqdn=undercloud
+            ansible_ssh_user="{{ provisioner.remote_user }}"
+            ansible_ssh_private_key_file="{{ provisioner.key_file }}"
+            gating_repo="{{ gating_repo is defined and gating_repo }}"
+
+      - name: setup ssh config
+        template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/ssh_config.j2 dest=~/ssh.config.ansible mode=0755
+
+      - name: copy ssh_config back to the slave
+        fetch: src=~/ssh.config.ansible dest="{{ base_dir }}/khaleesi/ssh.config.ansible" flat=yes
+
+      - name: copy id_rsa key back to the slave
+        fetch: src=~/.ssh/id_rsa dest="{{ base_dir }}/khaleesi/id_rsa_virt_host" flat=yes
+
+      - name: copy undercloud root user authorized_keys to stack user
+        shell: 'ssh -F ssh.config.ansible undercloud-from-virthost "cp /root/.ssh/authorized_keys /home/stack/.ssh/"'
+
+      - name: chown authorized_keys for stack user
+        shell: 'ssh -F ssh.config.ansible undercloud-from-virthost "chown stack:stack /home/stack/.ssh/authorized_keys"'
+
+
+- name: regenerate the inventory file after adding hosts
+  hosts: localhost
+  tasks:
+      - name: create inventory from template
+        template:
+          dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+          src: "{{ base_dir }}/khaleesi/playbooks/provisioner/templates/inventory.j2"
+
+      - name: symlink inventory to a static name
+        file:
+          dest: "{{ lookup('env', 'PWD') }}/hosts"
+          state: link
+          src: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+
+- name: test host connection
+  hosts: all:!localhost
+  tasks:
+      - name: test ssh
+        command: hostname
+
+      - name: check distro
+        command: cat /etc/redhat-release
+
+      - name: set fact stack user home
+        set_fact: instack_user_home=/home/{{ provisioner.remote_user }}

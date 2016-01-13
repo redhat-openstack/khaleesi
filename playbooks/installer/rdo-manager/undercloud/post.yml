@@ -1,0 +1,45 @@
+---
+- name: undercloud post install workarounds
+  hosts: undercloud
+  tasks:
+      - name: disable haproxy check (workaround bug bz 1246525)
+        sudo: yes
+        replace: dest=/etc/haproxy/haproxy.cfg regexp='(listen ironic\n.*\n.*)\n.*option httpchk GET \/' replace='\1'
+        when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
+
+      - name: restart haproxy service (workaround bug bz 1246525)
+        sudo: yes
+        command: systemctl restart haproxy
+        when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
+
+      - name: increase stack_action_timeout to 4 hours (workaround for bz 1243365)
+        sudo: yes
+        command: openstack-config --set /etc/heat/heat.conf DEFAULT stack_action_timeout 14400
+        when: workarounds.enabled is defined and workarounds.enabled|bool
+
+      - name: restart openstack-heat-engine (workaround for bz 1243365)
+        sudo: yes
+        command: systemctl restart openstack-heat-engine
+        when: workarounds.enabled is defined and workarounds.enabled|bool
+
+      - name: check if haproxy is present (workaround bug bz 1246525)
+        stat: path=/etc/haproxy/haproxy.cfg
+        register: ha_config_file
+
+      - name: disable haproxy check (workaround bug bz 1246525)
+        sudo: yes
+        replace: dest=/etc/haproxy/haproxy.cfg regexp='(listen ironic\n.*\n.*)\n.*option httpchk GET \/' replace='\1'
+        when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
+
+      - name: restart haproxy service (workaround bug bz 1246525)
+        sudo: yes
+        command: systemctl restart haproxy
+        when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
+
+- name: update neutron values for undercloud
+  hosts: undercloud
+  tasks:
+      - name: update neutron quota to unlimited
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            neutron quota-update --port -1;

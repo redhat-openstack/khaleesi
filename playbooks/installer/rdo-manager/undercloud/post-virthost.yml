@@ -1,0 +1,10 @@
+---
+- name: setup networking on virt for network isolation
+  hosts: undercloud:&virthost
+  tasks:
+      - name: net-iso virt setup vlans
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            sudo ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
+            sudo ip l set dev vlan10 up; sudo ip addr add 172.16.23.251/24 dev vlan10;
+        when: installer.network.isolation == 'single_nic_vlans'

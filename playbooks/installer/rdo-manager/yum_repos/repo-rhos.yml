@@ -5,19 +5,8 @@
   hosts: "{{ repo_host }}:&RedHat"
   vars:
     - ansible_ssh_user: root
-    - product_override_version: 7
   gather_facts: yes
   tasks:
-      - name: clean release rpms
-        yum: name={{ item }} state=absent
-        with_items:
-          - rhos-release
-
-      - name: remove any yum repos not owned by rpm
-        shell: rm -Rf /etc/yum.repos.d/{{ item }}
-        with_items:
-          - beaker-*
-
       - name: Install release tool on machine
         command: "yum localinstall -y {{ product.rpm }}"
 

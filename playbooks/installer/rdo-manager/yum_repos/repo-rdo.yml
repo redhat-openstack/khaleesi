@@ -1,0 +1,65 @@
+---
+- include: "{{ base_dir }}/khaleesi/playbooks/group_by.yml ansible_ssh_user=root"
+
+- name: RHEL RDO prep
+  hosts: "{{ repo_host }}:&RedHat"
+  vars:
+      - ansible_ssh_user: root
+  roles:
+      # enable this role when rdo and rhos officially diverge
+      #- { role: linux/rhel/rdo }
+      - { role: product/rdo/rhel }
+
+- name: CentOS RDO prep
+  hosts: "{{ repo_host }}:&CentOS"
+  vars:
+      - ansible_ssh_user: root
+  roles:
+      - { role: linux/centos }
+      - { role: product/rdo/rhel }
+
+- name: Linux common prep (Collect performance data, etc.)
+  hosts: "{{ repo_host }}"
+  vars:
+      - ansible_ssh_user: root
+  roles:
+     - { role: linux-common }
+
+- name: Enable EPEL
+  hosts: "{{ repo_host }}"
+  vars:
+      - ansible_ssh_user: root
+  tasks:
+      - name: Install epel release
+        command: "yum localinstall -y {{ distro.epel_release }}"
+
+- name: Update packages on the host
+  hosts: "{{ repo_host }}"
+  vars:
+      - ansible_ssh_user: root
+  tasks:
+      - name: repolist
+        command: yum -d 7 repolist
+
+      - name: update all packages
+        yum: name=* state=latest
+        when: yum_update | bool
+
+      - name: Find if a new kernel was installed
+        shell: find /boot/ -anewer /proc/1/stat -name 'initramfs*' | egrep ".*"
+        register: new_kernel
+        ignore_errors: True
+        when: "'{{ repo_host }}' == 'virthost'"
+
+      - name: reboot host
+        sudo: no
+        local_action:
+            wait_for_ssh
+              reboot_first=true
+              host="{{ ansible_ssh_host }}"
+              user="root"
+              ssh_opts="-F {{ base_dir }}/khaleesi/ssh.config.ansible"
+              key="{{ ansible_ssh_private_key_file }}"
+              timeout=900
+              sudo=false
+        when: "'{{ repo_host }}' == 'virthost' and new_kernel.rc == 0"

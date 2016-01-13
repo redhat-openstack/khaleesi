@@ -1,0 +1,42 @@
+---
+- name: Group all hosts in gate if we are gating using delorean
+  hosts: all
+  tasks:
+      - group_by: key=gate-delorean
+        when: use_delorean is defined and use_delorean
+
+- name: Run Delorean
+  hosts: virthost:&gate-delorean
+  roles:
+     - delorean
+
+- name: Create local repo for delorean rpms
+  hosts: undercloud:&gate-delorean
+  roles:
+    - delorean_rpms
+
+- name: Group all hosts in gate if we are gating
+  hosts: all
+  tasks:
+      - group_by: key=gate-install-rpm
+        when: gating_repo is defined
+
+- name: Install the custom rpm when gating
+  hosts: undercloud:&gate-install-rpm
+  sudo: yes
+  tasks:
+      - name: install the gating_repo rpm we previously built
+        shell: yum -y install /home/stack/*.rpm
+
+- name: Update all packages
+  hosts: undercloud:&gate-delorean
+  tasks:
+      - yum: name=* state=latest
+        sudo: yes
+
+- include: pre.yml
+- include: "pre-{{ installer.env.type }}.yml"
+- include: run.yml
+- include: "post-{{ installer.env.type }}.yml"
+- include: post.yml
+

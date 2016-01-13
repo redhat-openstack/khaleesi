@@ -1,0 +1,45 @@
+---
+- name: Execute vendor-specific setup for baremetal environment
+  hosts: undercloud:&baremetal
+  tasks:
+      - name: copy vendor-specific setup file
+        synchronize: >
+            src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup dest={{ instack_user_home }}/vendor_specific_setup
+            delegate_to: local
+        when: hw_env.env_type != 'ovb_host_cloud'
+
+      - name: copy over vendor-specific setup file (quintupleo_host_cloud)
+        local_action: command rsync --delay-updates -F --compress --archive --rsh "ssh -i {{ provisioner.key_file }} -F {{base_dir}}/khaleesi/ssh.config.ansible -S none -o StrictHostKeyChecking=no" {{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/vendor_specific_setup undercloud:{{ instack_user_home }}/vendor_specific_setup
+        when: hw_env.env_type == 'ovb_host_cloud'
+
+      - name: execute vendor-specific setup
+        shell: >
+            chmod 755 {{ instack_user_home }}/vendor_specific_setup;
+            {{ instack_user_home }}/vendor_specific_setup
+
+- name: Set ironic to control the power state
+  hosts: undercloud:&baremetal
+  tasks:
+      - name: get power state from /etc/ironic/ironic.conf (workaround for bz 1246641)
+        sudo: yes
+        shell: >
+            sudo cat /etc/ironic/ironic.conf | grep 'force_power_state_during_sync=False'
+        when: workarounds.enabled is defined and workarounds.enabled|bool
+
+      - name: allow ironic to control the power state (workaround for bz 1246641)
+        sudo: yes
+        shell: >
+            sed -i 's/force_power_state_during_sync=False/force_power_state_during_sync=True/g' /etc/ironic/ironic.conf
+        when: workarounds.enabled is defined and workarounds.enabled|bool
+
+      - name: get power state from /etc/ironic/ironic.conf (workaround for bz 1246641)
+        sudo: yes
+        shell: >
+            sudo cat /etc/ironic/ironic.conf | grep 'force_power_state_during_sync=True'
+        when: workarounds.enabled is defined and workarounds.enabled|bool
+
+      - name: restart openstack-ironic-conductor (workaround for bz 1246641)
+        sudo: yes
+        shell: >
+            systemctl restart openstack-ironic-conductor
+        when: workarounds.enabled is defined and workarounds.enabled|bool

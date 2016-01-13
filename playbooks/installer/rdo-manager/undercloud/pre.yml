@@ -1,0 +1,26 @@
+---
+- name: install the undercloud packages
+  hosts: undercloud
+  tasks:
+    - name: install yum-plugin-priorities rdo-manager
+      sudo: yes
+      yum: name={{item}} state=present
+      with_items:
+        - yum-plugin-priorities
+      when: product.name == "rdo"
+
+    - name: install rdo-manager-deps
+      sudo: yes
+      yum: name={{item}} state=present
+      with_items:
+        - python-tripleoclient
+      when: product.name == "rdo" or product.full_version == "8-director"
+
+    - name: install python-rdomanager-oscplugin
+      sudo: yes
+      yum: name=python-rdomanager-oscplugin state=present
+      when: product.full_version == "7-director"
+
+    - name: install python-passlib
+      sudo: yes
+      yum: name=python-passlib state=present

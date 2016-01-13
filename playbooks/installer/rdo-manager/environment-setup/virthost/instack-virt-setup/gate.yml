@@ -1,0 +1,25 @@
+- name: Copy the gating package
+  hosts: virthost
+  vars:
+      - ansible_ssh_user: root
+  tasks:
+      - name: make temp directory
+        command: mktemp -d
+        register: temp_dir
+
+      - name: set fact generated_rpms_dir
+        set_fact: generated_rpms_dir={{ temp_dir.stdout }}
+
+      - name: copy downstream rpm package
+        copy: src={{ item }} dest={{ generated_rpms_dir }}
+        with_fileglob:
+         - "{{ lookup('env', 'PWD') }}/generated_rpms/*.rpm"
+        when: gating_repo is defined
+
+      - name: install the generated rpm
+        sudo: yes
+        shell: "yum localinstall -y {{ generated_rpms_dir }}/*.rpm"
+        when: gating_repo is defined
+
+- include: run.yml
+- include: post.yml

@@ -1,0 +1,3 @@
+---
+- include: "{{base_dir}}/khaleesi/playbooks/installer/rdo-manager/user/main.yml host=undercloud"
+- include: run.yml

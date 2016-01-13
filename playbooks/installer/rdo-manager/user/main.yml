@@ -1,0 +1,46 @@
+---
+- name: Create the stack user
+  hosts: "{{ host }}"
+  vars:
+      - ansible_ssh_user: root
+  tasks:
+      - name: create user
+        user: name="{{ provisioner.remote_user }}" state=present password=stack
+
+      - name: copy the .bash_profile file
+        command: cp /root/.bash_profile /home/{{ provisioner.remote_user }}/
+
+      - name: set file permissions on .bash_profile
+        file: path=/home/{{ provisioner.remote_user }}/.bash_profile mode=0755 owner={{ provisioner.remote_user }} group={{ provisioner.remote_user }}
+
+      - name: create .ssh dir
+        file: path=/home/{{ provisioner.remote_user }}/.ssh mode=0700 owner={{ provisioner.remote_user }} group=stack state=directory
+
+      - name: copy the authorized_keys file
+        command: cp /root/.ssh/authorized_keys /home/{{ provisioner.remote_user }}/.ssh/
+
+      - name: set file permissions on authorized_hosts
+        file: path=/home/{{ provisioner.remote_user }}/.ssh/authorized_keys mode=0600 owner={{ provisioner.remote_user }} group={{ provisioner.remote_user }}
+
+      - name: add user to sudoers
+        lineinfile: dest=/etc/sudoers line="{{ provisioner.remote_user }} ALL=(root) NOPASSWD:ALL"
+
+      - name: set fact for the stack user home
+        set_fact: instack_user_home=/home/{{ provisioner.remote_user }}
+
+      - name: copy ssh keys
+        command:  cp /root/.ssh/id_rsa /home/{{ provisioner.remote_user }}/.ssh/
+        when: hw_env.env_type == 'ovb_host_cloud'
+
+      - name: copy ssh pub keys
+        command:  cp /root/.ssh/id_rsa.pub /home/{{ provisioner.remote_user }}/.ssh/
+        when: hw_env.env_type == 'ovb_host_cloud'
+
+      - name: set permission on keys
+        file: path=/home/{{ provisioner.remote_user }}/.ssh/id_rsa mode=0600 owner=stack group=stack
+        when: hw_env.env_type == 'ovb_host_cloud'
+
+      - name: set permission on pub keys
+        file: path=/home/{{ provisioner.remote_user }}/.ssh/id_rsa.pub mode=0644 owner=stack group=stack
+        when: hw_env.env_type == 'ovb_host_cloud'
+

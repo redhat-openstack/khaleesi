@@ -1,0 +1,3 @@
+---
+- include: provision.yml
+- include: installer/{{ installer.type }}/gate.yml

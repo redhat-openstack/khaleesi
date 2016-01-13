@@ -1,0 +1,2 @@
+---
+- include: "{{base_dir}}/khaleesi/playbooks/installer/rdo-manager/images/main.yml"

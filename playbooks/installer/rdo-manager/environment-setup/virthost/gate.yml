@@ -1,0 +1,31 @@
+---
+- name: clean up rdo-manager virthost
+  hosts: virthost
+  vars:
+      - ansible_ssh_user: root
+  roles:
+      - { role: cleanup_nodes/rdo-manager,
+          when: (installer.type == "rdo-manager" and provisioner.type == "manual")
+        }
+
+- include: "{{base_dir}}/khaleesi/playbooks/installer/rdo-manager/user/main.yml host=virthost"
+- include: "{{base_dir}}/khaleesi/playbooks/installer/rdo-manager/yum_repos/repo-{{ product.name }}.yml repo_host=virthost"
+- include: instack-virt-setup/gate.yml
+
+- name: setup the gating repo on the undercloud
+  hosts: virthost
+  tasks:
+    - name: set the permissions on the rpms
+      sudo: yes
+      file: path={{ generated_rpms_dir }}
+            recurse=yes
+            owner={{ provisioner.remote_user }}
+            group={{ provisioner.remote_user }}
+            mode=0755
+
+    - name: copy gating_repo package
+      shell: >
+          scp -F ssh.config.ansible {{ generated_rpms_dir }}/*.rpm undercloud-from-virthost:{{ instack_user_home }}/
+      when: gating_repo is defined
+
+- include: "{{base_dir}}/khaleesi/playbooks/installer/rdo-manager/yum_repos/repo-{{ product.name }}.yml repo_host=undercloud"

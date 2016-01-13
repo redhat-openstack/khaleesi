@@ -1,3 +1,5 @@
 ---
+- include: environment-setup/main.yml
 - include: undercloud/main.yml
+- include: images/main.yml
 - include: overcloud/main.yml

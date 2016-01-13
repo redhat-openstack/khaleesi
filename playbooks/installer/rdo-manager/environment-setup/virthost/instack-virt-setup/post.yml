@@ -1,0 +1,7 @@
+---
+- name: copy the guest image to the undercloud
+  hosts: virthost
+  tasks:
+      - name: upload the guest-image on the undercloud
+        command: scp -F ssh.config.ansible {{instack_user_home}}/{{ distro.images[distro.name][distro.full_version].guest_image_name }} undercloud-from-virthost:{{ instack_user_home }}/
+
