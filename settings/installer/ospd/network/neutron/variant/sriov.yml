@@ -1,0 +1,6 @@
+---
+
+installer:
+    network:
+        variant: sriov
+

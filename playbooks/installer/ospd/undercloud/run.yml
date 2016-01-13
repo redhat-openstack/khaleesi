@@ -1,0 +1,29 @@
+---
+- name: Configuring the undercloud
+  hosts: undercloud
+  become: yes
+  become_user: "{{ installer.user.name }}"
+  tasks:
+      - name: fetch sample configuration file
+        fetch:
+            src: "/usr/share/instack-undercloud/undercloud.conf.sample"
+            dest: "/tmp/undercloud.conf"
+            flat: yes
+
+      - name: edit configuration file per our needs
+        ini_file:
+            dest: "/tmp/undercloud.conf"
+            section: "DEFAULT"
+            option: "{{ item.key }}"
+            value: "{{ item.value }}"
+        with_dict: "{{ installer.undercloud.config }}"
+        sudo: no
+        delegate_to: localhost
+
+      - name: copy our configuration to the undercloud
+        copy:
+            src: "/tmp/undercloud.conf"
+            dest: "/home/{{ installer.user.name }}/undercloud.conf"
+
+      - name: install the undercloud (should take ~30 minutes :) )
+        shell: "openstack undercloud install"

@@ -1,0 +1,5 @@
+---
+# Any step that should happen after the deployment of the osp-d playbook
+# This could be create ssh forwarding to the nodes, validation of installation, etc
+- name: Post tasks
+  hosts: localhost
