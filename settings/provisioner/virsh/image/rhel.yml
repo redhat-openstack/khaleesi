@@ -8,5 +8,5 @@ provisioner:
         os:
             variant: rhel7
         disk:
-            size: "40"
+            size: "40G"
 

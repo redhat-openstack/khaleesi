@@ -3,11 +3,31 @@
 provisioner:
     type: virsh
 
-    networks:
-        data:
-            name: "data"
-            ip_address: "172.16.0.254"
-            netmask: "255.255.255.0"
+    hosts:
+        host1:
+            name: virthost
+            ssh_host: "{{ MANDATORY_FIELD }}"
+            ssh_user: root
+            ssh_key_file: ~/.ssh/id_rsa
+            groups:
+                - virthost
+
+    network:
+        network_list:
+            management:
+                name: "default"
+            data:
+                name: "provisioning"
+                ip_address: "172.16.0.254"
+                netmask: "255.255.255.0"
+            external:
+                name: "external"
+                ip_address: "192.168.0.254"
+                netmask: "255.255.255.0"
+                subnet_cidr: "192.168.0.0/24"
+                subnet_gateway: "192.168.0.1"
+                allocation_start: "192.168.0.200"
+                allocation_end: "192.168.0.220"
 
     packages:
         - libvirt

@@ -3,19 +3,20 @@
   hosts: localhost
   gather_facts: no
   tasks:
-    - name: Add hosts to host list
-      add_host:
-        name="{{ item.value.name }}"
-        groups="{{ item.value.groups| join(',') }}"
-        node_label="{{ item.key }}"
-        ansible_ssh_user="{{ item.value.ssh_user }}"
-        ansible_ssh_host="{{ item.value.ssh_host }}"
-        ansible_ssh_private_key_file="{{ item.value.ssh_key_file }}"
-      with_dict: provisioner.hosts
+      - name: Add hosts to host list
+        add_host:
+            name="{{ item.value.name }}"
+            groups="{{ item.value.groups| join(',') }}"
+            node_label="{{ item.key }}"
+            ansible_ssh_user="{{ item.value.ssh_user }}"
+            ansible_ssh_host="{{ item.value.ssh_host }}"
+            ansible_ssh_private_key_file="{{ item.value.ssh_key_file }}"
+        with_dict: provisioner.hosts
 
 - name: Install dependencies
   hosts: virthost
   gather_facts: no
+  sudo: yes
   tasks:
       - name: install packages
         yum:
@@ -32,101 +33,86 @@
 - name: Check if virtualization is supported
   hosts: virthost
   gather_facts: no
-  vars:
-    - ansible_ssh_user: root
+  sudo: yes
   tasks:
-    - name: Check if CPU supports INTEL based KVM
-      shell: egrep -c 'vmx' /proc/cpuinfo
-      ignore_errors: True
-      register: kvm_intel
+      - name: Check if CPU supports INTEL based KVM
+        shell: egrep -c 'vmx' /proc/cpuinfo
+        ignore_errors: True
+        register: kvm_intel
 
-    - name: Check if CPU supports AMD based KVM
-      shell: egrep -c 'svm' /proc/cpuinfo
-      ignore_errors: True
-      register: kvm_amd
+      - name: Set fact for Intel based KVM
+        set_fact:
+            kvm_base: "intel"
+        when: kvm_intel == 0
+
+      - name: Check if CPU supports AMD based KVM
+        shell: egrep -c 'svm' /proc/cpuinfo
+        ignore_errors: True
+        register: kvm_amd
+
+      - name: Set fact for AMD based KVM
+        set_fact:
+            kvm_base: "amd"
+        when: kvm_amd == 0
 
 - name: Enable KVM for intel
   hosts: virthost
   gather_facts: no
-  vars:
-    - ansible_ssh_user: root
+  sudo: yes
   tasks:
-    - name: Enable KVM modules
-      modprobe:
-          name: kvm
-          state: present
-      ignore_errors: True
-      when: kvm_intel.rc == 0
+      - name: Enable nested KVM support for Intel
+        lineinfile:
+            dest: "/etc/modprobe.d/dist.conf"
+            line: "options kvm_{{ kvm_base }} nested=1"
+            state: present
+            create: yes
+        when: kvm_base is defined
 
-    - name: Enable nested KVM
-      lineinfile:
-          dest: "/etc/modprobe.d/dist.conf"
-          line: "options kvm_intel nested=1"
-          state: present
-          create: yes
-      when: kvm_intel.rc == 0
+      - name: Enable nested KVM support for AMD
+        lineinfile:
+            dest: "/etc/modprobe.d/dist.conf"
+            line: "options {{ kvm_base }} nested=1"
+            state: present
+            create: yes
+        when: kvm_base is defined
 
-    # A change in the modprove requires to reload the module
-    - name: Unload Intel KVM module
-      modprobe:
-          name: kvm_intel
-          state: absent
-      ignore_errors: True
-      when: kvm_intel.rc == 0
+      # A change in the modprove requires to reload the module
+      - name: Unload KVM module
+        modprobe:
+            name: "kvm_{{ kvm_base }}"
+            state: absent
+        ignore_errors: True
+        when: kvm_base is defined
 
-    - name: Load Intel KVM module
-      modprobe:
-          name: kvm_intel
-          state: present
-      ignore_errors: True
-      when: kvm_intel.rc == 0
+      - name: Load KVM module
+        modprobe:
+            name: "kvm_{{ kvm_base }}"
+            state: present
+        ignore_errors: True
+        when: kvm_base is defined
 
-    - name: Install required QEMU-KVM packages
-      yum: name=qemu-kvm state=present
-      when: kvm_intel.rc == 0
+      - name: Install required QEMU-KVM packages
+        yum: name=qemu-kvm state=present
+        when: kvm_base is defined
 
-- name: Enable KVM for AMD
-  hosts: virthost
-  gather_facts: no
-  vars:
-    - ansible_ssh_user: root
-  tasks:
-    - name: Enable KVM modules
-      modprobe:
-          name: kvm
-          state: present
-      ignore_errors: True
-      when: kvm_amd.rc == 0
+      # Make sure the net-virtio module is enabled
+      - name: Unload vhost-net module
+        modprobe:
+            name: "vhost-net"
+            state: absent
+        ignore_errors: True
+        when: kvm_base is defined
 
-    - name: Enable nested KVM support for AMD
-      lineinfile:
-          dest: "/etc/modprobe.d/dist.conf"
-          line: "options amd nested=1"
-          state: present
-          create: yes
-
-    # A change in the modprove requires to reload the module
-    - name: Unload AMD KVM module
-      modprobe:
-          name: kvm_amd
-          state: absent
-      ignore_errors: True
-      when: kvm_amd.rc == 0
-
-    - name: load AMD KVM module
-      modprobe:
-          name: kvm_amd
-          state: present
-      ignore_errors: True
-      when: kvm_amd.rc == 0
-
-    - name: Install required QEMU-KVM packages
-      yum: name=qemu-kvm state=present
-      when: kvm_amd.rc == 0
+      - name: Load KVM module
+        modprobe:
+            name: "vhost-net"
+            state: present
+        ignore_errors: True
 
 - name: Validate virtualization supported on host
   hosts: virthost
   gather_facts: no
+  sudo: yes
   tasks:
       - command: "virt-host-validate"
         register: result
@@ -141,6 +127,7 @@
 - name: Create the topology requested
   hosts: virthost
   gather_facts: no
+  sudo: yes
   tasks:
       - name: Check for existing networks
         virt_net:
@@ -151,21 +138,21 @@
         virt_net:
             command: define
             name: "{{ item.value.name }}"
-            xml: "{{ lookup('template', 'network/' + item.key + '.xml.j2') }}"
+            xml: "{{ lookup('template', 'network/network.xml.j2') }}"
         when: "item.value.name not in network_list.list_nets"
-        with_dict: provisioner.networks
+        with_dict: provisioner.network.network_list
 
       - name: Check if network is active
         virt_net:
             state: active
             name: "{{ item.value.name }}"
-        with_dict: provisioner.networks
+        with_dict: provisioner.network.network_list
 
       - name: Make network persistent
         virt_net:
             autostart: "yes"
             name: "{{ item.value.name }}"
-        with_dict: provisioner.networks
+        with_dict: provisioner.network.network_list
 
       - name: Download base guest image
         get_url:
@@ -173,7 +160,7 @@
             url: "{{ provisioner.image.base_url }}/{{ provisioner.image.name }}"
 
       - name: Create a new base image
-        shell: "qemu-img create -f qcow2 {{ provisioner.image.name }} {{ provisioner.image.disk.size }}G"
+        shell: "qemu-img create -f qcow2 {{ provisioner.image.name }} {{ provisioner.image.disk.size }}"
         args:
             chdir: "/var/lib/libvirt/images/"
 
@@ -208,18 +195,22 @@
             chdir: "/var/lib/libvirt/images/"
         with_dict: provisioner.nodes
 
+        # TODO: make this a module to enable dynamic creation of networks
       - name: Create the VMs and attach to the relevant networks
         shell: |
-            virt-install --ram {{ item.value.memory }} \
+            virt-install --name {{ item.key }} \
+                         --virt-type kvm \
+                         --cpu host \
+                         --ram {{ item.value.memory }} \
                          --vcpus {{ item.value.cpu }} \
                          --os-variant {{ item.value.os.variant }} \
                          --disk path=/var/lib/libvirt/images/{{ item.key }}.qcow2,device=disk,bus=virtio,format=qcow2 \
                          --import \
                          --noautoconsole \
                          --vnc \
-                         --network network:default \
-                         --network network:{{ provisioner.networks.data.name }} \
-                         --name {{ item.key }}
+                         --network network:{{ provisioner.network.network_list.data.name }} \
+                         --network network:{{ provisioner.network.network_list.management.name }} \
+                         --network network:{{ provisioner.network.network_list.external.name }}
         with_dict: provisioner.nodes
 
       - name: Pausing to let the VMs start and get an IP address
@@ -304,4 +295,4 @@
             dest: "{{ inventory_dir }}/ansible.cfg"
             section: ssh_connection
             option: ssh_args
-            value: "-o ControlMaster=auto -o ControlPersist=60s -F {{ inventory_dir }}/ansible.ssh.config"
+            value: "-o ForwardAgent=yes -o ServerAliveInterval=30 -o ControlMaster=auto -o ControlPersist=30m -F {{ inventory_dir }}/ansible.ssh.config"
