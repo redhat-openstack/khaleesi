@@ -44,8 +44,8 @@
       retries: 45
       delay: 20
       until: introspection_result.rc == 0
-      shell: >
-          source {{ instack_user_home }}/stackrc;
+      shell: |
+          source {{ instack_user_home }}/stackrc
           OUTPUT=$(openstack baremetal introspection bulk status)
           TOTAL_NODES=$(echo "$OUTPUT" | grep -E '\w{8}-\w{4}' | wc -l)
           INTROSPECTED_NODES=$(echo "$OUTPUT" | grep -E ' True *\| *None ' | wc -l)
