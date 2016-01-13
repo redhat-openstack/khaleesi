@@ -2,4 +2,18 @@
 # Any step that should happen after the deployment of the osp-d playbook
 # This could be create ssh forwarding to the nodes, validation of installation, etc
 - name: Post tasks
-  hosts: localhost
+  hosts: undercloud
+  become: yes
+  become_user: "{{ installer.user.name }}"
+  tasks:
+      - name: Copy the keystonerc file for the tester
+        fetch:
+            src: "~/overcloudrc"
+            dest: "{{ inventory_dir }}/keystonerc"
+            flat: yes
+#
+#- name: Post tasks
+#  hosts: undercloud
+#  tasks:
+#      - name: Copy the tempest-input-file to the root home dir
+#        shell: "cp /home/{{ installer.user.name }}/tempest-deployer-input.conf ~/tempest-deployer-input.conf"

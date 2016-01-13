@@ -26,4 +26,4 @@
             dest: "/home/{{ installer.user.name }}/undercloud.conf"
 
       - name: install the undercloud (should take ~30 minutes :) )
-        shell: "openstack undercloud install"
+        shell: "openstack undercloud install --debug &> undercloud_install.log"

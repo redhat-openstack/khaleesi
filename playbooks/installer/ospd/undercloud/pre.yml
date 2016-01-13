@@ -18,8 +18,14 @@
     - name: install the rhos-release RPM
       shell: "yum localinstall -y {{ product.rpm }}"
 
+    - debug:
+          msg: "rhos-release {{ product.full_version }} -p {{ installer.build }}"
+
     - name: create necessary repos with for director using rhos-release
       command: "rhos-release {{ product.full_version }} -p {{ installer.build }}"
+
+    - debug:
+          msg: "rhos-release {{ product.version.major }} -p {{ product.build }}"
 
     - name: create necessary repos for core using rhos-release
       command: "rhos-release {{ product.version.major }} -p {{ product.build }}"

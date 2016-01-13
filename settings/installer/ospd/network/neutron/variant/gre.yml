@@ -1,5 +1,6 @@
 ---
 
 installer:
-    network:
-        variant: gre
+    overcloud:
+        network:
+            backend: gre

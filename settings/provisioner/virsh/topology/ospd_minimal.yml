@@ -8,9 +8,10 @@ provisioner:
             os: &os
                 type: linux
                 variant: !lookup provisioner.image.os.variant
-            disk: &disk
-                size: !lookup provisioner.image.disk.size
-                path: /var/lib/libvirt/images
+            disks: &disks
+                disk1: &disk1
+                    path: /var/lib/libvirt/images
+                    size: 30G
             network: &network_params
                 interfaces: &interfaces
                     management: &mgmt_interface
@@ -28,8 +29,31 @@ provisioner:
             name: compute
             cpu: 2
             memory: 6144
+            disks:
+                disk1:
+                    path: /var/lib/libvirt/images
+                    size: 20G
             groups:
                 - compute
+                - openstack_nodes
+
+        ceph:
+            <<: *controller
+            name: ceph
+            cpu: 2
+            memory: 4096
+            disks:
+                <<: *disks
+                disk1:
+                    path: /var/lib/libvirt/images
+                    dev: /dev/sda1
+                    size: 20G
+                disk2:
+                    path: /var/lib/libvirt/images
+                    dev: /dev/sda2
+                    size: 20G
+            groups:
+                - ceph
                 - openstack_nodes
 
         undercloud:

@@ -1,0 +1,21 @@
+---
+- name: Prepare templates and deploy the overcloud
+  hosts: undercloud
+  become: yes
+  become_user: "{{ installer.user.name }}"
+  gather_facts: yes
+  tasks:
+      # TODO: Add the complete deployment using swift/cinder/scale etc
+      - name: Deploy the overcloud
+        shell: |
+            source ~/stackrc; openstack overcloud deploy --debug \
+                                       --log-file overcloud_deployment_{{ 100 | random }}.log \
+                                       --templates \
+                                       --neutron-network-type {{ installer.overcloud.network.backend }} \
+                                       --neutron-tunnel-types {{ installer.overcloud.network.backend }} \
+                                       --control-scale {{ groups['controller']|length }} \
+                                       --control-flavor controller \
+                                       --compute-scale {{ groups['compute']|length }} \
+                                       --compute-flavor compute \
+                                       --compute-scale {{ groups['ceph']|length }} \
+                                       --compute-flavor ceph

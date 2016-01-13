@@ -1,0 +1,18 @@
+#!/bin/bash
+{% for node_name, node_values in provisioner.nodes.iteritems() %}
+virt-install --name {{ node_name }} \
+{% for disk_name, disk_values in node_values.disks.iteritems() %}
+             --disk path={{ disk_values.path }}/{{ node_name }}.{{ disk_name }}.qcow2,device=disk,bus=virtio,format=qcow2 \
+{% endfor %}
+             --network network:{{ provisioner.network.network_list.data.name }} \
+             --network network:{{ provisioner.network.network_list.management.name }} \
+             --network network:{{ provisioner.network.network_list.external.name }} \
+             --virt-type kvm \
+             --cpu host \
+             --ram {{ node_values.memory }} \
+             --vcpus {{ node_values.cpu }} \
+             --os-variant {{ node_values.os.variant }} \
+             --import \
+             --noautoconsole \
+             --vnc
+{% endfor %}

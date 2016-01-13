@@ -1,0 +1,8 @@
+#!/bin/bash
+
+{% for node_name, node_values in provisioner.nodes.iteritems() %}
+{% for disk_name, disk_values in node_values.disks.iteritems() %}
+qemu-img create -f qcow2 {{ disk_values.path }}/{{ node_name }}.{{ disk_name }}.qcow2 {{ disk_values.size }}
+{% endfor %}
+virt-resize --expand /dev/sda1 /var/lib/libvirt/images/{{ provisioner.image.name }}-original {{ node_values.disks.disk1.path }}/{{ node_name }}.disk1.qcow2
+{% endfor %}

@@ -159,71 +159,44 @@
             dest: "/var/lib/libvirt/images/{{ provisioner.image.name }}-original"
             url: "{{ provisioner.image.base_url }}/{{ provisioner.image.name }}"
 
-      - name: Create a new base image
-        shell: "qemu-img create -f qcow2 {{ provisioner.image.name }} {{ provisioner.image.disk.size }}"
-        args:
-            chdir: "/var/lib/libvirt/images/"
-
-      - name: Resize base image volume to defined size
-        shell: "virt-resize --expand /dev/sda1 {{ provisioner.image.name }}-original {{ provisioner.image.name }}"
-        args:
-            chdir: "/var/lib/libvirt/images/"
-
-      - name: Create the topology base images
-        shell: "qemu-img create -f qcow2 -b {{ provisioner.image.name }} base.qcow2"
-        args:
-            chdir: "/var/lib/libvirt/images/"
-
       - name: Remove cloud-init from the base image
-        shell: "virt-customize -a base.qcow2 --run-command 'yum remove cloud-init* -y'"
+        shell: "virt-customize -a {{ provisioner.image.name }}-original --run-command 'yum remove cloud-init* -y'"
         args:
             chdir: "/var/lib/libvirt/images/"
 
       - name: Reset the password to a default one
-        shell: "virt-customize -a base.qcow2 --root-password password:redhat"
+        shell: "virt-customize -a {{ provisioner.image.name }}-original --root-password password:redhat"
         args:
             chdir: "/var/lib/libvirt/images/"
 
       - name: Configure two network interfaces for the image
-        shell: "virt-customize -a base.qcow2 --run-command 'cp /etc/sysconfig/network-scripts/ifcfg-eth{0,1} && sed -i s/DEVICE=.*/DEVICE=eth1/g /etc/sysconfig/network-scripts/ifcfg-eth1'"
+        shell: "virt-customize -a {{ provisioner.image.name }}-original --run-command 'cp /etc/sysconfig/network-scripts/ifcfg-eth{0,1} && sed -i s/DEVICE=.*/DEVICE=eth1/g /etc/sysconfig/network-scripts/ifcfg-eth1'"
         args:
             chdir: "/var/lib/libvirt/images/"
 
-      - name: Create each node image
-        shell: "cp base.qcow2 {{ item.key }}.qcow2"
-        args:
-            chdir: "/var/lib/libvirt/images/"
-        with_dict: provisioner.nodes
+      - name: Create image templates for nodes
+        template:
+            dest: "~/create_images.sh"
+            src: "templates/create_images.sh.j2"
+            mode: 0755
 
-        # TODO: make this a module to enable dynamic creation of networks
-      - name: Create the VMs and attach to the relevant networks
-        shell: |
-            virt-install --name {{ item.key }} \
-                         --virt-type kvm \
-                         --cpu host \
-                         --ram {{ item.value.memory }} \
-                         --vcpus {{ item.value.cpu }} \
-                         --os-variant {{ item.value.os.variant }} \
-                         --disk path=/var/lib/libvirt/images/{{ item.key }}.qcow2,device=disk,bus=virtio,format=qcow2 \
-                         --import \
-                         --noautoconsole \
-                         --vnc \
-                         --network network:{{ provisioner.network.network_list.data.name }} \
-                         --network network:{{ provisioner.network.network_list.management.name }} \
-                         --network network:{{ provisioner.network.network_list.external.name }}
-        with_dict: provisioner.nodes
+      - name: The create images script
+        shell: "cat ~/create_images.sh"
 
-      - name: Pausing to let the VMs start and get an IP address
-        pause:
-            seconds: 60
+      - name: Execute the create images script
+        shell: "bash ~/create_images.sh"
 
-      - name: Get IP list
-        shell: "echo $(grep $(virsh domiflist {{ item.key }} | awk '/default/ {print $5};') -r /var/log/messages | grep -m1 DHCPOFFER | awk '{print $7};')"
-        with_dict: provisioner.nodes
-        register: ip_list
+      - name: Create virt install templates for nodes
+        template:
+            dest: "~/create_vms.sh"
+            src: "templates/create_vms.sh.j2"
+            mode: 0755
 
-      - set_fact:
-            vm_ip_list: "{{ ip_list.results }}"
+      - name: The create vms script
+        shell: "cat ~/create_vms.sh"
+
+      - name: Execute the create vms script
+        shell: "bash ~/create_vms.sh"
 
       - name: Get MAC list
         shell: "virsh domiflist {{ item.key }} | awk '/default/ {print $5};'"
@@ -232,6 +205,17 @@
 
       - set_fact:
             vm_mac_list: "{{ mac_list.results }}"
+
+      - name: Wait until one of the VMs gets an IP
+        shell: "virsh net-dhcp-leases {{ provisioner.network.network_list.management.name }} | awk /{{ item.stdout }}/'{print $5}' | cut -d'/' -f1"
+        register: ip_list
+        until: ip_list.stdout.find("192.168.122") > -1
+        retries: 10
+        delay: 20
+        with_items: vm_mac_list
+
+      - set_fact:
+            vm_ip_list: "{{ ip_list.results }}"
 
       - name: Add hosts to host list
         add_host:
@@ -271,8 +255,11 @@
 
       - name: SSH copy ID to all VMs from virthost
         shell: "sshpass -p 'redhat' ssh-copy-id root@{{ item.stdout }} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-        with_items:
-            - "{{ vm_ip_list }}"
+        register: shell_result
+        until: shell_result.stderr.find("ERROR") == -1
+        retries: 20
+        delay: 10
+        with_items: vm_ip_list
 
 - name: Update ansible with the new hosts
   hosts: localhost

@@ -14,12 +14,12 @@ provisioner:
 
     network:
         network_list:
-            management:
-                name: "default"
             data:
                 name: "provisioning"
                 ip_address: "172.16.0.254"
                 netmask: "255.255.255.0"
+            management:
+                name: "default"
             external:
                 name: "external"
                 ip_address: "192.168.0.254"

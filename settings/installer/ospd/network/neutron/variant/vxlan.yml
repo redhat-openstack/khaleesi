@@ -1,5 +1,6 @@
 ---
 
 installer:
-    network:
-        variant: vxlan
+    overcloud:
+        network:
+            backend: vxlan
