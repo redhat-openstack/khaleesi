@@ -11,15 +11,15 @@ export UPDATE_COMMAND="$UPDATE_COMMAND --templates /usr/share/openstack-tripleo-
 {% endif %}
 
 {% if installer.network.isolation != 'none' %}
-export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml "
 export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml "
+export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml "
 {% endif %}
 
 {% if installer.network.isolation != 'none' and installer.deploy.type == 'plan' %}
 export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/plan-parameter-neutron-bridge.yaml "
 {% endif %}
 # Workaround : BZ 1272347
-export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/upgrade.yml "
+export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/updates/update-from-keystone-admin-internal-api.yaml "
 
 {% if installer.network.isolation != 'none' %}
 export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/network-environment.yaml "

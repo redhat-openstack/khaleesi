@@ -16,19 +16,42 @@
         flat: yes
       when: workaround.rhbz1278181.enabled|bool
 
+    - name: fetch heat-config-rebuild-deployed script BZ 1278181
+      fetch:
+        src: "/usr/share/openstack-heat-templates/software-config/elements/heat-config/bin/heat-config-rebuild-deployed"
+        dest: "{{ lookup('env', 'PWD') }}/heat-config-rebuild-deployed"
+        flat: yes
+      when: workaround.rhbz1278181.enabled|bool
+
 - name: Dump packages list
   hosts: update:!undercloud
   tasks:
     - name: dump package list
       shell: rpm -qa &> {{ ansible_ssh_host }}-rpm.log
 
-    - name: copy file to node BZ 1278181
+    - name: copy 55-heat-config file to node BZ 1278181
       sudo: yes
       copy:
         src: "{{ lookup('env', 'PWD') }}/55-heat-config"
         dest: "/usr/libexec/os-refresh-config/configure.d/55-heat-config"
-        mode: 755
+        mode: 0755
       when: workaround.rhbz1278181.enabled|bool
+
+    - name: copy file to node BZ 1278181
+      sudo: yes
+      copy:
+        src: "{{ lookup('env', 'PWD') }}/heat-config-rebuild-deployed"
+        dest: "/home/heat-admin/heat-config-rebuild-deployed"
+        mode: 0755
+      when: workaround.rhbz1278181.enabled|bool
+
+    - name: copy and make heat-config rebuild executable
+      shell: >
+        sudo mkdir -p /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin;
+        sudo cp /home/heat-admin/heat-config-rebuild-deployed  \
+        /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin/heat-config-rebuild-deployed;
+        sudo chmod +x  /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin/heat-config-rebuild-deployed;
+        sudo /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin/heat-config-rebuild-deployed
 
 - name: Update the Overcloud
   hosts: update:!overcloud
