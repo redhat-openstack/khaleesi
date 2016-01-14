@@ -2,6 +2,12 @@
 - name: install the undercloud packages and get the guest image
   hosts: undercloud
   tasks:
+    - name: get the guest-image
+      get_url: >
+        url="{{ distro.images[distro.name][distro.full_version].remote_file_server }}{{ distro.images[distro.name][distro.full_version].guest_image_name }}"
+        dest=/home/stack/{{ distro.images[distro.name][distro.full_version].guest_image_name }}
+        timeout=360
+
     - name: install python-rdomanager-oscplugin
       yum: name=python-rdomanager-oscplugin state=present
       sudo: yes
