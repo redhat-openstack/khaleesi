@@ -55,3 +55,22 @@
             - swift-storage.yaml
             - ceph-storage.yaml
         when: item in nic_configs.stdout_lines
+
+      - name: create self-signed SSL cert
+        command: openssl req -x509 -nodes -newkey rsa:2048 -subj "/CN={{ hw_env.ExternalVIP }}" -days 3650 -keyout overcloud-privkey.pem -out overcloud-cacert.pem -extensions v3_ca
+        when: installer.ssl
+
+      - name: fetch template from single remote host
+        tls_tht:
+            dest_dir: "{{ instack_user_home }}/"
+            cert_filename: "overcloud-cacert.pem"
+            cert_ca_filename: "overcloud-cacert.pem"
+            key_filename: "overcloud-privkey.pem"
+        when: installer.ssl
+
+      - name: copy the self-signed SSL cert
+        shell: >
+            cp overcloud-cacert.pem /etc/pki/ca-trust/source/anchors/;
+            update-ca-trust extract;
+        sudo: true
+        when: installer.ssl

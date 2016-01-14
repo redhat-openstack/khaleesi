@@ -44,6 +44,7 @@ job:
         - /home/stack/*.log
         - /home/stack/*.json
         - /home/stack/*.conf
+        - /home/stack/*.yml
         - /home/stack/deploy-overcloudrc
         - /home/stack/network-environment.yaml
         - /home/stack/tempest/*.xml
@@ -62,3 +63,4 @@ defaults:
     custom_deploy: none
     introspection_method: bulk
     proxy: none
+    ssl: "off"
