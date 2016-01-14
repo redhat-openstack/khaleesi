@@ -156,9 +156,14 @@
       ignore_errors: true
       when: "instack_virt_setup_result.rc != 0"
 
+    - name: delete instack domain before re-try of instack-virt-setup
+      command: virsh undefine instack
+      sudo: yes
+      ignore_errors: true
+      when: "instack_virt_setup_result.rc !=0"
+
     - name: retry run instack-virt-setup
       shell: >
-        virsh undefine instack;
         source {{ instack_user_home }}/virt-setup-env;
         instack-virt-setup > {{ instack_user_home }}/instack-virt-setup-retry.log;
       when: "instack_virt_setup_result.rc !=0"
