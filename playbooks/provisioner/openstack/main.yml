@@ -147,9 +147,14 @@
   gather_facts: no
   max_fail_percentage: 0
   tasks:
-    - local_action:
-        module: wait_for_ssh host={{ hostvars[inventory_hostname].ansible_ssh_host }} user={{ hostvars[inventory_hostname].ansible_ssh_user }} key={{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}
+    - name: Wait for Reachable Nodes
+      wait_for_ssh:
+          host: "{{ hostvars[inventory_hostname].ansible_ssh_host }}"
+          user: "{{ hostvars[inventory_hostname].ansible_ssh_user }}"
+          key: "{{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}"
+          timeout: "{{ provisioner.ssh_timeout | default(omit) }}"
       sudo: no
+      delegate_to: localhost
 
 - name: Update network interfaces on nodes - OpenStack
   hosts: openstack_nodes

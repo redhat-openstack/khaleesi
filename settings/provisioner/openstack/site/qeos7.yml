@@ -1,4 +1,5 @@
 provisioner:
+    ssh_timeout: 900
     auth_url: !lookup private.provisioner.qeos7.auth_url
 
     network:
