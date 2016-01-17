@@ -1,4 +1,4 @@
---- !extends:../tenant/qe-ci.yml
+--- !extends:../tenant/rhos-jenkins.yml
 
 provisioner:
     username: qe-ci2
