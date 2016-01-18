@@ -1,7 +1,5 @@
 from ansible import utils
 
-print('Imported workaround filter')
-
 
 def workaround_enabled(workarounds, *bugs, **kw):
     if not isinstance(workarounds, dict):
@@ -17,7 +15,6 @@ def workaround_enabled(workarounds, *bugs, **kw):
 class FilterModule(object):
 
     def filters(self):
-        print('Loading workaround filter')
         return {
             'bug': workaround_enabled,
         }
