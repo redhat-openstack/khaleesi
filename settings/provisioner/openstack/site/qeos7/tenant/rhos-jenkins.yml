@@ -1,7 +1,7 @@
 --- !extends:common/image.yml
 
 provisioner:
-    tenant_name: qe-ci2
+    tenant_name: rhos-qe-ci
     network:
         dynamic_net: true
         public_net_name: '10.8.184.0/22'
