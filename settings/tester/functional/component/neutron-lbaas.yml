@@ -1,6 +1,0 @@
-tester:
-   component:
-       name: neutron-lbaas
-       short_name: ntrn-lb
-       dir: !join [ !env WORKSPACE, /neutron-lbaas]
-       tox_target: dsvm-functional

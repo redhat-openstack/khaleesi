@@ -1,6 +1,0 @@
-tester:
-   component:
-       name: neutron-fwaas
-       short_name: ntrn-fw
-       dir: !join [ !env WORKSPACE, /neutron-fwaas]
-       tox_target: dsvm-functional

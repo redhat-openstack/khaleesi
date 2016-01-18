@@ -5,6 +5,8 @@ tester:
     short_name: func
     component:
         config_file: jenkins-config.yml
+        tox_target: dsvm-functional
+
 node:
     prefix:
         - !lookup tester.short_name

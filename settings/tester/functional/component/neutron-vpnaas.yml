@@ -1,6 +1,0 @@
-tester:
-    component:
-        name: neutron-vpnaas
-        short_name: ntrn-vpn
-        dir: !join [ !env WORKSPACE, /neutron-vpnaas]
-        tox_target: dsvm-functional

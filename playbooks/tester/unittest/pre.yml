@@ -1,38 +1,6 @@
 ---
-- name: Test dependencies
-  sudo: yes
-  vars:
-      test_cfg: "{{ test_env }}"
+- name: Preparation tasks
   hosts: controller
-  tasks:
-      - name: Install test rpm dependencies
-        yum: pkg={{ item }} state=latest
-        with_items: test_cfg.setup.install
-        when:
-            test_cfg.setup | default(false) and test_cfg.setup.install | default(false)
-
-      - name: Remove unwanted rpms
-        yum: pkg={{ item }} state=absent
-        with_items: test_cfg.setup.remove
-        when:
-            test_cfg.setup | default(false) and test_cfg.setup.remove | default(false)
-
-- name: Install packages to convert and publish tests results
-  sudo: yes
-  hosts: controller
-  tasks:
-      - name: Install packages to convert subunit stream into junitxml
-        yum: name={{ item }} state=present
-        with_items:
-            - subunit-filters
-            - python-junitxml
-
-- name: print test configuration
-  hosts: controller
-  tasks:
-      - name: print component path
-        debug: var={{ component_path }}
-
-      - name: print test configuration
-        debug: var=test_env
-        register: env
+  gather_facts: yes
+  roles:
+    - component-test/pre
