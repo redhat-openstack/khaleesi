@@ -40,6 +40,7 @@ job:
     archive:
         - /home/stack/.instack/install-undercloud.log
         - /home/stack/stackrc
+        - /home/stack/overcloudrc
         - /home/stack/*.log
         - /home/stack/*.json
         - /home/stack/*.conf
