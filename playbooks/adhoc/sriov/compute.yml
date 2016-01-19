@@ -3,11 +3,6 @@
   hosts: compute
   sudo: yes
   tasks:
-    - name: Set grubby
-      shell: |
-           kernel_path=$(grubby --default-kernel);
-           grub_params="intel_iommu=on igb.max_vfs=7";
-           grubby --update-kernel=${kernel_path} --args="${grub_params}";
 
     - name: set allow_unsafe_interrupts=1
       shell: echo "options vfio_iommu_type1 allow_unsafe_interrupts=1" > /etc/modprobe.d/dist.conf
@@ -17,6 +12,13 @@
 
     - name: Set Host Physical Function (pf) interface
       set_fact: pf_name="{{ provisioner.nodes[inventory_hostname.split('-')|last ].network.interfaces.data.label }}"
+
+    - name: Set grubby
+      shell: |
+           driver=$(ethtool -i "{{ pf_name }}" |grep driver  | sed 's/driver: //')
+           kernel_path=$(grubby --default-kernel);
+           grub_params="intel_iommu=on ${driver}.max_vfs=7";
+           grubby --update-kernel=${kernel_path} --args="${grub_params}";
 
     - name: set pci_white_list
       ini_file:
