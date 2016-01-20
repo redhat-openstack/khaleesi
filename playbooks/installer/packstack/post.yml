@@ -84,6 +84,49 @@
     - name: Restart neutron service to apply changes in floating ip pool
       shell: openstack-service restart neutron
 
+- name: Check if RHBZ1299563 ceilometer nova notifications are enabled
+  hosts: compute
+  gather_facts: no
+  sudo: yes
+  tasks:
+      - group_by: key=workaround_rhbz1299563
+        when: workarounds.rhbz1299563 is defined
+
+- name: "Workaround RHBZ1299563: Configure ceilometer nova notifications"
+  hosts: workaround_rhbz1299563
+  gather_facts: no
+  sudo: yes
+  tasks:
+    - name: Set instace_usage_audit in nova.conf
+      ini_file: dest=/etc/nova/nova.conf
+                section=DEFAULT
+                option=instance_usage_audit
+                value=True
+
+    - name: Set instace_usage_audit_period in nova.conf
+      ini_file: dest=/etc/nova/nova.conf
+                section=DEFAULT
+                option=instance_usage_audit_period
+                value=hour
+
+    - name: Set notify_on_state_change in nova.conf
+      ini_file: dest=/etc/nova/nova.conf
+                section=DEFAULT
+                option=notify_on_state_change
+                value=vm_and_task_state
+
+    - name: Set notification_driver in nova.conf
+      ini_file: dest=/etc/nova/nova.conf
+                section=DEFAULT
+                option=notification_driver
+                value=messagingv2
+
+    - name: Restart openstack-ceilometer-compute
+      service: name=openstack-ceilometer-compute state=restarted enabled=yes
+
+    - name: Restart nova-compute
+      service: name=openstack-nova-compute state=restarted enabled=yes
+
 - name:  Post install for Neutron server
   hosts: controller
   gather_facts: no
