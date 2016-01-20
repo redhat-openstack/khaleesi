@@ -4,3 +4,6 @@ product:
         major: 7
         minor: 0
         code_name: kilo
+
+workarounds:
+    rhbz1299563: {}
