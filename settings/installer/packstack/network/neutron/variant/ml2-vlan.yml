@@ -20,7 +20,7 @@ installer:
             CONFIG_NEUTRON_L3_EXT_BRIDGE: provider
             CONFIG_NEUTRON_ML2_TENANT_NETWORK_TYPES: vlan
             CONFIG_NEUTRON_ML2_TUNNEL_ID_RANGES: '1:1000'
-            CONFIG_NEUTRON_ML2_TYPE_DRIVERS: 'local,flat,vlan,gre,vxlan'
+            CONFIG_NEUTRON_ML2_TYPE_DRIVERS: 'local,flat,vlan'
             CONFIG_NEUTRON_OVS_TENANT_NETWORK_TYPE: vlan
             CONFIG_NEUTRON_OVS_TUNNEL_IF: !overwrite ""
             CONFIG_NEUTRON_OVS_VLAN_RANGES: "{{ !lookup installer.network.internal.label }}:{{ !lookup installer.network.internal.vlan.range.start }}:{{ !lookup installer.network.internal.vlan.range.end }}, {{ !lookup installer.network.label}}:{{ !lookup installer.network.external.vlan.tag }}:{{ !lookup installer.network.external.vlan.tag  }}"
