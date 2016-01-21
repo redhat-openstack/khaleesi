@@ -11,6 +11,37 @@
     - name: restart nova compute service to apply changes in nova.conf
       shell: openstack-service restart nova-compute
 
+- name: Check if BZ1300662 is enabled
+  hosts: controller
+  gather_facts: no
+  sudo: no
+  tasks:
+    - group_by: key=workaround_rhbz1300662
+      when: workarounds.rhbz1300662 is defined
+
+- name: "Workaround RHBZ1300662: Keystone auth_uri set wrongly in cinder.conf"
+  hosts: workaround_rhbz1300662
+  gather_facts: yes
+  sudo: yes
+  tasks:
+    - name: Configure auth_uri in cinder.conf
+      ini_file: dest=/etc/cinder/cinder.conf
+              section=keystone_authtoken
+              option=auth_uri
+              value=http://{{ ansible_default_ipv4.address }}:5000/
+    - name: Restart openstack-cinder-api
+      service: name=openstack-cinder-api state=restarted
+
+    - name: Restart openstack-cinder-backup
+      service: name=openstack-cinder-backup state=restarted
+
+    - name: Restart openstack-cinder-scheduler
+      service: name=openstack-cinder-scheduler state=restarted
+
+    - name: Restart openstack-cinder-volume
+      service: name=openstack-cinder-volume state=restarted
+
+
 - name: Check if BZ1138740 S3/boto workaround is enabled
   hosts: controller
   gather_facts: no
