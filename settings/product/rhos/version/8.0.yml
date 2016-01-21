@@ -7,3 +7,4 @@ product:
 
 workarounds:
     rhbz1300662: {}
+    rhbz1299563: {}
