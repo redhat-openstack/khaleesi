@@ -62,6 +62,14 @@
         register: pinned_poodle
         when: product.repo_type in ['poodle']  and product.repo.poodle_pin_version == 'latest'
 
+      - name: Execute rhos-release for core rhos poodle (osp)
+        sudo: yes
+        shell: >
+          rhos-release -d -P {{ product.repo.core_product_version }};
+          rhos-release -d -r {{ distro.full_version }} -t {{installer.dib_dir}} -P {{ product.repo.core_product_version }};
+        register: pinned_poodle
+        when: product.repo_type in ['poodle'] and product.repo.poodle_pin_version == 'latest'
+
       - name: yum clean all
         command: yum clean all
 

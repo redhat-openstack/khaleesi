@@ -1,0 +1,5 @@
+---
+installer:
+    network:
+        isolation: single_nic_vlans_ipv6
+        protocol: ipv6

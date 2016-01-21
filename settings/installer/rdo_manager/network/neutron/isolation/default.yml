@@ -2,3 +2,4 @@
 installer:
     network:
         isolation: default
+        protocol: ipv4

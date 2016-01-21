@@ -5,8 +5,6 @@ export DEPLOY_COMMAND="openstack overcloud deploy --debug \
                                                   {{ installer.deploy.command }} \
                                                   {{ installer.custom_deploy.command }} \
                                                   --libvirt-type=$OVERCLOUD_LIBVIRT_TYPE \
-                                                  --neutron-network-type {{ installer.network.variant }} \
-                                                  --neutron-tunnel-types {{ installer.network.variant }} \
                                                   --ntp-server {{ distro.config.ntp_server_ip }} \
                                                   --control-scale $CONTROLSCALE \
                                                   --compute-scale $COMPUTESCALE \
@@ -19,6 +17,14 @@ export DEPLOY_COMMAND="openstack overcloud deploy --debug \
                                                   --block-storage-flavor $BLOCKSTORAGEFLAVOR \
                                                   --swift-storage-flavor $SWIFTSTORAGEFLAVOR"
 
+{% if installer.network.variant == 'vlan' %}
+export DEPLOY_COMMAND="$DEPLOY_COMMAND --neutron-network-type vlan \
+                                       --neutron-disable-tunneling"
+{% else %}
+export DEPLOY_COMMAND="$DEPLOY_COMMAND --neutron-network-type {{ installer.network.variant }} \
+                                       --neutron-tunnel-types {{ installer.network.variant }}"
+{% endif %}
+
 {% if installer.env.type != "virthost" %}
 export NEUTRON_PUBLIC_INTERFACE={{ hw_env.neutron_public_interface }}
 export DEPLOY_COMMAND="$DEPLOY_COMMAND --neutron-public-interface=$NEUTRON_PUBLIC_INTERFACE "
@@ -27,15 +33,24 @@ export DEPLOY_COMMAND="$DEPLOY_COMMAND --neutron-public-interface=$NEUTRON_PUBLI
 export DEPLOY_TIMEOUT={{ hw_env.deploy_timeout | default('90') }}
 export DEPLOY_COMMAND="$DEPLOY_COMMAND --timeout=$DEPLOY_TIMEOUT "
 
-{% if installer.network.isolation != 'none' and installer.env.type != "virthost" %}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
-                                       -e ~/network-environment.yaml "
+{% if installer.network.isolation != 'none' and installer.network.protocol == "ipv4" %}
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml"
 {% endif %}
 
-{% if installer.network.isolation != 'none' and installer.env.type == "virthost" %}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml \
-                                       -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml \
-                                       -e ~/network-environment.yaml "
+{% if installer.network.isolation != 'none' and installer.network.protocol == "ipv6" %}
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation-v6.yaml"
+{% endif %}
+
+{% if installer.network.isolation != 'none' and installer.env.type == "virthost" and installer.network.protocol == "ipv4" %}
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml"
+{% endif %}
+
+{% if installer.network.isolation != 'none' and installer.env.type == "virthost" and installer.network.protocol == "ipv6" %}
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans-v6.yaml"
+{% endif %}
+
+{% if installer.network.isolation != 'none' %}
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e ~/network-environment.yaml"
 {% endif %}
 
 {% if installer.network.isolation != 'none' and installer.deploy.type == 'plan' %}

@@ -2,3 +2,4 @@
 installer:
     network:
         isolation: bond_with_vlans
+        protocol: ipv4

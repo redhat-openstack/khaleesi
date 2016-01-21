@@ -2,3 +2,4 @@
 installer:
     network:
         isolation: single_nic_vlans
+        protocol: ipv4

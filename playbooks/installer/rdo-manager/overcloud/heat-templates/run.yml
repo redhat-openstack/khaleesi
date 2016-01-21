@@ -9,7 +9,7 @@
       #the long line in this task fails when broken up
       - name: copy over standard nic-configs default directory
         shell: >
-            cp /usr/share/openstack-tripleo-heat-templates/network/config/{{ installer.network.isolation | replace('_', '-') }}/*.yaml {{ instack_user_home }}/nic-configs
+            cp /usr/share/openstack-tripleo-heat-templates/network/config/{{ installer.network.isolation | replace('_', '-') | replace("-ipv6", "") }}/*.yaml {{ instack_user_home }}/nic-configs
         when: installer.network.isolation != 'none' and installer.network.isolation != 'default'
 
       #the long line in this task fails when broken up
