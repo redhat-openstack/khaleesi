@@ -1,0 +1,2 @@
+installer:
+    introspection_method: node_by_node

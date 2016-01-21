@@ -60,3 +60,4 @@ defaults:
     tempest_skip_file: none
     updates: none
     custom_deploy: none
+    introspection_method: bulk
