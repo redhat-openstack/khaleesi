@@ -24,3 +24,7 @@ export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-temp
 {% if installer.network.isolation != 'none' %}
 export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/network-environment.yaml "
 {% endif %}
+
+{% if installer.network.isolation == 'none' %}
+export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/updates/update-from-publicvip-on-ctlplane.yaml "
+{% endif %}
