@@ -7,8 +7,16 @@
       - group_by: key=net_prov
         when: provisioner.network.dynamic_net is defined and provisioner.network.dynamic_net
 
+- name: Check the nodes which need a floating IP from a specific network
+  hosts: localhost
+  gather_facts: no
+  sudo: no
+  tasks:
+      - group_by: key=net_add_floatingip
+        when: provisioner.network.public_net_name is defined
+
 - name: Cleanup Networks
-  hosts: net_prov
+  hosts: net_add_floatingip
   gather_facts: no
   tasks:
     - name: Delete Floating IPs

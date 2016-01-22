@@ -7,6 +7,13 @@
       - group_by: key=net_prov
         when: provisioner.network.dynamic_net is defined and provisioner.network.dynamic_net
 
+- name: Check the nodes which need a floating IP from a specific network
+  hosts: localhost
+  gather_facts: no
+  sudo: no
+  tasks:
+      - group_by: key=net_add_floatingip
+        when: provisioner.network.public_net_name is defined
 
 - name: Create networks
   hosts: net_prov
@@ -121,7 +128,7 @@
       with_items: created_nodes.results
 
 - name: Add Floating IPs
-  hosts: net_prov
+  hosts: net_add_floatingip
   tasks:
     - name: assign floating ip to instances
       quantum_floating_ip:
