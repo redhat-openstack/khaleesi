@@ -1,0 +1,7 @@
+--- !extends:../tenant/rhos-component-ci.yml
+
+provisioner:
+    username: rhos-component-ci
+    password: !lookup private.provisioner.qeos7.rhos-component-ci.password
+    key_file: !join [ !env HOME , /.ssh/rhos-jenkins/id_rsa ]
+    key_name: rhos-jenkins
