@@ -14,9 +14,7 @@
                                        --libvirt-type qemu \
                                        --neutron-network-type {{ installer.overcloud.network.backend }} \
                                        --neutron-tunnel-types {{ installer.overcloud.network.backend }} \
-                                       --control-scale {{ groups['controller']|length }} \
+                                       --control-scale {{ groups['controller']| length | default(0) }} \
                                        --control-flavor controller \
-                                       --compute-scale {{ groups['compute']|length }} \
-                                       --compute-flavor compute \
-                                       --compute-scale {{ groups['ceph']|length }} \
-                                       --compute-flavor ceph
+                                       --compute-scale {{ groups['compute']| length | default(0) }} \
+                                       --compute-flavor compute

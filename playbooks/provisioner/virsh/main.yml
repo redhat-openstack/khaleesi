@@ -3,7 +3,7 @@
   hosts: localhost
   gather_facts: no
   tasks:
-      - name: Add hosts to host list
+      - name: add hosts to host list
         add_host:
             name="{{ item.value.name }}"
             groups="{{ item.value.groups| join(',') }}"
@@ -35,22 +35,22 @@
   gather_facts: no
   sudo: yes
   tasks:
-      - name: Check if CPU supports INTEL based KVM
+      - name: check if CPU supports INTEL based KVM
         shell: egrep -c 'vmx' /proc/cpuinfo
         ignore_errors: True
         register: kvm_intel
 
-      - name: Set fact for Intel based KVM
+      - name: set fact for Intel based KVM
         set_fact:
             kvm_base: "intel"
         when: kvm_intel == 0
 
-      - name: Check if CPU supports AMD based KVM
+      - name: check if CPU supports AMD based KVM
         shell: egrep -c 'svm' /proc/cpuinfo
         ignore_errors: True
         register: kvm_amd
 
-      - name: Set fact for AMD based KVM
+      - name: set fact for AMD based KVM
         set_fact:
             kvm_base: "amd"
         when: kvm_amd == 0
@@ -60,7 +60,7 @@
   gather_facts: no
   sudo: yes
   tasks:
-      - name: Enable nested KVM support for Intel
+      - name: enable nested KVM support for Intel
         lineinfile:
             dest: "/etc/modprobe.d/dist.conf"
             line: "options kvm_{{ kvm_base }} nested=1"
@@ -68,7 +68,7 @@
             create: yes
         when: kvm_base is defined
 
-      - name: Enable nested KVM support for AMD
+      - name: enable nested KVM support for AMD
         lineinfile:
             dest: "/etc/modprobe.d/dist.conf"
             line: "options {{ kvm_base }} nested=1"
@@ -129,12 +129,12 @@
   gather_facts: no
   sudo: yes
   tasks:
-      - name: Check for existing networks
+      - name: check for existing networks
         virt_net:
             command: list_nets
         register: network_list
 
-      - name: Create the networks for the topology
+      - name: create the networks for the topology
         virt_net:
             command: define
             name: "{{ item.value.name }}"
@@ -142,82 +142,92 @@
         when: "item.value.name not in network_list.list_nets"
         with_dict: provisioner.network.network_list
 
-      - name: Check if network is active
+      - name: check if network is active
         virt_net:
             state: active
             name: "{{ item.value.name }}"
         with_dict: provisioner.network.network_list
 
-      - name: Make network persistent
+      - name: make network persistent
         virt_net:
             autostart: "yes"
             name: "{{ item.value.name }}"
         with_dict: provisioner.network.network_list
 
-      - name: Download base guest image
+      - name: download base guest image
         get_url:
             dest: "/var/lib/libvirt/images/{{ provisioner.image.name }}-original"
             url: "{{ provisioner.image.base_url }}/{{ provisioner.image.name }}"
 
-      - name: Remove cloud-init from the base image
+      - name: remove cloud-init from the base image
         shell: "virt-customize -a {{ provisioner.image.name }}-original --run-command 'yum remove cloud-init* -y'"
         args:
             chdir: "/var/lib/libvirt/images/"
 
-      - name: Reset the password to a default one
+      - name: reset the password to a default one
         shell: "virt-customize -a {{ provisioner.image.name }}-original --root-password password:redhat"
         args:
             chdir: "/var/lib/libvirt/images/"
 
-      - name: Configure two network interfaces for the image
+        #TODO: configure interfaces based on config rather than hardcode
+      - name: configure three network interfaces for the image
         shell: "virt-customize -a {{ provisioner.image.name }}-original --run-command 'cp /etc/sysconfig/network-scripts/ifcfg-eth{0,1} && sed -i s/DEVICE=.*/DEVICE=eth1/g /etc/sysconfig/network-scripts/ifcfg-eth1'"
         args:
             chdir: "/var/lib/libvirt/images/"
 
-      - name: Create image templates for nodes
+        #TODO: configure interfaces based on config rather than hardcode
+      - name: configure three network interfaces for the image
+        shell: "virt-customize -a {{ provisioner.image.name }}-original --run-command 'cp /etc/sysconfig/network-scripts/ifcfg-eth{1,2} && sed -i s/DEVICE=.*/DEVICE=eth2/g /etc/sysconfig/network-scripts/ifcfg-eth2'"
+        args:
+            chdir: "/var/lib/libvirt/images/"
+
+      - name: create image templates for nodes
         template:
             dest: "~/create_images.sh"
             src: "templates/create_images.sh.j2"
             mode: 0755
 
-      - name: The create images script
+      - name: the create images script
         shell: "cat ~/create_images.sh"
 
       - name: Execute the create images script
         shell: "bash ~/create_images.sh"
 
-      - name: Create virt install templates for nodes
+      - name: create virt install templates for nodes
         template:
             dest: "~/create_vms.sh"
             src: "templates/create_vms.sh.j2"
             mode: 0755
 
-      - name: The create vms script
+      - name: the create vms script
         shell: "cat ~/create_vms.sh"
 
-      - name: Execute the create vms script
+      - name: execute the create vms script
         shell: "bash ~/create_vms.sh"
 
-      - name: Get MAC list
-        shell: "virsh domiflist {{ item.key }} | awk '/default/ {print $5};'"
-        with_dict: provisioner.nodes
+      - name: get MAC list
+        shell: "virsh domiflist {{ item[0] }} | awk '/{{ item[1] }}/ {print $5};'"
+        with_nested:
+            - provisioner.nodes
+            - provisioner.network.network_list
         register: mac_list
 
       - set_fact:
             vm_mac_list: "{{ mac_list.results }}"
 
-      - name: Wait until one of the VMs gets an IP
-        shell: "virsh net-dhcp-leases {{ provisioner.network.network_list.management.name }} | awk /{{ item.stdout }}/'{print $5}' | cut -d'/' -f1"
+      - name: wait until one of the VMs gets an IP
+        shell: "virsh net-dhcp-leases {{ provisioner.network.network_list['%s' % item.item[1]].name }} | awk /{{ item.stdout }}/'{print $5}' | cut -d'/' -f1"
+        when: item.stdout != ""
         register: ip_list
-        until: ip_list.stdout.find("192.168.122") > -1
-        retries: 10
-        delay: 20
+        until: ip_list.stdout.find("{{ provisioner.network.network_list['%s' % item.item[1]].ip_address | truncate(7, True, '') }}") > -1
+        retries: 40
+        delay: 5
         with_items: vm_mac_list
 
       - set_fact:
             vm_ip_list: "{{ ip_list.results }}"
 
-      - name: Add hosts to host list
+      - name: add hosts to host list
         add_host:
             name="{{ item.key }}"
             groups="{{ item.value.groups| join(',') }}"
@@ -226,28 +236,27 @@
             ansible_ssh_password="redhat"
         with_dict: provisioner.nodes
 
-      - name: Update IPs of hosts
+      - name: update IPs of hosts
         add_host:
-            name="{{ item.0 }}"
-            ansible_ssh_host="{{ item.1.stdout }}"
-        with_together:
-            - provisioner.nodes.keys()
+            name="{{ item.item.item[0] }}"
+            ansible_ssh_host="{{ item.item.stdout }}"
+        when: item.item is defined
+        with_items: vm_ip_list
+
+      - name: make IPs persistent
+        shell: "virsh net-update {{ item[0] }} add ip-dhcp-host \"<host mac='{{ item[1].item.stdout }}' name='{{ item[1].item.item[0] }}' ip='{{ item[1].stdout }}' />\" --live --config"
+        when: item[1].item is defined and item[1].item.item[0] == item[0]
+        with_nested:
+            - provisioner.network.network_list
             - vm_ip_list
 
-      - name: Make IPs persistent
-        shell: "virsh net-update default add ip-dhcp-host \"<host mac='{{ item.2.stdout }}' name='{{ item.0 }}' ip='{{ item.1.stdout }}' />\" --live --config"
-        with_together:
-            - provisioner.nodes.keys()
-            - vm_ip_list
-            - vm_mac_list
-
-      - name: Generating RSA key for root
+      - name: generating RSA key for root
         user:
             name: root
             generate_ssh_key: yes
         delegate_to: virthost
 
-      - name: Copy created key from virthost for SSH proxy
+      - name: copy created key from virthost for SSH proxy
         fetch:
             src: ~/.ssh/id_rsa
             dest: "{{ inventory_dir }}/id_rsa"
@@ -259,25 +268,26 @@
         until: shell_result.stderr.find("ERROR") == -1
         retries: 20
         delay: 10
+        when: item.item is defined
         with_items: vm_ip_list
 
 - name: Update ansible with the new hosts
   hosts: localhost
   tasks:
-      - name: Setup ssh config
+      - name: setup ssh config
         template:
             src: "templates/ssh.config.ansible.j2"
             dest: "{{ inventory_dir }}/ansible.ssh.config"
             mode: 0755
 
       # This step is necessary in order to allow the SSH forwarding
-      - name: Update the ssh host name of each machine
+      - name: update the ssh host name of each machine
         add_host:
             name="{{ item.key }}"
             ansible_ssh_host="{{ item.key }}"
         with_dict: provisioner.nodes
 
-      - name: Update ansible with the new SSH settings
+      - name: update ansible with the new SSH settings
         ini_file:
             dest: "{{ inventory_dir }}/ansible.cfg"
             section: ssh_connection
