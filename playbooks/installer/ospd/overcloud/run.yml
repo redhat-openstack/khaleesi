@@ -11,6 +11,7 @@
             source ~/stackrc; openstack overcloud deploy --debug \
                                        --log-file overcloud_deployment_{{ 100 | random }}.log \
                                        --templates \
+                                       --libvirt-type qemu \
                                        --neutron-network-type {{ installer.overcloud.network.backend }} \
                                        --neutron-tunnel-types {{ installer.overcloud.network.backend }} \
                                        --control-scale {{ groups['controller']|length }} \
