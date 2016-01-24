@@ -1,0 +1,21 @@
+#!/bin/bash
+
+source ~/stackrc;
+openstack overcloud deploy --debug \
+                       --templates \
+                       --libvirt-type qemu \
+                       --neutron-network-type {{ installer.overcloud.network.backend }} \
+                       --neutron-tunnel-types {{ installer.overcloud.network.backend }} \
+{% if groups['controller'] is defined %}
+                       --control-scale {{ groups['controller']| length }} \
+                       --control-flavor controller \
+{% endif %}
+{% if groups['compute'] is defined %}
+                       --compute-scale {{ groups['compute']| length }} \
+                       --compute-flavor compute \
+{% endif %}
+{% if groups['ceph'] is defined %}
+                       --ceph-storage-scale {{ groups['ceph']| length }} \
+                       --ceph-storage-flavor ceph \
+{% endif %}
+                       --log-file overcloud_deployment_{{ 100 | random }}.log

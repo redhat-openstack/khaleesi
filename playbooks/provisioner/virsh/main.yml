@@ -239,13 +239,13 @@
       - name: update IPs of hosts
         add_host:
             name="{{ item.item.item[0] }}"
-            ansible_ssh_host="{{ item.item.stdout }}"
-        when: item.item is defined
+            ansible_ssh_host="{{ item.stdout }}"
+        when: item.item is defined and item.item.item[1] == "management"
         with_items: vm_ip_list
 
       - name: make IPs persistent
         shell: "virsh net-update {{ item[0] }} add ip-dhcp-host \"<host mac='{{ item[1].item.stdout }}' name='{{ item[1].item.item[0] }}' ip='{{ item[1].stdout }}' />\" --live --config"
-        when: item[1].item is defined and item[1].item.item[0] == item[0]
+        when: item[1].item is defined and item[1].item.item[1] == item[0]
         with_nested:
             - provisioner.network.network_list
             - vm_ip_list

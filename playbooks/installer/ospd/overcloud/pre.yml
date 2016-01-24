@@ -18,13 +18,13 @@
   hosts: virthost
   gather_facts: no
   tasks:
-      - name: Create stack user on virthost
+      - name: create stack user on virthost
         user:
             name: "{{ installer.user.name }}"
             state: present
             password: "{{ installer.user.password | password_hash('sha512') }}"
 
-      - name: Set permissions for the user to access the hypervisor
+      - name: set permissions for the user to access the hypervisor
         copy:
             content: |
                 [libvirt Management Access]
@@ -35,7 +35,7 @@
                 ResultActive=yes
             dest: "/etc/polkit-1/localauthority/50-local.d/50-libvirt-user-{{ installer.user.name }}.pkla"
 
-      - name: Make sure sshpass installed
+      - name: make sure sshpass installed
         yum:
             name: sshpass
             state: latest
@@ -44,7 +44,7 @@
       - name: SSH copy ID to the hypervisor
         become: yes
         become_user: "{{ installer.user.name }}"
-        shell: "sshpass -p '{{ installer.user.password }}' ssh-copy-id {{ installer.user.name }}@192.168.122.1 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+        shell: "sshpass -p '{{ installer.user.password }}' ssh-copy-id {{ installer.user.name }}@{{ provisioner.network.network_list.management.ip_address }} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
         delegate_to: undercloud
 
       - name: prepare instack.json
