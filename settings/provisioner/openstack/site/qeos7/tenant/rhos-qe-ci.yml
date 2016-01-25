@@ -36,8 +36,15 @@ provisioner:
                     allocation_pool_end: 172.31.1.100
 
     flavor:
-        small: 2
-        medium: 3
+        # The list of flavor should be rechecked; right now, 3 is the smaller
+        # with a disk big enough for relevant images. 4 is a bit bigger, so
+        # use it for medium, and keep it for large, as it quite matches the
+        # values for the old qeos. Other flavor should be cleaned up (also
+        # because they are mostly unused right now).
+        # The recheck could lead to a bigger change to flavor definitions
+        # (see CENTRALCI-1189)
+        small: 3
+        medium: 4
         large: 4
         large_testing: c6e0ad85-81a8-4fbb-a2d9-b0abac52f79b
         large_ephemeral: a89c1587-aab2-49c2-a60d-4d19ea40bdbc
