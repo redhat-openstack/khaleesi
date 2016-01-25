@@ -13,6 +13,7 @@ Contents:
 
    khaleesi
    community_guidelines
+   best_practices
    development
    ksgen
    kcli

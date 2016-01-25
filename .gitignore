@@ -34,3 +34,4 @@ instack_hosts
 doc/_build/
 fence_xvm.key
 vm-host-table
+*.swp
