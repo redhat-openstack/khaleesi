@@ -1,18 +1,33 @@
 ---
-- name: Prepare templates and deploy the overcloud
+- name: Prepare templates
   hosts: undercloud
   become: yes
   become_user: "{{ installer.user.name }}"
-  gather_facts: yes
+  gather_facts: no
+  tasks:
+      - name: copy template folder
+        shell: "cp -rf /usr/share/openstack-tripleo-heat-templates ~/my_templates/"
+
+      - name: prepare storage template
+        template:
+            src: "templates/storage/ceph.yml.j2"
+            dest: "~/my_templates/puppet/hieradata/ceph.yaml"
+            mode: 0755
+
+- name: Install the overcloud
+  hosts: undercloud
+  become: yes
+  become_user: "{{ installer.user.name }}"
+  gather_facts: no
   tasks:
       - name: create the overcloud deploy script
         template:
-            dest: "~/overcloud_deploy.sh"
             src: "templates/overcloud_deploy.sh.j2"
+            dest: "~/overcloud_deploy.sh"
             mode: 0755
 
       - name: the create overcloud script
         shell: "cat ~/overcloud_deploy.sh"
 
-      - name: Execute the overcloud deploy script (should take ~30 minutes :) )
+      - name: execute the overcloud deploy script (should take ~30 minutes :) )
         shell: "bash ~/overcloud_deploy.sh"

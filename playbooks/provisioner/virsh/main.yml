@@ -258,14 +258,9 @@
 
       - name: copy created key from virthost for SSH proxy
         fetch:
-            src: ~/.ssh/id_rsa
+            src: "~/.ssh/id_rsa"
             dest: "{{ inventory_dir }}/id_rsa"
             flat: yes
-
-      - name: update file permissions
-        file:
-            path: "{{ inventory_dir }}/id_rsa"
-            mode: 0600
 
       - name: SSH copy ID to all VMs from virthost
         shell: "sshpass -p 'redhat' ssh-copy-id root@{{ item.stdout }} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
@@ -279,6 +274,11 @@
 - name: Update ansible with the new hosts
   hosts: localhost
   tasks:
+      - name: update file permissions
+        file:
+            path: "{{ inventory_dir }}/id_rsa"
+            mode: 0600
+
       - name: setup ssh config
         template:
             src: "templates/ssh.config.ansible.j2"

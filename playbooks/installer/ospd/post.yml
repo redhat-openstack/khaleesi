@@ -38,5 +38,3 @@
 
       - name: connect the router to the internal subnet
         shell: "source ~/overcloudrc; neutron router-interface-add internal_router internal_subnet"
-
-

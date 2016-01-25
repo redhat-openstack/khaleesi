@@ -17,5 +17,6 @@ openstack overcloud deploy --debug \
 {% if groups['ceph'] is defined %}
                        --ceph-storage-scale {{ groups['ceph']| length }} \
                        --ceph-storage-flavor ceph \
+                       -e ~/my_templates/environments/storage-environment.yaml \
 {% endif %}
                        --log-file overcloud_deployment_{{ 100 | random }}.log
