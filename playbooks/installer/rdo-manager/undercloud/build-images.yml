@@ -1,9 +1,17 @@
 ---
-- name: build or import images
+- name: setup the undercloud
   hosts: undercloud
   tasks:
+    - name: Create overcloud_images directory
+      file: path={{ instack_user_home }}/overcloud_images state=directory
+
+- name: build images on the virthost
+  hosts: virthost
+  tasks:
     - name: setup environment vars
-      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/build-img-env.j2 dest=~/build-img-env mode=0755
+      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/build-img-env.j2
+                dest=~/build-img-env mode=0755
+      when: installer.overcloud_images | default('build') == "build"
 
     - name: ensure /tmp/svc-map-services is absent
       file: path=/tmp/svc-map-services state=absent
@@ -13,39 +21,89 @@
     - name: Contents of build-img-env
       shell: >
           cat {{ instack_user_home }}/build-img-env
+      when: installer.overcloud_images | default('build') == "build"
+
+    - name: Create overcloud_images directory
+      file: path={{ instack_user_home }}/overcloud_images state=directory
+      when: installer.overcloud_images | default('build') == "build"
 
     - name: build all the images
       shell: >
           source {{ instack_user_home }}/build-img-env;
+          pushd {{ instack_user_home }}/overcloud_images;
           openstack overcloud image build --all > {{ instack_user_home }}/openstack-build-images.log
       when: installer.overcloud_images | default('build') == "build"
 
+    - name: scp the overcloud_images to the undercloud
+      shell: scp -rv -F ssh.config.ansible {{ instack_user_home }}/overcloud_images/*  \
+                undercloud-from-virthost-as-stack:{{ instack_user_home }}/overcloud_images/
+      when: installer.overcloud_images | default('build') == "build"
+
+- name: build the images on baremetal
+  hosts: undercloud:&baremetal
+  tasks:
+    - name: setup environment vars
+      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/build-img-env.j2
+                dest=~/build-img-env mode=0755
+
+    - name: ensure /tmp/svc-map-services is absent
+      file: path=/tmp/svc-map-services state=absent
+      sudo: yes
+      when: installer.overcloud_images | default('build') == "build"
+
+    - name: Contents of build-img-env
+      shell: >
+          cat {{ instack_user_home }}/build-img-env
+      when: installer.overcloud_images | default('build') == "build"
+
+    - name: get the guest-image
+      get_url: >
+        url="{{ distro.images[distro.name][distro.full_version].remote_file_server }}{{ distro.images[distro.name][distro.full_version].guest_image_name }}"
+        dest=/home/stack/overcloud_images/{{ distro.images[distro.name][distro.full_version].guest_image_name }}
+        timeout=360
+
+    - name: build all the images
+      shell: >
+          source {{ instack_user_home }}/build-img-env;
+          pushd {{ instack_user_home }}/overcloud_images;
+          openstack overcloud image build --all > {{ instack_user_home }}/openstack-build-images.log
+      when: installer.overcloud_images | default('build') == "build"
+
+
+- name: import images
+  hosts: undercloud
+  tasks:
     - name: ensure wget is installed
       yum: name=wget state=latest
       sudo: yes
 
     - name: download the pre-built rdo-manager images
       shell: >
-            wget --quiet -c -O {{ instack_user_home }}/{{ item }}.tar
+            pushd {{ instack_user_home }}/overcloud_images;
+            wget --quiet -c -O {{ instack_user_home }}/overcloud_images/{{ item }}.tar
             "{{ installer.images.url[product.name][product.full_version][product.build][installer.images.version] }}{{ item }}.tar"
       with_items: "{{ installer.images[product.full_version].files|list }}"
       when: installer.overcloud_images is defined and installer.overcloud_images == "import"
+
 
 - name: prep and upload images into glance
   hosts: undercloud
   tasks:
     - name: untar the overcloud images
-      shell: tar -xvf "{{ instack_user_home }}/{{ item }}.tar"
+      shell: >
+        pushd {{ instack_user_home }}/overcloud_images;
+        tar -xvf "{{ item }}.tar"
       with_items: "{{ installer.images[product.full_version].files|list }}"
       when: installer.overcloud_images is defined and installer.overcloud_images == "import"
 
     - name: download the fedora-user image
       get_url: url="{{ distro.images['fedora']['21'].remote_file_server }}{{ distro.images['fedora']['21'].guest_image_name }}"
-                    dest={{ instack_user_home }}/fedora-user.qcow2
+                    dest={{ instack_user_home }}/overcloud_images/fedora-user.qcow2
                     force=no
                     timeout=60
 
     - name: prepare for overcloud by loading the images into glance
       shell: >
           source {{ instack_user_home }}/stackrc;
+          pushd {{ instack_user_home }}/overcloud_images;
           openstack overcloud image upload

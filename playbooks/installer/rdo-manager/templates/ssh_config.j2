@@ -19,6 +19,13 @@ Host undercloud-from-virthost
     IdentitiesOnly yes
     User root
     StrictHostKeyChecking no
+
+Host undercloud-from-virthost-as-stack
+    Hostname {{ hostvars['localhost'].undercloud_ip }}
+    IdentityFile ~/.ssh/id_rsa
+    IdentitiesOnly yes
+    User stack
+    StrictHostKeyChecking no
 {%endif %}
 
 {% if groups["virthost"] is not defined and hw_env is defined and hw_env.env_type != "ovb_host_cloud" %}
