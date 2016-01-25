@@ -56,3 +56,7 @@ tester:
   - selenium==2.45.0
   - nose
   - testtools
+  accounts:
+    - username: 'demo'
+      tenant_name: 'demo'
+      password: 'redhat'
