@@ -1,4 +1,11 @@
 ---
+- name: Set path for tests
+  hosts: controller
+  gather_facts: yes
+  tasks:
+      - name: Set tests path
+        set_fact: tests_path="{{ tester.component.dir }}"
+
 - name: Run pre tasks
   hosts: controller
   gather_facts: yes

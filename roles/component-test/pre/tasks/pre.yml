@@ -1,16 +1,4 @@
 ---
-- name: Set test_env
-  set_fact: test_env="{{ test_config.virt[item]|default(omit) }}"
-  with_items:
-      - "{{ major_release }}"
-      - "{{ full_release }}"
-
-- name: Set tests path
-  set_fact: tests_path="{{ item|default(omit) }}"
-  with_items:
-      - "{{ tester.component.dir }}"
-      - "{{ installer.component.dir }}"
-
 - name: compute the directory basename
   set_fact: component_basename={{ tests_path.split('/')|last }}
 
@@ -18,7 +6,7 @@
   set_fact: test_deps_file="{{ tests_path + '/' + tester.component.config_file }}" #"
 
 - name: load config
-  include_vars: "{{test_deps_file}}"
+  include_vars: "{{ test_deps_file }}"
   register: result
 
   #TODO(abregman): add major and minor version in distro settings
@@ -27,6 +15,12 @@
 
 - name: set full release
   set_fact: full_release="{{ ansible_distribution + '-' + ansible_distribution_version }}"
+
+- name: Set test_env
+  set_fact: test_env="{{ test_config.virt[item]|default(omit) }}"
+  with_items:
+      - "{{ major_release }}"
+      - "{{ full_release }}"
 
 - name: rsync tests dir to tester
   synchronize: src="{{ tests_path }}" dest="{{ ansible_env.HOME }}/" #"
