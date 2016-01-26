@@ -13,6 +13,7 @@
             src: "templates/storage/ceph.yml.j2"
             dest: "~/my_templates/puppet/hieradata/ceph.yaml"
             mode: 0755
+        when: group['ceph'] is defined
 
 - name: Install the overcloud
   hosts: undercloud

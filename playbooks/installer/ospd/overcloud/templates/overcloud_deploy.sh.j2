@@ -4,6 +4,7 @@ source ~/stackrc;
 openstack overcloud deploy --debug \
                        --templates \
                        --libvirt-type qemu \
+                       --ntp-server {{ distro.config.ntp_server_ip }} \
                        --neutron-network-type {{ installer.overcloud.network.backend }} \
                        --neutron-tunnel-types {{ installer.overcloud.network.backend }} \
 {% if groups['controller'] is defined %}
