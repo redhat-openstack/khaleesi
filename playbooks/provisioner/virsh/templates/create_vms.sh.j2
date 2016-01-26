@@ -8,7 +8,7 @@ virt-install --name {{ node_name }} \
              --network network:{{ provisioner.network.network_list.management.name }} \
              --network network:{{ provisioner.network.network_list.external.name }} \
              --virt-type kvm \
-             --cpu host \
+             --cpu host-model \
              --ram {{ node_values.memory }} \
              --vcpus {{ node_values.cpu }} \
              --os-variant {{ node_values.os.variant }} \
