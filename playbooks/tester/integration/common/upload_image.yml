@@ -4,9 +4,9 @@
   gather_facts: no
   sudo: no
   vars:
-    - demo_username: demo
-    - demo_password: "{{ hostvars[controller_name].demo_password | default('redhat') }}"
-    - demo_tenant_name: demo
+    - demo_username: "{{ tester.accounts[0].username | default('demo') }}"
+    - demo_password: "{{ tester.accounts[0].password | default('redhat') }}"
+    - demo_tenant_name: "{{ tester.accounts[0].tenant_name | default('demo') }}"
     - controller_name: "{{ provisioner.nodes.controller.name }}"
     - controller_ip: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"
   tasks:

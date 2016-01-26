@@ -1,14 +1,4 @@
 ---
-- name: Prepare the environment (users and tenant)
-  hosts: controller
-  sudo: no
-  gather_facts: yes
-  vars:
-      controller_auth_url: "http://{{ ansible_default_ipv4.address }}:35357/v2.0/"
-      admin_password: "{{ admin_password | default('redhat') }}"
-  roles:
-      - openstack/create_users
-
 - include: ../common/demo_tenant.yml
 - include: ../common/upload_image.yml
 
@@ -73,7 +63,8 @@
       controller_name: "{{ provisioner.nodes.controller.name }}"
       horizon_tests:
           admin_password: "{{ hostvars[controller_name].admin_password | default('redhat') }}"
-          demo_password: "{{ hostvars[controller_name].demo_password | default('redhat') }}"
+          demo_password: "{{ tester.accounts[0].password | default('redhat') }}"
+          demo_username: "{{ tester.accounts[0].username | default('demo') }}"
       tmp_controller_host: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"
       services_status:
         enabled_services: "{{ hostvars[controller_name].integration_enabled_services }}"
@@ -92,6 +83,7 @@
             option={{ item.key }}
             value={{ item.value }}
         with_items:
+            - { section: 'identity', key: 'username', value: "{{ horizon_tests.demo_username }}"}
             - { section: 'identity', key: 'password', value: "{{ horizon_tests.demo_password }}"}
             - { section: 'identity', key: 'admin_password', value: "{{ horizon_tests.admin_password }}"}
             - { section: 'identity', key: 'rh_portal_login', value: "{{ tester.integration.subscription.username  }}" }

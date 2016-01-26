@@ -41,4 +41,14 @@
         pip: name={{ item }} virtualenv=~/{{ tester.venv_dir }} virtualenv_site_packages=yes
         with_items: tester.pip_packages
 
+- name: Prepare the environment (users and tenant)
+  hosts: controller
+  sudo: no
+  gather_facts: yes
+  vars:
+      controller_auth_url: "http://{{ ansible_default_ipv4.address }}:35357/v2.0/"
+      admin_password: "{{ hostvars[provisioner.nodes.controller.name].admin_password | default('redhat') }}"
+  roles:
+      - openstack/create_users
+
 - include: "{{ tester.component }}/pre.yml"
