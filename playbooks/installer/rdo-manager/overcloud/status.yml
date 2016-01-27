@@ -43,6 +43,13 @@
       when: overcloud_deployment_result is defined and overcloud_deployment_result != "0"
       sudo: yes
       command: "grep ERROR /var/log/heat/heat-engine.log"
+      ignore_errors: yes
+
+    - name: grep for errors in the ironic logs
+      when: overcloud_deployment_result is defined and overcloud_deployment_result != "0"
+      sudo: yes
+      command: "cat /var/log/ironic/* | grep -v ERROR_FOR_DIVISION_BY_ZERO | grep ERROR"
+      ignore_errors: yes
 
     - name: show ironic nodes create template
       template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/show_nodes.sh dest={{ instack_user_home }}/show_nodes.sh mode=0755
@@ -105,13 +112,18 @@
       command: ceph status
       ignore_errors: yes
 
-- name: dump puppet apply logs into /var/log for collection
+- name: dump journal logs into /var/log for collection
   hosts: overcloud
   gather_facts: no
   tasks:
     - name: get overcloud puppet logs
       sudo: yes
       shell: journalctl -u os-collect-config > /var/log/os-collect-config.log
+      ignore_errors: yes
+
+    - name: get ironic logs
+      sudo: yes
+      shell: journalctl -u openstack-ironic-conductor -u openstack-ironic-api > /var/log/ironic-conductor-api-journal.log
       ignore_errors: yes
 
 - name: fail playbook when instack-deploy-overcloud fails
