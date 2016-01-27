@@ -1,0 +1,33 @@
+---
+- name: Configure hostname
+  hostname:
+      name: "{{ inventory_hostname }}"
+  register: newhostname
+
+- name: Ensure hostname is in /etc/hosts
+  lineinfile:
+      dest: /etc/hosts
+      regexp: '.*{{ inventory_hostname }}$'
+      line: "{{ ansible_default_ipv4.address }} {{inventory_hostname}}"
+      state: present
+  when: ansible_default_ipv4.address is defined
+
+- name: check for cloud.cfg
+  stat:
+      path: /etc/cloud/cloud.cfg
+  register: cloudcfg
+  when: newhostname|changed
+
+- name: Prevent cloud-init from controlling hostname
+  lineinfile:
+      dest: /etc/cloud/cloud.cfg
+      regexp: "^preserve_hostname:"
+      line: "preserve_hostname: true"
+  when: newhostname|changed and cloudcfg.stat.exists
+
+- name: restart systemd-hostnamed
+  service:
+      name: systemd-hostnamed
+      state: restarted
+  when: ansible_distribution_version|int > 6
+
