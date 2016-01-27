@@ -65,6 +65,7 @@
         shell: "tools/run-tests.sh --parallel --concurrency 4"
         args:
             chdir: "~/tempest-dir"
+        ignore_errors: yes
 
       - name: fetch tempest result
         fetch:
