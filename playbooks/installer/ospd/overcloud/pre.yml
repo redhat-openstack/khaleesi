@@ -148,22 +148,18 @@
         when: "'{{ item.key }}' != 'undercloud'"
         with_dict: provisioner.nodes
 
-        #TODO: change the 'when:' statement to be from the config
       - name: set additional properties
         shell: "source ~/stackrc; openstack flavor set --property 'cpu_arch'='x86_64' --property 'capabilities:boot_option'='local' --property 'capabilities:profile'='{{ item.key }}' {{ item.key }}"
-        when: "'{{ item.key }}' in ['controller', 'compute', 'ceph']"
-        with_dict: groups
-
-      - name: get the node UUID
-        shell: "source ~/stackrc; ironic node-list | grep {{ item.key }} | awk '{print $2}'"
         when: "'{{ item.key }}' != 'undercloud'"
         with_dict: provisioner.nodes
+
+      - name: get the node UUID
+        shell: "source ~/stackrc; ironic node-list | grep {{ item }} | awk '{print $2}'"
+        when: "'{{ item.rstrip('1234567890') }}' != 'undercloud'"
+        with_items: groups['openstack_nodes']
         register: node_list
 
-        #TODO: change the 'when:' statement to be from the config
       - name: tag our nodes with the proper profile
-        shell: "source ~/stackrc; ironic node-update {{ item.1.stdout }} add properties/capabilities='profile:{{ item.0.key }},boot_option:local'"
-        when: "'{{ item.key }}' in ['controller', 'compute', 'ceph']"
-        with_together:
-            - groups
-            - node_list.results
+        shell: "source ~/stackrc; ironic node-update {{ item.stdout }} add properties/capabilities='profile:{{ item.item.rstrip('1234567890') }},boot_option:local'"
+        when: "item.item is defined and item.item.rstrip('1234567890') != 'undercloud'"
+        with_items: node_list.results

@@ -3,6 +3,7 @@ provisioner:
     nodes:
         controller: &controller
             name: controller
+            amount: 1
             cpu: !lookup provisioner.image.cpu
             memory: 16384
             os:

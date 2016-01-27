@@ -77,33 +77,33 @@
         when: kvm_base is defined
 
       # A change in the modprove requires to reload the module
-      - name: Unload KVM module
+      - name: unload KVM module
         modprobe:
             name: "kvm_{{ kvm_base }}"
             state: absent
         ignore_errors: True
         when: kvm_base is defined
 
-      - name: Load KVM module
+      - name: load KVM module
         modprobe:
             name: "kvm_{{ kvm_base }}"
             state: present
         ignore_errors: True
         when: kvm_base is defined
 
-      - name: Install required QEMU-KVM packages
+      - name: install required QEMU-KVM packages
         yum: name=qemu-kvm state=present
         when: kvm_base is defined
 
       # Make sure the net-virtio module is enabled
-      - name: Unload vhost-net module
+      - name: unload vhost-net module
         modprobe:
             name: "vhost-net"
             state: absent
         ignore_errors: True
         when: kvm_base is defined
 
-      - name: Load KVM module
+      - name: load KVM module
         modprobe:
             name: "vhost-net"
             state: present
@@ -190,7 +190,7 @@
       - name: the create images script
         shell: "cat ~/create_images.sh"
 
-      - name: Execute the create images script
+      - name: execute the create images script
         shell: "bash ~/create_images.sh"
 
       - name: create virt install templates for nodes
@@ -198,17 +198,24 @@
             dest: "~/create_vms.sh"
             src: "templates/create_vms.sh.j2"
             mode: 0755
-
+        #TODO: move this logic to a module
       - name: the create vms script
         shell: "cat ~/create_vms.sh"
 
       - name: execute the create vms script
         shell: "bash ~/create_vms.sh"
 
+      - name: get the list of VMs
+        shell: "virsh list --all | grep -P '[\\w]+' | sed -n '2,$p' | awk '{print $2}'"
+        register: vm_names
+
+      - set_fact:
+            vm_name_list: "{{ vm_names.stdout_lines }}"
+
       - name: get MAC list
         shell: "virsh domiflist {{ item[0] }} | awk '/{{ item[1] }}/ {print $5};'"
         with_nested:
-            - provisioner.nodes
+            - vm_name_list
             - provisioner.network.network_list
         register: mac_list
 
@@ -229,16 +236,10 @@
 
       - name: add hosts to host list
         add_host:
-            name="{{ item.key }}"
-            groups="{{ item.value.groups| join(',') }}"
-            node_label="{{ item.value.name }}"
+            name="{{ item.item.item[0] }}"
+            groups="{{ provisioner.nodes['%s' % item.item.item[0].rstrip('1234567890')].groups | join(',') }}"
             ansible_ssh_user="root"
             ansible_ssh_password="redhat"
-        with_dict: provisioner.nodes
-
-      - name: update IPs of hosts
-        add_host:
-            name="{{ item.item.item[0] }}"
             ansible_ssh_host="{{ item.stdout }}"
         when: item.item is defined and item.item.item[1] == "management"
         with_items: vm_ip_list
@@ -288,9 +289,9 @@
       # This step is necessary in order to allow the SSH forwarding
       - name: update the ssh host name of each machine
         add_host:
-            name="{{ item.key }}"
-            ansible_ssh_host="{{ item.key }}"
-        with_dict: provisioner.nodes
+            name="{{ item }}"
+            ansible_ssh_host="{{ item }}"
+        with_items: groups['openstack_nodes']
 
       - name: update ansible with the new SSH settings
         ini_file:

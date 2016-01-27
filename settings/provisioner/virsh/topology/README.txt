@@ -6,6 +6,7 @@ provisioner:
         # Dict of nodes
         example:
             name: controller
+            amount: 1
             cpu: !lookup provisioner.image.cpu
             memory: 8192
             os: &os
