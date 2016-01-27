@@ -47,6 +47,11 @@
                 undercloud-from-virthost-as-stack:{{ instack_user_home }}/overcloud_images/
       when: installer.overcloud_images | default('build') == "build"
 
+    - name: scp the openstack-build-images.log file to the undercloud
+      shell: scp -r -F ssh.config.ansible {{ instack_user_home }}/openstack-build-images.log \
+                undercloud-from-virthost-as-stack:{{ instack_user_home }}/
+      when: installer.overcloud_images | default('build') == "build"
+
 - name: build the images on baremetal
   hosts: undercloud:&baremetal
   tasks:
