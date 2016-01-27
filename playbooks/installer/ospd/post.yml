@@ -38,3 +38,38 @@
 
       - name: connect the router to the internal subnet
         shell: "source ~/overcloudrc; neutron router-interface-add internal_router internal_subnet"
+
+#TODO: remove this when tester is in place
+- name: Setup and run tempest
+  hosts: undercloud
+  become: yes
+  become_user: "{{ installer.user.name }}"
+  tasks:
+      - name: create role heat_stack_owner
+        shell: "source ~/overcloudrc; keystone role-create --name heat_stack_owner"
+
+      - name: create the tempest dir
+        shell: "mkdir tempest-dir"
+
+      - name: setup the tempest-dir
+        shell: "/usr/share/openstack-tempest-kilo/tools/configure-tempest-directory"
+        args:
+            chdir: "~/tempest-dir"
+
+      - name: run tempest configuration tool
+        shell: "source ~/overcloudrc; tools/config_tempest.py --deployer-input ~/tempest-deployer-input.conf --debug --create identity.uri $OS_AUTH_URL identity.admin_password $OS_PASSWORD"
+        args:
+            chdir: "~/tempest-dir"
+
+      - name: run tempest
+        shell: "tools/run-tests.sh --parallel --concurrency 4"
+        args:
+            chdir: "~/tempest-dir"
+
+      - name: fetch tempest result
+        fetch:
+            src: "~/tempest-dir/tempest.xml"
+            dest: "{{ lookup('env', 'PWD') }}/nosetests.xml"
+            flat: yes
+
+

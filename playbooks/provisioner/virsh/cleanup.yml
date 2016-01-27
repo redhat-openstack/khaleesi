@@ -3,27 +3,27 @@
   hosts: virthost
   gather_facts: no
   tasks:
+      - name: get the list of VMs
+        shell: "virsh list --all | grep -P '[\\w]+' | sed -n '2,$p' | awk '{print $2}'"
+        register: vm_names
+
+      - set_fact:
+            vm_name_list: "{{ vm_names.stdout_lines }}"
+
       - name: stop relevant vms
         virt:
-            name: "{{ item.key }}"
+            name: "{{ item }}"
             state: destroyed
-        with_dict: provisioner.nodes
+        with_items: vm_name_list
 
       - name: undefine relevant VMs
         virt:
-            name: "{{ item.key }}"
+            name: "{{ item }}"
             command: undefine
-        with_dict: provisioner.nodes
+        with_items: vm_name_list
 
       - name: remove the networks we created
         virt_net:
             name: "{{ item.value.name }}"
             state: absent
-        with_dict: provisioner.networks
-
-      - name: Remove persistent IPs
-        shell: "virsh net-update default delete ip-dhcp-host \"<host mac='{{ item.2.stdout }}' name='{{ item.0 }}' ip='{{ item.1.stdout }}' />\" --live --config"
-        with_together:
-            - provisioner.nodes.keys()
-            - vm_ip_list
-            - vm_mac_list
+        with_dict: provisioner.network.network_list
