@@ -11,3 +11,4 @@ workarounds:
     rhbz1299563: {}
     rhbz1311555:
         enabled: true
+    rhbz1296899: {} # configure swift proxy server properly

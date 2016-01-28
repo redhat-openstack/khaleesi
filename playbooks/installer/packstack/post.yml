@@ -41,6 +41,78 @@
     - name: Restart openstack-cinder-volume
       service: name=openstack-cinder-volume state=restarted
 
+- name: Check if RHBZ1296899 is enabled
+  hosts: controller
+  gather_facts: no
+  sudo: no
+  tasks:
+    - name: Check if openstack-swift-proxy service exists
+      shell: systemctl is-active openstack-swift-proxy
+      register: swift_proxy
+      ignore_errors: yes
+
+    - group_by: key=workaround_rhbz1296899
+      when: workarounds.rhbz1296899 is defined and swift_proxy.stdout == 'active'
+
+- name: Workaround RHBZ1296899 - Swift's proxy-server is not configured to use ceilometer
+  hosts: workaround_rhbz1296899
+  gather_facts: yes
+  sudo: yes
+  tasks:
+    - name: Install python-ceilometermiddleware
+      yum: name=python-ceilometermiddleware state=present
+
+    - name: Configure pipeline:main
+      ini_file:
+        dest: /etc/swift/proxy-server.conf
+        section: pipeline:main
+        option: pipeline
+        value: catch_errors bulk healthcheck cache crossdomain ceilometer ratelimit authtoken keystone staticweb tempurl slo formpost account_quotas container_quotas proxy-server
+
+    - name: Configure filter:ceilometer filter_factory
+      ini_file:
+        dest: /etc/swift/proxy-server.conf
+        section: filter:ceilometer
+        option: paste.filter_factory
+        value: ceilometermiddleware.swift:filter_factory
+
+    - name: Configure filter:ceilometer control_exchange
+      ini_file:
+        dest: /etc/swift/proxy-server.conf
+        section: filter:ceilometer
+        option: control_exchange
+        value: swift
+
+    - name: Configure filter:ceilometer url
+      ini_file:
+        dest: /etc/swift/proxy-server.conf
+        section: filter:ceilometer
+        option: url
+        value: rabbit://guest:guest@{{ hostvars[inventory_hostname].ansible_default_ipv4.address }}:5672/
+
+    - name: Configure filter:ceilometer driver
+      ini_file:
+        dest: /etc/swift/proxy-server.conf
+        section: filter:ceilometer
+        option: driver
+        value: messagingv2
+
+    - name: Configure filter:ceilometer topic
+      ini_file:
+        dest: /etc/swift/proxy-server.conf
+        section: filter:ceilometer
+        option: topic
+        value: notifications
+
+    - name: Configure filter:ceilometer log_level
+      ini_file:
+        dest: /etc/swift/proxy-server.conf
+        section: filter:ceilometer
+        option: log_level
+        value: WARN
+
+    - name: Restart openstack-swift-proxy service
+      service: name=openstack-swift-proxy state=restarted
 
 - name: Check if BZ1138740 S3/boto workaround is enabled
   hosts: controller
@@ -257,4 +329,3 @@
             allocation_pool_start: "{{ provisioner.network.network_list.external.nested.allocation_pool_start }}"
             allocation_pool_end: "{{ provisioner.network.network_list.external.nested.allocation_pool_end }}"
         when: installer is defined and installer.network.type == 'neutron'
-
