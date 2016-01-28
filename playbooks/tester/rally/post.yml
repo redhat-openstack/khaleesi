@@ -45,14 +45,14 @@
       args:
         creates: "{{ tester.rally.outputdir }}/sla.txt"
 #      register: sla_check
-      ignore_errors: True
+      ignore_errors: true
 
     - name: SLA Check JSON
       shell: "{{ tester.rally.path }}/bin/rally task sla_check --json > {{ tester.rally.outputdir }}/sla.json"
       args:
         creates: "{{ tester.rally.outputdir }}/sla.json"
 #      register: sla_check
-      ignore_errors: True
+      ignore_errors: true
 
 
 # These need to be archived by Jenkins Somehow

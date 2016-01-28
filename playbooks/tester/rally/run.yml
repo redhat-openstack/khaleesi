@@ -36,7 +36,7 @@
   - name: Create Rally deployment
     shell: "source {{ tester.rally.dir }}/keystonerc_admin && {{ tester.rally.path }}/bin/rally deployment create --fromenv --name {{ tester.rally.deployment }} | awk '/{{ tester.rally.deployment }}/ {print $2}'"
     register: rally_deployment_uuid
-    ignore_errors: True
+    ignore_errors: true
 
   - debug: var=rally_deployment_uuid
 

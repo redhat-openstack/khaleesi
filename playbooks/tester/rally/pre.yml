@@ -52,7 +52,7 @@
       shell: "source /root/keystonerc_admin && nova flavor-create m1.nano 42 64 0 1"
       sudo: yes
       # ignore errors if flavor already created
-      ignore_errors: True
+      ignore_errors: true
 
     - name: Create Glance Image
       glance_image:

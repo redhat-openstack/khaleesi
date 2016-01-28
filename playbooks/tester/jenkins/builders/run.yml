@@ -21,7 +21,7 @@
 
       - name: Set the slave with the ansible playbook
         register: setup_slave
-        ignore_errors: True
+        ignore_errors: true
         shell: >
             ANSIBLE_ROLES_PATH=`pwd`/roles
             ANSIBLE_SSH_ARGS=""

@@ -48,27 +48,27 @@
   tasks:
     - name: Check if CPU supports INTEL based KVM
       shell: egrep -c 'vmx' /proc/cpuinfo
-      ignore_errors: True
+      ignore_errors: true
       register: kvm_intel
 
     - name: Check if CPU supports AMD based KVM
       shell: egrep -c 'svm' /proc/cpuinfo
-      ignore_errors: True
+      ignore_errors: true
       register: kvm_amd
 
     - name: Enable KVM modules
       modprobe: name=kvm
-      ignore_errors: True
+      ignore_errors: true
       when: kvm_intel.rc == 0 or kvm_amd.rc == 0
 
     - name: Enable Intel KVM module
       modprobe: name=kvm_intel
-      ignore_errors: True
+      ignore_errors: true
       when: kvm_intel.rc == 0
 
     - name: Enable AMD KVM module
       modprobe: name=kvm_amd
-      ignore_errors: True
+      ignore_errors: true
       when: kvm_amd.rc == 0
 
     - name: Install required QEMU-KVM packages

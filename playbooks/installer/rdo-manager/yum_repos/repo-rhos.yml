@@ -119,7 +119,7 @@
     - name: Find if a new kernel was installed
       shell: find /boot/ -anewer /proc/1/stat -name 'initramfs*' | egrep ".*"
       register: new_kernel
-      ignore_errors: True
+      ignore_errors: true
       when: "'{{ repo_host }}' == 'virthost'"
 
     - name: reboot host

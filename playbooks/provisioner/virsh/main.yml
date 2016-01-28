@@ -37,7 +37,7 @@
   tasks:
       - name: Check if CPU supports INTEL based KVM
         shell: egrep -c 'vmx' /proc/cpuinfo
-        ignore_errors: True
+        ignore_errors: true
         register: kvm_intel
 
       - name: Set fact for Intel based KVM
@@ -47,7 +47,7 @@
 
       - name: Check if CPU supports AMD based KVM
         shell: egrep -c 'svm' /proc/cpuinfo
-        ignore_errors: True
+        ignore_errors: true
         register: kvm_amd
 
       - name: Set fact for AMD based KVM
@@ -81,14 +81,14 @@
         modprobe:
             name: "kvm_{{ kvm_base }}"
             state: absent
-        ignore_errors: True
+        ignore_errors: true
         when: kvm_base is defined
 
       - name: Load KVM module
         modprobe:
             name: "kvm_{{ kvm_base }}"
             state: present
-        ignore_errors: True
+        ignore_errors: true
         when: kvm_base is defined
 
       - name: Install required QEMU-KVM packages
@@ -100,14 +100,14 @@
         modprobe:
             name: "vhost-net"
             state: absent
-        ignore_errors: True
+        ignore_errors: true
         when: kvm_base is defined
 
       - name: Load KVM module
         modprobe:
             name: "vhost-net"
             state: present
-        ignore_errors: True
+        ignore_errors: true
 
 - name: Validate virtualization supported on host
   hosts: virthost
