@@ -9,6 +9,7 @@ tester:
         - username: 'demo'
           tenant_name: 'demo'
           password: 'secrete'
+          roles: []
 
 node:
     prefix:

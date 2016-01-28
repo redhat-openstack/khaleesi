@@ -26,3 +26,19 @@
       endpoint: "{{ controller_auth_url }}"
       state: present
   with_items: tester.accounts
+
+# assign the roles to users
+# TODO: Ansible 2, use skip_missing: yes
+- keystone_user:
+      role: "{{ item.1 }}"
+      user: "{{ item.0.username }}"
+      password: "{{ item.0.password }}"
+      tenant: "{{ item.0.tenant_name }}"
+      login_user: admin
+      login_password: "{{ admin_password }}"
+      login_tenant_name: admin
+      endpoint: "{{ controller_auth_url }}"
+      state: present
+  with_subelements:
+      - tester.accounts
+      - roles
