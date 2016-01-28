@@ -1,0 +1,32 @@
+installer:
+    topology_name: minimal
+    network_restart: True
+    nodes:
+        node_count: 9
+        controller:
+            remote_user: heat-admin
+            nova_list_type: controller
+            flavor: baremetal
+            scale: 3
+        tester:
+            remote_user: root
+        compute:
+            type: Compute
+            nova_list_type: compute
+            flavor: baremetal
+            scale: 3
+        blockstorage:
+            type: Cinder-Storage
+            nova_list_type: cinderstorage
+            flavor: baremetal
+            scale: 0
+        swiftstorage:
+            type: Swift-Storage
+            nova_list_type: swiftstorage
+            flavor: baremetal
+            scale: 0
+        cephstorage:
+            type: Ceph-Storage
+            nova_list_type: cephstorage
+            flavor: baremetal
+            scale: 3
