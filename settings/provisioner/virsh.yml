@@ -59,3 +59,4 @@ provisioner:
         - xauth
         - virt-viewer
         - libguestfs-xfs
+        - sshpass
