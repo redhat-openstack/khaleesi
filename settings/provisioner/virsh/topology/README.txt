@@ -14,6 +14,7 @@ provisioner:
                 variant: !lookup provisioner.image.os.variant
             disk: &disk
                 size: !lookup provisioner.image.disk.size
+                dev: /dev/vda
                 path: /var/lib/libvirt/images
             network: &network_params
                 interfaces: &interfaces

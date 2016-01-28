@@ -12,6 +12,7 @@ provisioner:
             disks: &disks
                 disk1: &disk1
                     path: /var/lib/libvirt/images
+                    dev: /dev/vda
                     size: 30G
             network: &network_params
                 interfaces: &interfaces

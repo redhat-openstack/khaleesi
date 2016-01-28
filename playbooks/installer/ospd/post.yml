@@ -62,7 +62,7 @@
             chdir: "~/tempest-dir"
 
       - name: run tempest
-        shell: "tools/run-tests.sh --parallel --concurrency 4"
+        shell: "tools/run-tests.sh --parallel --concurrency 8"
         args:
             chdir: "~/tempest-dir"
         ignore_errors: yes

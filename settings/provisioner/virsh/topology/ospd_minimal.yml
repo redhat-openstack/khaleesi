@@ -10,8 +10,9 @@ provisioner:
                 type: linux
                 variant: !lookup provisioner.image.os.variant
             disks: &disks
-                disk1: &disk1
+                disk1:
                     path: /var/lib/libvirt/images
+                    dev: /dev/sda1
                     size: 30G
             network: &network_params
                 interfaces: &interfaces
@@ -33,6 +34,7 @@ provisioner:
             disks:
                 disk1:
                     path: /var/lib/libvirt/images
+                    dev: /dev/sda1
                     size: 20G
             groups:
                 - compute
@@ -44,15 +46,19 @@ provisioner:
             cpu: 2
             memory: 4096
             disks:
-                <<: *disks
-                disk1:
+                disk1: &disk1
                     path: /var/lib/libvirt/images
-                    dev: /dev/sda1
+                    dev: /dev/vda
                     size: 20G
                 disk2:
-                    path: /var/lib/libvirt/images
-                    dev: /dev/sda2
-                    size: 20G
+                    <<: *disk1
+                    dev: /dev/vdb
+                disk3:
+                    <<: *disk1
+                    dev: /dev/vdc
+                disk4:
+                    <<: *disk1
+                    dev: /dev/vdd
             groups:
                 - ceph
                 - openstack_nodes
