@@ -8,12 +8,19 @@
       - name: copy template folder
         shell: "cp -rf /usr/share/openstack-tripleo-heat-templates ~/my_templates/"
 
-      - name: prepare storage template
+      - name: prepare ceph storage template
         template:
             src: "templates/storage/ceph.yml.j2"
             dest: "~/my_templates/puppet/hieradata/ceph.yaml"
             mode: 0755
         when: groups['ceph'] is defined
+
+      - name: set a higher LVM size storage template
+        sudo: yes
+        lineinfile:
+            dest: "~/my_templates/puppet/hieradata/controller.yaml"
+            line: "cinder::setup_test_volume::size: '10G'"
+        when: groups['ceph'] is not defined
 
 - name: Install the overcloud
   hosts: undercloud

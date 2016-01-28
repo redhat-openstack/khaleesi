@@ -2,7 +2,7 @@
 
 source ~/stackrc;
 openstack overcloud deploy --debug \
-                       --templates \
+                       --templates ~/my_templates/ \
                        --libvirt-type qemu \
                        --ntp-server {{ distro.config.ntp_server_ip }} \
                        --neutron-network-type {{ installer.overcloud.network.backend }} \

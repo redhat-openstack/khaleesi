@@ -19,10 +19,10 @@
   become_user: "{{ installer.user.name }}"
   tasks:
       - name: create the external network
-        shell: "source ~/overcloudrc; neutron net-create management --router:external"
+        shell: "source ~/overcloudrc; neutron net-create nova --router:external"
 
       - name: create the external subnet
-        shell: "source ~/overcloudrc; neutron subnet-create management 172.16.0.0/24 --name management_subnet --enable-dhcp=False --allocation-pool start=172.16.0.210,end=172.16.0.230 --dns-nameserver {{ provisioner.network.network_list.management.ip_address }}"
+        shell: "source ~/overcloudrc; neutron subnet-create nova 172.16.0.0/24 --name management_subnet --enable-dhcp=False --allocation-pool start=172.16.0.210,end=172.16.0.230 --dns-nameserver {{ provisioner.network.network_list.management.ip_address }}"
 
       - name: create the internal network
         shell: "source ~/overcloudrc; neutron net-create internal"
@@ -34,7 +34,7 @@
         shell: "source ~/overcloudrc; neutron router-create internal_router"
 
       - name: set the router gateway to our management network
-        shell: "source ~/overcloudrc; neutron router-gateway-set internal_router management"
+        shell: "source ~/overcloudrc; neutron router-gateway-set internal_router nova"
 
       - name: connect the router to the internal subnet
         shell: "source ~/overcloudrc; neutron router-interface-add internal_router internal_subnet"
