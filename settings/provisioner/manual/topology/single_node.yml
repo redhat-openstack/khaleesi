@@ -1,0 +1,10 @@
+provisioner:
+    nodes:
+        host0:
+            name: host0
+            remote_user: root
+            hostname: "{{ lookup('env', 'TEST_MACHINE') }}"
+            groups:
+                - provisioned
+                - controller
+                - tester

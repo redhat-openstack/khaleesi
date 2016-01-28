@@ -10,7 +10,7 @@
       with_dict: provisioner.nodes
 
     - name: Add the host to the inventory
-      when: installer.type in ['rdo-manager']
+      when: installer.type in ['rdo-manager', 'project']
       add_host:
         name="{{ item.value.name }}"
         groups="{{ item.value.groups
