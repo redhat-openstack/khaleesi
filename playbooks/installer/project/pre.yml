@@ -47,7 +47,7 @@
         changed_when: "shell_result == 0"
 
       - name: Create the RHOS poodle repository
-        shell: "rhos-release  -x {{ product.version.major }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.version.major }}"
+        shell: "rhos-release -x;  rhos-release  -d {{ product.version.major }}"
         when: product.repo.type is defined and product.repo.type in ['poodle']
 
       - name: Print installed repositores

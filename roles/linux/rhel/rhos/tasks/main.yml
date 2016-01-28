@@ -55,7 +55,7 @@
 
 - name: Enable RHSM
   shell: >
-    rhos-release  -x {{ product.version.major }}{{ installer_host_repo | default('')}};
+    rhos-release -x;
     rm -Rf /etc/yum.repos.d/rhos-release.repo;
     subscription-manager register --username {{ distro.rhel.subscription.username }} --password {{ distro.rhel.subscription.password }};
     subscription-manager subscribe --pool {{ distro.rhel.subscription.pool }};
@@ -93,20 +93,20 @@
 
 # new advanced repos
 - name: Create the RHOS Advanced repository
-  shell: "rhos-release  -x {{ product.version.major }};  rhos-release {{ product.version.major }}a"
+  shell: "rhos-release -x"
   when: product.repo_type == 'advanced'
 
 # poodle repos
 - name: Create the RHOS poodle repository
-  shell: "rhos-release  -x {{ product.version.major }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.version.major }}{{ installer_host_repo | default('')}}"
+  shell: "rhos-release -x;  rhos-release  -d {{ product.version.major }}{{ installer_host_repo | default('')}}"
   when: (product.repo_type in ['poodle'] and installer is defined and installer.name not in ['instack', 'rdo-manager'])
 
 - name: Create the OSP-Director poodle repository
-  shell: "rhos-release  -x {{ product.full_version }}{{ installer_host_repo | default('')}};  rhos-release  -d {{ product.full_version }}{{ installer_host_repo | default('')}}"
+  shell: "rhos-release -x;  rhos-release  -d {{ product.full_version }}{{ installer_host_repo | default('')}}"
   when: (product.repo_type in ['poodle'] and installer is defined and installer.name in ['instack', 'rdo-manager'])
 
 - name: Create the RHOS Advanced  poodle repository
-  shell: "rhos-release  -x {{ product.full_version }};  rhos-release  -d {{ product.full_version }}a"
+  shell: "rhos-release -x;  rhos-release  -d {{ product.full_version }}a"
   when: product.repo_type == 'poodle_advanced'
 
 - name: Create the COPR repos required for component tests
@@ -114,19 +114,19 @@
   when: (test.type.name is defined and (test.type.name == 'unit-test' or test.type.name == 'pep8-test') and ansible_distribution_version|int >= 6)
 
 - name: Change poodle version for repos in rhos-release
-  shell: "rhos-release  -x {{ product.version.major }}; rhos-release  {{ product.version.major }} -d -p {{ product.repo.poodle_pin_version }}"
+  shell: "rhos-release -x; rhos-release  {{ product.version.major }} -d -p {{ product.repo.poodle_pin_version }}"
   when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version != 'latest|GA' and product.repo_type == 'poodle'  and installer_host_repo | default('') == '')
 
 - name: Change poodle version for repos in rhos-release for OFI installer host
-  shell: "rhos-release  -x {{ product.version.major }}{{ installer_host_repo | default('')}};  rhos-release  {{ product.version.major }}{{ installer_host_repo | default('')}} -d -p {{ product.repo.installer_poodle_pin_version }}"
+  shell: "rhos-release -x;  rhos-release  {{ product.version.major }}{{ installer_host_repo | default('')}} -d -p {{ product.repo.installer_poodle_pin_version }}"
   when: (product.repo.installer_poodle_pin_version is defined and product.repo.installer_poodle_pin_version != 'latest|GA' and product.repo_type == 'poodle' and installer is defined and installer.name == "foreman" and installer_host_repo | default('') != '')
 
 - name: Change poodle version for repos in rhos-release for GA -> Latest Poodle
-  shell: "rhos-release  -x {{ product.version.major }};  rhos-release  {{ product.version.major }} -p {{ product.repo.poodle_pin_version }}"
+  shell: "rhos-release -x;  rhos-release  {{ product.version.major }} -p {{ product.repo.poodle_pin_version }}"
   when: (product.repo.poodle_pin_version is defined and product.repo.poodle_pin_version == 'GA' and product.repo_type == 'poodle' and installer_host_repo | default('') == '')
 
 - name: Change poodle version for repos in rhos-release for OFI installer host and GA-> latest Poodle
-  shell: "rhos-release  -x {{ product.version.major }}{{ installer_host_repo | default('')}};  rhos-release  {{ product.version.major }}{{ installer_host_repo | default('')}} -d -p {{ product.repo.installer_poodle_pin_version }}"
+  shell: "rhos-release -x;  rhos-release  {{ product.version.major }}{{ installer_host_repo | default('')}} -d -p {{ product.repo.installer_poodle_pin_version }}"
   when: (product.repo.installer_poodle_pin_version is defined and product.repo.installer_poodle_pin_version == 'latest|GA' and product.repo_type == 'poodle' and installer is defined and installer.name == "foreman" and installer_host_repo | default('') != '')
 
 # copr repos
