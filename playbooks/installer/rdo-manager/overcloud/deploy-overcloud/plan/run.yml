@@ -1,0 +1,27 @@
+- name: setup deployment for a tuskar (plan) style deployment
+  hosts: undercloud
+  tasks:
+      - name: get plan list
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            openstack management plan list | grep overcloud | cut -d " " -f2
+        register: overcloud_uuid_result
+        when: installer.deploy.type == 'plan'
+
+      - name: set fact for openstack management plan
+        set_fact:
+            overcloud_uuid: "{{ overcloud_uuid_result.stdout }}"
+        when: installer.deploy.type == 'plan'
+
+      - name: set plan values for plan based ceph deployments
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            source {{ instack_user_home }}/deploy-nodesrc;
+            if [ "$CEPHSTORAGESCALE" -gt "0" ]; then
+              openstack management plan set {{ overcloud_uuid }} \
+                -P Controller-1::CinderEnableIscsiBackend=false \
+                -P Controller-1::CinderEnableRbdBackend=true \
+                -P Controller-1::GlanceBackend=rbd \
+                -P Compute-1::NovaEnableRbdBackend=true;
+            fi
+        when: installer.deploy.type == 'plan'

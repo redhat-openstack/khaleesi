@@ -1,0 +1,3 @@
+---
+- include: "pre-{{ installer.env.type }}.yml"
+- include: run.yml

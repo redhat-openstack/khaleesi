@@ -1,0 +1,57 @@
+---
+- name: Copy over and modify network config template
+  hosts: undercloud
+  tasks:
+      - name: make a nic-configs dir
+        file: path={{ instack_user_home }}/nic-configs state=directory
+        when: installer.network.isolation != 'none'
+
+      #the long line in this task fails when broken up
+      - name: copy over standard nic-configs default directory
+        shell: >
+            cp /usr/share/openstack-tripleo-heat-templates/network/config/{{ installer.network.isolation | replace('_', '-') }}/*.yaml {{ instack_user_home }}/nic-configs
+        when: installer.network.isolation != 'none' and installer.network.isolation != 'default'
+
+      #the long line in this task fails when broken up
+      - name: check if env-specific nic-configs exist
+        local_action: >
+            stat path={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation }}/nic-configs/
+        register: nic_config_dir
+        when: installer.network.isolation != 'none'
+
+      #the long line in this task fails when broken up
+      - name: copy nic-configs saved version if available
+        synchronize: >
+            src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation }}/nic-configs/{{ item }}.yaml
+            dest={{ instack_user_home }}/nic-configs
+        with_items:
+            - controller
+            - compute
+            - ceph-storage
+            - cinder-storage
+            - swift-storage
+        when: installer.network.isolation != 'none' and nic_config_dir.stat.exists == True
+
+      - name: poll for files to exist
+        wait_for: path={{ instack_user_home }}/nic-configs/swift-storage.yaml
+        when: installer.network.isolation != 'none' and installer.network.isolation != 'default'
+
+      - name: Check for additional network config files
+        local_action: >
+            shell ls "{{ base_dir }}/khaleesi-settings/hardware_environments/{{ hw_env.env_type }}/network_configs/{{ installer.network.isolation }}/"
+        register: nic_configs
+
+      - debug: var=nic_configs.stdout_lines
+
+      - name: Custom Network config for node profiles
+        synchronize: >
+            src={{ base_dir }}/khaleesi-settings/hardware_environments/{{ hw_env.env_type }}/network_configs/{{ installer.network.isolation }}/{{ item }}
+            dest=/home/stack/nic-configs/
+        ignore_errors: yes
+        with_items:
+            - controller.yaml
+            - compute.yaml
+            - cinder-storage.yaml
+            - swift-storage.yaml
+            - ceph-storage.yaml
+        when: item in nic_configs.stdout_lines

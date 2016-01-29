@@ -1,3 +1,10 @@
 ---
-- include: run.yml
+- include: register-nodes/main.yml
+- include: introspect-nodes/main.yml
+- include: advanced-profile-matching/main.yml
+- include: heat-templates/main.yml
+#note: ovb {{ base_dir }}/khaleesi/installer/rdo-manager/installer/openstack-virtual-baremetal/main.yml
+- include: nameserver/main.yml
+- include: deploy-overcloud/main.yml
+- include: ansible-inventory.yml
 - include: status.yml

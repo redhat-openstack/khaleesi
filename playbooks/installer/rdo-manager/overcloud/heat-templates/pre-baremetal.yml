@@ -1,0 +1,21 @@
+---
+- name: Copy over and modify network config template
+  hosts: undercloud
+  tasks:
+      - name: check that network config file exists
+        stat: >
+            path="{{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation }}/{{ installer.network.isolation }}.yml"
+        when: installer.network.isolation != 'none'
+
+      #the long line in this task fails when broken up
+      - name: copy over template file (baremetal)
+        synchronize: >
+            src={{base_dir}}/khaleesi-settings/hardware_environments/{{hw_env.env_type}}/network_configs/{{ installer.network.isolation }}/{{ installer.network.isolation }}.yml
+            dest={{ instack_user_home }}/network-environment.yaml
+        when: installer.network.isolation != 'none'
+
+      - name: copy over common environment file (baremetal)
+        synchronize: >
+            src={{base_dir}}/khaleesi-settings/hardware_environments/common/plan-parameter-neutron-bridge.yaml
+            dest={{ instack_user_home }}/plan-parameter-neutron-bridge.yaml
+        when: installer.network.isolation != 'none' and installer.deploy.type == 'plan'

@@ -1,0 +1,50 @@
+---
+- name: Post deploy
+  hosts: undercloud
+  tasks:
+    - name: copy the undercloud id_rsa key back to the slave
+      fetch: src=~/.ssh/id_rsa dest="{{ base_dir }}/khaleesi/id_rsa_undercloud" flat=yes
+
+    - name: copy get-overcloud-nodes.py to undercloud
+      template: >
+          src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/get-overcloud-nodes.py.j2
+          dest={{ instack_user_home }}/get-overcloud-nodes.py
+          mode=0755
+
+    - name: fetch overcloud node names and IPs
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          python {{ instack_user_home }}/get-overcloud-nodes.py
+      register: overcloud_nodes
+      ignore_errors: yes
+
+    - name: add each overcloud node to ansible
+      add_host:
+        name={{ item.key }}
+        groups=overcloud
+        ansible_ssh_host={{ item.key }}
+        ansible_fqdn={{ item.value }}
+        ansible_ssh_user="heat-admin"
+        ansible_ssh_private_key_file="{{ lookup('env', 'PWD') }}/id_rsa_undercloud"
+      ignore_errors: yes
+      with_dict: overcloud_nodes.stdout
+
+- name: regenerate the inventory file after adding hosts
+  hosts: localhost
+  tasks:
+    - name: set_fact for undercloud ip #required for regeneration of ssh.config.ansible
+      set_fact: undercloud_ip={{ hostvars['undercloud']['ansible_default_ipv4']['address'] }}
+
+    - name: create inventory from template
+      template:
+        dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+        src: "{{ base_dir }}/khaleesi/playbooks/provisioner/templates/inventory.j2"
+
+    - name: symlink inventory to a static name
+      file:
+        dest: "{{ lookup('env', 'PWD') }}/hosts"
+        state: link
+        src: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+
+    - name: regenerate ssh config
+      template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/ssh_config.j2 dest={{ base_dir }}/khaleesi/ssh.config.ansible mode=0755

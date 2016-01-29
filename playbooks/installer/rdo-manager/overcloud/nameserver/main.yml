@@ -1,3 +1,2 @@
 ---
 - include: run.yml
-- include: upload.yml

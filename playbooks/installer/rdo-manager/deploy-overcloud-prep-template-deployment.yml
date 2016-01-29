@@ -1,0 +1,3 @@
+---
+- include: overcloud/deploy-overcloud/pre.yml
+- include: "overcloud/deploy-overcloud/{{ installer.deploy.type | default('templates') }}/main.yml"

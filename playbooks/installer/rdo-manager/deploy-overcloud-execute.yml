@@ -1,0 +1,3 @@
+---
+- include: overcloud/deploy-overcloud/run.yml
+- include: overcloud/deploy-overcloud/status.yml

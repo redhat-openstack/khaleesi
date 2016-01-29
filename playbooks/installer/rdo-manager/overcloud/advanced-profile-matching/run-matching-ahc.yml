@@ -15,7 +15,7 @@
     - name: create edeploy state file
       sudo: yes
       template:
-        src=templates/edeploy-state.j2
+        src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/edeploy-state.j2
         dest=/etc/ahc-tools/edeploy/state
         force=yes
         mode=0644

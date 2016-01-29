@@ -1,0 +1,2 @@
+---
+- include: run-matching-{{ installer.match_style | default('basic') }}.yml

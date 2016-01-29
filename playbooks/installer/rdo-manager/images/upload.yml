@@ -1,0 +1,12 @@
+---
+- name: upload images into glance
+  hosts: undercloud
+  tasks:
+    - name: list the files in overcloud_images
+      command: ls -la {{ instack_user_home }}/overcloud_images/
+
+    - name: prepare for overcloud by loading the images into glance
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          pushd {{ instack_user_home }}/overcloud_images;
+          openstack overcloud image upload

@@ -1,0 +1,44 @@
+---
+- name: Set up for custom template deploy with nova change
+  hosts: undercloud:&openstack_virtual_baremetal
+  tasks:
+      - name: clone openstack-virtual-baremetal repo
+        git:
+            repo=https://github.com/cybertron/openstack-virtual-baremetal/
+            dest={{instack_user_home}}/openstack-virtual-baremetal
+
+      - name: pin openstack virtual baremetal to a specific hash
+        shell: >
+            chdir={{instack_user_home}}/openstack-virtual-baremetal
+            git reset --hard {{ installer.custom_deploy.ovb_pin_version }}
+        when: installer.custom_deploy.ovb_pin_version is defined
+
+      - name: copy tripleo-heat-templates to custom
+        shell: >
+            cp -r /usr/share/openstack-tripleo-heat-templates/ {{ instack_user_home }}/custom
+
+      - name: add the necessary hieradata configuration
+        shell: >
+            echo "neutron::agents::ml2::ovs::firewall_driver: neutron.agent.firewall.NoopFirewallDriver" >> {{ instack_user_home }}/custom/puppet/hieradata/common.yaml
+
+      - name: create param.ini file
+        local_action: shell echo "DNS_SERVER={{ hw_env.dns_server }}" > {{ base_dir }}/param.ini
+
+      - name: check that param.ini file exists
+        local_action: wait_for path="{{ base_dir }}/param.ini"
+
+      - name: add other variables to param.ini file
+        local_action: shell echo -e "PARENT_WORKSPACE_DIR={{ base_dir }}\nREMOTE_FILE_SERVER={{ installer.custom_deploy.image.remote_file_server }}\nIMAGE_NAME={{ installer.custom_deploy.image.name }}\nPROVISION_CIDR={{ installer.custom_deploy.host_cloud_networks.provision.cidr }}\nPRIVATE_CIDR={{ installer.custom_deploy.host_cloud_networks.private.cidr }}\nPUBLIC_CIDR={{ installer.custom_deploy.host_cloud_networks.public.cidr }}" >> {{ base_dir }}/param.ini
+
+      - name: get ctlplane subnet uuid
+        register: ctlplane_subnet_uuid
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            neutron net-show ctlplane -f value -F subnets;
+        when: installer.env.type == "virthost"
+
+      - name: update dns server on ctlplane
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            neutron subnet-update {{ ctlplane_subnet_uuid.stdout }} --dns_nameservers list=true {{ hw_env.dns_server }}
+        when: installer.env.type == "virthost"

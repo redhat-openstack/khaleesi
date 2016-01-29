@@ -1,0 +1,58 @@
+---
+- name: introspect nodes
+  hosts: undercloud
+  tasks:
+      - name: get full list of node UUIDs
+        shell: >
+             source {{ instack_user_home }}/stackrc;
+             ironic node-list | grep 'power' |  awk '{print $2}'
+        register: ironic_node_full_list_uuid
+
+      - name: start bulk introspection
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            openstack baremetal introspection bulk start;
+        when: installer.introspection_method == 'bulk'
+
+      - name: introspect node by node
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            ironic node-set-maintenance {{ item }} true;
+            openstack baremetal introspection start {{ item }};
+            export STATUS=$(openstack baremetal introspection status {{ item }} | grep 'finished');
+            while [[ $STATUS != *"True"* ]]; do
+                echo "Waiting for instrospection to complete.";
+                sleep 180;
+                export STATUS=$(openstack baremetal introspection status {{ item }} | grep 'finished');
+            done;
+            openstack baremetal introspection status {{ item }} | grep 'error'
+        register: introspect_status
+        retries: 3
+        delay: 5
+        until: introspect_status.stdout.find("None") != -1
+        with_items: ironic_node_full_list_uuid.stdout_lines
+        when:  installer.introspection_method == 'node_by_node'
+
+      - name: set maintenance status to false
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            ironic node-set-maintenance {{ item }} False
+        with_items: ironic_node_full_list_uuid.stdout_lines
+        when:  installer.introspection_method == 'node_by_node'
+
+      - name: check instrospections status
+        register: introspection_result
+        retries: 45
+        delay: 20
+        until: introspection_result.rc == 0
+        shell: |
+            source {{ instack_user_home }}/stackrc
+            OUTPUT=$(openstack baremetal introspection bulk status)
+            TOTAL_NODES=$(echo "$OUTPUT" | grep -E '\w{8}-\w{4}' | wc -l)
+            INTROSPECTED_NODES=$(echo "$OUTPUT" | grep -E ' True *\| *None ' | wc -l)
+            [ "$TOTAL_NODES" == "$INTROSPECTED_NODES" ]
+
+      - name: show profile
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            instack-ironic-deployment  --show-profile;

@@ -1,0 +1,22 @@
+- name: deploy the overcloud
+  hosts: undercloud
+  tasks:
+      - name: get subnet uuid
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            neutron subnet-list | grep {{ hw_env.network }} | sed -e 's/|//g' | awk '{print $1}'
+        register: subnet_uuid
+        when: hw_env.env_type is defined and hw_env.env_type in ['ovb_host_cloud', 'scale_lab']
+
+      - name: get nameserver
+        sudo: yes
+        shell: >
+            cat /etc/resolv.conf | grep -m 1 'nameserver' | sed -n -e 's/^.*nameserver //p'
+        register: nameserver
+        when: hw_env.env_type is defined and hw_env.env_type in ['ovb_host_cloud', 'scale_lab']
+
+      - name: configure a nameserver for the overcloud
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            neutron subnet-update {{ subnet_uuid.stdout }} --dns-nameserver {{ nameserver.stdout }}
+        when: hw_env.env_type is defined and hw_env.env_type in ['ovb_host_cloud', 'scale_lab']

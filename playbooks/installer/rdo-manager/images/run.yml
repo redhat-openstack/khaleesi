@@ -100,7 +100,7 @@
       when: installer.overcloud_images is defined and installer.overcloud_images == "import"
 
 
-- name: prep and upload images into glance
+- name: prep images for glance
   hosts: undercloud
   tasks:
     - name: untar the overcloud images
@@ -119,8 +119,3 @@
     - name: list the files in overcloud_images
       command: ls -la {{ instack_user_home }}/overcloud_images/
 
-    - name: prepare for overcloud by loading the images into glance
-      shell: >
-          source {{ instack_user_home }}/stackrc;
-          pushd {{ instack_user_home }}/overcloud_images;
-          openstack overcloud image upload

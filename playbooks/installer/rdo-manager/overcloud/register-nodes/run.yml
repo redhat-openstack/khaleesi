@@ -1,0 +1,34 @@
+---
+- name: register nodes
+  hosts: undercloud
+  tasks:
+      - name: register bm nodes with openstack cli
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            openstack baremetal import --json instackenv.json;
+        register: register_nodes_result
+        retries: 10
+        delay: 10
+        until: register_nodes_result.rc == 0
+
+      - name: register bm nodes with ironic
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            openstack baremetal configure boot
+        register: register_nodes_result
+        retries: 10
+        delay: 10
+        until: register_nodes_result.rc == 0
+
+      - name: get nodes UUID
+        shell: >
+             source {{ instack_user_home }}/stackrc;
+             ironic node-list | grep 'power' |  awk '{print $2}' | tail -3
+        register: ironic_node_list_uuid
+
+      - name: update nodes with disk size hint
+        shell: >
+             source {{ instack_user_home }}/stackrc;
+             ironic node-update {{ item }} add properties/root_device='{"size": {{ hw_env.disk_root_device_size | int }}}'
+        with_items: ironic_node_list_uuid.stdout_lines
+        when: (hw_env is defined) and (hw_env.disk_root_device_size is defined) and product.full_version == '8-director'

@@ -1,0 +1,2 @@
+---
+- include: overcloud/introspect-nodes/main.yml

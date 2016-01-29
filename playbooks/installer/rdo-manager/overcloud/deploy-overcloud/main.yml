@@ -1,0 +1,4 @@
+---
+- include: pre.yml
+- include: "{{ installer.deploy.type | default('templates') }}/main.yml"
+- include: run.yml

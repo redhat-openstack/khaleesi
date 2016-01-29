@@ -1,0 +1,13 @@
+---
+- name: wait for nova
+  hosts: undercloud
+  tasks:
+      - name: wait until nova becomes aware of first bare metal instance
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            nova hypervisor-stats | grep ' vcpus ' | head -n1 | awk '{ print $4; }'
+        register: vcpu_count_single
+        retries: 20
+        delay: 15
+        until: vcpu_count_single.stdout|int > 0
+        ignore_errors: true

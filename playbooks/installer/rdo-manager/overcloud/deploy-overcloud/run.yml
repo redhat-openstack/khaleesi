@@ -1,0 +1,34 @@
+---
+- name: deploy the overcloud
+  hosts: undercloud
+  tasks:
+      - name: echo deploy command
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            source {{ instack_user_home }}/deploy-nodesrc;
+            source {{ instack_user_home }}/deploy-overcloudrc;
+            echo $DEPLOY_COMMAND
+        register: overcloud_deploy_command
+
+      - name: deploy-overcloud
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            {{ overcloud_deploy_command.stdout }} &> overcloud_deployment_console.log
+        register: overcloud_deployment_result
+        ignore_errors: yes
+
+      - name: echo deploy-overcloud return code
+        debug: var=overcloud_deployment_result.rc
+
+      - name: heat stack-list
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            heat stack-list
+        ignore_errors: yes
+
+      - name: overcloud deployment logs
+        debug: msg=" Please refer to the undercloud log file for detailed status. The deployment debug logs are stored under /home/stack"
+
+      - name: set fact overcloud_deployment_result
+        set_fact:
+            overcloud_deployment_result: "{{ overcloud_deployment_result.rc }}"

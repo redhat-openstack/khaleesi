@@ -1,0 +1,29 @@
+- name: setup deployment for a heat templated (templates) style deployment
+  hosts: undercloud
+  tasks:
+      - name: echo deploy command
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            source {{ instack_user_home }}/deploy-nodesrc;
+            source {{ instack_user_home }}/deploy-overcloudrc;
+            echo $DEPLOY_COMMAND
+        register: overcloud_deploy_command
+
+      - name: find the env files to be used in deploy
+        shell: >
+            echo {{ overcloud_deploy_command.stdout }} | grep -o -e '\-e .*yaml' | sed s'/\-e //g' | sed s'#[A-Z a-z 0-9 _ -]*\.yaml##g'
+        register: env_files
+
+      - name: clone template validation tools
+        git:
+            repo=https://github.com/openstack/tripleo-heat-templates.git
+            dest={{instack_user_home}}/tripleo-heat-templates
+
+      - name: validate the yaml files
+        shell: >
+            chdir={{instack_user_home}}
+            python tripleo-heat-templates/tools/yaml-validate.py {{ item }}
+        register: validate_yaml_output
+        with_items: env_files.stdout.split('\n')
+        failed_when: validate_yaml_output.stdout.find('Validation failed on') != -1
+

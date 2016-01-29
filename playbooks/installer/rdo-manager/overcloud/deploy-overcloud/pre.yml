@@ -1,0 +1,46 @@
+- name: prepare for the overcloud deployment
+  hosts: undercloud
+  tasks:
+      - name: get ironic node ids (workaround for bz 1246641)
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            ironic node-list | grep 'None' | awk '{ print $2; }'
+        register: ironic_node_ids
+        when: workarounds.enabled is defined and workarounds.enabled|bool
+
+      - name: power off ironic nodes (workaround for bz 1246641)
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            ironic node-set-power-state {{item}} 'off'
+        with_items: ironic_node_ids.stdout_lines
+        when: workarounds.enabled is defined and workarounds.enabled|bool
+
+      - name: get number of nodes that could be used for the overcloud
+        shell: >
+            if [ -f  {{ instack_user_home }}/instackenv.json ]; then
+              cat {{ instack_user_home }}/instackenv.json | grep -o pm_addr |  wc -l
+            else
+              cat {{ installer.nodes.node_count | default('3') }}
+            fi
+        register: number_of_possible_nodes
+
+      - name: poll for nodes to be in powered off state
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            ironic node-list | grep 'power off' |  wc -l
+        register: ironic_node_power_off
+        retries: 10
+        until: ironic_node_power_off.stdout == number_of_possible_nodes.stdout
+
+      - name: copy template file with environment variables for overcloud nodes
+        template:
+            src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/deploy-nodes.j2
+            dest={{ instack_user_home }}/deploy-nodesrc
+            mode=0755
+
+      - name: copy template file with environment variables for overcloud deploy
+        template:
+            src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/deploy-overcloudrc.j2
+            dest={{ instack_user_home }}/deploy-overcloudrc
+            mode=0755
+

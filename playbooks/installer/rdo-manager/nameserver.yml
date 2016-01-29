@@ -1,0 +1,2 @@
+---
+- include: overcloud/nameserver/main.yml
