@@ -41,7 +41,6 @@ tester:
   - python-virtualenv
   - firefox
   - unzip
-  - git
   - python-keystoneclient
   - xorg-x11-server-Xvfb
   - xorg-x11-font*
