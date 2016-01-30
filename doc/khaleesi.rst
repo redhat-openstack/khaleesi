@@ -363,6 +363,61 @@ up the environment needed for running the tests:
 Testers are passed to the ksgen CLI as '--tester=' argument value:
 pep8, unittest, functional, integration, api, tempest
 
+Requirements:
+
+There is only one requirement and it's to have an jenkins-config yml file in
+the root of the component directory. For example, if the component is neutron,
+then there should be an neutron/jenkins-config.yml file. The name may differ
+and can be set by using --extra-vars tester.component.config_file in ksgen
+invocation.
+
+The structure of an jenkins-config should be similar to:
+
+----------------------- jenkins-config sample beginning------------------------
+# Khaleesi will read and execute this section only if --tester=pep8  included in ksgen invocation
+pep8:
+    rpm_deps: [ python-neutron, python-hacking, pylint ]
+    remove_rpm: []
+    run: tox --sitepackages -v -e pep8 2>&1 | tee ../logs/testrun.log;
+
+# Khaleesi will read and execute this section only if --tester=unittest included in ksgen invocation
+unittest:
+    rpm_deps: [ python-neutron, python-cliff ]
+    remove_rpm: []
+    run: tox --sitepackages -v -e py27 2>&1 | tee ../logs/testrun.log;
+
+# Common RPMs that are used by all the testers
+rpm_deps: [ gcc, git, "{{ hostvars[inventory_hostname][tester.component.tox_target]['rpm_deps'] }}" ]
+
+# The RPMs that shouldn't be installed when running tests, no matter which tester chosen
+remove_rpm: [ "{{ hostvars[inventory_hostname][tester.component.tox_target]['remove_rpm'] }}" ]
+
+# Common pre-run steps for all testers
+neutron_virt_run_config:
+  run: >
+    set -o pipefail;
+    rpm -qa > installed-rpms.txt;
+    truncate --size 0 requirements.txt && truncate --size 0 test-requirements.txt;
+    {{ hostvars[inventory_hostname][tester.component.tox_target]['run'] }}
+
+# Files to archive
+  archive:
+    - ../logs/testrun.log
+    - installed-rpms.txt
+
+# Main section that will be read by khaleesi
+test_config:
+  virt:
+    RedHat-7:
+      setup:
+        install: "{{ rpm_deps }}" # Optional. When you would like to install requirements
+        remove: "{{ remove_rpm }}" # Optional. When you would like to remove packages
+      run: "{{ neutron_virt_run_config.run }}" # A must. The actual command used to run the tests
+      archive: "{{ neutron_virt_run_config.archive }}" # A must. Files to archive
+----------------------- jenkins-config sample end ------------------------
+
+Usage:
+
 Below are examples on how to use the different testers:
 
 To run pep8 you would use the following ksgen invocation:
@@ -399,10 +454,9 @@ To run functional tests, you would use:
     --provisioner-site=qeos \
     --distro=rhel-7.2 \
     --product=rhos \
-    --installer=packstack \
-    --installer-config=full \ # To install single component use basic_neutron
+    --installer=project \
+    --installer-component=heat \
     --tester=functional \
-    --installer-component=neutron
   ksgen_settings.yml
 
 To run API in-tree tests, you would use:
