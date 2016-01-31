@@ -1,0 +1,6 @@
+---
+
+installer:
+    overcloud:
+        network:
+            type: "three-nic-vlan"

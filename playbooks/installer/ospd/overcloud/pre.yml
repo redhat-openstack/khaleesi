@@ -163,3 +163,6 @@
         shell: "source ~/stackrc; ironic node-update {{ item.stdout }} add properties/capabilities='profile:{{ item.item.rstrip('1234567890') }},boot_option:local'"
         when: "item.item is defined and item.item.rstrip('1234567890') != 'undercloud'"
         with_items: node_list.results
+
+      - name: copy template folder for customization
+        shell: "cp -rf /usr/share/openstack-tripleo-heat-templates {{ installer.overcloud.template_base }}"

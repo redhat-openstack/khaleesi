@@ -1,0 +1,7 @@
+  # NIC Configs for our roles
+  OS::TripleO::Compute::Net::SoftwareConfig: ../network/config/three-nic-vlans/compute.yaml
+  OS::TripleO::Controller::Net::SoftwareConfig: ../network/config/three-nic-vlans/controller.yaml
+{% if groups['ceph'] is defined %}
+  OS::TripleO::CephStorage::Net::SoftwareConfig: ../network/config/three-nic-vlans/ceph-storage.yaml
+{% endif %}
+{{ installer.overcloud.network.template.content | to_yaml }}

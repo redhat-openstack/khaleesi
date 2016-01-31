@@ -21,58 +21,12 @@ installer:
             discovery_iprange: 172.16.0.150,172.16.0.180
     overcloud:
         template_base: "~/my_templates"
-        storage:
-            backend: ceph
-            template:
-                file: "puppet/hieradata/ceph.yaml"
-                content:
-                    ceph::profile::params::osd_journal_size: 1024
-                    ceph::profile::params::osd_pool_default_pg_num: 128
-                    ceph::profile::params::osd_pool_default_pgp_num: 128
-                    ceph::profile::params::osd_pool_default_size: 3
-                    ceph::profile::params::osd_pool_default_min_size: 1
-                    ceph::profile::params::osds:
-                         '/dev/vdb':
-                           journal: ''
-                    ceph::profile::params::manage_repo: false
-                    ceph::profile::params::authentication_type: cephx
-
-                    ceph_pools:
-                        - volumes
-                        - vms
-                        - images
-
-                    ceph_osd_selinux_permissive: true
-        network:
-            backend: vxlan
-            template:
-                file: "advance_network.yml"
-                content:
-                    InternalApiNetCidr: 172.17.1.0/24
-                    InternalApiAllocationPools: [{'start': '172.17.1.10', 'end': '172.17.1.200'}]
-                    InternalApiNetworkVlanID: 101
-                    TenantNetCidr: 172.17.2.0/24
-                    TenantAllocationPools: [{'start': '172.17.2.10', 'end': '172.17.2.200'}]
-                    TenantNetworkVlanID: 201
-                    StorageNetCidr: 172.17.3.0/24
-                    StorageAllocationPools: [{'start': '172.17.3.10', 'end': '172.17.3.200'}]
-                    StorageNetworkVlanID: 301
-                    StorageMgmtNetCidr: 172.17.4.0/24
-                    StorageMgmtAllocationPools: [{'start': '172.17.4.10', 'end': '172.17.4.200'}]
-                    StorageMgmtNetworkVlanID: 401
-                    ExternalNetCidr: 192.168.122.0/24
-                    ExternalAllocationPools: [{'start': '192.168.122.100', 'end': '192.168.122.129'}]
-                    ExternalInterfaceDefaultRoute: 192.168.122.1
-                    ControlPlaneSubnetCidr: "24"
-                    ControlPlaneDefaultRoute: 172.16.0.1
-                    EC2MetadataIp: 172.16.0.1
-                    DnsServers: ['192.168.122.1', '8.8.8.8']
 
 defaults:
     build: latest
     images: import
     version: 7
-    network: neutron
+    network: no-isolation
 
 job:
     archive:

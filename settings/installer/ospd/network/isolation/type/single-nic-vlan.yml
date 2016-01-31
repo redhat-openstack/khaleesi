@@ -1,0 +1,6 @@
+---
+
+installer:
+    overcloud:
+        network:
+            type: "single-nic-vlan"

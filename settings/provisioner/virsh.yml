@@ -60,3 +60,7 @@ provisioner:
         - virt-viewer
         - libguestfs-xfs
         - sshpass
+
+defaults:
+    image: rhel
+    topology: all-in-one

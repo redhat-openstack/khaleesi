@@ -1,0 +1,23 @@
+- name: prepare the network isolation
+  template:
+      src: "isolation.yml.j2"
+      dest: "{{ installer.overcloud.template_base }}/isolation_params.yml"
+
+- name: append our params to the network isolation file
+  shell: "cat {{ installer.overcloud.template_base }}/isolation_params.yml >> {{ installer.overcloud.template_base }}/environments/network-isolation.yaml"
+
+# Until https://review.openstack.org/#/c/214372 is merged, create the three-nic-vlans
+- name: create folder for three per-role nic configuration
+  shell: "mkdir -p {{ installer.overcloud.template_base }}/network/config/three-nic-vlans/"
+
+# Check for a possible BUG in ansible copy, the "mode" doesn't work as expected
+- name: copy files into folder
+  copy:
+      src: "{{ item }}"
+      dest: "{{ installer.overcloud.template_base }}/network/config/three-nic-vlans/"
+  with_items:
+    - controller.yaml
+    - compute.yaml
+    - cinder-storage.yaml
+    - ceph-storage.yaml
+    - swift-storage.yaml

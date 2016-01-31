@@ -2,7 +2,7 @@
 
 source ~/stackrc;
 openstack overcloud deploy --debug \
-                       --templates ~/my_templates/ \
+                       --templates {{ installer.overcloud.template_base }} \
                        --libvirt-type qemu \
                        --ntp-server {{ distro.config.ntp_server_ip }} \
                        --neutron-network-type {{ installer.overcloud.network.backend }} \
@@ -18,6 +18,9 @@ openstack overcloud deploy --debug \
 {% if groups['ceph'] is defined %}
                        --ceph-storage-scale {{ groups['ceph']| length }} \
                        --ceph-storage-flavor ceph \
-                       -e ~/my_templates/environments/storage-environment.yaml \
+                       -e {{ installer.overcloud.template_base }}/environments/storage-environment.yaml \
+{% endif %}
+{% if installer.overcloud.network.type == "isolation" %}
+                       -e {{ installer.overcloud.template_base }}/{{ installer.overcloud.network.template.file }} \
 {% endif %}
                        --log-file overcloud_deployment_{{ 100 | random }}.log
