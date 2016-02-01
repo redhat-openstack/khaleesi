@@ -3,6 +3,7 @@
 # This could be create ssh forwarding to the nodes, validation of installation, etc
 - name: Post tasks
   hosts: undercloud
+  gather_facts: no
   become: yes
   become_user: "{{ installer.user.name }}"
   tasks:
@@ -15,6 +16,7 @@
 #TODO: remove this when the templating system is in place
 - name: External network creation
   hosts: undercloud
+  gather_facts: no
   become: yes
   become_user: "{{ installer.user.name }}"
   tasks:
