@@ -33,6 +33,17 @@
       - name: Install epel release
         command: "yum localinstall -y {{ distro.epel_release }}"
 
+- name: Add the RDO release repos
+  hosts: "{{ repo_host }}"
+  vars:
+      - ansible_ssh_user: root
+  tasks:
+    - name: Install rdo-release rpm
+      yum:
+        name: "{{ product.rpmrepo[ansible_distribution] }}"
+        state: present
+      when: product.repo_type == 'production'
+
 - name: Update packages on the host
   hosts: "{{ repo_host }}"
   vars:
