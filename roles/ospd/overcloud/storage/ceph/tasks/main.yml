@@ -1,0 +1,11 @@
+- name: prepare ceph storage template
+  template:
+      src: "templates/storage/ceph.yml.j2"
+      dest: "{{ installer.overcloud.template_base }}/puppet/hieradata/ceph.yaml"
+      mode: 0755
+
+- name: workaround for BUG where service ceph is not available
+  service:
+      name: "ceph"
+      state: "restarted"
+  delegate_to: ceph

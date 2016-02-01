@@ -6,14 +6,9 @@
   gather_facts: no
   roles:
       - {role: ospd/overcloud/network-isolation/, when: installer.overcloud.network.type == "isolation"}
+      - {role: ospd/overcloud/storage/ceph/, when: groups['ceph'] is defined}
   tasks:
-      - name: prepare ceph storage template
-        template:
-            src: "templates/storage/ceph.yml.j2"
-            dest: "{{ installer.overcloud.template_base }}/puppet/hieradata/ceph.yaml"
-            mode: 0755
-        when: groups['ceph'] is defined
-
+      #TODO: move this to a role for cinder/LVM
       - name: set a higher LVM size storage template
         sudo: yes
         lineinfile:
