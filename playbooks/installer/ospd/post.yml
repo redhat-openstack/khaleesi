@@ -13,6 +13,11 @@
             dest: "{{ inventory_dir }}/keystonerc"
             flat: yes
 
+      #TODO: remove this workaround once the bug is fixed
+      - name: Workaround for CEPH
+        shell: "ssh -l heat-admin {{ hostvars['%s' % item].ansible_et0.address }} 'sudo systemctl restart ceph'"
+        with_items: groups['ceph']
+
 #TODO: remove this when the templating system is in place
 - name: External network creation
   hosts: undercloud
