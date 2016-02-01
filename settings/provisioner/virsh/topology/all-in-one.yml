@@ -9,10 +9,11 @@ provisioner:
             os:
                 type: linux
                 variant: !lookup provisioner.image.os.variant
-            disk:
-                size: !lookup provisioner.image.disk.size
-                dev: /dev/vda
-                path: /var/lib/libvirt/images
+            disks:
+                disk1: &disk1
+                    path: /var/lib/libvirt/images
+                    dev: /dev/vda
+                    size: 20G
             network: &network_params
                 interfaces: &interfaces
                     data: &data_interface
