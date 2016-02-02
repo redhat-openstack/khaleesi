@@ -15,7 +15,7 @@
 
       #TODO: remove this workaround once the bug is fixed
       - name: Workaround for CEPH
-        shell: "ssh -l heat-admin {{ hostvars['%s' % item].ansible_eth0.address }} 'sudo systemctl restart ceph'"
+        shell: "ssh -l heat-admin {{ hostvars['%s' % item].ansible_eth0.ipv4.address }} 'sudo systemctl restart ceph'"
         with_items: groups['ceph']
 
 #TODO: remove this when the templating system is in place
