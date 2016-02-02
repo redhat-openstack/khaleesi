@@ -3,3 +3,7 @@ product:
     repo_type: production
     # production repo details are in liberty.yml itself
     # since it is needed by default
+
+workarounds:
+    rhbz1278972:
+        enabled: True

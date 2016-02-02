@@ -8,6 +8,13 @@
 - name: build images on the virthost
   hosts: virthost
   tasks:
+    - name: install python-passlib to workaround rhbz1278972
+      yum:
+        name: python-passlib
+        state: present
+      sudo: yes
+      when: workarounds.rhbz1278972 is defined
+
     - name: setup environment vars
       template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/build-img-env.j2
                 dest=~/build-img-env mode=0755
