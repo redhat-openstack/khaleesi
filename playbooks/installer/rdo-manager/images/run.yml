@@ -93,6 +93,8 @@
 
 - name: import images
   hosts: undercloud
+  environment:
+      http_proxy: "{{ installer.http_proxy_url }}"
   tasks:
     - name: ensure wget is installed
       yum: name=wget state=latest

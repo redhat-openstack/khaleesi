@@ -1,0 +1,6 @@
+---
+installer:
+    proxy: 'none'
+    http_proxy_host: ''
+    http_proxy_port: ''
+    http_proxy_url: ''

@@ -61,3 +61,4 @@ defaults:
     updates: none
     custom_deploy: none
     introspection_method: bulk
+    proxy: none

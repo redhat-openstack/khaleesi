@@ -58,3 +58,7 @@ export TESTENV_ARGS=" --baremetal-bridge-names 'brbm' --vlan-trunk-ids='10 20 30
 {% if product.full_version != "7-director" and installer.network.isolation != "none" %}
 export TESTENV_ARGS=" --baremetal-bridge-names 'brbm' "
 {%endif %}
+
+{% if installer.proxy != 'none' %}
+export http_proxy={{ installer.http_proxy_url }}
+{%endif %}

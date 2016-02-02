@@ -5,10 +5,27 @@
   hosts: "{{ repo_host }}:&RedHat"
   vars:
     - ansible_ssh_user: root
+  environment:
+      http_proxy: "{{ installer.http_proxy_url }}"
   gather_facts: yes
   tasks:
+      - name: set proxy server for yum configuration
+        sudo: yes
+        lineinfile: dest=/etc/yum.conf line="proxy={{ installer.http_proxy_url }}"
+        when: installer.proxy not in ['none']
+
+      - name: rpm macro for proxy
+        sudo: yes
+        template: src=../templates/rpm.macros.proxy.j2 dest=/etc/rpm/macros.proxy
+        when: installer.proxy not in ['none']
+
+      - name: Install release tool on machine
+        command: "rpm -i {{ product.rpm }}"
+        when: installer.proxy not in ['none']
+
       - name: Install release tool on machine
         command: "yum localinstall -y {{ product.rpm }}"
+        when: installer.proxy in ['none']
 
       #this will uncouple the virthost version from the undercloud and overcloud rhel versions
       - name: create directory for DIB yum repo configurations

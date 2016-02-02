@@ -31,3 +31,7 @@ export DELOREAN_TRUNK_REPO="{{ product.repo['delorean'][ansible_distribution][di
 export DELOREAN_REPO_FILE="{{ product.repo.delorean.repo_file }}"
 export NODE_DIST=centos7
 {%endif %}
+
+{% if installer.proxy != 'none' %}
+export http_proxy={{ installer.http_proxy_url }}
+{%endif %}

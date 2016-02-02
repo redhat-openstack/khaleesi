@@ -7,6 +7,8 @@
 
       - name: get the guest-image
         sudo: yes
+        environment:
+            http_proxy: "{{ installer.http_proxy_url }}"
         get_url: >
             url="{{ distro.images[distro.name][distro.full_version].remote_file_server }}{{ distro.images[distro.name][distro.full_version].guest_image_name }}"
             dest=/root/{{ distro.images[distro.name][distro.full_version].guest_image_name }}
