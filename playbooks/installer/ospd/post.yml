@@ -14,9 +14,16 @@
             flat: yes
 
       #TODO: remove this workaround once the bug is fixed
+      - name: Get the ceph nodes IPs
+        shell: "source ~/stackrc; nova list | awk '/ceph/ {print $12}' | grep -oP '[0-9.]+'"
+        register: ip_list
+        when: groups['ceph'] is defined
+
+      #TODO: remove this workaround once the bug is fixed
       - name: Workaround for CEPH
-        shell: "ssh -l heat-admin {{ hostvars['%s' % item].ansible_eth0.ipv4.address }} 'sudo systemctl restart ceph'"
-        with_items: groups['ceph']
+        shell: "ssh -l heat-admin {{ item }} 'sudo systemctl restart ceph'"
+        with_items: ip_list.stdout_lines
+        when: groups['ceph'] is defined
 
 #TODO: remove this when the templating system is in place
 - name: External network creation
