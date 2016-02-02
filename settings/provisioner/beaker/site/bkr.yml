@@ -1,7 +1,9 @@
 provisioner:
   beaker_checkout_script: 'khaleesi-settings/scripts/beaker/beakerCheckOut.sh'
   host_lab_controller: !env [BEAKER_HOST_CONTROLLER, lab-02.rhts.eng.brq.redhat.com]
-  whiteboard_message: 'InstackTesting'
+  whiteboard_prefix: 'InstackTesting'
+  whiteboard_triggering_job: !env BUILD_URL
+  whiteboard_message: '{{ !lookup provisioner.whiteboard_prefix }},triggered_from:{{ !lookup provisioner.whiteboard_triggering_job }}'
   network:
     public_subnet_cidr: 172.17.0.0/16
     public_allocation_start: 172.17.0.200
