@@ -8,6 +8,18 @@
 
     - name: install the undercloud
       shell: openstack undercloud install --debug &> {{ instack_user_home }}/undercloud_install_initial_install.log
+      ignore_errors: yes
+      register: uc_status
+
+    - name: get overview about what went wrong in undercloud installation
+      shell: |
+           tail -n 200 {{ instack_user_home }}/undercloud_install_initial_install.log
+      ignore_errors: yes
+      when: uc_status.rc != 0
+
+    - name: check if undercloud failed
+      fail: msg="Undercloud install failed"
+      when: uc_status.rc != 0
 
     - name: copy files to home
       sudo: yes
@@ -28,4 +40,15 @@
   tasks:
     - name: install the undercloud
       shell: openstack undercloud install &> {{ instack_user_home }}/undercloud_install_idempotent_check.log
+      ignore_errors: yes
+      register: uc_idemp_status
 
+    - name: get overview about what went wrong in idempotent undercloud installation
+      shell: |
+           tail -n 200 {{ instack_user_home }}/undercloud_install_idempotent_check.log
+      ignore_errors: yes
+      when: uc_idemp_status.rc != 0
+
+    - name: check if idempotent undercloud installation failed
+      fail: msg="Undercloud install failed"
+      when: uc_idemp_status.rc != 0
