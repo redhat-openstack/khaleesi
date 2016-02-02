@@ -55,7 +55,9 @@ Examples::
 **Rule: Line Length** - Keep text under 100 characters per line.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For ease of readability, keep text to a uniform length of 100 characters or less.
+For ease of readability, keep text to a uniform length of 100 characters or less. Some modules
+are known to have issues with multi-line formatting and should be commented on if it is an issue
+within your change.
 
 Examples::
 
@@ -71,11 +73,19 @@ Examples::
               -P Compute-1::NovaEnableRbdBackend=true;
       when: installer.deploy.type == 'plan'
 
+    # EXCEPTION: - When a module breaks from multi-line use, add a comment to indicate it
+    # The long line in this task fails when broken down
+    - name: copy over common environment file (virt)
+      local_action: >
+          shell pushd {{ base_dir }}/khaleesi; rsync --delay-updates -F --compress --archive --rsh \
+          "ssh -F ssh.config.ansible -S none -o StrictHostKeyChecking=no" \
+          {{base_dir}}/khaleesi-settings/hardware_environments/common/plan-parameter-neutron-bridge.yaml undercloud:{{ instack_user_home }}/plan-parameter-neutron-bridge.yaml
 
-**Rule: Using Quotes** - Use single quotes. 
+
+**Rule: Using Quotes** - Use single quotes.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use single quotes throughout playbooks except when double quotes are required 
+Use single quotes throughout playbooks except when double quotes are required
 for ``shell`` commands or enclosing ``when`` statements.
 
 Examples::
