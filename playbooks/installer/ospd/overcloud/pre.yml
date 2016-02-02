@@ -76,15 +76,13 @@
         shell: "python instackenv-validator.py -f ~/instackenv.json"
 
       - name: register our hosts to instack
-        become_user: "{{ installer.user.name }}"
         shell: "source ~/stackrc; openstack baremetal import --json instackenv.json"
 
       - name: update the transition timeout value to allow operation to finish successfully
         shell: "crudini --set /etc/ironic/ironic.conf conductor max_time_interval 200"
-        sudo: yes
+        become_user: root
 
       - name: assign the kernel and ramdisk before introspection begins
-        become_user: "{{ installer.user.name }}"
         shell: "source ~/stackrc; openstack baremetal configure boot"
 
 # In case of virthost we need to fix the pxe_ssh limitation of correctly assigning the MAC address to the iPXE script
