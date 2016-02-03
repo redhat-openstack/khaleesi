@@ -55,7 +55,7 @@ options:
        - Path of the template file to use for the stack creation
      required: false
      default: None
-   environment:
+   environment_files:
      description:
         - List of environment files that should be used for the stack creation
      required: false
@@ -144,7 +144,7 @@ def _create_stack(module, heat):
         stack = heat.stacks.get(stack_id=uid).to_dict()
         sleep(5)
     if stack['stack_status'] == 'CREATE_COMPLETE':
-        return stack['stack']['id']
+        return stack['id']
     else:
         module.fail_json(msg = "Failure in creating stack: ".format(stack))
 
@@ -164,7 +164,7 @@ def _get_stack_id(module, heat):
     while True:
         try:
             stack = stacks.next()
-            if module.param['stack_name'] == stack.stack_name:
+            if module.params['stack_name'] == stack.stack_name:
                 return stack.id
         except StopIteration:
             break
@@ -176,7 +176,7 @@ def main():
     argument_spec.update(dict(
             stack_name              = dict(required=True),
             template                = dict(default=None),
-            environment_files       = dict(default=None, type='dict'),
+            environment_files       = dict(default=None, type='list'),
             state                   = dict(default='present', choices=['absent', 'present']),
             tenant_name             = dict(default=None),
     ))
