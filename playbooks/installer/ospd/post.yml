@@ -13,15 +13,15 @@
             dest: "{{ inventory_dir }}/keystonerc"
             flat: yes
 
-      #TODO: remove this workaround once the bug is fixed
+      #TODO: remove this workaround once RHBZ1304367 is fixed
       - name: Get the ceph nodes IPs
         shell: "source ~/stackrc; nova list | awk '/ceph/ {print $12}' | grep -oP '[0-9.]+'"
         register: ip_list
         when: groups['ceph'] is defined
 
-      #TODO: remove this workaround once the bug is fixed
+      #TODO: remove this workaround once RHBZ1304367 is fixed
       - name: Workaround for CEPH
-        shell: "ssh -l heat-admin {{ item }} 'sudo systemctl restart ceph'"
+        shell: "ssh -o StrictHostKeyChecking=no -l heat-admin {{ item }} 'sudo systemctl restart ceph'"
         with_items: ip_list.stdout_lines
         when: groups['ceph'] is defined
 
