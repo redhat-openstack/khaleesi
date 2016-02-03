@@ -18,7 +18,7 @@ If you are using baremetal or using libvirt w/o instack-virt-setup
     ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/installer/rdo-manager/environment-setup.yml
 
     To *only* install the undercloud:
-    ansible-playbook -vv --extra-vars @ksgen_settings.yml -i local_hosts playbooks/installer/rdo-manager/install_undercloud.yml
+    ansible-playbook -vv --extra-vars @ksgen_settings.yml -i hosts playbooks/installer/rdo-manager/install-undercloud.yml
 
     To *only* deploy the overcloud
     ansible-playbook -vv --extra-vars @ksgen_settings.yml -i hosts playbooks/installer/rdo-manager/overcloud/main.yml
