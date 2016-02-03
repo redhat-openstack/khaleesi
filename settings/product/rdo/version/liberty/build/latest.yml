@@ -4,8 +4,6 @@ product:
   repo:
     puddle_pin_version: 'latest'
     poodle_pin_version: 'latest'
-    foreman_pin_version: 'latest'
-    foreman_poodle_pin_version: 'latest'
 
 installer:
   images:

@@ -6,5 +6,3 @@ product:
     puddle_pin_version: 'latest'
     puddle_director_pin_version: 'latest'
     poodle_pin_version: 'latest'
-    foreman_pin_version: 'latest'
-    foreman_poodle_pin_version: 'latest'
