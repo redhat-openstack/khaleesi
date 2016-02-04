@@ -27,7 +27,7 @@
 
                 # fetch dependent gating changes
                 if [ $GERRIT_CHANGE_COMMIT_MESSAGE ]; then
-                    ansible-playbook -i local_hosts -vv playbooks/depends-on.yml
+                    ansible-playbook -i local_hosts -vv playbooks/depends-on-repo.yml
                 fi
 
                 # generate config
@@ -116,7 +116,7 @@
 
                 # fetch dependent gating changes
                 if [ $GERRIT_CHANGE_COMMIT_MESSAGE ]; then
-                    ansible-playbook -i local_hosts -vv playbooks/depends-on.yml
+                    ansible-playbook -i local_hosts -vv playbooks/depends-on-repo.yml
                 fi
 
                 # generate config
@@ -196,7 +196,7 @@
 
                 # fetch dependent gating changes
                 if [ $GERRIT_CHANGE_COMMIT_MESSAGE ]; then
-                    ansible-playbook -i local_hosts -vv playbooks/depends-on.yml
+                    ansible-playbook -i local_hosts -vv playbooks/depends-on-repo.yml
                 fi
 
                 # generate config
@@ -299,7 +299,7 @@
 
                 # fetch dependent gating changes
                 if [ $GERRIT_CHANGE_COMMIT_MESSAGE ]; then
-                    ansible-playbook -i local_hosts -vv playbooks/depends-on.yml
+                    ansible-playbook -i local_hosts -vv playbooks/depends-on-repo.yml
                 fi
 
                 # generate config
@@ -379,7 +379,7 @@
 
                 # fetch dependent gating changes
                 if [ $GERRIT_CHANGE_COMMIT_MESSAGE ]; then
-                    ansible-playbook -i local_hosts -vv playbooks/depends-on.yml
+                    ansible-playbook -i local_hosts -vv playbooks/depends-on-repo.yml
                 fi
 
                 # generate config
@@ -462,7 +462,7 @@
 
                 # fetch dependent gating changes
                 if [ $GERRIT_CHANGE_COMMIT_MESSAGE ]; then
-                    ansible-playbook -i local_hosts -vv playbooks/depends-on.yml
+                    ansible-playbook -i local_hosts -vv playbooks/depends-on-repo.yml
                 fi
 
                 # generate config

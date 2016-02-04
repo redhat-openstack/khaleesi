@@ -1,0 +1,5 @@
+---
+- name: fetch commit dependencies on repos
+  roles:
+    - { role: depends-on, update: "repo" }
+  hosts: localhost

@@ -1,0 +1,5 @@
+---
+- name: fetch commit dependencies and build rpms
+  roles:
+    - { role: depends-on, update: "rpm" }
+  hosts: localhost

@@ -8,6 +8,8 @@
   ignore_errors: yes
   register: is_internal
 
+- debug: msg="getting dependencies for {{ update }}"
+
 - name: search and fetch dependent changes
-  script: depends_on.py {{ lookup('env', 'WORKSPACE') }}
+  script: depends_on.py {{ lookup('env', 'WORKSPACE') }} {{ update }}
   when: ("\"\" != \"{{ lookup('env', 'GERRIT_CHANGE_COMMIT_MESSAGE') }}\"" and {{ is_internal.rc }} == 0)
