@@ -1,4 +1,0 @@
----
-dependencies:
-- { role: linux }
-- { role: common }
