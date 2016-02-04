@@ -23,4 +23,8 @@ openstack overcloud deploy --debug \
 {% if installer.overcloud.network.type == "isolation" %}
                        -e {{ installer.overcloud.template_base }}/{{ installer.overcloud.network.template.file }} \
 {% endif %}
+{% if installer.overcloud.use_ssl == "yes" %}
+                       -e {{ installer.overcloud.template_base }}/environments/enable-tls.yaml \
+                       -e {{ installer.overcloud.template_base }}/environments/inject-trust-anchor.yaml \
+{% endif %}
                        --log-file overcloud_deployment_{{ 100 | random }}.log

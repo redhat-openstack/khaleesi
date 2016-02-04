@@ -27,6 +27,7 @@ defaults:
     images: import
     version: 7
     network: no-isolation
+    ssl: no
 
 job:
     archive:
@@ -38,3 +39,8 @@ job:
         - /home/stack/deploy-overcloudrc
         - /home/stack/network-environment.yaml
         - /usr/share/openstack-tripleo-heat-templates
+
+workaournds:
+    rhbz1304367:
+        desc: "Workaround RHBZ1304367: overcloud deployment finished successfully and Ceph's OSDs are down"
+        enabled: True

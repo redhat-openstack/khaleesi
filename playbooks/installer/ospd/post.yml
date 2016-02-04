@@ -13,17 +13,27 @@
             dest: "{{ inventory_dir }}/keystonerc"
             flat: yes
 
-      #TODO: remove this workaround once RHBZ1304367 is fixed
+- name: Check if RHBZ1304367 is enabled
+  hosts: undercloud
+  gather_facts: no
+  sudo: no
+  tasks:
+    - group_by: key=workaround_rhbz1304367
+      when: workarounds.rhbz1304367 is defined and groups['ceph'] is defined
+
+- name: "Workaround RHBZ1304367: overcloud deployment finished successfully and Ceph's OSDs are down"
+  hosts: workaround_rhbz1304367
+  gather_facts: no
+  become: yes
+  become_user: "{{ installer.user.name }}"
+  tasks:
       - name: Get the ceph nodes IPs
         shell: "source ~/stackrc; nova list | awk '/ceph/ {print $12}' | grep -oP '[0-9.]+'"
         register: ip_list
-        when: groups['ceph'] is defined
 
-      #TODO: remove this workaround once RHBZ1304367 is fixed
       - name: Workaround for CEPH
         shell: "ssh -o StrictHostKeyChecking=no -l heat-admin {{ item }} 'sudo systemctl restart ceph'"
         with_items: ip_list.stdout_lines
-        when: groups['ceph'] is defined
 
 #TODO: remove this when the templating system is in place
 - name: External network creation
