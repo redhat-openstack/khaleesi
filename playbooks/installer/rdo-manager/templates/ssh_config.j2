@@ -28,32 +28,9 @@ Host undercloud-from-virthost-as-stack
     StrictHostKeyChecking no
 {%endif %}
 
-{% if groups["virthost"] is not defined and hw_env is defined and hw_env.env_type != "ovb_host_cloud" %}
+{% if groups["virthost"] is not defined and hw_env is defined %}
 Host {{ hostvars[groups['undercloud'][0]].ansible_ssh_host }}
     Hostname {{ hostvars[groups['undercloud'][0]].ansible_ssh_host }}
-    IdentityFile ~/.ssh/id_rsa
-    IdentitiesOnly yes
-    User root
-    StrictHostKeyChecking no
-{%endif %}
-
-{% if groups["virthost"] is not defined and hw_env is defined and hw_env.env_type == "ovb_host_cloud" %}
-Host undercloud-root
-    ProxyCommand ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i {{ hostvars[groups['provisioned'][0]].ansible_ssh_private_key_file }} stack@{{ hostvars[groups['provisioned'][0]].ansible_ssh_host }} -W {{ floating_ip }}:22
-    IdentityFile {{ base_dir }}/khaleesi/id_rsa_undercloud_instance
-    User root
-    StrictHostKeyChecking no
-    UserKnownHostsFile=/dev/null
-
-Host undercloud
-    ProxyCommand ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i {{ hostvars[groups['provisioned'][0]].ansible_ssh_private_key_file }} stack@{{ hostvars[groups['provisioned'][0]].ansible_ssh_host }} -W {{ floating_ip }}:22
-    IdentityFile {{ base_dir }}/khaleesi/id_rsa_undercloud_instance
-    User stack
-    StrictHostKeyChecking no
-    UserKnownHostsFile=/dev/null
-
-Host undercloud-from-baremetal-host
-    Hostname {{ floating_ip }}
     IdentityFile ~/.ssh/id_rsa
     IdentitiesOnly yes
     User root
@@ -70,4 +47,20 @@ Host {{ host }}
     StrictHostKeyChecking no
     UserKnownHostsFile=/dev/null
 {%endfor %}
+{%endif %}
+
+{% if provisioner.type == "heat" %}
+Host undercloud-root
+    Hostname {{ floating_ip }}
+    IdentityFile {{ provisioner.key_file }}
+    IdentitiesOnly yes
+    User root
+    StrictHostKeyChecking no
+
+Host undercloud
+    Hostname {{ floating_ip }}
+    IdentityFile {{ provisioner.key_file }}
+    IdentitiesOnly yes
+    User stack
+    StrictHostKeyChecking no
 {%endif %}

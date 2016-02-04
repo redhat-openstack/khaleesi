@@ -1,0 +1,19 @@
+network_config:
+  -
+    ovs_extra:
+      - br-set-external-id br-ctlplane bridge-id br-ctlplane
+    type: ovs_bridge
+    name: br-ctlplane
+    addresses:
+      -
+        ip_netmask: {{ provisioner.network.os_net_config.ip_netmask }}
+    members:
+      -
+        type: interface
+        name: {{ provisioner.network.os_net_config.interface.name }}
+        mtu: {{ provisioner.network.os_net_config.interface.mtu }}
+        primary: true
+      -
+        type: ovs_bridge
+        name: {{ provisioner.network.os_net_config.ovs_bridge.name }}
+        mtu: {{ provisioner.network.os_net_config.ovs_bridge.mtu }}

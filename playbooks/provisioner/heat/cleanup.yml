@@ -1,0 +1,15 @@
+---
+- name: Remove heat stack
+  hosts: local
+  gather_facts: no
+  sudo: no
+  tasks:
+    - name: delete stack
+      register: stack
+      heat_stack:
+        stack_name: "{{ provisioner.stack_name }}"
+        state: absent
+        login_username: "{{ provisioner.username }}"
+        login_password: "{{ provisioner.password }}"
+        auth_url: "{{ provisioner.auth_url }}"
+        tenant_name: "{{ provisioner.tenant_name }}"

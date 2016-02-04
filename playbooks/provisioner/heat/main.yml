@@ -1,0 +1,74 @@
+---
+- name: Deploy stack tasks
+  hosts: localhost
+  sudo: no
+  tasks:
+      - name: copy heat templates
+        template:
+            src: "{{ base_dir }}/khaleesi/playbooks/provisioner/heat/templates/{{ item }}.j2"
+            dest: "{{ base_dir }}/khaleesi/{{ tmp.node_prefix }}{{ item }}"
+            mode: 0755
+        with_items: "{{ provisioner.jinja_templates }}"
+        register: env_jinja_templates
+
+      - name: create stack
+        heat_stack:
+            stack_name: "{{ provisioner.stack_name }}"
+            state: present
+            login_username: "{{ provisioner.username }}"
+            login_password: "{{ provisioner.password }}"
+            auth_url: "{{ provisioner.auth_url }}"
+            tenant_name: "{{ provisioner.tenant_name }}"
+            template: "{{ provisioner.heat_template }}"
+            environment_files: "{{ provisioner.environment_files }}"
+        register: stack
+        ignore_errors: true
+
+      - name: Print stack information if creation failed
+        shell: >
+            export OS_USERNAME="{{ provisioner.username }}";
+            export OS_PASSWORD="{{ provisioner.password }}";
+            export OS_TENANT_NAME="{{ provisioner.tenant_name }}";
+            export OS_AUTH_URL="{{ provisioner.auth_url }}";
+            heat stack-show {{ provisioner.stack_name }}
+        when: stack.result is not defined
+
+      - name: set fact for provisioned host's floating IP
+        set_fact: floating_ip={{stack.stack.outputs[0].output_value}}
+
+      - name: Add provisioned host
+        add_host:
+            name=undercloud
+            hostname="{{ floating_ip}}"
+            groups=undercloud
+            ansible_ssh_host="{{ floating_ip }}"
+            ansible_fqdn="{{ floating_ip }}"
+            ansible_ssh_user="stack"
+            ansible_ssh_private_key_file="{{ provisioner.key_file }}"
+            gating_repo="{{ gating_repo is defined and gating_repo }}"
+
+      - name: Wait for provisioned host to become reachable
+        wait_for_ssh:
+            host: "{{ floating_ip }}"
+            user: root
+            key: "{{ provisioner.key_file }}"
+        delegate_to: localhost
+
+      - name: copy ssh_config template
+        template:
+            src: "{{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/ssh_config.j2"
+            dest: "{{ base_dir }}/khaleesi/ssh.config.ansible"
+            mode: 0755
+
+      - name: create inventory from template
+        template:
+            dest: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+            src: "{{ base_dir }}/khaleesi/playbooks/provisioner/templates/inventory.j2"
+
+      - name: symlink inventory to a static name
+        file:
+            dest: "{{ lookup('env', 'PWD') }}/hosts"
+            state: link
+            src: "{{ lookup('env', 'PWD') }}/{{ tmp.node_prefix }}hosts"
+
+- include: post-provision/{{ provisioner.extension|default('none') }}.yml

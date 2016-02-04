@@ -1,0 +1,39 @@
+---
+- name: OVB post-provision tasks
+  hosts: localhost
+  tasks:
+      - name: Build nodes.json file to be used as instackenv.json
+        shell: >
+            ls {{ base_dir }}/khaleesi/{{ tmp.node_prefix }}env.yaml;
+            ls {{ base_dir }}/openstack-virtual-baremetal/bin/build-nodes-json;
+            export OS_USERNAME="{{ provisioner.username }}";
+            export OS_PASSWORD="{{ provisioner.password }}";
+            export OS_TENANT_NAME="{{ provisioner.tenant_name }}";
+            export OS_AUTH_URL="{{ provisioner.auth_url }}";
+            {{ base_dir }}/openstack-virtual-baremetal/bin/build-nodes-json --env {{ base_dir }}/khaleesi/{{ tmp.node_prefix }}env.yaml
+        register: nodes_json
+
+- name: Copy nodes.json to undercloud
+  hosts: undercloud
+  vars:
+      - ansible_ssh_user: root
+  tasks:
+      - name: Copy nodes.json to undercloud root as instackenv.json
+        copy:
+            src: "{{ base_dir }}/khaleesi/playbooks/provisioner/heat/post-provision/nodes.json"
+            dest: "/root/instackenv.json"
+
+      - name: copy both public and private ssh keys to root dir for baremetal playbook compatibility
+        copy:
+            src: "{{ lookup('env','HOME') }}/.ssh/{{ item }}"
+            dest: "/root/.ssh/{{ item }}"
+            mode: 0600
+        with_items:
+            - id_rsa
+            - id_rsa.pub
+
+      - name: Set MTU values
+        shell: >
+            ip link set {{ item }} mtu {{ provisioner.network.os_net_config.interface.mtu }};
+            echo "MTU={{ provisioner.network.os_net_config.interface.mtu }}" >> /etc/sysconfig/network-scripts/ifcfg-{{ item }}
+        with_items: "{{ provisioner.network.os_net_config.interface.names }}"

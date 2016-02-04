@@ -68,6 +68,7 @@
         sudo: yes
         yum: name={{ item }} state=latest
         with_items:
+            - git
             - OpenIPMI
             - OpenIPMI-tools
 
@@ -81,6 +82,7 @@
         shell: >
             sudo chkconfig ipmi on;
             sudo service ipmi start
+        when: hw_env.remote_mgmt == 'ipmi'
 
       - name: get tools to validate instackenv.json/nodes.json
         git: >
