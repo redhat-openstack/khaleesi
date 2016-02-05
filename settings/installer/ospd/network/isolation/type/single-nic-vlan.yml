@@ -3,4 +3,6 @@
 installer:
     overcloud:
         network:
-            type: "single-nic-vlan"
+            isolation:
+                enable: "yes"
+                type: "single-nic-vlan"

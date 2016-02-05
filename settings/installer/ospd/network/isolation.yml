@@ -3,7 +3,8 @@
 installer:
     overcloud:
         network:
-            type: "isolation"
+            isolation:
+                enable: "yes"
             template:
                 file: "environments/network-isolation.yaml"
                 content:

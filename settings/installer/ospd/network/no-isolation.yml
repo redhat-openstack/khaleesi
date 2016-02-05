@@ -3,5 +3,6 @@
 installer:
     overcloud:
         network:
-            type: "no-isolation"
+            isolation:
+                enable: "no"
             backend: vxlan

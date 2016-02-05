@@ -20,7 +20,7 @@ openstack overcloud deploy --debug \
                        --ceph-storage-flavor ceph \
                        -e {{ installer.overcloud.template_base }}/environments/storage-environment.yaml \
 {% endif %}
-{% if installer.overcloud.network.type == "isolation" %}
+{% if installer.overcloud.network.isolation.enable == "yes" %}
                        -e {{ installer.overcloud.template_base }}/{{ installer.overcloud.network.template.file }} \
 {% endif %}
 {% if installer.overcloud.use_ssl == "yes" %}

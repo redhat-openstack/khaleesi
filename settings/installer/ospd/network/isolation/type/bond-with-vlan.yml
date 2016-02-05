@@ -3,4 +3,6 @@
 installer:
     overcloud:
         network:
-            type: "bond-with-vlan"
+            isolation:
+                enable: "yes"
+                type: "bond-with-vlan"
