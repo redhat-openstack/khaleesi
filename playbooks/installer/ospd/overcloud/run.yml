@@ -6,6 +6,7 @@
   gather_facts: no
   roles:
       - {role: ospd/overcloud/network/isolation/, when: installer.overcloud.network.isolation.enable == "yes"}
+      - {role: ospd/overcloud/network/ipv6/, when: installer.overcloud.network.ipv6 == "yes"}
       - {role: ospd/overcloud/ssl/, when: installer.overcloud.use_ssl == "yes"}
       - {role: ospd/overcloud/storage/ceph/, when: provisioner.nodes.ceph is defined}
   tasks:

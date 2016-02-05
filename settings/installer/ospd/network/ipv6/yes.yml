@@ -1,0 +1,49 @@
+---
+
+installer:
+    overcloud:
+        protocol:
+            type: "ipv6"
+            template:
+                file: ""
+        network:
+            type: "isolation"
+            template:
+                file: "environments/network-isolation.yaml"
+                content:
+resource_registry:
+  OS::TripleO::BlockStorage::Net::SoftwareConfig: /home/stack/nic-configs/cinder-storage.yaml
+  OS::TripleO::Compute::Net::SoftwareConfig: /home/stack/nic-configs/compute.yaml
+  OS::TripleO::Controller::Net::SoftwareConfig: /home/stack/nic-configs/controller.yaml
+  OS::TripleO::ObjectStorage::Net::SoftwareConfig: /home/stack/nic-configs/swift-storage.yaml
+  OS::TripleO::CephStorage::Net::SoftwareConfig: /home/stack/nic-configs/ceph-storage.yaml
+
+parameters:
+  CloudName: rxtx.ro
+  NeutronExternalNetworkBridge: "''"
+  controllerExtraConfig:
+    'neutron::agents::dhcp::enable_isolated_metadata': 'True'
+
+parameter_defaults:
+  DnsServers: ["10.16.36.29","10.11.5.19"]  # Customize for your env
+  ControlPlaneSubnetCidr: "24"
+  EC2MetadataIp: 192.168.0.1  # Default for virt-env, customize if need be
+  ControlPlaneDefaultRoute: 192.168.0.1  # Default for virt-env, customize if need be
+
+  ExternalInterfaceDefaultRoute: 2620:52:0:13b8::fe
+  ExternalNetCidr: '2620:52:0:13b8::/64'
+  ExternalAllocationPools: [{'start': '2620:52:0:13b8:5054:ff:fe3e:1', 'end': '2620:52:0:13b8:5054:ff:fe3e:9'}]
+
+  TenantNetCidr: 'fd00:fd00:fd00:5000::/64'
+  TenantAllocationPools: [{'start': 'fd00:fd00:fd00:5000::10', 'end': 'fd00:fd00:fd00:5000:ffff:ffff:ffff:fffe'}]
+
+  InternalApiNetCidr: 'fd00:fd00:fd00:2000::/64'
+  InternalApiAllocationPools: [{'start': 'fd00:fd00:fd00:2000::10', 'end': 'fd00:fd00:fd00:2000:ffff:ffff:ffff:fffe'}]
+
+  StorageNetCidr: 'fd00:fd00:fd00:3000::/64'
+  StorageAllocationPools: [{'start': 'fd00:fd00:fd00:3000::10', 'end': 'fd00:fd00:fd00:3000:ffff:ffff:ffff:fffe'}]
+
+  StorageMgmtNetCidr: 'fd00:fd00:fd00:4000::/64'
+  StorageMgmtAllocationPools: [{'start': 'fd00:fd00:fd00:4000::10', 'end': 'fd00:fd00:fd00:4000:ffff:ffff:ffff:fffe'}]
+  StorageNetworkVlanID: 183
+  StorageMgmtNetworkVlanID: 103
