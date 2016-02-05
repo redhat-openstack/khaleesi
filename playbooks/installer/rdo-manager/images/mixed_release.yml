@@ -1,0 +1,48 @@
+#prior to executing this playbook, update the settings to the desired release for the overcloud
+
+- name: install the correct version of the tripleo-heat-templates to match the images used.
+  hosts: undercloud
+  tasks:
+      - name: copy tht templates to home if it doesnt exist
+        shell: >
+            cp -a /usr/share/openstack-tripleo-heat-templates/kilo/ {{ instack_user_home }}/local_tht;
+
+- name: import images
+  hosts: undercloud
+  tasks:
+    - name: ensure wget is installed
+      yum: name=wget state=latest
+      sudo: yes
+
+    - name: get the md5sum of the current overcloud-full.tar
+      stat: path="{{ instack_user_home }}/overcloud_images/overcloud-full.tar"
+      register: original_overcloud_full
+
+    - name: update the pre-built rdo-manager overcloud images for a specific version
+      shell: >
+            pushd {{ instack_user_home }}/overcloud_images;
+            wget --quiet -c -O {{ instack_user_home }}/overcloud_images/{{ item }}.tar
+            "{{ installer.images.url[product.name][product.full_version][product.build][installer.images.version] }}{{ item }}.tar"
+      with_items: "{{ installer.images[product.full_version].mixed_version_files|list }}"
+      when: installer.overcloud_images is defined and installer.overcloud_images == "import"
+
+    - name: get the md5sum of the new overcloud-full.tar
+      stat: path="{{ instack_user_home }}/overcloud_images/overcloud-full.tar"
+      register: new_overcloud_full
+
+    - name: print md5sums
+      debug: var={{ original_overcloud_full.stat.md5 }}
+      debug: var={{ new_overcloud_full.stat.md5 }}
+
+- name: prep the new overcloud-full image for glance
+  hosts: undercloud
+  tasks:
+    - name: untar the overcloud images
+      shell: >
+        pushd {{ instack_user_home }}/overcloud_images;
+        tar -xvf "{{ item }}.tar"
+      with_items: "{{ installer.images[product.full_version].mixed_version_files|list }}"
+      when: installer.overcloud_images is defined and installer.overcloud_images == "import"
+
+    - name: list the files in overcloud_images
+      command: ls -la {{ instack_user_home }}/overcloud_images/

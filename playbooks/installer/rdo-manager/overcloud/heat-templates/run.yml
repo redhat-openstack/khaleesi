@@ -2,6 +2,23 @@
 - name: Copy over and modify network config template
   hosts: undercloud
   tasks:
+      - name: copy tht templates to home if it doesnt exist
+        shell: >
+            if [ ! -d "{{ instack_user_home }}/local_tht" ]; then
+                cp -a /usr/share/openstack-tripleo-heat-templates/ {{ instack_user_home }}/local_tht;
+            fi
+
+      - name: copy controller file
+        sudo: yes
+        copy:
+          src="{{ base_dir }}/khaleesi/playbooks/post-deploy/rdo-manager/updates/templates/controller.yaml"
+          dest="{{ instack_user_home }}/local_tht/network/config/single-nic-vlans/controller.yaml"
+        when: installer.updates is defined and
+              installer.updates.enabled|bool and
+              product.build_version is defined and
+              product.build_version == 'ga-7.1' or
+              product.build_version == 'ga-7.2'
+
       - name: make a nic-configs dir
         file: path={{ instack_user_home }}/nic-configs state=directory
         when: installer.network.isolation != 'none'
@@ -9,7 +26,7 @@
       #the long line in this task fails when broken up
       - name: copy over standard nic-configs default directory
         shell: >
-            cp /usr/share/openstack-tripleo-heat-templates/network/config/{{ installer.network.isolation | replace('_', '-') | replace("-ipv6", "") }}/*.yaml {{ instack_user_home }}/nic-configs
+            cp {{ instack_user_home }}/local_tht/network/config/{{ installer.network.isolation | replace('_', '-') | replace("-ipv6", "") }}/*.yaml {{ instack_user_home }}/nic-configs
         when: installer.network.isolation != 'none' and installer.network.isolation != 'default'
 
       #the long line in this task fails when broken up
@@ -62,6 +79,7 @@
 
       - name: fetch template from single remote host
         tls_tht:
+            source_dir: "{{ instack_user_home }}/local_tht/"
             dest_dir: "{{ instack_user_home }}/"
             cert_filename: "overcloud-cacert.pem"
             cert_ca_filename: "overcloud-cacert.pem"

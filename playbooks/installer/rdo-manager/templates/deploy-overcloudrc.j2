@@ -3,7 +3,6 @@ export OVERCLOUD_LIBVIRT_TYPE={{ hw_env.libvirt_type }}
 export DEPLOY_COMMAND="openstack overcloud deploy --debug \
                                                   --log-file overcloud_deployment_{{ 100 | random }}.log \
                                                   {{ installer.deploy.command }} \
-                                                  {{ installer.custom_deploy.command }} \
                                                   --libvirt-type=$OVERCLOUD_LIBVIRT_TYPE \
                                                   --ntp-server {{ distro.config.ntp_server_ip }} \
                                                   --control-scale $CONTROLSCALE \
@@ -34,19 +33,19 @@ export DEPLOY_TIMEOUT={{ hw_env.deploy_timeout | default('90') }}
 export DEPLOY_COMMAND="$DEPLOY_COMMAND --timeout=$DEPLOY_TIMEOUT "
 
 {% if installer.network.isolation != 'none' and installer.network.protocol == "ipv4" %}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml"
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/environments/network-isolation.yaml"
 {% endif %}
 
 {% if installer.network.isolation != 'none' and installer.network.protocol == "ipv6" %}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation-v6.yaml"
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/environments/network-isolation-v6.yaml"
 {% endif %}
 
 {% if installer.network.isolation != 'none' and installer.env.type == "virthost" and installer.network.protocol == "ipv4" %}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml"
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/environments/net-single-nic-with-vlans.yaml"
 {% endif %}
 
 {% if installer.network.isolation != 'none' and installer.env.type == "virthost" and installer.network.protocol == "ipv6" %}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans-v6.yaml"
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/environments/net-single-nic-with-vlans-v6.yaml"
 {% endif %}
 
 {% if installer.network.isolation != 'none' %}
@@ -64,16 +63,16 @@ export DEPLOY_COMMAND="$DEPLOY_COMMAND -e ~/enable-tls.yaml \
 
 {% if installer.deploy.type == 'templates' and product.build is defined and product.build != 'ga' %}
 if [ "$CEPHSTORAGESCALE" -gt "0" ]; then
-  export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/storage-environment.yaml"
+  export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/environments/storage-environment.yaml"
 fi
 {% endif %}
 
 {% if installer.custom_deploy.type != 'none' and installer.custom_deploy.type == 'openstack_virtual_baremetal' %}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND -e ~/openstack-virtual-baremetal/templates/overcloud-env/ovb.yaml "
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e ~/openstack-virtual-baremetal/templates/kilo/overcloud-env/ovb.yaml "
 {% endif %}
 
 {% if product.full_version != '7-director' %}
-export DEPLOY_COMMAND="$DEPLOY_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/puppet-pacemaker.yaml"
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/environments/puppet-pacemaker.yaml"
 {% endif %}
 
 export DEPLOY_COMMAND="$DEPLOY_COMMAND -e ~/default-overcloud-settings.yaml"

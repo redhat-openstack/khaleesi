@@ -1,6 +1,6 @@
 ---
 - name: setup networking on virt for network isolation
-  hosts: undercloud:&virthost
+  hosts: undercloud
   tasks:
       - name: net-iso virt setup vlans (ipv4)
         shell: >

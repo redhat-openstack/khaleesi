@@ -1,4 +1,4 @@
 installer:
     deploy:
         type: templates
-        command: '--templates'
+        command: '--templates /home/stack/local_tht/ '

@@ -20,14 +20,3 @@
           src="{{ base_dir }}/khaleesi-settings/hardware_environments/common/plan-parameter-neutron-bridge.yaml"
           dest="{{ instack_user_home }}/plan-parameter-neutron-bridge.yaml"
         when: installer.network.isolation != 'none' and installer.deploy.type == 'plan'
-
-      - name: copy controller file
-        sudo: yes
-        copy:
-          src="{{ base_dir }}/khaleesi/playbooks/post-deploy/rdo-manager/updates/templates/controller.yaml"
-          dest="/usr/share/openstack-tripleo-heat-templates/network/config/single-nic-vlans/controller.yaml"
-        when: installer.updates is defined and
-              installer.updates.enabled|bool and
-              product.build_version is defined and
-              product.build_version == 'ga-7.1' or
-              product.build_version == 'ga-7.2'

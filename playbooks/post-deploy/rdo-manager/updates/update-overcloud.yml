@@ -22,11 +22,18 @@
           openstack management plan list | grep overcloud | cut -d " " -f2
       when: installer.deploy.type == 'plan'
 
+    - name: remove local tripleo heat template
+      file: path={{ instack_user_home }}/local_tht state=absent
+
+    - name: copy updated tht directory to user home directory
+      shell: >
+          cp -R /usr/share/openstack-tripleo-heat-templates/ {{ instack_user_home }}/local_tht;
+
     - name: copy controller file
       sudo: yes
       copy:
         src="{{ base_dir }}/khaleesi/playbooks/post-deploy/rdo-manager/updates/templates/controller.yaml"
-        dest="/usr/share/openstack-tripleo-heat-templates/network/config/single-nic-vlans/controller.yaml"
+        dest="{{ instack_user_home }}/local_tht/network/config/single-nic-vlans/controller.yaml"
       when: product.build_version is defined and
             product.build_version == 'ga-7.1' or
             product.build_version == 'ga-7.2'

@@ -7,12 +7,12 @@ export UPDATE_COMMAND="$UPDATE_COMMAND --plan {{ overcloud_uuid }}"
 {% endif %}
 
 {% if installer.deploy.type == 'templates' %}
-export UPDATE_COMMAND="$UPDATE_COMMAND --templates /usr/share/openstack-tripleo-heat-templates -e /usr/share/openstack-tripleo-heat-templates/overcloud-resource-registry-puppet.yaml "
+export UPDATE_COMMAND="$UPDATE_COMMAND --templates {{ instack_user_home }}/local_tht -e {{ instack_user_home }}/local_tht/overcloud-resource-registry-puppet.yaml "
 {% endif %}
 
 {% if installer.network.isolation != 'none' %}
-export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/network-isolation.yaml "
-export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml "
+export UPDATE_COMMAND="$UPDATE_COMMAND -e {{ instack_user_home }}/local_tht/environments/network-isolation.yaml "
+export UPDATE_COMMAND="$UPDATE_COMMAND -e {{ instack_user_home }}/local_tht/environments/net-single-nic-with-vlans.yaml "
 {% endif %}
 
 {% if installer.network.isolation != 'none' and installer.deploy.type == 'plan' %}
@@ -20,15 +20,15 @@ export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/plan-parameter-neutron-bridge.yaml "
 {% endif %}
 
 {% if product.build_version == 'ga-7.0' %}
-export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/updates/update-from-keystone-admin-internal-api.yaml "
+export UPDATE_COMMAND="$UPDATE_COMMAND -e {{ instack_user_home }}/local_tht/environments/updates/update-from-keystone-admin-internal-api.yaml "
 {% endif %}
 
 {% if installer.network.isolation == 'none' and product.build_version == 'ga-7.0' %}
-export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/updates/update-from-publicvip-on-ctlplane.yaml "
+export UPDATE_COMMAND="$UPDATE_COMMAND -e {{ instack_user_home }}/local_tht/environments/updates/update-from-publicvip-on-ctlplane.yaml "
 {% endif %}
 
 {% if product.build_version == 'ga-7.1'and installer.network.isolation != 'none' %}
-export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/updates/update-from-vip.yaml "
+export UPDATE_COMMAND="$UPDATE_COMMAND -e {{ instack_user_home }}/local_tht/environments/updates/update-from-vip.yaml "
 {% endif %}
 
 {% if installer.network.isolation != 'none' or product.build_version == 'ga-7.1' %}

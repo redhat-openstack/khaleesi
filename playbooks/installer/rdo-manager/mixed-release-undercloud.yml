@@ -1,0 +1,4 @@
+---
+- include: instack-virt-setup.yml
+- include: install-undercloud.yml
+- include: images/run.yml

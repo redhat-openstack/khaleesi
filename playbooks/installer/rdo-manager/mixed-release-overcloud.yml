@@ -1,0 +1,4 @@
+---
+- include: images/mixed_release.yml
+- include: images/upload.yml
+- include: overcloud/main.yml

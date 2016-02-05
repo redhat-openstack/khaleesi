@@ -15,11 +15,11 @@
 
       - name: copy tripleo-heat-templates to custom
         shell: >
-            cp -r /usr/share/openstack-tripleo-heat-templates/ {{ instack_user_home }}/custom
+            cp -r /usr/share/openstack-tripleo-heat-templates/ {{ instack_user_home }}/local_tht
 
       - name: add the necessary hieradata configuration
         shell: >
-            echo "neutron::agents::ml2::ovs::firewall_driver: neutron.agent.firewall.NoopFirewallDriver" >> {{ instack_user_home }}/custom/puppet/hieradata/common.yaml
+            echo "neutron::agents::ml2::ovs::firewall_driver: neutron.agent.firewall.NoopFirewallDriver" >> {{ instack_user_home }}/local_tht/puppet/hieradata/common.yaml
 
       - name: create param.ini file
         local_action: shell echo "DNS_SERVER={{ hw_env.dns_server }}" > {{ base_dir }}/param.ini

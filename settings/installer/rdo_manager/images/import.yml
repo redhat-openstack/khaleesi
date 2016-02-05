@@ -1,4 +1,7 @@
 ---
+# images.product.full_version.files is for undercloud and overcoud deployments of the same product version
+# images.product.full_version.mixed_version_files are for undercloud and overcloud product versions that do not match.
+# In the case the version is mixed, one only needs to replace the overcloud-full image
 installer:
   overcloud_images: import
   images:
@@ -7,9 +10,13 @@ installer:
         - deploy-ramdisk-ironic
         - discovery-ramdisk
         - overcloud-full
+      mixed_version_files:
+        - overcloud-full
     '8-director':
       files:
         - ironic-python-agent
+        - overcloud-full
+      mixed_version_files:
         - overcloud-full
     url:
       rhos:
@@ -24,3 +31,8 @@ installer:
         '8-director':
           latest:
             '8.0': !lookup private.installer.images.rhos.8_director.latest.8.0
+  latest_repo:
+    '7-director':
+      puddle: !lookup private.installer.latest_repo.7_director.puddle
+    '8-director':
+      puddle: !lookup private.installer.latest_repo.8_director.puddle
