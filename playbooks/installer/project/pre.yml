@@ -50,9 +50,6 @@
         shell: "rhos-release -x;  rhos-release  -d {{ product.version.major }}"
         when: product.repo.type is defined and product.repo.type in ['poodle']
 
-      - name: Print installed repositores
-        shell: "yum repolist -d 7"
-
 - name: print out test env
   hosts: controller
   gather_facts: yes

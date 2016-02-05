@@ -1,4 +1,21 @@
 ---
+- name: disable any repos specified
+  sudo: yes
+  shell: yum-config-manager --disable {{ item }}
+  with_items: test_cfg.setup.disable_repos
+  when:
+      test_cfg.setup | default(false) and test_cfg.setup.disable_repos | default(false)
+
+- name: enable any additional repos to be used
+  sudo: yes
+  shell: yum-config-manager --enable {{ item }}
+  with_items: test_cfg.setup.enable_repos
+  when:
+      test_cfg.setup | default(false) and test_cfg.setup.enable_repos | default(false)
+
+- name: grab short reposlist
+  shell: yum repolist all
+
 - name: install test dependencies rpm needed to run test
   sudo: yes
   yum: pkg={{ item }} state=latest

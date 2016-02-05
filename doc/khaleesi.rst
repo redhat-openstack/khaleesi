@@ -392,6 +392,14 @@ rpm_deps: [ gcc, git, "{{ hostvars[inventory_hostname][tester.component.tox_targ
 # The RPMs that shouldn't be installed when running tests, no matter which tester chosen
 remove_rpm: [ "{{ hostvars[inventory_hostname][tester.component.tox_target]['remove_rpm'] }}" ]
 
+# Any additional repos besides defaults that should be enabled to support testing
+# the repos need to be already installed.  this just allows you to enable them.
+add_additional_repos: [ ]
+
+# Any repos to be disabled to support testing
+# this just allows you to disable them.
+remove_additional_repos: [ ]
+
 # Common pre-run steps for all testers
 neutron_virt_run_config:
   run: >
@@ -410,6 +418,8 @@ test_config:
   virt:
     RedHat-7:
       setup:
+        enable_repos: "{{ add_additional_repos }}" # Optional. When you would like to look in additional places for RPMs
+        disable_repos: "{{ remove_additional_repos }}" # Optional. When you would like to remove repos to search
         install: "{{ rpm_deps }}" # Optional. When you would like to install requirements
         remove: "{{ remove_rpm }}" # Optional. When you would like to remove packages
       run: "{{ neutron_virt_run_config.run }}" # A must. The actual command used to run the tests
