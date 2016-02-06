@@ -40,7 +40,7 @@ job:
         - /home/stack/network-environment.yaml
         - /usr/share/openstack-tripleo-heat-templates
 
-workaournds:
+workarounds:
     rhbz1304367:
-        desc: "Workaround RHBZ1304367: overcloud deployment finished successfully and Ceph's OSDs are down"
+        desc: "Overcloud deployment finished successfully and Ceph's OSDs are down"
         enabled: True
