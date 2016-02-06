@@ -27,7 +27,7 @@ defaults:
     images: import
     version: 7
     network: no-isolation
-    ssl: no
+    ssl: "no"
 
 job:
     archive:
