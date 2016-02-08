@@ -6,9 +6,6 @@
     - name: Group by provisioner type
       group_by: key={{ provisioner.type }}
 
-    - name: Group for skipping the provisioning step
-      group_by: key={{ provisioner.skip }}
-
     - name: Add the host to the inventory
       add_host:
         name="host0"
@@ -19,7 +16,7 @@
         ansible_ssh_host="{{ lookup('env', 'BEAKER_MACHINE') }}"
 
 - name: Use beaker to provision the machine
-  hosts: localhost:!skip_provision
+  hosts: localhost
   tasks:
     - name: Check if beakerCheckOut.sh script exists
       stat: path="{{base_dir}}/khaleesi-settings/beakerCheckOut.sh"
