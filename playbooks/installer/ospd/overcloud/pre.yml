@@ -82,6 +82,10 @@
         shell: "crudini --set /etc/ironic/ironic.conf conductor max_time_interval 200"
         become_user: root
 
+      - name: restart ironic service to reload value
+        shell: "openstack-service restart nova"
+        become_user: root
+
       - name: assign the kernel and ramdisk before introspection begins
         shell: "source ~/stackrc; openstack baremetal configure boot"
 

@@ -71,10 +71,15 @@
             chdir: "~/tempest-dir"
 
       - name: run tempest
-        shell: "tools/run-tests.sh --parallel --concurrency 8"
+        shell: "tools/run-tests.sh --parallel --concurrency 8 &> tempest_run.log"
         args:
             chdir: "~/tempest-dir"
         ignore_errors: yes
+
+      - name: print last 30 lines of tempest run for status
+        shell: "tail -n30 tempest_run.log"
+        args:
+            chdir: "~/tempest-dir"
 
       - name: fetch tempest result
         fetch:

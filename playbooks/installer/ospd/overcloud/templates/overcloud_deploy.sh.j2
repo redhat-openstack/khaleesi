@@ -21,10 +21,11 @@ openstack overcloud deploy --debug \
                        -e {{ installer.overcloud.template_base }}/environments/storage-environment.yaml \
 {% endif %}
 {% if installer.overcloud.network.isolation.enable == "yes" %}
-                       -e {{ installer.overcloud.template_base }}/{{ installer.overcloud.network.template.file }} \
+                       -e {{ installer.overcloud.template_base }}/environments/network-isolation.yaml \
+                       -e {{ installer.overcloud.template_base }}/environments/net-three-nics-vlans.yaml \
 {% endif %}
 {% if installer.overcloud.use_ssl == "yes" %}
                        -e {{ installer.overcloud.template_base }}/environments/enable-tls.yaml \
                        -e {{ installer.overcloud.template_base }}/environments/inject-trust-anchor.yaml \
 {% endif %}
-                       --log-file overcloud_deployment_{{ 100 | random }}.log
+                       --log-file overcloud_deployment_{{ 100 | random }}.log &> overcloud_install.log

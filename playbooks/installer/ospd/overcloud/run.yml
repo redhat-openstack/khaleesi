@@ -35,3 +35,6 @@
 
       - name: execute the overcloud deploy script (should take ~30 minutes :) )
         shell: "bash ~/overcloud_deploy.sh"
+
+      - name: print the last few lines of the output to spot failures
+        shell: "tail -n30 overcloud_install.log"
