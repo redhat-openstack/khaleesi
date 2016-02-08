@@ -5,4 +5,4 @@ installer:
         network:
             isolation:
                 enable: "yes"
-                type: "three-nic-vlan"
+                type: "three-nics-vlan"
