@@ -39,6 +39,10 @@ export NODE_MEM={{ installer.nodes.node_mem | default('4096') }}
 export NODE_CPU={{ installer.nodes.node_cpu | default('1') }}
 {%endif %}
 
+{% if installer.nodes.node_disk is defined %}
+export NODE_DISK={{ installer.nodes.node_disk | default('50') }}
+{%endif %}
+
 {% if installer.nodes.undercloud_node_mem is defined %}
 export UNDERCLOUD_NODE_MEM={{ installer.nodes.undercloud_node_mem | default('4096') }}
 {%endif %}

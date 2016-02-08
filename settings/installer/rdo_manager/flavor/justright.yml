@@ -3,5 +3,6 @@ installer:
     nodes:
         node_mem: 6144
         node_cpu: 1
+        node_disk: 50
         undercloud_node_mem: 8192
         undercloud_node_cpu: 4

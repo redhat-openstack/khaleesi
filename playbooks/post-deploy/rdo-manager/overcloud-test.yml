@@ -1,6 +1,7 @@
 ---
 - include: overcloud-network.yml
 - include: overcloud-test-images.yml
+- include: overcloud-prep-ceph.yml
 
 - name: Group hosts by post action - tempest
   hosts: undercloud
