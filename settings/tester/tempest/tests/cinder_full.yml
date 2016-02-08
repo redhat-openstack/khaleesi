@@ -6,5 +6,9 @@ tester:
                     tempest.scenario.test_security_groups_basic_ops.TestSecurityGroupsBasicOps.test_multiple_security_groups,
                     tempest.scenario.test_network_basic_ops.TestNetworkBasicOps.test_connectivity_between_vms_on_different_networks,
                     tempest.scenario.test_network_v6.TestGettingAddress.test_dhcp6_stateless_from_os,
-                    tempest.scenario.test_snapshot_pattern.TestSnapshotPattern.test_snapshot_pattern]
-
+                    tempest.scenario.test_snapshot_pattern.TestSnapshotPattern.test_snapshot_pattern,
+                    tempest.api.volume.admin.test_volumes_backup.VolumesBackupsV1Test.test_volume_backup_create_get_detailed_list_restore_delete, # 7,6,5
+                    tempest.api.volume.admin.test_volumes_backup.VolumesBackupsV2Test.test_volume_backup_create_get_detailed_list_restore_delete, # 7,6,5
+                    tempest.scenario.test_minimum_basic.TestMinimumBasicScenario.test_minimum_basic_scenario, # only 7
+                    tempest.scenario.test_encrypted_cinder_volumes.TestEncryptedCinderVolumes.test_encrypted_cinder_volumes_cryptsetup, # only 6 and 5
+                    tempest.scenario.test_encrypted_cinder_volumes.TestEncryptedCinderVolumes.test_encrypted_cinder_volumes_luks]  # only 5
