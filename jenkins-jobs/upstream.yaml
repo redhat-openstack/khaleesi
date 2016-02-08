@@ -12,7 +12,6 @@
         - ksgen-builder-upstream:
             provisioner-distro: '{provisioner-distro}'
             provisioner-distro-version: '{provisioner-distro-version}'
-            provisioner-options: 'skip_provision'
             product: '{product}'
             product-version: '{product-version}'
             product-version-repo: '{product-version-repo}'
