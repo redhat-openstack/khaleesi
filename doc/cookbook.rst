@@ -54,7 +54,7 @@ or on Fedora 22::
 
     sudo dnf install -y python-virtualenv gcc
 
-Create the virtual envionment, install ansible, and ksgen util::
+Create the virtual environment, install ansible, and ksgen util::
 
     virtualenv venv
     source venv/bin/activate
@@ -155,24 +155,27 @@ Setup Configuration:
 ````````````````````
 What you will need:
 
-Ansible 1.9 installed I would recomend on a virtualenv::
+Ansible 1.9 installed I would recommend on a virtualenv::
 
     virtualenv foobar
     source foobar/bin/activate
-    pip install ansible==1.9.4
+    pip install ansible==1.9.2
 
 
 ``rdopkg`` is what is going to do the heavy lifting
 
     https://github.com/redhat-openstack/rdopkg
 
-.. Note:: The yum version is a bit old so it is better to install from source
+There's a public repo for the up to date version that can be installed like this::
 
-Like this::
+    wget https://copr.fedoraproject.org/coprs/jruzicka/rdopkg/repo/epel-7/jruzicka-rdopkg-epel-7.repo
+    sudo cp jruzicka-rdopkg-epel-7.repo /etc/yum.repos.d
 
-    git clone https://github.com/redhat-openstack/rdopkg
-    cd rdopkg
-    python setup.py develop --user
+    yum install -y rdopkg
+
+Newer fedora versions uses dnf instead of yum so for the last step use::
+
+    dnf install -y rdopkg
 
 You will aslo need a ``rhpkg`` or a ``fedpkg`` those can be obtained from yum or dnf::
 
@@ -181,6 +184,12 @@ You will aslo need a ``rhpkg`` or a ``fedpkg`` those can be obtained from yum or
 or::
 
     yum install -y fedpkg
+
+Again for newer fedora versions replace yum for dnf::
+
+    dnf install -y rhpkg
+    dnf install -y fedpkg
+
 
 In khaleesi will build the package locally (on a /tmp/tmp.patch_rpm_* directory) but in
 order to do that it needs a file called ``hosts_local`` on your khaleesi folder
