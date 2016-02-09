@@ -37,6 +37,7 @@
       if [ "{{ patch.upstream is defined }}" == "True" ]; then
           git remote add -f upstream {{ tmp_dir }}/dist-git/{{ patch.upstream is defined and patch.upstream.name }};
           git fetch upstream;
+          git fetch upstream --tags;
       fi;
   args:
     chdir: "{{ tmp_dir }}/dist-git/{{ patch.dist_git.name }}"
