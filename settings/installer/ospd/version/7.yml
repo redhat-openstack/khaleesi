@@ -6,4 +6,4 @@ installer:
         minor: 0
 
 defaults:
-    minor: 2
+    minor: 3
