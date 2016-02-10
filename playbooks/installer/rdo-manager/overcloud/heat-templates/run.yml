@@ -74,3 +74,8 @@
             update-ca-trust extract;
         sudo: true
         when: installer.ssl
+
+      - name: Copy default heat settings template
+        template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/default-overcloud-settings.j2
+                  dest={{ instack_user_home }}/default-overcloud-settings.yaml
+                  mode=0755
