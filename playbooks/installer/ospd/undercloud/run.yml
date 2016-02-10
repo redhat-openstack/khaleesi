@@ -27,6 +27,11 @@
 
       - name: install the undercloud (should take ~30 minutes :) )
         shell: "openstack undercloud install --debug &> undercloud_install.log"
+        register: undercloud_deployment
+        ignore_errors: yes
 
       - name: print the last 30 lines of the undercloud installation
         shell: "tail -n30 undercloud_install.log"
+
+      - fail: msg="Undercloud deployment failed... :("
+        failed_when: undercloud_deployment.rc != 0

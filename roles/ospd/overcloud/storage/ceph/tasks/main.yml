@@ -1,5 +1,5 @@
 - name: prepare ceph storage template
   template:
-      src: "templates/storage/ceph.yml.j2"
+      src: "ceph.yml.j2"
       dest: "{{ installer.overcloud.template_base }}/puppet/hieradata/ceph.yaml"
       mode: 0755
