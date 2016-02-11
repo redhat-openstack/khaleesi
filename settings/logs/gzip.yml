@@ -1,0 +1,3 @@
+---
+job:
+    gzip_logs: true

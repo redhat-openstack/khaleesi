@@ -53,6 +53,8 @@
                     --installer-topology={installer-topology} \
                     --installer-tempest={installer-tempest} \
                     --installer-tempest_skip_file=rdoci-{product}-{product-version}-{installer} \
+                    --logs=gzip \
+                    --logs-site=centosci \
                     --workarounds=enabled \
                     --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/{network-isolation}/hw_settings.yml \
                     ksgen_settings.yml
@@ -141,6 +143,8 @@
                     --installer-post_action={installer-post_action} \
                     --installer-topology={installer-topology} \
                     --installer-tempest={installer-tempest} \
+                    --logs=gzip \
+                    --logs-site=centosci \
                     --rpm=use-delorean \
                     --workarounds=enabled \
                     --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/{network-isolation}/hw_settings.yml \
@@ -222,6 +226,8 @@
                     --installer-topology={installer-topology} \
                     --installer-tempest={installer-tempest} \
                     --installer-tempest_skip_file=rdoci-{product}-{product-version}-{installer} \
+                    --logs=gzip \
+                    --logs-site=centosci \
                     --workarounds=enabled \
                     --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/{network-isolation}/hw_settings.yml \
                     --extra-vars product.repo.delorean_pin_version=$delorean_current_hash \
@@ -319,6 +325,8 @@
                     --installer-network={network} \
                     --installer-messaging=none \
                     --installer-config=no_change \
+                    --logs=gzip \
+                    --logs-site=centosci \
                     --workarounds=enabled \
                     --extra-vars @../khaleesi-settings/hardware_environments/virt_default/hw_settings.yml \
                     ksgen_settings.yml
@@ -399,6 +407,8 @@
                     --installer-network={network} \
                     --installer-messaging=none \
                     --installer-config=no_change \
+                    --logs=gzip \
+                    --logs-site=centosci \
                     --workarounds=enabled \
                     --extra-vars @../khaleesi-settings/hardware_environments/virt_default/hw_settings.yml \
                     --extra-vars product.repo.delorean_pin_version=$delorean_current_hash \
@@ -489,6 +499,8 @@
                     --product-version-build={pin} \
                     --product-version-repo={product-version-repo} \
                     --product-version={product-version} \
+                    --logs=gzip \
+                    --logs-site=centosci \
                     --workarounds=enabled \
                     --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/{network-isolation}/hw_settings.yml \
                     ksgen_settings.yml

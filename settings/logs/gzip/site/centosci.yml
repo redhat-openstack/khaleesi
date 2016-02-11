@@ -1,0 +1,5 @@
+---
+job:
+    rsync_logs: true
+    rsync_path: rdo@artifacts.ci.centos.org::rdo
+    artifact_url: https://ci.centos.org/artifacts/rdo

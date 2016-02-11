@@ -1,8 +1,2 @@
 provisioner:
     url: 'http://admin.ci.centos.org:8080/'
-
-job:
-    gzip_logs: true
-    rsync_logs: true
-    rsync_path: rdo@artifacts.ci.centos.org::rdo
-    artifact_url: https://ci.centos.org/artifacts/rdo

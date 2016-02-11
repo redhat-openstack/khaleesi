@@ -1,0 +1,5 @@
+---
+job:
+    rsync_logs: true
+    rsync_path: !lookup private.logs.downstream.rsync_path
+    artifact_url: !lookup private.logs.downstream.artifact_url

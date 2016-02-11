@@ -171,19 +171,30 @@
   hosts: localhost
   gather_facts: no
   tasks:
+    - name: ensure collected_files dir exists
+      file:
+        path: "{{ base_dir }}/khaleesi/collected_files"
+        state: directory
+
     - name: fetch and gzip the console log
       shell: |
         curl {{ lookup('env', 'BUILD_URL') }}/consoleText | gzip > {{ base_dir }}/khaleesi/collected_files/console.txt.gz
-      when: job.rsync_logs is defined and job.rsync_logs
       ignore_errors: true
+      when: job.rsync_logs is defined and job.rsync_logs and "{{ lookup('env', 'BUILD_URL') }}" != ""
 
-    - name: upload to the artifact server
+    - name: upload to the artifact server using password
       shell:
         RSYNC_PASSWORD=`echo $PROVISIONER_KEY|cut -b 1-13` rsync -av {{ base_dir }}/khaleesi/collected_files/ {{ job.rsync_path }}/$BUILD_TAG
-      when: job.rsync_logs is defined and job.rsync_logs
       ignore_errors: true
+      when: job.rsync_logs is defined and job.rsync_logs and "{{ lookup('env', 'PROVISIONER_KEY') }}" != ""
+
+    - name: upload to the artifact server using pubkey auth
+      shell:
+        rsync -av {{ base_dir }}/khaleesi/collected_files/ {{ job.rsync_path }}/$BUILD_TAG
+      ignore_errors: true
+      when: job.rsync_logs is defined and job.rsync_logs and "{{ lookup('env', 'PROVISIONER_KEY') }}" == ""
 
     - name: create the artifact location redirect file
       template: src={{ base_dir }}/khaleesi/playbooks/templates/full_logs.html.j2 dest={{ base_dir }}/khaleesi/collected_files/full_logs.html
-      when: job.rsync_logs is defined and job.rsync_logs
       ignore_errors: true
+      when: job.rsync_logs is defined and job.rsync_logs
