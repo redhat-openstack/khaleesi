@@ -9,7 +9,6 @@ installer:
         - overcloud-full
     '8-director':
       files:
-        - deploy-ramdisk-ironic
         - ironic-python-agent
         - overcloud-full
     url:
