@@ -1,5 +1,9 @@
 export DIB_LOCAL_IMAGE={{ distro.images[distro.name][distro.full_version].guest_image_name }}
 
+{% if product.name == 'rdo' %}
+export RDO_RELEASE={{ product.full_version }}
+{%endif %}
+
 {% if product.repo_type is defined and product.repo_type in ["poodle", "puddle"] %}
 export DIB_YUM_REPO_CONF="{{installer.dib_dir}}/rhos-release-{{product.repo.core_product_version}}-director.repo {{installer.dib_dir}}/rhos-release-{{product.repo.core_product_version}}.repo {{installer.dib_dir}}/rhos-release-rhel-{{distro.full_version}}.repo"
 export USE_DELOREAN_TRUNK=0
