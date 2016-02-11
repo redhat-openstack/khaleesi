@@ -25,6 +25,8 @@ export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-temp
 export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/network-environment.yaml "
 {% endif %}
 
-{% if installer.network.isolation == 'none' %}
+{% if installer.network.isolation == 'none' and (product.version.major,product.version.minor)|join("") == '70' %}
 export UPDATE_COMMAND="$UPDATE_COMMAND -e /usr/share/openstack-tripleo-heat-templates/environments/updates/update-from-publicvip-on-ctlplane.yaml "
 {% endif %}
+
+export UPDATE_COMMAND="$UPDATE_COMMAND -e ~/default-overcloud-settings.yaml"

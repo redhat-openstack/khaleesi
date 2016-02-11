@@ -6,52 +6,11 @@
       when: installer.updates is defined and
             installer.updates.enabled|bool
 
-- name: Fetch updates files
-  hosts: update:!overcloud
-  tasks:
-    - name: fetch 55-heat-config script BZ 1278181
-      fetch:
-        src: "/usr/share/openstack-heat-templates/software-config/elements/heat-config/os-refresh-config/configure.d/55-heat-config"
-        dest: "{{ lookup('env', 'PWD') }}/55-heat-config"
-        flat: yes
-      when: workaround.rhbz1278181.enabled|bool
-
-    - name: fetch heat-config-rebuild-deployed script BZ 1278181
-      fetch:
-        src: "/usr/share/openstack-heat-templates/software-config/elements/heat-config/bin/heat-config-rebuild-deployed"
-        dest: "{{ lookup('env', 'PWD') }}/heat-config-rebuild-deployed"
-        flat: yes
-      when: workaround.rhbz1278181.enabled|bool
-
 - name: Dump packages list
   hosts: update:!undercloud
   tasks:
     - name: dump package list
       shell: rpm -qa &> {{ ansible_ssh_host }}-rpm.log
-
-    - name: copy 55-heat-config file to node BZ 1278181
-      sudo: yes
-      copy:
-        src: "{{ lookup('env', 'PWD') }}/55-heat-config"
-        dest: "/usr/libexec/os-refresh-config/configure.d/55-heat-config"
-        mode: 0755
-      when: workaround.rhbz1278181.enabled|bool
-
-    - name: copy file to node BZ 1278181
-      sudo: yes
-      copy:
-        src: "{{ lookup('env', 'PWD') }}/heat-config-rebuild-deployed"
-        dest: "/home/heat-admin/heat-config-rebuild-deployed"
-        mode: 0755
-      when: workaround.rhbz1278181.enabled|bool
-
-    - name: copy and make heat-config rebuild executable
-      shell: >
-        sudo mkdir -p /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin;
-        sudo cp /home/heat-admin/heat-config-rebuild-deployed  \
-        /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin/heat-config-rebuild-deployed;
-        sudo chmod +x  /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin/heat-config-rebuild-deployed;
-        sudo /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin/heat-config-rebuild-deployed
 
 - name: Update the Overcloud
   hosts: update:!overcloud
@@ -68,12 +27,22 @@
         overcloud_uuid: "{{ overcloud_uuid_result.stdout }}"
       when: installer.deploy.type == 'plan'
 
-    - name: copy template file for update overcloud workaround BZ 1272347
-      template:
-        src=templates/upgrade.yml.j2
-        dest={{ instack_user_home }}/upgrade.yml
-        mode=0755
-      when: workaround.rhbz1272347.enabled|bool
+    - name: get neutron port
+      register: control_virtual_ip
+      shell: >
+        source /home/stack/stackrc;
+        neutron port-show control_virtual_ip -c fixed_ips -f value | jq -r .ip_address
+
+    - name: lineinfile
+      lineinfile:
+        dest: "/home/stack/network-environment.yaml"
+        line: "  ControlFixedIPs: [{'ip_address':'{{control_virtual_ip.stdout}}'}]"
+
+    - name: delete control_virtual_ip port
+      shell: >
+        source /home/stack/stackrc;
+        neutron port-delete control_virtual_ip
+      when: "{{product.version.major}}{{product.version.minor}} == 71"
 
     - name: copy template file for update overcloud
       template:
@@ -93,6 +62,7 @@
       ignore_errors: yes
       shell: >
           source {{ instack_user_home }}/stackrc;
+          export HEAT_INCLUDE_PASSWORD=1;
           {{ overcloud_update_command.stdout }} &> update_overcloud_console.log
 
     - name: get neutron debug info after updates
@@ -112,6 +82,11 @@
       shell: >
           source {{ instack_user_home }}/stackrc;
           heat stack-list | grep 'UPDATE_COMPLETE'
+
+    - name: heat resource list
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          heat resource-list overcloud
 
     - name: fail when status is not COMPLETE
       fail: msg="Overcloud update failed"
