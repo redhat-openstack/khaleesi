@@ -46,6 +46,8 @@
         - tests-publishers
         - email:
             recipients: whayutin@redhat.com adarazs@redhat.com
+    triggers:
+        - timed: '@daily'
 
 - project:
     name: rdo-manager-centosci-feature-jobs
