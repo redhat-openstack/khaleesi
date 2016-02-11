@@ -157,7 +157,7 @@
   tasks:
     - name: Wait for Reachable Nodes
       wait_for:
-          host: "{{ ansible_ssh_host }}"
+          host: "{{ hostvars[inventory_hostname].ansible_ssh_host }}"
           port: 22
           search_regex: OpenSSH
           timeout: 600

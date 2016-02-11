@@ -26,7 +26,7 @@
            auth_url: "{{ provisioner.foreman.auth_url }}"
            username: "{{ provisioner.foreman.username }}"
            password: "{{ provisioner.foreman.password }}"
-           host_id: "{{ ansible_ssh_host }}"
+           host_id: "{{ hostvars[inventory_hostname].ansible_ssh_host }}"
            rebuild: "{{ rebuild }}"
            wait_for_host: "{{ provisioner.foreman.wait_for_host|lower }}"
       retries: 4
