@@ -2,13 +2,13 @@
 #coding: utf-8 -*-
 
 try:
-    from time import sleep
+    import time
     from keystoneclient.v2_0 import client as ksclient
     from heatclient.client import Client
     from heatclient.common import template_utils
     from heatclient.common import utils
 except ImportError:
-    print("failed=True msg='heatclient, keystoneclient are required'")
+    print("failed=True msg='heatclient and keystoneclient is required'")
 
 DOCUMENTATION = '''
 ---
@@ -67,109 +67,100 @@ EXAMPLES = '''
 # Create a stack with given template and environment files
 - name: create stack
   heat_stack:
-    stack_name: test
-    state: present
     login_username: admin
     login_password: admin
-    auth_url: http://192.168.1.14:5000/v2.0
-    login_tenant_name: admin
+    auth_url: "http://192.168.1.14:5000/v2.0"
     tenant_name: admin
-    template: /home/stack/test.yaml
+    stack_name: test
+    state: present
+    template: "/home/stack/ovb/templates/quintupleo.yaml"
+    environment_files: ['/home/stack/ovb/templates/resource-registry.yaml','/home/stack/ovb/templates/env.yaml']
+
+    - name: delete stack
+      heat_stack:
+        stack_name: test
+        state: absent
+        login_username: admin
+        login_password: admin
+        auth_url: "http://192.168.1.14:5000/v2.0"
+        tenant_name: admin
 '''
 
-_os_keystone   = None
-_os_tenant_id  = None
-_os_network_id = None
-_inc = 0
+def obj_gen_to_dict(gen):
+    """Enumerate through generator of object and return lists of dictonaries.
+    """
+    obj_list = []
+    for obj in gen:
+        obj_list.append(obj.to_dict())
+    return obj_list
 
-def _get_ksclient(module, kwargs):
-    try:
-        kclient = ksclient.Client(username=kwargs.get('login_username'),
-                                 password=kwargs.get('login_password'),
-                                 tenant_name=kwargs.get('login_tenant_name'),
-                                 auth_url=kwargs.get('auth_url'))
-    except Exception, e:
-        module.fail_json(msg = "Error authenticating to the keystone: %s" %e.message)
-    global _os_keystone
-    _os_keystone = kclient
-    return kclient
 
-def _get_endpoint(module, ksclient):
-    try:
-        endpoint = ksclient.service_catalog.url_for(service_type='orchestration', endpoint_type='publicURL')
-    except Exception, e:
-        module.fail_json(msg = "Error getting network endpoint: %s" % e.message)
-    return endpoint
+class Stack(object):
 
-def _set_tenant_id(module):
-    global _os_tenant_id
-    if not module.params['tenant_name']:
-        _os_tenant_id = _os_keystone.tenant_id
-    else:
-        tenant_name = module.params['tenant_name']
+    def __init__(self, kwargs):
+        self.client = self._get_client(kwargs)
 
-        for tenant in _os_keystone.tenants.list():
-            if tenant.name == tenant_name:
-                _os_tenant_id = tenant.id
-                break
-    if not _os_tenant_id:
-        module.fail_json(msg = "The tenant id cannot be found, please check the parameters")
+    def _get_client(self, kwargs, endpoint_type='publicURL'):
+        """ get heat client """
+        kclient = ksclient.Client(**kwargs)
+        token = kclient.auth_token
+        endpoint = kclient.service_catalog.url_for(service_type='orchestration',
+                                                    endpoint_type=endpoint_type)
+        kwargs = {
+                'token': token,
+        }
+        return Client('1', endpoint=endpoint, token=token)
 
-def _get_heat_client(module, kwargs):
-    _ksclient = _get_ksclient(module, kwargs)
-    token     = _ksclient.auth_token
-    endpoint  = _get_endpoint(module, _ksclient)
-    try:
-        heat = Client('1', endpoint=endpoint, token=token)
-    except Exception, e:
-        module.fail_json(msg = " Error in connecting to heat: %s" % e.message)
-    return heat
+    def create(self, name,
+                template_file,
+                env_file=None,
+                format='json'):
+        """ create heat stack with the given template and environment files """
+        self.client.format = format
+        tpl_files, template = template_utils.get_template_contents(template_file)
+        env_files, env = template_utils.process_multiple_environments_and_files(env_paths=env_file)
 
-def _create_stack(module, heat):
-    heat.format = 'json'
-    template_file = module.params['template']
-    env_file = module.params['environment_files']
-    tpl_files, template = template_utils.get_template_contents(template_file)
-    env_files, env = template_utils.process_multiple_environments_and_files(env_paths=env_file)
+        stack = self.client.stacks.create(stack_name=name,
+                                   template=template,
+                                   environment=env,
+                                   files=dict(list(tpl_files.items()) + list(env_files.items())),
+                                   parameters={})
+        uid = stack['stack']['id']
 
-    stack = heat.stacks.create(stack_name=module.params['stack_name'],
-                               template=template,
-                               environment=env,
-                               files=dict(list(tpl_files.items()) + list(env_files.items())),
-                               parameters={})
-    uid = stack['stack']['id']
-
-    stack = heat.stacks.get(stack_id=uid).to_dict()
-    while stack['stack_status'] == 'CREATE_IN_PROGRESS':
-        stack = heat.stacks.get(stack_id=uid).to_dict()
-        sleep(5)
-    if stack['stack_status'] == 'CREATE_COMPLETE':
-        return stack['id']
-    else:
-        module.fail_json(msg = "Failure in creating stack: ".format(stack))
-
-def _list_stack(module, heat):
-    fields = ['id', 'stack_name', 'stack_status', 'creation_time',
-              'updated_time']
-    uids = []
-    stacks = heat.stacks.list()
-    return utils.print_list(stacks, fields)
-
-def _delete_stack(module, heat):
-    heat.stacks.delete(module.param['stack_name'])
-    return _list_stack
-
-def _get_stack_id(module, heat):
-    stacks = heat.stacks.list()
-    while True:
-        try:
-            stack = stacks.next()
-            if module.params['stack_name'] == stack.stack_name:
-                return stack.id
-        except StopIteration:
-            break
+        stack = self.client.stacks.get(stack_id=uid).to_dict()
+        while stack['stack_status'] == 'CREATE_IN_PROGRESS':
+            stack = self.client.stacks.get(stack_id=uid).to_dict()
+            time.sleep(5)
+        if stack['stack_status'] == 'CREATE_COMPLETE':
+            return stack
+        else:
             return False
 
+    def list(self):
+        """ list created stacks """
+        fields = ['id', 'stack_name', 'stack_status', 'creation_time',
+                  'updated_time']
+        uids = []
+        stacks = self.client.stacks.list()
+        utils.print_list(stacks, fields)
+        return obj_gen_to_dict(stacks)
+
+    def delete(self, name):
+        """ delete stack with the given name """
+        self.client.stacks.delete(name)
+        return self.list()
+
+    def get_id(self, name):
+        """ get stack id by name """
+        stacks = self.client.stacks.list()
+        while True:
+            try:
+                stack = stacks.next()
+                if name == stack.stack_name:
+                    return stack.id
+            except StopIteration:
+                break
+                return False
 def main():
 
     argument_spec = openstack_argument_spec()
@@ -181,24 +172,39 @@ def main():
             tenant_name             = dict(default=None),
     ))
     module = AnsibleModule(argument_spec=argument_spec)
-    heat = _get_heat_client(module, module.params)
-    _set_tenant_id(module)
+    state = module.params['state']
+    stack_name = module.params['stack_name']
+    template = module.params['template']
+    environment_files = module.params['environment_files']
+    kwargs = {
+                'username':  module.params['login_username'],
+                'password':  module.params['login_password'],
+                'tenant_name':  module.params['tenant_name'],
+                'auth_url':  module.params['auth_url']
+            }
+
+    stack = Stack(kwargs)
     if module.params['state'] == 'present':
-        stack_id = _get_stack_id(module, heat)
+        stack_id = stack.get_id(stack_name)
         if not stack_id:
-            stack_id = _create_stack(module, heat)
-            module.exit_json(changed = True, result = "Created" , id = stack_id)
+            stack = stack.create(name=stack_name,
+                                        template_file=template,
+                                        env_file=environment_files)
+            if not stack:
+                module.fail_json(msg="Failed to create stack")
+            module.exit_json(changed = True, result = "Created" , stack = stack)
         else:
             module.exit_json(changed = False, result = "success" , id = stack_id)
     else:
-        stack_id = _get_stack_id(module, stack)
+        stack_id = stack.get_id(stack_name)
         if not stack_id:
             module.exit_json(changed = False, result = "success")
         else:
-            _delete_stack(module, stack, stack_id)
+            stack.delete(stack_name)
             module.exit_json(changed = True, result = "deleted")
 
 # this is magic, see lib/ansible/module.params['common.py
 from ansible.module_utils.basic import *
 from ansible.module_utils.openstack import *
-main()
+if __name__ == '__main__':
+    main()
