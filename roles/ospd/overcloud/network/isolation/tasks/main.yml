@@ -4,7 +4,7 @@
       dest: "{{ installer.overcloud.template_base }}/isolation_params.yml"
 
 - name: append our params to the network isolation file
-  shell: "cat {{ installer.overcloud.template_base }}/isolation_params.yml >> {{ installer.overcloud.template_base }}/environments/network-isolation.yaml"
+  shell: "cat {{ installer.overcloud.template_base }}/isolation_params.yml >> {{ installer.overcloud.template_base }}/{{ installer.overcloud.network.template.file }}"
 
 # Until https://review.openstack.org/#/c/214372 is merged, create the three-nics-vlans
 - name: create folder for three per-role nic configuration
