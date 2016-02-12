@@ -4,6 +4,10 @@
   become: yes
   become_user: "{{ installer.user.name }}"
   gather_facts: no
+  pre_tasks:
+      - fail:
+            msg: "Stopping before editing of the overcloud templates per user request"
+        failed_when: break is defined and break == "before_editing_overcloud_templates"
   roles:
       - {role: ospd/overcloud/network/isolation/, when: installer.overcloud.network.isolation.enable == "yes"}
       - {role: ospd/overcloud/ssl/, when: installer.overcloud.use_ssl == "yes"}
@@ -32,6 +36,10 @@
       - name: the create overcloud script
         shell: "cat ~/overcloud_deploy.sh"
 
+      - fail:
+            msg: "Stopping before the overcloud installation per user request"
+        failed_when: break is defined and break == "before_overcloud_installation"
+
       - name: execute the overcloud deploy script (should take ~30 minutes :) )
         shell: "bash ~/overcloud_deploy.sh"
         register: overcloud_deploy
@@ -42,3 +50,7 @@
 
       - fail: msg="Overcloud deployment failed... :("
         failed_when: overcloud_deploy.rc != 0
+
+      - fail:
+            msg: "Stopping after the overcloud installation per user request"
+        failed_when: break is defined and break == "after_overcloud_installation"

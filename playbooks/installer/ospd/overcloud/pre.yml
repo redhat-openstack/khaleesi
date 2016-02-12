@@ -6,6 +6,10 @@
   gather_facts: no
   become: yes
   become_user: "{{ installer.user.name }}"
+  pre_tasks:
+      - fail:
+            msg: "Stopping before building/importing the images per user request"
+        failed_when: break is defined and break == "before_images"
   roles:
       - {role: ospd/overcloud/images/build, when: installer.images.task == "build"}
       - {role: ospd/overcloud/images/import, when: installer.images.task == "import"}
@@ -78,6 +82,10 @@
       - name: register our hosts to instack
         shell: "source ~/stackrc; openstack baremetal import --json instackenv.json"
 
+      - fail:
+            msg: "Stopping before kernel and ramdisk assignment per user request"
+        failed_when: break is defined and break == "before_kernel_ramdisk_assignment"
+
       - name: assign the kernel and ramdisk before introspection begins
         shell: "source ~/stackrc; openstack baremetal configure boot"
 
@@ -112,15 +120,14 @@
 
 - name: Introspec nodes and Create flavors
   hosts: undercloud
-  gather_facts: yes
-  tags: debug
-
-- name: Introspec nodes and Create flavors
-  hosts: undercloud
   become: yes
   become_user: "{{ installer.user.name }}"
   gather_facts: no
   tasks:
+      - fail:
+            msg: "Stopping before introspection per user request"
+        failed_when: break is defined and break == "before_introspection"
+
       - name: start node introspection (should take ~20 minutes :) )
         shell: "source ~/stackrc; openstack baremetal introspection bulk start"
 
@@ -134,6 +141,10 @@
 
       - name: update neutron DNS server
         shell: "source ~/stackrc; neutron subnet-update {{ subnet_id.stdout }} --dns-nameserver {{ nameserver.stdout }}"
+
+      - fail:
+            msg: "Stopping before creating node flavors per user request"
+        failed_when: break is defined and break == "before_flavor_creation"
 
       - name: create the baremetal flavor for our machines
         shell: "source ~/stackrc; openstack flavor create --id auto --ram 4096 --disk 16 --vcpus 1 baremetal"

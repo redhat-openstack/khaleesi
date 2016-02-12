@@ -1,4 +1,11 @@
 ---
+- name: Break point
+  hosts: localhost
+  tasks:
+      - fail:
+            msg: "Stopping after provisioning per user request"
+        failed_when: break is defined and break == "after_provision"
+
 - name: Set selinux state
   hosts: openstack_nodes
   sudo: yes
