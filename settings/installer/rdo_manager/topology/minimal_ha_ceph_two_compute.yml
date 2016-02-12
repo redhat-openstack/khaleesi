@@ -1,6 +1,7 @@
 --- !extends:minimal.yml
 installer:
     topology_name: minimal_ha_ceph_two_compute
+    nodes:
         node_count: 6
         controller:
             scale: 3
