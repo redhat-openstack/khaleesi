@@ -1,0 +1,3 @@
+--- !extends:../../openstack/site/qeos7.yml
+# File can't be blank
+peace: and love

@@ -1,0 +1,8 @@
+--- !extends:common/common.yml
+
+provisioner:
+    type: heat
+
+defaults:
+    site: qeos7
+    topology: ovb_1controller_1compute

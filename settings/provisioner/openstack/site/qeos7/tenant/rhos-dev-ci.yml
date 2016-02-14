@@ -1,0 +1,3 @@
+--- !extends:common/image.yml
+provisioner:
+    tenant_name: rhos-dev-ci

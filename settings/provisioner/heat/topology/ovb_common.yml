@@ -1,0 +1,58 @@
+provisioner:
+    extension: ovb
+    stack_name: '{{ product.name }}-{{ tmp.node_prefix }}stack'
+
+    jinja_templates:
+        - env.yaml
+    heat_template: '{{ base_dir }}/openstack-virtual-baremetal/templates/quintupleo.yaml'
+    environment_files:
+        "['{{ base_dir }}/openstack-virtual-baremetal/templates/resource-registry.yaml', '{{ base_dir }}/khaleesi/{{ tmp.node_prefix }}env.yaml']"
+    create_pvt_net_template: '{{ base_dir }}/openstack-virtual-baremetal/templates/private-net-create.yaml'
+
+    nodes:
+        undercloud:
+            name: '{{ tmp.node_prefix }}undercloud'
+            image_name: !lookup provisioner.images[ !lookup distro.name ][ !lookup distro.full_version ].name
+            flavor_name: !lookup provisioner.flavor.large.name
+            remote_user: !lookup provisioner.images[ !lookup distro.name ][ !lookup distro.full_version ].remote_user
+        bmc:
+            name: '{{ tmp.node_prefix }}bmc'
+            image_name: !lookup provisioner.images.centos.7.name
+            flavor_name: !lookup provisioner.flavor.medium.name
+            remote_user: !lookup provisioner.images.centos.7.remote_user
+        baremetal:
+            name: '{{ tmp.node_prefix }}baremetal'
+            image_name: 'empty'
+            flavor_name: !lookup provisioner.flavor.c1xlarge.name
+            remote_user: !lookup provisioner.images[ !lookup distro.name ][ !lookup distro.full_version ].remote_user
+
+    network:
+        external_net_name: '10.8.184.0/22'
+        router:
+            name: '{{ tmp.node_prefix }}router'
+        os_net_config:
+            ip_netmask: 192.0.2.1/24
+            interface:
+                names:
+                    - 'eth1'
+                    - 'eth2'
+                mtu: 1450
+            ovs_bridge:
+                name: 'br-int'
+                mtu: 1450
+        network_list:
+            public:
+                name: '{{ tmp.node_prefix }}public'
+                subnet_name: '{{ tmp.node_prefix }}public-subnet'
+                cidr: 10.0.0.0/24
+                enable_dhcp: False
+            provision:
+                name: '{{ tmp.node_prefix }}provision'
+                subnet_name: '{{ tmp.node_prefix }}provision-subnet'
+                cidr: 192.0.2.0/24
+                enable_dhcp: False
+            private:
+                name: '{{ tmp.node_prefix }}private'
+                subnet_name: '{{ tmp.node_prefix }}private-subnet'
+                cidr: 10.1.1.0/24
+

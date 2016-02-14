@@ -1,0 +1,7 @@
+--- !extends:ovb_common.yml
+
+# used for settings in env.yaml
+provisioner:
+    nodes:
+        baremetal:
+            node_count: 2

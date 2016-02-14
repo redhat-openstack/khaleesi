@@ -1,0 +1,3 @@
+--- !extends:../../../../openstack/site/qeos7/user/rhos-component-ci.yml
+# File can't be blank
+mario: and luigi
