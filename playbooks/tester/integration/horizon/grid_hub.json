@@ -10,6 +10,6 @@
   "cleanUpCycle": 5000,
   "timeout": 300000,
   "browserTimeout": 0,
-  "maxSession": 5,
+  "maxSession": 10,
   "unregisterIfStillDownAfter": 10000
 }
