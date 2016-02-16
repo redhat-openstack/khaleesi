@@ -5,7 +5,7 @@ provisioner:
             name: '{{ tmp.node_prefix }}controller'
             hostname:
             rebuild: no
-            flavor_id: !lookup provisioner.flavor.large
+            flavor_id: !lookup provisioner.flavor.large.id
             image_id: !lookup provisioner.images[ !lookup distro.name ][ !lookup distro.full_version ].id
             remote_user: !lookup provisioner.images[ !lookup distro.name ][ !lookup distro.full_version ].remote_user
             network: &network_params

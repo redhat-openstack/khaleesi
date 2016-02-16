@@ -21,11 +21,27 @@ provisioner:
                     allocation_pool_end: 192.168.1.220
 
     flavor:
-        tiny:  1
-        small: 2
-        medium: 3
-        large: 4
-        large_testing: fd702dfe-5c74-4000-913c-fedde57a34fe
-        large_ephemeral: 78696021-bf5c-47f7-8de6-1d06e1f67c04
-        medlarge: 16
-        xlarge: 5
+        tiny:
+            name: 'm1.tiny'
+            id: 1
+        small:
+            name: 'm1.small'
+            id: 2
+        medium:
+            name: 'm1.medium'
+            id: 3
+        large:
+            name: 'm1.large'
+            id: 4
+        large_testing:
+            name: 'm1.large_testing'
+            id: fd702dfe-5c74-4000-913c-fedde57a34fe
+        large_ephemeral:
+            name: 'm1.large_ephemeral'
+            id: 78696021-bf5c-47f7-8de6-1d06e1f67c04
+        medlarge:
+            name: 'm1.medlarge'
+            id: 16
+        xlarge:
+            name: 'm1.xlarge'
+            id: 5

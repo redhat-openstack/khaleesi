@@ -5,6 +5,9 @@ provisioner:
         type: neutron
         use_floating_ip: true
     flavor:
-        small: 2
-        medium: 3
-        large: 4
+        small:
+            id: 2
+        medium:
+            id: 3
+        large:
+            id: 4

@@ -4,10 +4,16 @@ provisioner:
         name: external
         type: neutron
     flavor:
-        tiny:  1
-        small: 2
-        medium: 3
-        large: 3
-        medlarge: 4
-        xlarge: 9
+        tiny:
+            id: 1
+        small:
+            id: 2
+        medium:
+            id: 3
+        large:
+            id: 3
+        medlarge:
+            id: 4
+        xlarge:
+            id: 9
 

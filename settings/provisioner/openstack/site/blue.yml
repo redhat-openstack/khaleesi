@@ -35,10 +35,14 @@ provisioner:
           remote_user: cloud-user}
 
     flavor:
-        tiny:  1
-        small: 2
-        medium: 3
-        large: f972a6d2-b780-4450-b016-cd5c25e64482
+        tiny:
+            id: 1
+        small:
+            id: 2
+        medium:
+            id: 3
+        large:
+            id: f972a6d2-b780-4450-b016-cd5c25e64482
 
     storage:
         shares:

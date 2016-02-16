@@ -43,10 +43,18 @@ provisioner:
         # because they are mostly unused right now).
         # The recheck could lead to a bigger change to flavor definitions
         # (see CENTRALCI-1189)
-        small: 3
-        medium: 4
-        large: 4
-        large_testing: c6e0ad85-81a8-4fbb-a2d9-b0abac52f79b
-        large_ephemeral: a89c1587-aab2-49c2-a60d-4d19ea40bdbc
-        medlarge: d4cb47aa-9278-4762-9d89-b8c6693a46e9
-        xlarge: 5
+        small:
+            name: 'm1.medium'
+            id: 3
+        medium:
+            name: 'm1.large'
+            id: 4
+        large_testing:
+            name: 'm1.large_testing'
+            id: c6e0ad85-81a8-4fbb-a2d9-b0abac52f79b
+        large_ephemeral:
+            name: 'm1.large_ephemeral'
+            id: a89c1587-aab2-49c2-a60d-4d19ea40bdbc
+        medlarge:
+            name: 'm1.medlarge'
+            id: d4cb47aa-9278-4762-9d89-b8c6693a46e9

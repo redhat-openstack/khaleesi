@@ -4,8 +4,14 @@ provisioner:
         name: public
         type: nova
     flavor:
-        tiny:  1
-        small: a26385a9-b3a5-4032-9881-d89be090a20d
-        medium: a26385a9-b3a5-4032-9881-d89be090a20d
-        large: 765adee7-9aaa-40a8-bc76-9092ffc0d189
-        xlarge: 2ca1fba7-e106-4b2b-821e-3f5587a146d7
+        tiny:
+            id: 1
+        small:
+            id: a26385a9-b3a5-4032-9881-d89be090a20d
+        medium:
+            id: a26385a9-b3a5-4032-9881-d89be090a20d
+        large:
+            id: 765adee7-9aaa-40a8-bc76-9092ffc0d189
+        xlarge:
+            id: 2ca1fba7-e106-4b2b-821e-3f5587a146d7
+

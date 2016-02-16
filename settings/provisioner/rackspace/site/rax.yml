@@ -4,7 +4,11 @@ provisioner:
         name: public
         type: nova
     flavor:
-        tiny:  1
-        small: 2
-        medium: 3
-        large: 4
+        tiny:
+            id: 1
+        small:
+            id: 2
+        medium:
+            id: 3
+        large:
+            id: 4
