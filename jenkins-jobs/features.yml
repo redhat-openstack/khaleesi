@@ -42,8 +42,7 @@
             co-owners:
                 - adarazs at redhat.com
     publishers:
-        - default-publishers
-        - tests-publishers
+        - feature-publishers
         - email:
             recipients: whayutin@redhat.com adarazs@redhat.com
     triggers:

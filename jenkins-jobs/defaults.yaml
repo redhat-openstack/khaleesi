@@ -134,6 +134,24 @@
           skip-tag: true
 
 - publisher:
+    name: feature-publishers
+    publishers:
+        - archive:
+            artifacts: '**/collected_files/*.tar.gz, **/collect_logs.txt, **/cleanup.txt, **/ksgen_settings.yml, **/full_logs.html'
+        - post-tasks:
+            - matches:
+                - log-text: Build was aborted
+                  operator: AND
+              escalate-status: false
+              script: |
+                source ~/ansible_venv/bin/activate
+                ansible --version
+                source $WORKSPACE/khaleesi-settings/jenkins/ansible_rdo_mang_settings.sh
+                cd $WORKSPACE/khaleesi
+                anscmd="stdbuf -oL -eL ansible-playbook -vv --extra-vars @ksgen_settings.yml"
+                $anscmd -i local_hosts playbooks/cleanup.yml
+
+- publisher:
     name: default-publishers
     publishers:
         - archive:
