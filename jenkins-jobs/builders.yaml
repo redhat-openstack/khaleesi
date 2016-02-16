@@ -430,6 +430,8 @@
                 fi
 
                 infra_result=0
+                sed -i -e "/\(overcloud*\|ceph\|compute\|controller\)/d" $(readlink hosts)
+                $anscmd -i hosts playbooks/installer/rdo-manager/overcloud/ansible-inventory.yml
                 $anscmd -i hosts playbooks/collect_logs.yml &> collect_logs.txt || infra_result=1
                 $anscmd -i local_hosts playbooks/cleanup.yml &> cleanup.txt || infra_result=2
 

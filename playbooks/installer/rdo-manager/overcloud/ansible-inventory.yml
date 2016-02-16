@@ -40,7 +40,7 @@
         ansible_fqdn={{ item.value }}
         ansible_ssh_user="heat-admin"
         ansible_ssh_private_key_file="{{ lookup('env', 'PWD') }}/id_rsa_undercloud"
-      when: item.key.startswith('overcloud-compute')
+      when: item.key.startswith('overcloud-compute') or item.key.startswith('overcloud-novacompute')
 
     - name: add each overcloud ceph node to ansible
       with_dict: overcloud_nodes.stdout
