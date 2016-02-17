@@ -1,23 +1,41 @@
 provisioner:
-  images:
-    centos:
-      '7.0': {id: f0946f26-ff90-4cd7-a2db-c03820acf13e, name: CentOS-7-x86_64-GenericCloud-20140829_01,
-        remote_user: centos}
-      '7.1': {id: c064b47b-f1a3-47cc-8634-c774f4023fcc, name: CentOS-7.1.1503-x86_64-GenericCloud,
-        remote_user: centos}
-      '7': {id: c064b47b-f1a3-47cc-8634-c774f4023fcc, name: CentOS-7.1.1503-x86_64-GenericCloud,
-        remote_user: centos}
-    fedora:
-      '23': {id: fe4b2936-0bb4-496e-90c0-18069d79c61a, name: Fedora-Cloud-Base-23-20151113-py27.x86_64,
-        remote_user: fedora}
-    rhel:
-      '6.6': {id: faae17d6-371f-4911-a8ea-ed04578b49d1, name: rhel-guest-image-6.6-20150127.0,
-        remote_user: cloud-user}
-      '6.7': {id: 183d828c-8801-444f-b834-feebd9f6510f, name: rhel-guest-image-6.7-20150702.0,
-        remote_user: cloud-user}
-      '7.0': {id: 44ede052-1e0d-40b1-8f49-77a9c7e55a8e, name: rhel-guest-image-7.0-20150127.0,
-        remote_user: cloud-user}
-      '7.1': {id: 5cf5b0a3-6e65-486d-b1a8-c3443963676c, name: rhel-guest-image-7.1-20150224.0,
-        remote_user: cloud-user}
-      '7.2': {id: 08d890ed-eb53-4e42-a46e-dfa2aaa4f946, name: rhel-guest-image-7.2-20160219.1,
-        remote_user: cloud-user}
+    images:
+        centos:
+            '7.0':
+                id: f0946f26-ff90-4cd7-a2db-c03820acf13e
+                name: CentOS-7-x86_64-GenericCloud-20140829_01.qcow2
+                remote_user: centos
+            '7.1':
+                id: c064b47b-f1a3-47cc-8634-c774f4023fcc
+                name: CentOS-7.1.1503-x86_64-GenericCloud.qcow2
+                remote_user: centos
+            '7':
+                id: c064b47b-f1a3-47cc-8634-c774f4023fcc
+                name: CentOS-7.1.1503-x86_64-GenericCloud.qcow2
+                remote_user: centos
+        fedora:
+            '23':
+                id: fe4b2936-0bb4-496e-90c0-18069d79c61a
+                name: Fedora-Cloud-Base-23-20151113-py27.x86_64
+                remote_user: fedora
+        rhel:
+            '6.6':
+                id: faae17d6-371f-4911-a8ea-ed04578b49d1
+                name: rhel-guest-image-6.6-20150127.0
+                remote_user: cloud-user
+            '6.7':
+                id: 183d828c-8801-444f-b834-feebd9f6510f
+                name: rhel-guest-image-6.7-20150702.0
+                remote_user: cloud-user
+            '7.0':
+                id: 44ede052-1e0d-40b1-8f49-77a9c7e55a8e
+                name: rhel-guest-image-7.0-20150127.0
+                remote_user: cloud-user
+            '7.1':
+                id: 5cf5b0a3-6e65-486d-b1a8-c3443963676c
+                name: rhel-guest-image-7.1-20150224.0
+                remote_user: cloud-user
+            '7.2':
+                id: 08d890ed-eb53-4e42-a46e-dfa2aaa4f946
+                name: rhel-guest-image-7.2-20160219.1
+                remote_user: cloud-user
