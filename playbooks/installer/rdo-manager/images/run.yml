@@ -13,7 +13,7 @@
         name: python-passlib
         state: present
       sudo: yes
-      when: workarounds.rhbz1278972 is defined
+      when: workarounds | bug('rhbz1278972')
 
     - name: setup environment vars
       template: src={{ base_dir }}/khaleesi/playbooks/installer/rdo-manager/templates/build-img-env.j2
