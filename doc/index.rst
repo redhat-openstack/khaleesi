@@ -20,6 +20,7 @@ Contents:
    jjb
    jenkins
    cookbook
+   log_collection
 
 
 Indices and tables
