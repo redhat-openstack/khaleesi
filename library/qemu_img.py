@@ -59,6 +59,7 @@ notes:
   - This module does not change the type of the image.
 '''
 
+from ansible.module_utils.basic import AnsibleModule
 import os
 
 def main():

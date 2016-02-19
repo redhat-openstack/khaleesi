@@ -64,6 +64,7 @@ examples:
 # module
 # ###
 
+from ansible.module_utils.basic import AnsibleModule
 from functools import partial
 import json
 import re
