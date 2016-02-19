@@ -9,20 +9,15 @@
 - name: auth url
   set_fact: keystone_endpoint={{ keystone_endpoint }} | default({{ installer.validate.keystone_endpoint }})
 
-- name: get public ip
-  register: public_ip
-  shell: >
-    echo '{{ keystone_endpoint }}' | cut -d '/' -f3 | cut -d ':' -f1
-
-- name: get public port
-  register: public_port
-  shell: >
-    echo '{{ keystone_endpoint }}' | cut -d '/' -f3 | cut -d ':' -f2
+- name: extract ip and port from endpoint
+  urlparse:
+      url: '{{ keystone_endpoint }}'
+      facts_prefix: "public_"
 
 - name: check if openstack api is available
   wait_for:
-      host: "{{ public_ip.stdout }}"
-      port: "{{ public_port.stdout }}"
+      host: "{{ public_ip }}"
+      port: "{{ public_port }}"
       timeout: 60
       connect_timeout: 10
 
