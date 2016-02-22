@@ -2,7 +2,7 @@
 - include: pre-{{ tester.setup }}.yml
 
 - name: collect controller facts for tempest configuration
-  hosts: "{{ tester.host }}"
+  hosts: controller
   gather_facts: yes
 
 - name: Configure tempest

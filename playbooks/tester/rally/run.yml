@@ -1,6 +1,6 @@
 ---
 - name: Pull keystonerc
-  hosts: "{{ tester.host }}"
+  hosts: controller
   sudo: yes
   tasks:
       - name: Pull keystonerc_admin from controller

@@ -7,13 +7,13 @@
         set_fact: tests_path="{{ tester.component.dir }}"
 
 - name: Run pre tasks
-  hosts: "{{ tester.host }}"
+  hosts: controller
   gather_facts: yes
   roles:
     - component-test/pre
 
 - name: Configure Tempest
-  hosts: "{{ tester.host }}"
+  hosts: controller
   vars:
       controller_auth_url: "http://127.0.0.1:5000/v2.0"
       admin_password: "{{ hostvars[provisioner.nodes.controller.name].admin_password | default('redhat') }}"

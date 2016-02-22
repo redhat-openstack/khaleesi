@@ -1,6 +1,5 @@
 ---
 tester:
-    host: controller
     type: api
     name: api
     short_name: api

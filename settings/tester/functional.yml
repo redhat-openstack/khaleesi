@@ -1,6 +1,5 @@
 ---
 tester:
-    host: controller
     type: functional
     name: dsvm-functional
     short_name: func

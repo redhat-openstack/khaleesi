@@ -1,6 +1,6 @@
 ---
 - name: Create Coverage Report
-  hosts: "{{ tester.host }}"
+  hosts: controller
   gather_facts: no
   sudo: yes
   tasks:

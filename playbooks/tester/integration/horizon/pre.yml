@@ -3,7 +3,7 @@
 - include: ../common/upload_image.yml
 
 - name: Allow access to horizon from floating IP
-  hosts: "{{ tester.host }}"
+  hosts: controller
   sudo: yes
   gather_facts: no
   vars:
@@ -13,7 +13,7 @@
       - service: name=httpd state=restarted
 
 - name: Get the list of avaialble services
-  hosts: "{{ tester.host }}"
+  hosts: controller
   sudo: yes
   gather_facts: no
   environment:
@@ -56,7 +56,7 @@
         redhat_plugin_status="{{ redhat_access_status.stdout }}"
 
 - name: Prepare repository with tests
-  hosts: "{{ tester.host }}"
+  hosts: tester
   sudo: no
   gather_facts: no
   vars:

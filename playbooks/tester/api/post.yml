@@ -1,4 +1,4 @@
 ---
 - name: Post tester steps
   gather_facts: no
-  hosts: "{{ tester.host }}"
+  hosts: controller
