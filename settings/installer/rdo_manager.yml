@@ -59,6 +59,7 @@ defaults:
     flavor: justright
     tempest: minimal
     tempest_skip_file: none
+    topology: minimal
     updates: none
     custom_deploy: none
     introspection_method: bulk
