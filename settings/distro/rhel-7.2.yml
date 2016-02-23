@@ -13,4 +13,4 @@ distro:
 
 workarounds:
     rhbz1265306:
-        enabled: true
+        enabled: false
