@@ -12,6 +12,10 @@
       shell: >
             grep 'OS_AUTH_URL' {{ instack_user_home }}/overcloudrc | cut -d '=' -f2
 
+    - name: get ip version
+      shell: echo {{ installer.network.protocol | regex_replace('.*([4|6])$', '\\1') }}
+      register: ip_version
+
     - name: setup neutron network for floating ips
       register: public_network_uuid_result
       quantum_network:
@@ -31,6 +35,7 @@
       quantum_subnet:
           state: present
           auth_url: "{{ get_auth_url_result.stdout }}"
+          ip_version: "{{ ip_version.stdout }}"
           login_username: admin
           login_password: "{{ get_admin_password_result.stdout }}"
           login_tenant_name: admin
