@@ -12,16 +12,6 @@
         command: systemctl restart haproxy
         when: workarounds.enabled is defined and workarounds.enabled|bool and ha_config_file.stat.exists
 
-      - name: increase stack_action_timeout to 4 hours (workaround for bz 1243365)
-        sudo: yes
-        command: openstack-config --set /etc/heat/heat.conf DEFAULT stack_action_timeout 14400
-        when: workarounds.enabled is defined and workarounds.enabled|bool
-
-      - name: restart openstack-heat-engine (workaround for bz 1243365)
-        sudo: yes
-        command: systemctl restart openstack-heat-engine
-        when: workarounds.enabled is defined and workarounds.enabled|bool
-
       - name: check if haproxy is present (workaround bug bz 1246525)
         stat: path=/etc/haproxy/haproxy.cfg
         register: ha_config_file
