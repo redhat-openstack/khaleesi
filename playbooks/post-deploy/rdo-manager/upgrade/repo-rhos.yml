@@ -1,0 +1,52 @@
+- name: Group hosts by post action - upgrade
+  hosts: undercloud:overcloud
+  gather_facts: no
+  tasks:
+    - group_by: key="upgrade"
+      when: installer.upgrade is defined and
+            installer.upgrade.enabled|bool
+
+- name: Update dns server
+  hosts: upgrade:!undercloud
+  gather_facts: no
+  tasks:
+    - name: update dns server
+      sudo: yes
+      lineinfile: regexp="nameserver" line="nameserver {{ hw_env.dns_server }}" dest="/etc/resolv.conf"
+
+- name: Update yum repo
+  hosts: upgrade
+  sudo: yes
+  gather_facts: yes
+  tasks:
+      - name: Install release tool
+        command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/{{ product.name }}-release-latest.noarch.rpm"
+
+      - name: Remove repo
+        command: "rhos-release -x"
+
+      - name: Execute rhos-release for pinned osp-director puddle (osp)
+        command: "rhos-release -p {{ installer.upgrade.target_pin_version }} {{ installer.upgrade.target_full_version }}"
+        register: target_puddle
+        when: installer.upgrade.repo_type == 'puddle'
+
+      - name: Execute rhos-release for core rhos puddle (osp)
+        command: "rhos-release -p {{ installer.upgrade.target_pin_version }} {{ installer.upgrade.target_core_product_version }}"
+        register: pinned_puddle
+        when: installer.upgrade.repo_type == 'puddle'
+
+      - name: Execute rhos-release for osp-director puddle (osp)
+        command: "rhos-release -P {{ installer.upgrade.target_full_version }}"
+        when: installer.upgrade.repo_type == 'puddle'
+
+      - name: Execute rhos-release for osp-director poodle (osp)
+        command: "rhos-release -d {{ installer.upgrade.target_full_version }}"
+        when: installer.upgrade.repo_type == 'poodle'
+
+      - name: Execute rhos-release for pinned osp-director poodle (osp)
+        command: "rhos-release -d -p {{ installer.upgrade.target_pin_version }} {{ installer.upgrade.target_full_version }}"
+        register: target_poodle
+        when: installer.upgrade.repo_type == 'poodle'
+
+      - name: yum clean all
+        command: yum clean all

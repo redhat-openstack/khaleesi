@@ -1,6 +1,7 @@
 ---
 product:
   build: last_known_good
+  build_version: latest
   repo:
     core_product_version: 7
     puddle_pin_version: 'latest'

@@ -1,0 +1,21 @@
+- name: Group hosts by post action - upgrade
+  hosts: undercloud:overcloud
+  gather_facts: no
+  tasks:
+    - group_by: key="upgrade"
+      when: installer.upgrade is defined and
+            installer.upgrade.enabled|bool
+
+- name: Update yum repo
+  hosts: upgrade
+  sudo: yes
+  gather_facts: yes
+  tasks:
+      - name: Disable existing repos
+        shell: sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/*
+        register: shell_result
+        changed_when: "shell_result.rc == 0"
+        failed_when: "shell_result.rc > 2"
+
+      - name: Execute rhos-release for rdo-manager (rdo)
+        command: "rhos-release {{ installer.upgrade.target_full_version }}"

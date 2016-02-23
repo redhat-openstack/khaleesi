@@ -1,0 +1,4 @@
+installer:
+    upgrades:
+        target_full_version: 'kilo'
+        target_distro_version: !lookup distro.latest_version

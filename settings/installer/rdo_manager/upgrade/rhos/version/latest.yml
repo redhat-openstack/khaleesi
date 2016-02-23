@@ -1,0 +1,6 @@
+installer:
+    upgrade:
+        target_core_product_version: 8-director
+        target_full_version: 8-director
+        target_pin_version: latest
+        target_distro_version: !lookup distro.latest_version

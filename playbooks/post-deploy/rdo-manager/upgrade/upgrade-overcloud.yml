@@ -1,0 +1,168 @@
+- name: Group hosts by post action - upgrade
+  hosts: undercloud:overcloud
+  gather_facts: no
+  tasks:
+    - group_by: key="ocupgrade"
+      when: installer.upgrade is defined and
+            installer.upgrade.overcloud|bool
+
+- name: Dump packages list
+  hosts: ocupgrade:!undercloud
+  tasks:
+    - name: dump package list
+      shell: rpm -qa &> {{ ansible_ssh_host }}-rpm.log
+
+- name: Upgrade the Controller
+  hosts: ocupgrade:!overcloud
+  tasks:
+    - name: copy template file for delivery scripts
+      template:
+        src=templates/upgrade-script-delivery.j2
+        dest={{ instack_user_home }}/upgrade-script-deliveryrc
+        mode=0755
+
+    - name: copy template file for upgrade controller
+      template:
+        src=templates/upgrade-controllerrc.j2
+        dest={{ instack_user_home }}/upgrade-controllerrc
+        mode=0755
+
+    - name: copy template file for upgrade nodes
+      template:
+        src=templates/upgrade-nodesrc.j2
+        dest={{ instack_user_home }}/upgrade-nodesrc
+        mode=0755
+
+    - name: copy custom template file
+      template:
+        src=templates/custom.j2
+        dest={{ instack_user_home }}/custom.yaml
+        mode=0755
+
+    - name: remove local tripleo heat template
+      file: path={{ instack_user_home }}/tripleo-heat-templates state=absent
+
+    - name: copy updated tht directory to user home directory
+      shell: >
+          cp -R /usr/share/openstack-tripleo-heat-templates {{ instack_user_home }}/tripleo-heat-templates;
+
+    - name: workaround update_identifier BZ1321036
+      when: workarounds.enabled is defined and
+            workarounds.enabled|bool
+      template:
+        src=templates/upgrade.j2
+        dest={{ instack_user_home }}/upgrade.yaml
+        mode=0755
+
+    - name: lineinfile BZ1320333
+      when: workarounds.enabled is defined and
+            workarounds.enabled|bool
+      lineinfile:
+        dest: "/home/stack/tripleo-overcloud-passwords"
+        line: "OVERCLOUD_RABBITMQ_PASSWORD=guest"
+
+    - name: fix default route for controller
+      when: installer.network.isolation == 'single_nic_vlans'
+      shell: >
+        sed -i '/next_hop\: {get_param\: EC2MetadataIp}/a\                -\n                  default: true\n                  next_hop: {get_param: ControlPlaneDefaultRoute}' /home/stack/tripleo-heat-templates/network/config/single-nic-vlans/controller.yaml;
+        sed -i '/parameters:/a\  ControlPlaneDefaultRoute:\n    description: The subnet CIDR of the control plane network\n    type: string'  /home/stack/tripleo-heat-templates/network/config/single-nic-vlans/controller.yaml;
+
+    - name: restart openstack services
+      service: name={{item}} state=restarted
+      sudo: yes
+      with_items:
+          - openstack-heat-api
+          - openstack-heat-engine
+          - openstack-nova-api
+
+    - name: echo upgrade script delivery command
+      register: delivery_upgrade_command
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          source {{ instack_user_home }}/upgrade-script-deliveryrc;
+          echo $UPGRADE_COMMAND
+
+    - name: upgrade - script delivery
+      register: upgrade_delivery
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          {{ delivery_upgrade_command.stdout }} &> upgrade_script_delivery_console.log
+
+    - name: echo upgrade command
+      register: controller_upgrade_command
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          source {{ instack_user_home }}/upgrade-controllerrc;
+          echo $UPGRADE_COMMAND
+
+    - name: upgrade-overcloud
+      register: upgrade
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          {{ controller_upgrade_command.stdout }} &> upgrade_controller_console.log
+
+    - name: remove fingerprint checking in tripleo-common
+      sudo: yes
+      shell: >
+          sed -i 's/ssh/ssh -o StrictHostKeyChecking=no/' /bin/upgrade-non-controller.sh
+
+    - name: get compute uuid
+      register: compute_uuid
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          nova list | grep overcloud-novacompute-0  | awk '{ print $2; }'
+
+    - name: get ceph uuid
+      register: ceph_uuid
+      when: installer.nodes.cephstorage.scale != 0
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          nova list | grep overcloud-cephstorage-0  | awk '{ print $2; }'
+
+    - name: execute compute upgrade
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          /bin/upgrade-non-controller.sh \
+          --upgrade {{ compute_uuid.stdout }} &> upgrade_compute.log
+
+    - name: execute ceph upgrade
+      when: installer.nodes.cephstorage.scale != 0
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          /bin/upgrade-non-controller.sh \
+          --upgrade {{ ceph_uuid.stdout }} &> upgrade_ceph.log
+
+- name: Upgrade nodes
+  hosts: ocupgrade:!overcloud
+  tasks:
+    - name: echo upgrade command
+      register: nodes_upgrade_command
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          source {{ instack_user_home }}/upgrade-nodesrc;
+          echo $UPGRADE_COMMAND
+
+    - name: upgrade-nodes
+      register: upgrade
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          {{ nodes_upgrade_command.stdout }} &> upgrade_nodes_console.log
+
+    - name: get openstack-tripleo-heat-template version after upgrades
+      register: openstack-tripleo-heat-template_version
+      shell: >
+          rpm -qa | grep openstack-tripleo-heat-template
+
+    - name: heat stack-list
+      register: upgrade_status
+      ignore_errors: yes
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          heat stack-list | grep 'UPDATE_COMPLETE'
+
+    - name: fail when status is not COMPLETE
+      fail: msg="Overcloud update failed"
+      when: upgrade_status.rc != 0

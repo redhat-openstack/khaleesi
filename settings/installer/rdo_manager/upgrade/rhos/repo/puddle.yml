@@ -1,0 +1,3 @@
+installer:
+    upgrade:
+        repo_type: puddle

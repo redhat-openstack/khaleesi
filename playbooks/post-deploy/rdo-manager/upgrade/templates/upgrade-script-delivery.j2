@@ -1,0 +1,14 @@
+#!/bin/bash
+export UPGRADE_COMMAND="openstack overcloud deploy --templates tripleo-heat-templates -e tripleo-heat-templates/overcloud-resource-registry-puppet.yaml"
+
+{% if installer.network.isolation != 'none' %}
+export UPGRADE_COMMAND="$UPGRADE_COMMAND -e tripleo-heat-templates/environments/network-isolation.yaml "
+export UPGRADE_COMMAND="$UPGRADE_COMMAND -e tripleo-heat-templates/environments/net-single-nic-with-vlans.yaml "
+{% endif %}
+
+{% if installer.network.isolation != 'none' %}
+export UPGRADE_COMMAND="$UPGRADE_COMMAND -e ~/network-environment.yaml "
+{% endif %}
+
+export UPGRADE_COMMAND="$UPGRADE_COMMAND  -e tripleo-heat-templates/environments/puppet-pacemaker.yaml -e tripleo-heat-templates/environments/major-upgrade-pacemaker-init.yaml "
+export UPGRADE_COMMAND="$UPGRADE_COMMAND -e custom.yaml "

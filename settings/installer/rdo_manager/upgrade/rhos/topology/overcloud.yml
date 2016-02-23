@@ -1,0 +1,4 @@
+installer:
+    upgrade:
+        undercloud: false
+        overcloud: true
