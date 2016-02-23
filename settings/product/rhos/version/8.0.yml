@@ -6,5 +6,6 @@ product:
         code_name: liberty
 
 workarounds:
-    rhbz1300662: {}
+    rhbz1300662:
+        enabled: true
     rhbz1299563: {}
