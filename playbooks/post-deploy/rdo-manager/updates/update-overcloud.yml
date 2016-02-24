@@ -42,7 +42,8 @@
       shell: >
         source /home/stack/stackrc;
         neutron port-delete control_virtual_ip
-      when: "{{product.version.major}}{{product.version.minor}} == 71"
+      when: product.build_version is defined and
+        product.build_version == ga-7.1
 
     - name: copy template file for update overcloud
       template:
