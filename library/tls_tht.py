@@ -93,7 +93,7 @@ def create_anchor_file(cert_ca_pem, source_dir, dest_dir):
     output_dict["parameter_defaults"]["SSLRootCertificate"] = cert_ca_pem
 
     output_dict["resource_registry"]["OS::TripleO::NodeTLSCAData"] = \
-        "{}/puppet/extraconfig/tls/tls-cert-inject.yaml".format(source_dir)
+        "{}/puppet/extraconfig/tls/ca-inject.yaml".format(source_dir)
 
     with open("{}inject-trust-anchor.yaml".format(dest_dir), "w") as stream:
         yaml.safe_dump(output_dict, stream, default_style='|')
