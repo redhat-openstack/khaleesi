@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: python-novaclient
+        short_name: py-novaclnt
+        dir: !join [ !env WORKSPACE, /python-novaclient]
+        dist_git: python-novaclient
+        codeng: python-novaclient
+        config_file: jenkins-config.yml
