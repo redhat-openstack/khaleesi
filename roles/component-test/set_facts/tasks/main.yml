@@ -1,0 +1,31 @@
+---
+- name: Set component directory name based on installer settings
+  set_fact: component_dir_path={{ installer.component.dir }}
+  when: installer.component.dir is defined
+
+- name: Set component directory name based on tester settings
+  set_fact: component_dir_path={{ tester.component.dir }}
+  when: tester.component.dir is defined
+
+- name: Set component config file based on installer settings
+  set_fact: component_config={{ installer.component.config_file }}
+  when: installer.component.config_file is defined
+
+- name: Set component config file based on tester settings
+  set_fact: component_config={{ tester.component.config_file }}
+  when: tester.component.config_file is defined
+
+- name: Set directory basename
+  set_fact: component_basename={{ component_dir_path.split('/')|last }}
+
+- name: Set path for the test dependencies file used by the test-run
+  set_fact: test_deps_file="{{ component_dir_path + '/' + component_config }}" #"
+
+- name: Set major release
+  set_fact: major_release="{{ ansible_distribution + '-' + ansible_distribution_version.split('.')[0] }}"
+
+- name: Set full release
+  set_fact: full_release="{{ ansible_distribution + '-' + ansible_distribution_version }}"
+
+- name: Set component path
+  set_fact: component_path={{ ansible_env.HOME + '/' + component_basename }}

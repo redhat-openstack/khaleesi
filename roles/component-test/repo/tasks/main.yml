@@ -1,0 +1,27 @@
+---
+- name: Disable any existing repos
+  sudo: yes
+  shell: sed -i 's/enabled=1/enabled=0/' /etc/yum.repos.d/*
+  register: shell_result
+  changed_when: "shell_result.rc == 0"
+  failed_when: "shell_result.rc > 2"
+
+- name: Install release tool on machines
+  sudo: yes
+  command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/{{ product.name }}-release-latest.noarch.rpm"
+
+- name: Execute the release tool
+  sudo: yes
+  shell: "{{ product.name }}-release {{ product.version.major }}"
+  register: shell_result
+  changed_when: "shell_result == 0"
+
+- name: Create the RHOS poodle repository
+  sudo: yes
+  shell: "rhos-release -x;  rhos-release  -d {{ product.version.major }}"
+  when: product.repo.type is defined and product.repo.type in ['poodle']
+
+# Install COPR (test depedencies) repos
+- name: Install the COPR repo required for component tests
+  sudo: yes
+  template: src=../../copr/templates/component-test-copr-repo.j2 dest=/etc/yum.repos.d/test-reqs-copr.repo

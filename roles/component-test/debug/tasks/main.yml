@@ -1,0 +1,14 @@
+---
+- name: Insatller component directory
+  debug: var=installer.component.dir
+  when: installer.component.dir is defined
+
+- name:  Tester component directory
+  debug: var=tester.component.dir
+  when: tester.component.dir is defined
+
+- name: Ansible user home directory
+  debug: var=ansible_env.HOME
+
+- name: Testing environment name
+  debug: var=test.env_name

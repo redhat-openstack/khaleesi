@@ -1,0 +1,16 @@
+---
+- name: load project configuration
+  include_vars: "{{test_deps_file}}"
+  register: result
+
+- name: set test_env
+  set_fact: test_env="{{ test_config.virt[item]|default(omit) }}"
+  with_items:
+      - "{{ major_release }}"
+      - "{{ full_release }}"
+
+- name: Clean and create logs dir 
+  file: path={{ ansible_env.HOME }}/logs/ state={{ item }}
+  with_items:
+      - absent
+      - directory

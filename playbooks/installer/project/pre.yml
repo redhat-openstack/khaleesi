@@ -1,64 +1,9 @@
 ---
-- name: set required facts
+- name: Preparation tasks for installing the project
   hosts: controller
-  tasks:
-      - name: compute the directory basename
-        set_fact: component_basename={{ installer.component.dir.split('/')|last }}
-
-      - name: find the test dependencies file used for the test-run
-        set_fact: test_deps_file="{{ installer.component.dir + '/' + installer.component.config_file }}" #"
-
-- name: load test config
-  hosts: controller
-  tasks:
-      - name: load config
-        include_vars: "{{test_deps_file}}"
-        register: result
-
-      #TODO(abregman): add major and minor version in distro settings
-      - name: set major release
-        set_fact: major_release="{{ ansible_distribution + '-' + ansible_distribution_version.split('.')[0] }}"
-
-      - name: set full release
-        set_fact: full_release="{{ ansible_distribution + '-' + ansible_distribution_version }}"
-
-      - name: set test_env
-        set_fact: test_env="{{ test_config.virt[item]|default(omit) }}"
-        with_items:
-            - "{{ major_release }}"
-            - "{{ full_release }}"
-
-- name: Install tests depedencies repo
-  hosts: controller
+  gather_facts: yes 
   roles:
-      - component-test/copr
-
-- name: Setup openstack repos
-  hosts: controller
-  gather_facts: yes
-  sudo: yes
-  tasks:
-      - name: Install release tool on machines
-        command: "yum localinstall -y {{ product.rpmrepo[ansible_distribution] }}/{{ product.name }}-release-latest.noarch.rpm"
-
-      - name: Execute the release tool
-        shell: "{{ product.name }}-release {{ product.version.major }}"
-        register: shell_result
-        changed_when: "shell_result == 0"
-
-      - name: Create the RHOS poodle repository
-        shell: "rhos-release -x;  rhos-release  -d {{ product.version.major }}"
-        when: product.repo.type is defined and product.repo.type in ['poodle']
-
-- name: print out test env
-  hosts: controller
-  gather_facts: yes
-  tasks:
-      - name: installer.component.dir
-        debug: var=installer.component.dir
-
-      - name: HOME dir
-        debug: var=ansible_env.HOME
-
-      - name: test environment name
-        debug: var=test.env_name
+    - component-test/set_facts
+    - component-test/setup_env
+    - component-test/repo
+    - component-test/debug

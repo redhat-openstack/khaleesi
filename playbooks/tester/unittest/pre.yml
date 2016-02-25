@@ -1,6 +1,9 @@
 ---
-- name: Preparation tasks
+- name: Preparation tasks for unit tests
   hosts: controller
   gather_facts: yes
   roles:
-    - component-test/pre
+    - component-test/set_facts
+    - component-test/setup_env
+    - component-test/repo
+    - component-test/debug

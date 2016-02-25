@@ -1,6 +1,8 @@
 - name: print the test setup  command
   debug: var=test_cfg
 
+- include: rpms.yml
+
 - name: Run tests ...
   shell: >
     export PATH=$PATH:/usr/sbin;

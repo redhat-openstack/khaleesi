@@ -1,6 +1,3 @@
 ---
-- name: Component post steps
+- name: Project installer - post steps
   hosts: controller
-  tasks:
-      - name: Set tests path
-        set_fact: tests_path="{{ installer.component.dir }}"

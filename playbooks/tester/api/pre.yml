@@ -1,16 +1,18 @@
 ---
-- name: Set path for tests
-  hosts: controller
-  gather_facts: yes
-  tasks:
-      - name: Set tests path
-        set_fact: tests_path="{{ tester.component.dir }}"
-
-- name: Run pre tasks
+- name: Preparation tasks for API tests
   hosts: controller
   gather_facts: yes
   roles:
-    - component-test/pre
+    - component-test/set_facts
+    - component-test/setup_env
+    - component-test/repo
+    - component-test/debug
+
+- name: Copy project repo to tester host
+  hosts: controller
+  tasks:
+      - name: rsync
+        synchronize: src="{{ component_dir_path }}" dest="{{ ansible_env.HOME }}"
 
 - name: Configure Tempest
   hosts: controller
