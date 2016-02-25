@@ -220,16 +220,13 @@
     jobs:
         - '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}':
             installer-topology:
-                - minimal_ha_no_ceph
-                - minimal_no_ceph
+                - minimal_ha
+                - minimal
             product-version-repo: delorean
             pin: last_known_good
         - '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}':
             installer-topology:
-                - minimal_ha_no_ceph
-                - minimal_no_ceph
+                - minimal_ha
+                - minimal
             product-version-repo: production
             pin: latest
-
-
-
