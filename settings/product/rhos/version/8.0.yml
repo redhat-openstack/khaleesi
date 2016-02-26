@@ -9,3 +9,5 @@ workarounds:
     rhbz1300662:
         enabled: true
     rhbz1299563: {}
+    rhbz1311555:
+        enabled: true
