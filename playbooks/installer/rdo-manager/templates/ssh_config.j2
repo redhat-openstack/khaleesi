@@ -13,6 +13,14 @@ Host undercloud
     StrictHostKeyChecking no
     UserKnownHostsFile=/dev/null
 
+Host undercloud-tunnel-create
+    ProxyCommand ssh -f -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o ConnectTimeout=60 -i {{ hostvars[groups['virthost'][0]].ansible_ssh_private_key_file }} stack@{{ hostvars[groups['virthost'][0]].ansible_ssh_host }} -L 60080:{{ hostvars['localhost'].undercloud_ip }}:80 -N
+    IdentityFile id_rsa_virt_host
+    User stack
+
+Host undercloud-tunnel-kill
+    ProxyCommand lsof -ti:60080 | xargs kill -9
+
 Host undercloud-from-virthost
     Hostname {{ hostvars['localhost'].undercloud_ip }}
     IdentityFile ~/.ssh/id_rsa
