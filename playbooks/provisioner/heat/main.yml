@@ -38,9 +38,9 @@
 
       - name: Add provisioned host
         add_host:
-            name=undercloud
+            name="{{ provisioner.node_name }}"
             hostname="{{ floating_ip}}"
-            groups=undercloud
+            groups="{{ provisioner.node_groups| join(',') }}"
             ansible_ssh_host="{{ floating_ip }}"
             ansible_fqdn="{{ floating_ip }}"
             ansible_ssh_user="stack"

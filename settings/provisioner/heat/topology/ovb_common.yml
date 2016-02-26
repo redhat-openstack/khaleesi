@@ -1,6 +1,11 @@
 provisioner:
     extension: ovb
     stack_name: '{{ product.name }}-{{ tmp.node_prefix }}stack'
+    rc_file: /home/{{ !lookup provisioner.remote_user }}/overcloudrc
+    node_name: 'undercloud'
+    node_groups:
+        - 'undercloud'
+        - 'tester'
 
     jinja_templates:
         - env.yaml
@@ -25,6 +30,8 @@ provisioner:
             image_name: 'empty'
             flavor_name: !lookup provisioner.flavor.c1xlarge.name
             remote_user: !lookup provisioner.images[ !lookup distro.name ][ !lookup distro.full_version ].remote_user
+        controller:
+            name: 'overcloud-controller-0'
 
     network:
         external_net_name: '10.8.184.0/22'
