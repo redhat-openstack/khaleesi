@@ -4,6 +4,9 @@ python tools/config_tempest.py \
 {% if tester.guest_image is defined %}
   --image {{ tester.guest_image.url }} \
 {% endif %}
+{% if public_network_uuid is defined  %}
+  --network-id {{ public_network_uuid }} \
+{% endif %}
 {% if deployer_input_path is defined and deployer_input_path.stat.exists %}
   --deployer-input {{ deployer_input }} \
 {% endif %}
@@ -15,8 +18,7 @@ python tools/config_tempest.py \
       {{ opt }} \
     {% endfor %}
   {% endif %}
-  identity.uri http://{{ hostvars[provisioner.nodes.controller.name].ansible_default_ipv4.address }}:5000/v2.0/ \
+  identity.uri $OS_AUTH_URL \
   compute.allow_tenant_isolation true \
   object-storage.operator_role SwiftOperator \
-  identity.admin_password {{ hostvars[provisioner.nodes.controller.name].admin_password|default('redhat') }} \
-  identity.password {{ hostvars[provisioner.nodes.controller.name].demo_password|default('secrete') }}
+  identity.admin_password $OS_PASSWORD

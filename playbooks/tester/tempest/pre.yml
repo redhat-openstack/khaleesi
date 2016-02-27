@@ -22,6 +22,16 @@
           [[ -d .venv ]] && source .venv/bin/activate
           exec "$@"
 
+    - name: Create default RC file
+      shell: echo "export OS_PASSWORD={{ hostvars[provisioner.nodes.controller.name].admin_password|default('redhat') }}" >> /tmp/defaultrc;
+
+    - name: Add address to RC file
+      shell: echo "export OS_AUTH_URL=http://{{ item }}:5000/v2.0" >> /tmp/defaultrc
+      with_items:
+          - "{{ hostvars[provisioner.nodes.controller.name].ansible_default_ipv4.address }}"
+          - "{{ hostvars[provisioner.nodes.controller.name].ansible_default_ipv6.address }}"
+      when: '"ansible_default" not in item'
+
     - stat: path={{ deployer_input }}
       register: deployer_input_path
 
@@ -32,7 +42,9 @@
       when: config_script|changed
 
     - name: Configure tempest
-      command: "{{ tester.dir }}/with_venv ./configure-tempest.sh"
+      shell: >
+          source {{ provisioner.rc_file | default('/tmp/defaultrc') }};
+          {{ tester.dir }}/with_venv ./configure-tempest.sh
       args:
         creates: "~/{{ tester.dir }}/etc/tempest.conf"
 
