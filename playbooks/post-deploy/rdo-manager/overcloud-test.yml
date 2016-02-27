@@ -1,5 +1,4 @@
 ---
-- include: overcloud-network.yml
 - include: overcloud-test-images.yml
 
 - name: Group hosts by post action - tempest
@@ -8,6 +7,17 @@
   tasks:
     - group_by: key="tempest"
       when: installer.tempest.enabled|bool
+
+    - name: add keystone role heat_stack_owner
+      keystone_user:
+          role: heat_stack_owner
+          user: admin
+          tenant: admin
+          login_user: admin
+          login_password: "{{ get_admin_password_result.stdout }}"
+          login_tenant_name: admin
+          endpoint: "{{ get_auth_url_result.stdout }}"
+          state: present
 
 - name: Execute tempest
   hosts: tempest
@@ -24,12 +34,19 @@
       shell: cd /home/{{ provisioner.remote_user }}/tempest && \
              /usr/share/openstack-tempest*/tools/configure-tempest-directory
 
+    - name: Register public network uuid
+      ignore_errors: true
+      shell: >
+          source {{ instack_user_home }}/overcloudrc;
+          neutron net-list | grep {{ installer.network.name }} | awk '{print $2}'
+      register: public_network_uuid
+
     - name: generate tempest.conf for minimun basic scenario
       shell: >
           source {{ instack_user_home }}/overcloudrc;
           cd /home/{{ provisioner.remote_user }}/tempest && \
           tools/config_tempest.py --out etc/tempest.conf \
-          --network-id {{ public_network_uuid }} \
+          --network-id {{ public_network_uuid.stdout }} \
           --deployer-input ~/tempest-deployer-input.conf \
           --debug --create --image /home/stack/fedora-user.qcow2 \
           identity.uri $OS_AUTH_URL \
@@ -49,7 +66,7 @@
           source {{ instack_user_home }}/overcloudrc;
           cd /home/{{ provisioner.remote_user }}/tempest && \
           tools/config_tempest.py --out etc/tempest.conf \
-          --network-id {{ public_network_uuid }} \
+          --network-id {{ public_network_uuid.stdout }} \
           --deployer-input ~/tempest-deployer-input.conf \
           --debug --create \
           identity.uri $OS_AUTH_URL \

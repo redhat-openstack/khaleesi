@@ -8,3 +8,4 @@
 - include: deploy-overcloud/main.yml
 - include: ansible-inventory.yml
 - include: status.yml
+- include: post.yml
