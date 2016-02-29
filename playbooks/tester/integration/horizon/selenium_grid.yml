@@ -20,6 +20,8 @@
       xvfb_screen_num: "{{ tester.integration.xvfb.display_num }}"
       xvfb_resolution: "{{ tester.integration.xvfb.resolution }}"
       xvfb_service_name: "{{ tester.integration.xvfb.service_name }}"
+    - role: linux/windowmanager
+      screen_num: "{{ tester.integration.xvfb.display_num }}"
   tasks:
     - file:
         path: "{{ grid_path }}"
