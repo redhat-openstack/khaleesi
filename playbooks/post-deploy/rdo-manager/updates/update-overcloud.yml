@@ -22,10 +22,26 @@
           openstack management plan list | grep overcloud | cut -d " " -f2
       when: installer.deploy.type == 'plan'
 
+    - name: copy controller file
+      sudo: yes
+      copy:
+        src="{{ base_dir }}/khaleesi/playbooks/post-deploy/rdo-manager/updates/templates/controller.yaml"
+        dest="/usr/share/openstack-tripleo-heat-templates/network/config/single-nic-vlans/controller.yaml"
+      when: product.build_version is defined and
+            product.build_version == 'ga-7.1' or
+            product.build_version == 'ga-7.2'
+
     - name: set fact for openstack management plan
       set_fact:
         overcloud_uuid: "{{ overcloud_uuid_result.stdout }}"
       when: installer.deploy.type == 'plan'
+
+    - name: Oneline from update k-base
+      when: product.build_version is defined and
+            product.build_version == 'ga-7.1'
+      shell: >
+        source {{ instack_user_home }}/stackrc;
+        for i in `nova list|awk '/Running/ {print $(NF-1)}'|awk  -F"=" '{print $NF}'`; do echo $i; scp  -o StrictHostKeyChecking=no  /usr/share/openstack-heat-templates/software-config/elements/heat-config/os-refresh-config/configure.d/55-heat-config  heat-admin@${i}: ; ssh -o StrictHostKeyChecking=no heat-admin@${i}  'sudo /bin/bash -c "cp /home/heat-admin/55-heat-config  /usr/libexec/os-refresh-config/configure.d/55-heat-config"'; scp  /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin/heat-config-rebuild-deployed  heat-admin@${i}: ;ssh heat-admin@${i} "sudo mkdir -p /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin;  sudo cp /home/heat-admin/heat-config-rebuild-deployed  /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin/heat-config-rebuild-deployed; sudo chmod +x  /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin/heat-config-rebuild-deployed; sudo /usr/share/openstack-heat-templates/software-config/elements/heat-config/bin/heat-config-rebuild-deployed"; done
 
     - name: get neutron port
       register: control_virtual_ip
@@ -33,17 +49,27 @@
         source /home/stack/stackrc;
         neutron port-show control_virtual_ip -c fixed_ips -f value | jq -r .ip_address
 
+    - name: copy network environment file
+      template:
+        src=templates/network-environment.j2
+        dest={{ instack_user_home }}/network-environment.yaml
+        mode=0755
+      when: installer.network.isolation == 'none' and
+            product.build_version is defined and
+            product.build_version == 'ga-7.1'
+
     - name: lineinfile
       lineinfile:
         dest: "/home/stack/network-environment.yaml"
         line: "  ControlFixedIPs: [{'ip_address':'{{control_virtual_ip.stdout}}'}]"
+      when: installer.network.isolation != 'none'
 
     - name: delete control_virtual_ip port
       shell: >
         source /home/stack/stackrc;
         neutron port-delete control_virtual_ip
       when: product.build_version is defined and
-        product.build_version == ga-7.1
+            product.build_version == 'ga-7.1'
 
     - name: copy template file for update overcloud
       template:

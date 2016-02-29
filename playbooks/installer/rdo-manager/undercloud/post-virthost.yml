@@ -15,3 +15,16 @@
             sudo ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
             sudo ip l set dev vlan10 up; sudo ip addr add 2001:db8:fd00:1000:dead:beef:cafe:f00/64 dev vlan10;
         when: installer.network.isolation == 'single_nic_vlans_ipv6'
+
+      - name: get ctlplane subnet uuid
+        register: ctlplane_subnet_uuid
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            neutron net-show ctlplane -f value -F subnets;
+        when: installer.env.type == "virthost"
+
+      - name: update dns server on ctlplane
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            neutron subnet-update {{ ctlplane_subnet_uuid.stdout }} --dns_nameservers list=true {{ hw_env.dns_server }}
+        when: installer.env.type == "virthost"

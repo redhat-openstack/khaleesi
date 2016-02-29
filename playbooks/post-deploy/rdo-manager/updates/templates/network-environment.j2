@@ -1,0 +1,6 @@
+parameter_defaults:
+  ControlPlaneDefaultRoute: 192.0.2.1
+  EC2MetadataIp: 169.254.169.254
+
+parameters:
+  ControlFixedIPs: [{'ip_address':'{{control_virtual_ip.stdout}}'}]

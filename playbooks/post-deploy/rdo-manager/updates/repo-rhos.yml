@@ -13,6 +13,8 @@
     - name: update dns server
       sudo: yes
       lineinfile: regexp="nameserver" line="nameserver {{ hw_env.dns_server }}" dest="/etc/resolv.conf"
+      when: product.build_version is defined and
+            product.build_version == 'ga-7.0'
 
 - name: Update yum repo
   hosts: update
