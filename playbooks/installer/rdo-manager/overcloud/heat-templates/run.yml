@@ -73,6 +73,12 @@
             - ceph-storage.yaml
         when: item in nic_configs.stdout_lines
 
+      - name: update nics to match the env
+        shell: >
+            find /home/stack/nic-configs/ -type f | xargs sed -i  's/{{ item.template }}/{{ item.env_specific }}/g'
+        with_items: hw_env.replacement_nics
+        when: (hw_env is defined) and (hw_env.replacement_nics is defined)
+
       - name: create self-signed SSL cert
         command: openssl req -x509 -nodes -newkey rsa:2048 -subj "/CN={{ hw_env.ExternalVIP }}" -days 3650 -keyout overcloud-privkey.pem -out overcloud-cacert.pem -extensions v3_ca
         when: installer.ssl

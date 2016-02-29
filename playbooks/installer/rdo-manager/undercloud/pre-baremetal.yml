@@ -50,6 +50,10 @@
         lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#discovery_iprange line=discovery_iprange={{ hw_env.discovery_iprange }}
         when: conf_file_present.stat.exists == True and hw_env.discovery_iprange is defined
 
+      - name: edit undercloud.conf file - inspection_iprange
+        lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#inspection_iprange line=inspection_iprange={{ hw_env.discovery_iprange }}
+        when: conf_file_present.stat.exists == True and hw_env.inspection_iprange is defined
+
       - name: edit undercloud.conf file - network_gateway
         lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#network_gateway line=network_gateway={{ hw_env.undercloud_network_gateway }}
         when: conf_file_present.stat.exists == True and hw_env.undercloud_network_gateway is defined
@@ -65,6 +69,14 @@
       - name: edit undercloud.conf file - undercloud_admin_vip
         lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#undercloud_admin_vip line=undercloud_admin_vip={{ hw_env.undercloud_admin_vip }}
         when: conf_file_present.stat.exists == True and hw_env.undercloud_admin_vip is defined
+
+      - name: edit undercloud.conf file - network_cidr
+        lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#network_cidr line=network_cidr={{ hw_env.undercloud_network_cidr }}
+        when: conf_file_present.stat.exists == True and hw_env.undercloud_network_cidr is defined
+
+      - name: edit undercloud.conf file - masquerade_network
+        lineinfile: dest={{ instack_user_home }}/undercloud.conf regexp=^#masquerade_network line=masquerade_network={{ hw_env.undercloud_masquerade_network }}
+        when: conf_file_present.stat.exists == True and hw_env.undercloud_masquerade_network is defined
 
       - name: edit undercloud.conf file - network
         shell: >

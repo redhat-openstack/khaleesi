@@ -8,6 +8,43 @@
              ironic node-list | grep 'power' |  awk '{print $2}'
         register: ironic_node_full_list_uuid
 
+      - name: change value of mtu for vlan configuration
+        sudo_user: root
+        sudo: yes
+        shell: >
+            ip link set {{ item }} mtu {{ hw_env.interface.mtu }};
+            echo "MTU={{ hw_env.interface.mtu }}" >> /etc/sysconfig/network-scripts/ifcfg-{{ item }}
+        with_items: hw_env.interface.names
+        when: hw_env is defined and hw_env.interface.names is defined
+
+      - name: update mtu on the overcloud nics to match
+        sudo_user: root
+        sudo: yes
+        lineinfile:
+            dest: /etc/dnsmasq-ironic.conf
+            state: present
+            insertafter: EOF
+            line: 'dhcp-option-force=26,{{ hw_env.interface.mtu }}'
+        when: hw_env is defined and hw_env.interface.mtu is defined
+
+      - name: restart neutron-dhcp-agent
+        sudo_user: root
+        sudo: yes
+        service:
+            name: neutron-dhcp-agent
+            state: restarted
+        when: hw_env is defined and hw_env.interface is defined
+
+      - name: restart openstack-ironic-discoverd-dnsmasq.service
+        shell: >
+            sudo systemctl restart openstack-ironic-discoverd-dnsmasq.service;
+        when: hw_env is defined and hw_env.interface is defined and product.full_version == "7-director"
+
+      - name: restart openstack-ironic-inspector-dnsmasq.service
+        shell: >
+            sudo systemctl restart openstack-ironic-inspector-dnsmasq.service;
+        when: hw_env is defined and hw_env.interface is defined and product.full_version == "8-director"
+
       - name: start bulk introspection
         shell: >
             source {{ instack_user_home }}/stackrc;

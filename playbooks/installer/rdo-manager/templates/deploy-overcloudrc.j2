@@ -40,11 +40,11 @@ export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/envi
 export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/environments/network-isolation-v6.yaml"
 {% endif %}
 
-{% if installer.network.isolation != 'none' and installer.env.type == "virthost" and installer.network.protocol == "ipv4" %}
+{% if installer.network.isolation == "single_nic_vlans" and installer.network.protocol == "ipv4" %}
 export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/environments/net-single-nic-with-vlans.yaml"
 {% endif %}
 
-{% if installer.network.isolation != 'none' and installer.env.type == "virthost" and installer.network.protocol == "ipv6" %}
+{% if installer.network.isolation == "single_nic_vlans" and installer.network.protocol == "ipv6" %}
 export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/environments/net-single-nic-with-vlans-v6.yaml"
 {% endif %}
 
