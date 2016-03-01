@@ -1,6 +1,8 @@
 # With Ansible >=1.8, you should be able use this file directly.
 [defaults]
 host_key_checking = False
+# prevents ansible from keeping temp files in ~/.ansible/tmp
+retry_files_enabled = False
 
 #The roles_path allows us to keep the root of khaleesi "clean", and put playbooks in a subdirectory without needing to use relative paths for the roles.
 roles_path = roles:playbooks/installer/rdo-manager/roles
