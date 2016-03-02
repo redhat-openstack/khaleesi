@@ -9,7 +9,7 @@
     - name: Add the host to the inventory
       add_host:
         name="host0"
-        groups="provisioned, virthost"
+        groups="provisioned"
         ansible_fqdn="{{ lookup('env', 'BEAKER_MACHINE') }}"
         ansible_ssh_user="{{ provisioner.remote_user }}"
         ansible_ssh_private_key_file="{{ provisioner.key_file }}"
