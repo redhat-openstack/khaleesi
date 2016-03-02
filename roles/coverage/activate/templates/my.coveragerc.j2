@@ -1,9 +1,18 @@
 # .coveragerc to control coverage.py 
 [run]
 branch = True
-source = {% for module in coverage.modules.split() %}/lib/python2.7/site-packages/{{ module }}/,{% endfor %}
+{% if coverage.modules == 'all' %}
+source = {% for module in all_modules %}/usr/lib/python2.7/site-packages/{{ module }}/,{% endfor %}
+{% else %}
+source = {% for module in coverage.modules.split() %}/usr/lib/python2.7/site-packages/{{ module }}/,{% endfor %}
+{% endif %}
 
-data_file = /tmp/coverage-data
+
+
+data_file = /coverage/data
+
+parallel = True
+concurrency = eventlet
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -26,4 +35,4 @@ exclude_lines =
 ignore_errors = True
 
 [html]
-directory = /tmp/coverage_html_report
+directory = /coverage/html_report-{{ inventory_hostname }}

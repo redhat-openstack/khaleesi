@@ -1,6 +1,11 @@
 ---
 - include: provision.yml
 - include: install.yml
-- include: tester/coverage/activate.yml
 - include: test.yml
-- include: tester/coverage/generate-report.yml
+
+- name: Create Coverage Report
+  hosts: openstack_nodes:!tester
+  gather_facts: no
+  sudo: yes
+  roles:
+      - { role: coverage/report, when: coverage is defined }

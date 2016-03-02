@@ -29,3 +29,10 @@
         changed_when: "shell_result.rc == 0"
         failed_when: "shell_result.rc > 2"
         when: patch is defined
+
+- name: Activate code coverage collecting
+  hosts: openstack_nodes
+  gather_facts: yes
+  sudo: yes
+  roles:
+      - { role: coverage/activate, when: coverage is defined }
