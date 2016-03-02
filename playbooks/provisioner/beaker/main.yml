@@ -72,3 +72,12 @@
       async: 7200
       poll: 180
       when: provisioner.beaker_password is not defined
+
+- name: Remove beaker's non-existing repo
+  hosts: host0
+  vars:
+      - ansible_ssh_user: root
+  tasks:
+    - name: Remove beaker's non-existing yum repo reference if it is not preserved by reservesys task, otherwise yum fails
+      file: path=/etc/yum.repos.d/beaker-tasks.repo state=absent follow=no
+      when: not provisioner.reserve_host
