@@ -1,0 +1,12 @@
+--- !extends:minimal.yml
+installer:
+    topology_name: minimal_swift
+    nodes:
+        node_count: 3
+        swiftstorage:
+            type: Swift-Storage
+            nova_list_type: swiftstorage
+            flavor: baremetal
+            scale: 1
+        cephstorage:
+            scale: 0

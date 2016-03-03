@@ -1,0 +1,16 @@
+--- !extends:minimal.yml
+installer:
+    topology_name: minimal_scale_swiftstorage
+    nodes:
+        node_count: 4
+        swiftstorage:
+            type: Swift-Storage
+            nova_list_type: swiftstorage
+            flavor: baremetal
+            scale: 1
+            scale_change: 2
+        cephstorage:
+            type: Ceph-Storage
+            nova_list_type: cephstorage
+            flavor: baremetal
+            scale: 0
