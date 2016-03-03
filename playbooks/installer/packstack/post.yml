@@ -5,6 +5,9 @@
   gather_facts: no
   sudo: yes
   tasks:
+    - name: Install openstack-utils
+      yum: name=openstack-utils state=present
+
     - name: Setup fixed key for encrypted volumes
       shell: openstack-config --set /etc/nova/nova.conf keymgr fixed_key `hexdump -n 32 -v -e '/1 "%02x"' /dev/urandom`
 
