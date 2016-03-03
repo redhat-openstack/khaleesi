@@ -1,3 +1,5 @@
 -tempest.api.telemetry.test_telemetry_notification_api
 -tempest.scenario.test_volume_boot_pattern
 -tempest.api.volume.test_volumes_get
+# rhbz1271232
+-tempest.api.object_storage.test_container_services.ContainerTest.test_list_container_metadata
