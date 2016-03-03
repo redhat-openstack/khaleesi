@@ -1,16 +1,2 @@
-# rhbz1266947
--tempest.api.identity.admin.v3
--tempest.api.identity.v3.test_api_discovery
-# rhbz1284845
--tempest.api.image.v2.test_images.BasicOperationsImagesTest.test_update_image
-# rhbz1304930
--tempest.api.compute.servers.test_create_server
--tempest.api.compute.servers.test_server_addresses
--tempest.api.compute.servers.test_server_actions
--tempest.api.compute.servers.test_attach_interfaces.AttachInterfacesTestJSON
--tempest.scenario.test_network_basic_ops.TestNetworkBasicOps
--tempest.scenario.test_server_basic_ops.TestServerBasicOps
--tempest.scenario.test_volume_boot_pattern.TestVolumeBootPattern
--tempest.scenario.test_volume_boot_pattern.TestVolumeBootPatternV2
 # rhbz1304933
 -tempest.api.telemetry.test_telemetry_notification_api
