@@ -17,7 +17,7 @@
 # along with this software.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    from novaclient.v1_1 import client as nova_client
+    from novaclient.v2 import client as nova_client
     try:
         from neutronclient.neutron import client
     except ImportError:

@@ -25,8 +25,8 @@ import time
 import traceback
 
 try:
-    from novaclient.v1_1 import client as nova_client
-    from novaclient.v1_1 import floating_ips
+    from novaclient.v2 import client as nova_client
+    from novaclient.v2 import floating_ips
     from novaclient import exceptions
 except ImportError:
     print("failed=True msg='novaclient is required for this module'")
