@@ -1,0 +1,30 @@
+---
+provisioner:
+    nodes:
+        tester: &tester
+            create_node: "false"
+            name: '{{ tmp.node_prefix }}tester'
+            hostname:
+            rebuild: no
+            flavor_id: !lookup provisioner.flavor.small.id
+            image_name: '{{ !lookup distro.name }}'
+            image_version: '{{ !lookup distro.full_version }}'
+            image_id: !lookup provisioner.images[ !lookup provisioner.nodes.tester.image_name ][ !lookup provisioner.nodes.tester.image_version ].id
+            remote_user: !lookup provisioner.images[ !lookup provisioner.nodes.tester.image_name ][ !lookup provisioner.nodes.tester.image_version ].remote_user
+            network: &network_params
+                interfaces: &interfaces
+                    data: &data_interface
+                        label: eth1
+                        config_params: &data_interface_params
+                            bootproto: static
+                            ipaddr: 10.0.0.100
+                            netmask: 255.255.255.0
+                            nm_controlled: "no"
+                            type: ethernet
+                            onboot: yes
+                            device: !lookup provisioner.nodes.tester.network.interfaces.data.label
+                    external: &external_interface
+                        label: eth2
+            groups: &groups
+                - tester
+                - openstack_nodes

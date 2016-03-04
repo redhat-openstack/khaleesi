@@ -5,3 +5,4 @@ provisioner:
 defaults:
     site: qeos
     topology: all-in-one
+    create_tester: "yes"
