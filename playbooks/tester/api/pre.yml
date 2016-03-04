@@ -22,11 +22,11 @@
   tasks:
       - name: Ensure tempest configuration directory exists
         sudo: yes
-        file: path={{ tester.component.conf_dir | default('/opt/stack/tempest/etc') }} state=directory mode=0777
+        file: path={{ tester.component.conf_dir | default('/etc/tempest') }} state=directory mode=0777
 
       - name: Deploy tempet.conf
         sudo: yes
-        template: src=templates/tempest_conf.j2 dest=/opt/stack/tempest/etc/tempest.conf mode=0666
+        template: src=templates/tempest_conf.j2 dest=/etc/tempest/tempest.conf mode=0666
 
       - name: Set public_network_id
         sudo: yes
@@ -36,7 +36,7 @@
             OS_TENANT_NAME: admin
             OS_AUTH_URL: "{{ controller_auth_url }}"
         shell: >
-            echo "public_network_id = $(neutron net-list | grep public | awk '{print $2}')" >> {{ tester.component.conf_dir | default('/opt/stack/tempest/etc') }}/tempest.conf;
+            echo "public_network_id = $(neutron net-list | grep public | awk '{print $2}')" >> {{ tester.component.conf_dir | default('/etc/tempest') }}/tempest.conf;
 
       - name: Set tempest api environment
         shell: >
