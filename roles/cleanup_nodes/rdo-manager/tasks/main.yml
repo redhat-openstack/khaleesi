@@ -36,6 +36,11 @@
   command: virsh net-destroy default
   ignore_errors: true
 
+- name: destroy default pool
+  sudo: yes
+  command: virsh pool-destroy default
+  ignore_errors: true
+
 - name: destroy virbr0 network if present
   command: brctl delbr virbr0
   ignore_errors: true
@@ -46,6 +51,10 @@
 
 - name: remove remaining libvirt config
   command: rm -Rf /etc/libvirt
+
+- name: remove epel-release
+  yum: name=epel-release state=absent
+  ignore_errors: true
 
 - name: ensure yum repos metadata and cache are clean
   shell: >
