@@ -3,10 +3,10 @@ product:
   build: ga
   build_version: ga-7.2
   repo:
-    puddle_pin_version: 'Z2'
-    poodle_pin_version: 'Z2'
+    puddle_pin_version: 'Z3'
+    poodle_pin_version: 'Z3'
     core_product_version: 7
-    puddle_director_pin_version: 'Y3'
+    puddle_director_pin_version: 'Y2'
 
 installer:
   images:
