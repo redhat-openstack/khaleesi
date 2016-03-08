@@ -9,6 +9,7 @@ tester:
   integration:
     image_url: !lookup tester.images.cirros.url
     image_name: !lookup tester.images.cirros.name
+    threads: 5
     horizon:
       help_url: https://access.redhat.com/documentation/en/red-hat-enterprise-linux-openstack-platform/
     browser_name: firefox
