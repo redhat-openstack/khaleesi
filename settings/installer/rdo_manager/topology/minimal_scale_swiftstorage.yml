@@ -5,7 +5,7 @@ installer:
         node_count: 4
         swiftstorage:
             type: Swift-Storage
-            nova_list_type: swiftstorage
+            nova_list_type: objectstorage
             flavor: baremetal
             scale: 1
             scale_change: 2
