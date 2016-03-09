@@ -6,7 +6,7 @@ provisioner:
             name: '{{ tmp.node_prefix }}tester'
             hostname:
             rebuild: no
-            flavor_id: !lookup provisioner.flavor.small.id
+            flavor_id: !lookup provisioner.flavor.medium.id
             image_name: '{{ !lookup distro.name }}'
             image_version: '{{ !lookup distro.full_version }}'
             image_id: !lookup provisioner.images[ !lookup provisioner.nodes.tester.image_name ][ !lookup provisioner.nodes.tester.image_version ].id
