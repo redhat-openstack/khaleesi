@@ -44,7 +44,7 @@ export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/envi
 export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/environments/net-single-nic-with-vlans.yaml"
 {% endif %}
 
-{% if installer.network.isolation == "single_nic_vlans" and installer.network.protocol == "ipv6" %}
+{% if installer.network.isolation == "single_nic_vlans_ipv6" and installer.network.protocol == "ipv6" %}
 export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/environments/net-single-nic-with-vlans-v6.yaml"
 {% endif %}
 

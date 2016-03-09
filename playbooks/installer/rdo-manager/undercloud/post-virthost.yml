@@ -2,18 +2,15 @@
 - name: setup networking on virt for network isolation
   hosts: undercloud
   tasks:
-      - name: net-iso virt setup vlans (ipv4)
+      - name: net-iso virt setup vlans
         shell: >
             source {{ instack_user_home }}/stackrc;
             sudo ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
             sudo ip l set dev vlan10 up; sudo ip addr add 172.16.23.251/24 dev vlan10;
-        when: installer.network.isolation == 'single_nic_vlans'
+        when: installer.network.isolation == 'single_nic_vlans' or installer.network.isolation == 'single_nic_vlans_ipv6'
 
-      - name: net-iso virt setup vlans (ipv6)
-        shell: >
-            source {{ instack_user_home }}/stackrc;
-            sudo ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 type=internal;
-            sudo ip l set dev vlan10 up; sudo ip addr add 2001:db8:fd00:1000:dead:beef:cafe:f00/64 dev vlan10;
+      - name: add IPv6 gateway when using IPv6
+        shell: sudo ip addr add 2001:db8:fd00:1000::1/64 dev vlan10;
         when: installer.network.isolation == 'single_nic_vlans_ipv6'
 
       - name: get ctlplane subnet uuid

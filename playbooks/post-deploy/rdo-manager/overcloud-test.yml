@@ -71,7 +71,7 @@
           --debug --create \
           identity.uri $OS_AUTH_URL \
           identity.admin_password $OS_PASSWORD \
-          network.tenant_network_cidr 192.168.0.0/24 \
+          network.tenant_network_cidr {{ hw_env.network_cidr }} \
           object-storage.operator_role swiftoperator \
           orchestration.stack_owner_role heat_stack_owner \
           validation.ping_timeout 300

@@ -38,7 +38,6 @@
             name: "{{ installer.network.name }}"
             enable_dhcp: False
             gateway_ip: "{{ hw_env.network_gateway }}"
-            ip_version: "{{ hw_env.floating_ip_version }}"
             cidr: "{{ hw_env.floating_ip_cidr }}"
             allocation_pool_start: "{{ hw_env.floating_ip_start }}"
             allocation_pool_end: "{{ hw_env.floating_ip_end }}"
