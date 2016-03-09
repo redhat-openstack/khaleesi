@@ -1,2 +1,7 @@
 # rhbz1304933
 -tempest.api.telemetry.test_telemetry_notification_api
+# rhbz1266947
+-tempest.api.identity.admin.v3
+-tempest.api.identity.v3.test_api_discovery.TestApiDiscovery
+# rhbz1272289
+-tempest.scenario.test_volume_boot_pattern.TestVolumeBootPattern.test_volume_boot_pattern
