@@ -1,0 +1,8 @@
+installer:
+    component:
+        name: python-os-brick
+        short_name: py-os-brk
+        dir: !join [ !env WORKSPACE, /python-os-brick]
+        dist_git: python-os-brick
+        codeng: python-os-brick
+        config_file: jenkins-config.yml
