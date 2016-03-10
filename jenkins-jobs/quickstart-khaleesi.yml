@@ -1,0 +1,77 @@
+#osp feature virt job
+- job-template:
+    name: 'quickstart-khaleesi-{installer}-{product-version}-{installer-topology}'
+    defaults: rdo-manager-defaults
+    description: |
+        Managed by Jenkins Job Builder. Do not edit via web.
+        <p>
+        Virthost test job for post deployment features of OSP director e.g. scale out stack, upgrade stack
+        <p>
+        Documentation available <a href="http://rdo-ci-doc.usersys.redhat.com">http://rdo-ci-doc.usersys.redhat.com</a>
+
+    scm:
+        - repo-khaleesi
+        - repo-khaleesi-settings
+        - repo-tripleo-quickstart
+    builders:
+        - ksgen-builder-quickstart-khaleesi-rdo-manager:
+            provisioner: 'centosci'
+            provisioner-site: 'default'
+            provisioner-site-user: 'rdo'
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            installer-updates: '{installer-updates}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+    properties:
+        - ownership:
+            owner: whayutin at redhat.com
+            co-owners:
+                - adarazs at redhat.com
+    publishers:
+        - feature-publishers
+        - email:
+            recipients: whayutin@redhat.com adarazs@redhat.com
+    triggers:
+        - timed: '@daily'
+
+- project:
+    name: rdo-manager-centosci-feature-jobs-foo
+    installer: rdo_manager
+    installer-deploy: templates
+    installer-env: virthost
+    installer-images: import_rdo
+    pin: last_known_good
+    installer-post_action: none
+    installer-tempest: disabled
+    installer-updates: none
+    network: neutron
+    network-isolation: none
+    product: rdo
+    network-variant: ml2-vxlan
+    product-version-repo: delorean
+    distro: centos-7.0
+    provisioner-distro: centos
+    provisioner-distro-version: 7
+    jobs:
+        - 'quickstart-khaleesi-{installer}-{product-version}-{installer-topology}':
+            installer-topology:
+                - quickstart_minimal
+                - quickstart_minimal_ha
+            product-version:
+                - liberty
+                - mitaka
+

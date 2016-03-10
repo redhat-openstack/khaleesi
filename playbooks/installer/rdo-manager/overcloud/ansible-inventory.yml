@@ -3,7 +3,7 @@
   hosts: undercloud
   tasks:
     - name: copy the undercloud id_rsa key back to the slave
-      fetch: src=~/.ssh/id_rsa dest="{{ base_dir }}/khaleesi/id_rsa_undercloud" flat=yes
+      fetch: src=~/.ssh/id_rsa dest="{{ base_dir }}/khaleesi/id_rsa_overcloud" flat=yes
 
     - name: copy get-overcloud-nodes.py to undercloud
       template: >

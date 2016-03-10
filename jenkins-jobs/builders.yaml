@@ -560,6 +560,126 @@
                 exit $result
 
 - builder:
+    name: ksgen-builder-quickstart-khaleesi-rdo-manager
+    builders:
+        - shining-panda:
+            build-environment: virtualenv
+            python-version: system-CPython-2.7
+            nature: shell
+            clear: false
+            use-distribute: true
+            system-site-packages: false
+            ignore-exit-code: false
+            command: |
+                pip install -U ansible==1.9.2 > ansible_build; ansible --version
+
+                #Use khaleesi to get a centosci node
+                pushd khaleesi
+                cp ansible.cfg.example ansible.cfg
+                sed -i "s%roles_path = %roles_path = $WORKSPACE/tripleo-quickstart/playbooks/roles:playbooks/roles:%" ansible.cfg
+                sed -i "s%library = %library = $WORKSPACE/tripleo-quickstart/playbooks/library:%" ansible.cfg
+                echo "ssh_args = -F $PWD/ssh.config.ansible" >> ansible.cfg
+                touch ssh.config.ansible
+
+                # get config
+                curl -O https://trown.fedorapeople.org/provision_centos_settings.yml
+                sed -i "s%/home/rhos-ci/workspace/trown-poc-quickstart-gate-ha%$WORKSPACE%" provision_centos_settings.yml
+
+                # get node
+                set +e
+                anscmd="stdbuf -oL -eL ansible-playbook -vv"
+                $anscmd -i local_hosts playbooks/provision.yml --extra-vars @provision_centos_settings.yml
+                # this hack allows us to use the in-tree manual provisioner so we control the hosts file
+                export VIRTHOST=$(awk '/ansible_ssh_host/ {{print $2}}' $WORKSPACE/khaleesi/hosts | cut -d '=' -f2)
+                popd
+
+                echo $VIRTHOST
+
+                # tripleo-quickstart requires Ansible 2.0
+                pip uninstall -y ansible
+                pip install ansible==2.0.0
+
+                # Install tripleo-quickstart from provided jenkins scm gerrit commit ref
+                pip install -e tripleo-quickstart
+                pushd tripleo-quickstart
+                git log -n 5 --oneline
+                python setup.py install
+                popd
+
+                pushd khaleesi
+                ansible --version
+                $anscmd -i local_hosts $WORKSPACE/tripleo-quickstart/playbooks/quickstart.yml \
+                --tags "untagged,undercloud-scripts,undercloud-install,undercloud-post-install" \
+                --extra-vars virthost=$VIRTHOST \
+                --extra-vars local_working_dir=$WORKSPACE/khaleesi/ \
+                --extra-vars image_url="http://artifacts.ci.centos.org/artifacts/rdo/images/{product-version}/delorean/stable/undercloud.qcow2" \
+                --extra-vars @$WORKSPACE/tripleo-quickstart/playbooks/centosci/minimal.yml \
+                --extra-vars release={product-version}
+
+                result=$?
+
+                pip uninstall -y ansible > ansible_uninstall
+                pip install -U ansible==1.9.2 > ansible_build; ansible --version
+
+                # install ksgen
+                pushd khaleesi/tools/ksgen
+                python setup.py install
+                popd
+
+                cp ansible.cfg.example ansible.cfg
+                touch ssh.config.ansible
+                echo "" >> ansible.cfg
+                echo "[ssh_connection]" >> ansible.cfg
+                echo "ssh_args = -F ssh.config.ansible" >> ansible.cfg
+
+                #modify ansible hosts file to proper version
+                mv hosts hosts.quickstart
+                ln -s hosts.quickstart hosts
+                bash -x tools/convert-ansible-inventory.sh -f 2 -t 1 -h hosts.quickstart
+
+                # generate config
+                ksgen --config-dir=settings generate \
+                    --provisioner=centosci \
+                    --provisioner-site=default \
+                    --provisioner-distro=centos \
+                    --provisioner-distro-version={provisioner-distro-version} \
+                    --provisioner-site-user=rdo \
+                    --product={product} \
+                    --product-version={product-version} \
+                    --product-version-build={pin} \
+                    --product-version-repo={product-version-repo} \
+                    --distro={distro} \
+                    --installer={installer} \
+                    --installer-deploy={installer-deploy} \
+                    --installer-env={installer-env} \
+                    --installer-images={installer-images} \
+                    --installer-network={network} \
+                    --installer-network-isolation={network-isolation} \
+                    --installer-network-variant={network-variant} \
+                    --installer-post_action={installer-post_action} \
+                    --installer-topology={installer-topology} \
+                    --installer-tempest={installer-tempest} \
+                    --installer-tempest_skip_file=rdoci-{product}-{product-version}-{installer} \
+                    --logs=gzip \
+                    --logs-site=centosci \
+                    --workarounds=enabled \
+                    --extra-vars @../khaleesi-settings/hardware_environments/virt/network_configs/{network-isolation}/hw_settings.yml \
+                    ksgen_settings.yml
+
+                # get nodes and run test
+                set +e
+                anscmd="stdbuf -oL -eL ansible-playbook -vv --extra-vars @ksgen_settings.yml"
+                $anscmd -i hosts playbooks/installer/rdo-manager/overcloud/quickstart-main.yml
+                result=$?
+
+                if [[ $result == 0 ]]; then
+                    $anscmd -i hosts playbooks/post-deploy/rdo-manager/overcloud-validate.yml
+                    result=$?
+                fi
+
+                exit $result
+
+- builder:
     name: promote-delorean-mgt-script
     builders:
         - conditional-step:

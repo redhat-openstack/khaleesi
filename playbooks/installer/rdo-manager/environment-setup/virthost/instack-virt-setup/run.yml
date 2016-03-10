@@ -171,6 +171,10 @@
       - name: copy id_rsa key back to the slave
         fetch: src=~/.ssh/id_rsa dest="{{ base_dir }}/khaleesi/id_rsa_virt_host" flat=yes
 
+      #this enables quickstart + khaleesi integration
+      - name: copy id_rsa key back to the slave as id_rsa_undercloud
+        fetch: src=~/.ssh/id_rsa dest="{{ base_dir }}/khaleesi/id_rsa_undercloud" flat=yes
+
       - name: copy undercloud root user authorized_keys to stack user
         shell: 'ssh -F ssh.config.ansible undercloud-from-virthost "cp /root/.ssh/authorized_keys /home/stack/.ssh/"'
 

@@ -64,6 +64,15 @@
                 - master
 
 - scm:
+    name: repo-tripleo-quickstart
+    scm:
+        - git:
+            basedir: tripleo-quickstart
+            url: https://github.com/redhat-openstack/tripleo-quickstart.git
+            branches:
+                - master
+
+- scm:
     name: repo-khaleesi-settings
     scm:
         - git:

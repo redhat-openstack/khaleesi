@@ -1,0 +1,32 @@
+installer:
+    topology_name: quickstart_minimal_ha
+    network_restart: True
+    nodes:
+        node_count: 4
+        controller:
+            remote_user: heat-admin
+            nova_list_type: controller
+            flavor: oooq_control
+            scale: 3
+        tester:
+            remote_user: root
+        compute:
+            type: Compute
+            nova_list_type: compute
+            flavor: oooq_compute
+            scale: 1
+        blockstorage:
+            type: Cinder-Storage
+            nova_list_type: cinderstorage
+            flavor: baremetal
+            scale: 0
+        swiftstorage:
+            type: Swift-Storage
+            nova_list_type: swiftstorage
+            flavor: baremetal
+            scale: 0
+        cephstorage:
+            type: Ceph-Storage
+            nova_list_type: cephstorage
+            flavor: oooq_ceph
+            scale: 0
