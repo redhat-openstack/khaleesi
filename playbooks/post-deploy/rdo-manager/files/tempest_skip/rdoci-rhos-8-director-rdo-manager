@@ -5,3 +5,4 @@
 -tempest.api.identity.v3.test_api_discovery.TestApiDiscovery
 # rhbz1272289
 -tempest.scenario.test_volume_boot_pattern.TestVolumeBootPattern.test_volume_boot_pattern
+-tempest.scenario.test_volume_boot_pattern.TestVolumeBootPatternV2.test_volume_boot_pattern
