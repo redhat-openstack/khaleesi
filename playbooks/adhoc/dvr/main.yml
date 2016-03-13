@@ -116,7 +116,7 @@
 
     - name: Set OVS agent options
       ini_file:
-        dest=/etc/neutron/plugins/"{{ 'ml2/openvswitch_agent.ini' if product.version.major > 7 else 'openvswitch/ovs_neutron_plugin.ini' }}"
+        dest=/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
         section=agent
         option={{ item.option }}
         value={{ item.value }}
