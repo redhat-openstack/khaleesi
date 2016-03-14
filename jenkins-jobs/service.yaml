@@ -1,0 +1,32 @@
+- job:
+    name: 'rdo_manager-gate_job_definitions'
+    defaults: script-defaults
+    triggers:
+        - trigger-rdo-manager-gate-khaleesi-jjb
+    scm:
+        - repo-khaleesi-gerrit
+    builders:
+        - shining-panda:
+            build-environment: virtualenv
+            python-version: system-CPython-2.7
+            nature: shell
+            clear: false
+            use-distribute: true
+            system-site-packages: false
+            ignore-exit-code: false
+            command: |
+                pip install -U jenkins-job-builder==1.3.0 > pip-install-log; jenkins-jobs --version
+
+                pushd khaleesi/jenkins-jobs
+                echo -e "\nThere is a syntax error in the changes if the next command fails:\n"
+                jenkins-jobs test -o after .
+                git checkout HEAD~1
+                jenkins-jobs test -o before .
+                echo -e "\nChanges caused by this patch:\n"
+                diff -r before after || /bin/true
+
+    properties:
+        - ownership:
+            owner: adarazs at redhat.com
+            co-owners:
+                - whayutin at redhat.com

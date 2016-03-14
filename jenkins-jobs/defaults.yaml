@@ -251,6 +251,34 @@
             custom-url: "* $JOB_NAME $BUILD_URL"
 
 - trigger:
+    name: trigger-rdo-manager-gate-khaleesi-jjb
+    triggers:
+        - gerrit:
+            server-name: 'rdo-ci-centos'
+            trigger-on:
+                - patchset-created-event
+                - comment-added-contains-event:
+                    comment-contains-value:  '(?i)^(Patch Set [0-9]+:)?( [\w\\+-]*)*(\n\n)?\s*(rdo)? ?(recheck)'
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/khaleesi'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+                  file-paths:
+                      - compare-type: 'REG_EXP'
+                        pattern: 'jenkins-jobs/.*'
+            skip-vote:
+                successful: false
+                failed: false
+                unstable: false
+                notbuilt: false
+            failure-message: 'FAILURE'
+            successful-message: 'SUCCESS'
+            unstable-message: 'UNSTABLE'
+            custom-url: "* $JOB_NAME $BUILD_URL"
+
+- trigger:
     name: trigger-packstack-gate-khaleesi
     triggers:
         - gerrit:
