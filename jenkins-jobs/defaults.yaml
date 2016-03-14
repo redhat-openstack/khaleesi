@@ -201,7 +201,7 @@
             successful-message: 'SUCCESS'
             unstable-message: 'UNSTABLE'
             custom-url: "* $JOB_NAME $BUILD_URL"
-            silent: true
+            silent: '{silent}'
 
 - trigger:
     name: trigger-rdo-manager-gate-khaleesi

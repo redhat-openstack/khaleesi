@@ -5,6 +5,7 @@
         - trigger-upstream-gate-rdo-manager:
             branch: '{branch}'
             project: '{project}'
+            silent: '{silent}'
     scm:
         - repo-khaleesi
         - repo-khaleesi-settings
@@ -52,6 +53,8 @@
         - 'upstream-gate-{project}-{installer}-{product}-{product-version}-{installer-tempest}':
             product-version: liberty
             branch: stable/liberty
+            silent: true
         - 'upstream-gate-{project}-{installer}-{product}-{product-version}-{installer-tempest}':
             product-version: mitaka
             branch: master
+            silent: false
