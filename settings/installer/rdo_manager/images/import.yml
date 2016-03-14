@@ -15,12 +15,12 @@ installer:
       rhos:
         '7-director':
           latest:
-            '7.1': !lookup private.installer.images.rhos.7_director.latest.7.1
-            '7.2': !lookup private.installer.images.rhos.7_director.latest.7.2
+            '7.3': !lookup private.installer.images.rhos.7_director.latest.7.3
           ga:
             '7.0': !lookup private.installer.images.rhos.7_director.GA.7.0
             '7.1': !lookup private.installer.images.rhos.7_director.GA.7.1
             '7.2': !lookup private.installer.images.rhos.7_director.GA.7.2
+            '7.3': !lookup private.installer.images.rhos.7_director.GA.7.3
         '8-director':
           latest:
             '8.0': !lookup private.installer.images.rhos.8_director.latest.8.0
