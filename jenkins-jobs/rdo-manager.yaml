@@ -213,18 +213,26 @@
     network-isolation: none
     product: rdo
     network-variant: ml2-vxlan
-    product-version: liberty
     distro: centos-7.0
     provisioner-distro: centos
     provisioner-distro-version: 7
     jobs:
         - '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}':
+            product-version: liberty
             installer-topology:
                 - minimal_ha
                 - minimal
             product-version-repo: delorean
             pin: last_known_good
         - '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}':
+            product-version: mitaka
+            installer-topology:
+                - minimal_ha
+                - minimal
+            product-version-repo: delorean
+            pin: last_known_good
+        - '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}':
+            product-version: liberty
             installer-topology:
                 - minimal_ha
                 - minimal
