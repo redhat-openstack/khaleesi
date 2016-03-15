@@ -1,0 +1,3 @@
+installer:
+    tempest:
+        skip_file: rdoci-rdo-mitaka-rdo-manager
