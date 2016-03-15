@@ -5,4 +5,4 @@ provisioner:
 
 defaults:
     site: qeos7
-    topology: ovb_1controller_1compute
+    topology: ovb_common

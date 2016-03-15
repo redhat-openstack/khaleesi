@@ -28,8 +28,9 @@ provisioner:
         baremetal:
             name: '{{ tmp.node_prefix }}baremetal'
             image_name: 'empty'
-            flavor_name: !lookup provisioner.flavor.c1xlarge.name
+            flavor_name: !lookup provisioner.flavor.large.name
             remote_user: !lookup provisioner.images[ !lookup distro.name ][ !lookup distro.full_version ].remote_user
+            node_count: 2
         controller:
             name: 'overcloud-controller-0'
 
@@ -62,4 +63,3 @@ provisioner:
                 name: '{{ tmp.node_prefix }}private'
                 subnet_name: '{{ tmp.node_prefix }}private-subnet'
                 cidr: 10.1.1.0/24
-
