@@ -31,13 +31,6 @@
     - name: Restarting Neutron server
       service: name=neutron-server state=restarted
 
-    - name: Register fwaas exists_status
-      shell: grep -q  neutron.services.firewall.fwaas_plugin.FirewallPlugin /etc/neutron/neutron.conf
-      ignore_errors: yes
-      register: fwaas_exists
-
-    - set_fact: fwaas_exists_status={{ fwaas_exists.rc }}
-
 - name: Configure Network node
   hosts: network
   sudo: yes
@@ -62,6 +55,16 @@
     - controller_ip: "{{ hostvars[provisioner.nodes.controller.name].ansible_default_ipv4.address }}"
     - admin_password: "{{ hostvars[provisioner.nodes.controller.name].admin_password|default('redhat') }}"
   tasks:
+      - name: Create an external bridge on the compute nodes
+        openvswitch_bridge:
+          bridge=br-"{{ installer.network.label }}"
+          state=present
+
+      - name: Add a port to the external bridge on the compute nodes
+        openvswitch_port:
+          bridge=br-"{{ installer.network.label }}"
+          port="{{ provisioner.nodes[inventory_hostname.split('-')|last ].network.interfaces.external.label }}"
+
       - name: Set L3 agent_mode
         ini_file:
           dest=/etc/neutron/l3_agent.ini
@@ -93,11 +96,8 @@
         - { option: 'external_network_bridge', value: ''}
         - { option: 'gateway_external_network_id', value: ''}
 
-    - debug: var=hostvars[provisioner.nodes.controller.name]['fwaas_exists_status']
-
     - name: Install python-neutron-fwaas
       yum: name=python-neutron-fwaas state=present
-      when: hostvars[provisioner.nodes.controller.name]['fwaas_exists_status'] == '0'
 
     - name: Set and enable fwaas driver
       ini_file:
@@ -108,15 +108,13 @@
       with_items:
         - { option: 'driver', value: 'neutron.services.firewall.drivers.linux.iptables_fwaas.IptablesFwaasDriver' }
         - { option: 'enabled', value: 'True' }
-      when: hostvars[provisioner.nodes.controller.name]['fwaas_exists_status'] == '0'
 
     - name: Set fwaas link
       file: src=/etc/neutron/fwaas_driver.ini dest=/usr/share/neutron/l3_agent/fwaas_driver.conf state=link
-      when: hostvars[provisioner.nodes.controller.name]['fwaas_exists_status'] == '0'
 
     - name: Set OVS agent options
       ini_file:
-        dest=/etc/neutron/plugins/openvswitch/ovs_neutron_plugin.ini
+        dest=/etc/neutron/plugins/"{{ 'ml2/openvswitch_agent.ini' if product.version.major > 7 else 'openvswitch/ovs_neutron_plugin.ini' }}"
         section=agent
         option={{ item.option }}
         value={{ item.value }}
