@@ -25,6 +25,7 @@ job:
         - /etc/ceilometer
         - /etc/cinder
         - /etc/glance
+        - /etc/ironic
         - /etc/keystone
         - /etc/neutron
         - /etc/swift
