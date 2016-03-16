@@ -13,7 +13,7 @@
           BROWSER_PLATFORM: "{{ lookup('env', 'BROWSER_PLATFORM') }}"
         shell: |
              [ -d ~/{{ tester.venv_dir }} ] && source ~/{{ tester.venv_dir }}/bin/activate
-             nosetests -v -a "{{ tester.integration.tests_tag }}" --processes={{ tester.integration.threads }} --process-timeout=3000 --with-xunit --xunit-file=horizon.xml openstack_dashboard/test/integration_tests/tests chdir=~/{{ tester.dir }}
+             nosetests -v -a "{{ tester.integration.tests_tag }}" --processes={{ tester.integration.threads }} --process-timeout=3000 --with-xunitmp --xunitmp-file=horizon.xml openstack_dashboard/test/integration_tests/tests chdir=~/{{ tester.dir }}
         ignore_errors: true
         async: 21600
         poll: 30

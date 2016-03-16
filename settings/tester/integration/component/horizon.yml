@@ -47,6 +47,7 @@ tester:
   - oslo.config==1.11.0
   - selenium==2.45.0
   - nose
+  - nose_xunitmp
   - testtools
   accounts:
     - username: 'demo'
