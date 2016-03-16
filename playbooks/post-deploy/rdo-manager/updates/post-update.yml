@@ -1,0 +1,32 @@
+- name: Group hosts by post action - update
+  hosts: undercloud:overcloud
+  gather_facts: no
+  tasks:
+    - group_by: key="update"
+      when: installer.updates is defined and
+            installer.updates.enabled|bool
+
+- name: Post Update
+  hosts: update:!overcloud
+  tasks:
+    - name: create images directory for the new version
+      file: path={{ instack_user_home }}/latest_overcloud_images state=directory
+
+    - name: get the latest images
+      shell: >
+        pushd {{ instack_user_home }}/latest_overcloud_images;
+        wget --quiet -c -O {{ instack_user_home }}/latest_overcloud_images/{{ item }}.tar
+        "{{ installer.images.url[product.name][product.full_version][installer.updates.target_pin_version][installer.updates.target_images_version] }}{{ item }}.tar"
+      with_items: "{{ installer.images[product.full_version].files|list }}"
+
+    - name: untar the overcloud images
+      shell: >
+        pushd {{ instack_user_home }}/latest_overcloud_images;
+        tar -xvf "{{ item }}.tar"
+      with_items: "{{ installer.images[product.full_version].files|list }}"
+
+    - name: upload new images into glance
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          pushd {{ instack_user_home }}/latest_overcloud_images;
+          openstack overcloud image upload --update-existing

@@ -16,3 +16,4 @@
 - include: repo-{{ product.name }}.yml
 - include: update-undercloud.yml
 - include: update-overcloud.yml
+- include: post-update.yml

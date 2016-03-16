@@ -1,0 +1,4 @@
+{% if product.build_version is defined and product.build_version == 'ga-7.1'and installer.network.isolation != 'none' %}
+export DEPLOY_COMMAND="$DEPLOY_COMMAND -e {{ instack_user_home }}/local_tht/environments/updates/update-from-vip.yaml "
+export DELETE_COMMAND="$DELETE_COMMAND -e {{ instack_user_home }}/local_tht/environments/updates/update-from-vip.yaml "
+{% endif %}

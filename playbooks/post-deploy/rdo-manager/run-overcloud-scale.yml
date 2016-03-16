@@ -24,11 +24,17 @@
         overcloud_uuid: "{{ overcloud_uuid_result.stdout }}"
 
     - name: setup environment variables for overcloud scale up
-      template: 
+      template:
         src={{ base_dir }}/khaleesi/playbooks/post-deploy/rdo-manager/templates/scale-setup-env.j2
         dest={{ instack_user_home }}/scale-setup-env
         mode=0755
       when: node_to_scale is defined
+
+    - name: setup environment variables for overcloud scale up
+      template:
+        src={{ base_dir }}/khaleesi/playbooks/post-deploy/rdo-manager/templates/update-scale.j2
+        dest={{ instack_user_home }}/update-scale
+        mode=0755
 
     - name: copy template file with environment variables for overcloud deploy
       template:
@@ -55,6 +61,7 @@
           source {{ instack_user_home }}/deploy-nodesrc;
           source {{ instack_user_home }}/scale-setup-env;
           source {{ instack_user_home }}/deploy-overcloudrc;
+          source {{ instack_user_home }}/update-scale;
           echo $DEPLOY_COMMAND
 
     - name: scale-overcloud
@@ -90,6 +97,11 @@
         echo $NODE_SCALE_CHANGE
       register: scale_change_value
       when: node_to_scale is defined
+
+    - name: echo heat resource list
+      shell: >
+          source {{ instack_user_home }}/stackrc;
+          heat resource-list overcloud
 
     - name: check the number of nodes match the scaled values
       fail: msg="Overcloud nodes were not scaled correctly."

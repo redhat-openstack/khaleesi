@@ -60,6 +60,12 @@
         dest={{ instack_user_home }}/deploy-nodesrc
         mode=0755
 
+    - name: setup environment variables for overcloud scale up
+      template:
+        src={{ base_dir }}/khaleesi/playbooks/post-deploy/rdo-manager/templates/update-scale.j2
+        dest={{ instack_user_home }}/update-scale
+        mode=0755
+
     - name: setup command vars
       template: src=templates/delete-nodes-command-env.j2 dest=~/delete-nodes-command-env mode=0755
       when: node_type_to_delete is defined
@@ -71,6 +77,7 @@
         source {{ instack_user_home }}/deploy-nodesrc;
         source {{ instack_user_home }}/delete-nodes-setup-env;
         source {{ instack_user_home }}/delete-nodes-command-env;
+        source {{ instack_user_home }}/update-scale;
         echo $DELETE_COMMAND
       register: delete_command_output
       when: node_type_to_delete is defined
@@ -81,6 +88,7 @@
         source {{ instack_user_home }}/deploy-nodesrc;
         source {{ instack_user_home }}/delete-nodes-setup-env;
         source {{ instack_user_home }}/delete-nodes-command-env;
+        source {{ instack_user_home }}/update-scale;
         {{ delete_command_output.stdout }} &> overcloud_deployment_delete.log
       when: node_type_to_delete is defined
 
@@ -90,7 +98,7 @@
         heat stack-list
       register: heat_stack_list_result
       until: heat_stack_list_result.stdout.find("COMPLETE") != -1
-      retries: 10
+      retries: 18
       delay: 180
       when: node_type_to_delete is defined
 

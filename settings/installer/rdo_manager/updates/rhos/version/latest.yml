@@ -4,3 +4,4 @@ installer:
         target_full_version: 7-director
         target_pin_version: latest
         target_distro_version: !lookup distro.latest_version
+        target_images_version: '7.3'
