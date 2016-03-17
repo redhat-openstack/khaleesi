@@ -185,12 +185,16 @@
     - name: upload to the artifact server using password
       shell:
         RSYNC_PASSWORD=`echo $PROVISIONER_KEY|cut -b 1-13` rsync -av {{ base_dir }}/khaleesi/collected_files/ {{ job.rsync_path }}/$BUILD_TAG
+      retries: 5
+      delay: 60
       ignore_errors: true
       when: job.rsync_logs is defined and job.rsync_logs and "{{ lookup('env', 'PROVISIONER_KEY') }}" != ""
 
     - name: upload to the artifact server using pubkey auth
       shell:
         rsync -av {{ base_dir }}/khaleesi/collected_files/ {{ job.rsync_path }}/$BUILD_TAG
+      retries: 5
+      delay: 60
       ignore_errors: true
       when: job.rsync_logs is defined and job.rsync_logs and "{{ lookup('env', 'PROVISIONER_KEY') }}" == ""
 
