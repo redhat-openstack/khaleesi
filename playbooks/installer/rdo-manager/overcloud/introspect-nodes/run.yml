@@ -49,12 +49,24 @@
         shell: >
             source {{ instack_user_home }}/stackrc;
             openstack baremetal introspection bulk start;
-        when: installer.introspection_method == 'bulk' and hw_env.env_type != 'ovb_host_cloud'
+        register: bulk_status
+        when: hw_env.env_type != 'ovb_host_cloud'
+
+      - name: find nodes that were not successful in introspection
+        shell: >
+            source {{ instack_user_home }}/stackrc;
+            OUTPUT=$(openstack baremetal introspection bulk status);
+            if [[ $OUTPUT == *"Introspection timeout"* ]]; then
+                echo "$OUTPUT" | grep -E ' Introspection timeout ' | awk -F ' True' '{print $1}' | sed  's/|//g'
+            else
+                echo "$OUTPUT" | grep -E ' False ' | awk -F ' False' '{print $1}' | sed  's/|//g'
+            fi
+        register: failed_introspection_nodes
+        when: hw_env.env_type != 'ovb_host_cloud'
 
       - name: introspect node by node
         shell: >
             source {{ instack_user_home }}/stackrc;
-            ironic node-set-provision-state {{ item }} manage;
             openstack baremetal introspection start {{ item }};
             export STATUS=$(openstack baremetal introspection status {{ item }} | grep 'finished');
             while [[ $STATUS != *"True"* ]]; do
@@ -67,15 +79,15 @@
         retries: 3
         delay: 5
         until: introspect_status.stdout.find("None") != -1
-        with_items: ironic_node_full_list_uuid.stdout_lines
-        when:  installer.introspection_method == 'node_by_node'
+        with_items: failed_introspection_nodes.stdout_lines
+        when: failed_introspection_nodes.stdout_lines.0 is defined  and hw_env.env_type != 'ovb_host_cloud'
 
       - name: set node provision state to available
         shell: >
             source {{ instack_user_home }}/stackrc;
             ironic node-set-provision-state {{ item }} provide
-        with_items: ironic_node_full_list_uuid.stdout_lines
-        when:  installer.introspection_method == 'node_by_node'
+        with_items: failed_introspection_nodes.stdout_lines
+        when: failed_introspection_nodes.stdout_lines.0 is defined  and hw_env.env_type != 'ovb_host_cloud'
 
       - name: check instrospections status
         register: introspection_result
