@@ -8,8 +8,3 @@ product:
 defaults:
   build: latest
   repo: puddle
-
-workarounds:
-  rhbz1313907:
-    desc: 'Workaround BZ#1313907: Enable the pxe_ssh ironic driver'
-    enabled: true
