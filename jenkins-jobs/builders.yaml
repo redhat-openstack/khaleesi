@@ -622,7 +622,7 @@
                 pip install -U ansible==1.9.2 > ansible_build; ansible --version
 
                 # install ksgen
-                pushd khaleesi/tools/ksgen
+                pushd tools/ksgen
                 python setup.py install
                 popd
 
