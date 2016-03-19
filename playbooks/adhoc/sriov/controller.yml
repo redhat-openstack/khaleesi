@@ -16,7 +16,7 @@
           dest=/etc/neutron/plugins/ml2/ml2_conf_sriov.ini
           section=ml2_sriov
           option=supported_pci_vendor_devs
-          value=15b3:1004,8086:10c9,8086:10ca,8086:1520
+          value=15b3:1004,8086:10c9,8086:10ca,8086:1520,8086:10ed
 
     - name: Link ml2_conf_sriov to the Neutron configuration directory
       file: src=/etc/neutron/plugins/ml2/ml2_conf_sriov.ini dest=/etc/neutron/conf.d/neutron-server/ml2_conf_sriov.conf state=link

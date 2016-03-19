@@ -1,10 +1,11 @@
 tester:
    guest_image:
-       url: http://10.35.187.115/images/fedora.img
+       url: https://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/x86_64/Images/Fedora-Cloud-Base-23-20151030.x86_64.qcow2
    tempest:
        test_regex: all
        whitelist:
            - tempest.scenario.test_network_basic_ops
+           - tempest.scenario.test_network_advanced_server_ops
        blacklist:
            # RHBZ#1293097
            - tempest.scenario.test_network_basic_ops.TestNetworkBasicOps.test_port_security_macspoofing_port
@@ -14,5 +15,5 @@ tester:
            - 'compute.flavor_ref 2'
            - 'network-feature-enabled.port_admin_state_change False'
            - 'compute-feature-enabled.preserve_ports True'
-           - 'compute-feature-enabled.suspend False'
+           - 'compute-feature-enabled.suspend True'
            - 'scenario.dhcp_client dhclient'
