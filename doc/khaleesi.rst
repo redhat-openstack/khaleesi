@@ -310,19 +310,19 @@ Please change the below settings to match your environment::
     --product-version=7.0 \
     --product-version-repo=puddle \
     --product-version-build=latest \
-    --extra-vars=provisioner.nodes.controller.hostname=puma06.scl.lab.tlv.redhat.com \
+    --extra-vars=provisioner.nodes.controller.hostname=myserver.example.com \
     --extra-vars=provisioner.nodes.controller.network.interfaces.external.label=enp4s0f1 \
     --extra-vars=provisioner.nodes.controller.network.interfaces.external.config_params.device=enp4s0f1 \
     --extra-vars=provisioner.nodes.controller.network.interfaces.data.label="" \
     --extra-vars=provisioner.nodes.controller.network.interfaces.data.config_params.device="" \
-    --extra-vars=provisioner.network.network_list.external.allocation_start=10.35.175.1 \
-    --extra-vars=provisioner.network.network_list.external.allocation_end=10.35.175.100 \
-    --extra-vars=provisioner.network.network_list.external.subnet_gateway=10.35.175.101 \
-    --extra-vars=provisioner.network.network_list.external.subnet_cidr=10.35.175.0/24 \
-    --extra-vars=provisioner.network.vlan.external.tag=190 \
+    --extra-vars=provisioner.network.network_list.external.allocation_start=192.168.100.1 \
+    --extra-vars=provisioner.network.network_list.external.allocation_end=192.168.100.100 \
+    --extra-vars=provisioner.network.network_list.external.subnet_gateway=192.168.100.101 \
+    --extra-vars=provisioner.network.network_list.external.subnet_cidr=192.168.100.0/24 \
+    --extra-vars=provisioner.network.vlan.external.tag=10 \
     --extra-vars=provisioner.remote_password=mypassword \
     --extra-vars=provisioner.nodes.controller.rebuild=yes \
-    --extra-vars=provisioner.key_file=/home/itbrown/.ssh/id_rsa \
+    --extra-vars=provisioner.key_file=/home/user1/.ssh/id_rsa \
     --installer=packstack \
     --installer-network=neutron \
     --installer-network-variant=ml2-vxlan \
