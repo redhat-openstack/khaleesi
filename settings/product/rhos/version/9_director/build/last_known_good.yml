@@ -1,0 +1,8 @@
+---
+product:
+    build: last_known_good
+    repo:
+        core_product_version: 9
+        puddle_pin_version: 'latest'
+        puddle_director_pin_version: 'latest'
+        poodle_pin_version: 'latest'

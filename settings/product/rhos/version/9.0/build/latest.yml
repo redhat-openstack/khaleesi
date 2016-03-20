@@ -1,0 +1,5 @@
+---
+product:
+    repo:
+        puddle_pin_version: 'latest'
+        poodle_pin_version: 'latest'

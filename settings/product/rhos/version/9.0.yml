@@ -1,0 +1,6 @@
+product:
+    full_version: "9.0"
+    version:
+        major: 9
+        minor: 0
+        code_name: mitaka

@@ -1,0 +1,10 @@
+product:
+    full_version: 9-director
+    version:
+        major: 9
+        minor: 0
+        code_name: mitaka
+
+defaults:
+    build: latest
+    repo: puddle

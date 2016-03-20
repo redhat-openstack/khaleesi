@@ -1,0 +1,12 @@
+---
+product:
+    build: latest
+    repo:
+        core_product_version: 9
+        puddle_pin_version: 'latest'
+        puddle_director_pin_version: 'latest'
+        poodle_pin_version: 'latest'
+
+installer:
+    images:
+        version: '9.0'
