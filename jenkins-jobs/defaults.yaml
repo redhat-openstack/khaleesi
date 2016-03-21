@@ -437,4 +437,4 @@
 - trigger:
     name: periodic-trigger
     triggers:
-        - timed: 'H H/6 * * *'
+        - timed: 'H H * * *'
