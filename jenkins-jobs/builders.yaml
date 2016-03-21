@@ -613,7 +613,7 @@
                 --extra-vars virthost=$VIRTHOST \
                 --extra-vars local_working_dir=$WORKSPACE/khaleesi/ \
                 --extra-vars image_url="http://artifacts.ci.centos.org/artifacts/rdo/images/{product-version}/delorean/stable/undercloud.qcow2" \
-                --extra-vars @$WORKSPACE/tripleo-quickstart/playbooks/centosci/minimal.yml \
+                --extra-vars @$WORKSPACE/tripleo-quickstart/playbooks/centosci/{quickstart-topology}.yml \
                 --extra-vars release={product-version}
 
                 result=$?
@@ -675,6 +675,19 @@
                 if [[ $result == 0 ]]; then
                     $anscmd -i hosts playbooks/post-deploy/rdo-manager/overcloud-validate.yml
                     result=$?
+                fi
+
+                infra_result=0
+                $anscmd -i hosts playbooks/collect_logs.yml &> collect_logs.txt || infra_result=1
+                $anscmd -i local_hosts playbooks/cleanup.yml &> cleanup.txt || infra_result=2
+
+                if [[ "$infra_result" != "0" && "$result" = "0" ]]; then
+                    # if the job/test was ok, but collect_logs/cleanup failed,
+                    # print out why the job is going to be marked as failed
+                    #FIXME: re-enable this when collect_logs and cleanup are passing again
+                    #result=$infra_result
+                    cat collect_logs.txt
+                    cat cleanup.txt
                 fi
 
                 exit $result

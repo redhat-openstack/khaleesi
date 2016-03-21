@@ -1,6 +1,6 @@
 #osp feature virt job
 - job-template:
-    name: 'quickstart-khaleesi-{installer}-{product-version}-{installer-topology}'
+    name: 'quickstart-khaleesi-{installer}-{product-version}-{installer-topology}-quickstart-{quickstart-topology}'
     defaults: rdo-manager-defaults
     description: |
         Managed by Jenkins Job Builder. Do not edit via web.
@@ -30,6 +30,7 @@
             installer-images: '{installer-images}'
             installer-post_action: '{installer-post_action}'
             installer-topology: '{installer-topology}'
+            quickstart-topology: '{quickstart-topology}'
             installer-tempest: '{installer-tempest}'
             installer-updates: '{installer-updates}'
             network: '{network}'
@@ -49,7 +50,7 @@
         - timed: '@daily'
 
 - project:
-    name: rdo-manager-centosci-feature-jobs-foo
+    name: quickstart-khaleesi-rdo-tripleo
     installer: rdo_manager
     installer-deploy: templates
     installer-env: virthost
@@ -67,11 +68,15 @@
     provisioner-distro: centos
     provisioner-distro-version: 7
     jobs:
-        - 'quickstart-khaleesi-{installer}-{product-version}-{installer-topology}':
-            installer-topology:
-                - quickstart_minimal
-                - quickstart_minimal_ha
+        - 'quickstart-khaleesi-{installer}-{product-version}-{installer-topology}-quickstart-{quickstart-topology}':
+            installer-topology: quickstart_minimal
+            quickstart-topology: minimal
             product-version:
                 - liberty
                 - mitaka
-
+        - 'quickstart-khaleesi-{installer}-{product-version}-{installer-topology}-quickstart-{quickstart-topology}':
+            installer-topology: quickstart_minimal_ha
+            quickstart-topology: ha
+            product-version:
+                - liberty
+                - mitaka
