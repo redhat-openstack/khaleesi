@@ -38,12 +38,12 @@
       - name: restart openstack-ironic-discoverd-dnsmasq.service
         shell: >
             sudo systemctl restart openstack-ironic-discoverd-dnsmasq.service;
-        when: hw_env is defined and hw_env.interface is defined and product.full_version == "7-director"
+        when: hw_env is defined and hw_env.interface is defined and product.full_version in ["7-director", "liberty"]
 
       - name: restart openstack-ironic-inspector-dnsmasq.service
         shell: >
             sudo systemctl restart openstack-ironic-inspector-dnsmasq.service;
-        when: hw_env is defined and hw_env.interface is defined and product.full_version == "8-director"
+        when: hw_env is defined and hw_env.interface is defined and product.full_version in ["8-director", "mitaka"]
 
       - name: start bulk introspection
         shell: >

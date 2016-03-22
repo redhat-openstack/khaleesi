@@ -59,4 +59,4 @@
              source {{ instack_user_home }}/stackrc;
              ironic node-update {{ item }} add properties/root_device='{"size": {{ hw_env.disk_root_device_size | int }}}'
         with_items: ironic_node_list_uuid.stdout_lines
-        when: (hw_env is defined) and (hw_env.disk_root_device_size is defined) and product.full_version == '8-director'
+        when: (hw_env is defined) and (hw_env.disk_root_device_size is defined) and product.full_version in ["8-director", "mitaka"]
