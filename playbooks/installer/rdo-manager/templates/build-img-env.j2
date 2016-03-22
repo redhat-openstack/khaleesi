@@ -36,6 +36,12 @@ export DELOREAN_REPO_FILE="{{ product.repo.delorean.repo_file }}"
 export NODE_DIST=centos7
 {%endif %}
 
+{% if product.name == "rdo" and distro.name == "rhel" and product.repo.delorean_pin_version and product.repo.delorean is defined %}
+export USE_DELOREAN_TRUNK=0
+export DIB_YUM_REPO_CONF="{{installer.dib_dir}}/rhos-release-rhel-{{distro.full_version}}.repo /etc/yum.repos.d/{{ product.repo.delorean.repo_file }} /etc/yum.repos.d/{{ product.repo.delorean_deps.repo_file }}"
+export NODE_DIST=rhel7
+{%endif %}
+
 {% if installer.proxy != 'none' %}
 export http_proxy={{ installer.http_proxy_url }}
 {%endif %}

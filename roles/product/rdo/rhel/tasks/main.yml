@@ -1,7 +1,7 @@
 ---
 - name: Create the upstream delorean repositories for EPEL RDO
   get_url: url="{{ product.repo['delorean'][ansible_distribution][distro.full_version] }}/current/{{ product.repo.delorean.repo_file }}"
-            dest=/etc/yum.repos.d/rdo-trunk-release.repo
+            dest=/etc/yum.repos.d/{{ product.repo.delorean.repo_file }}
             mode=0644
   notify:
     - Yum clean all
@@ -9,7 +9,7 @@
 
 - name: Create the upstream delorean dependency repositories for EPEL RDO
   get_url: url="{{ product.repo['delorean'][ansible_distribution][distro.full_version] }}/{{ product.repo.delorean_deps.repo_file }}"
-            dest=/etc/yum.repos.d/rdo-trunk-release-deps.repo
+            dest=/etc/yum.repos.d/{{ product.repo.delorean_deps.repo_file }}
             mode=0644
   notify:
     - Yum clean all
@@ -17,7 +17,7 @@
 
 - name: Create the pinned upstream delorean repositories for EPEL RDO
   get_url: url="{{ product.repo['delorean'][ansible_distribution][distro.full_version] }}/{{product.repo.delorean_pin_version}}/{{ product.repo.delorean.repo_file }}"
-            dest=/etc/yum.repos.d/rdo-trunk-release.repo
+            dest=/etc/yum.repos.d/{{ product.repo.delorean.repo_file }}
             mode=0644
   notify:
     - Yum clean all
