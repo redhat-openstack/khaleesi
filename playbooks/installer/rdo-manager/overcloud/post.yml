@@ -1,7 +1,12 @@
 ---
-- name: Post deploy
+- name: Create public network
   hosts: undercloud
   tasks:
+      - name: Get pool name for creating public network with the same name
+        sudo: yes
+        shell: "grep -oP '(?<=default_floating_pool=)(.*$)' /etc/nova/nova.conf"
+        register: pool_name
+
       - name: Get admin password
         register: get_admin_password_result
         shell: >
@@ -12,7 +17,7 @@
         shell: >
             grep 'OS_AUTH_URL' {{ instack_user_home }}/overcloudrc | cut -d '=' -f2
 
-      - name: setup neutron network for floating ips
+      - name: Setup public network for floating ips
         register: public_network_uuid_result
         quantum_network:
             state: present
@@ -20,7 +25,7 @@
             login_username: admin
             login_password: "{{ get_admin_password_result.stdout }}"
             login_tenant_name: admin
-            name: "{{ installer.network.name }}"
+            name: "{{ pool_name.stdout_lines|last }}"
             provider_network_type: "{{ hw_env.network_type }}"
             provider_physical_network: "{{ hw_env.physical_network }}"
             provider_segmentation_id: "{{ hw_env.ExternalNetworkVlanID }}"
