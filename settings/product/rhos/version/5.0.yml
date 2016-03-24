@@ -5,6 +5,10 @@ product:
         minor: 0
         code_name: icehouse
 
+tester:
+    git:
+        revision: kilo
+
 workarounds:
     lp1408987: {}
     bz1138740: {}

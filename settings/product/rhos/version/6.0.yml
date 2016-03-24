@@ -5,5 +5,9 @@ product:
         minor: 0
         code_name: juno
 
+tester:
+    git:
+        revision: liberty
+
 workarounds:
     bz1261491: {}
