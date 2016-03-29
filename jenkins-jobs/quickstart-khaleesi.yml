@@ -45,7 +45,7 @@
     publishers:
         - feature-publishers
         - email:
-            recipients: whayutin@redhat.com adarazs@redhat.com
+            recipients: whayutin@redhat.com
     triggers:
         - timed: '@daily'
 

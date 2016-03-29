@@ -130,9 +130,6 @@
     publishers:
         - default-publishers
         - tests-publishers
-        - email:
-            recipients: whayutin@redhat.com adarazs@redhat.com
-
 
 - job-template:
     name: '{installer}-gate_khaleesi_settings-{product}-{product-version}-{installer-tempest}'
@@ -170,8 +167,6 @@
     publishers:
         - default-publishers
         - tests-publishers
-        - email:
-            recipients: whayutin@redhat.com adarazs@redhat.com
 
 - project:
     name: rdo-manager-centosci-gate-jobs
