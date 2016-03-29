@@ -1,5 +1,3 @@
-# rhbz1284845
--tempest.api.image.v2.test_images.BasicOperationsImagesTest.test_update_image
 # rhbz1266947
 -tempest.api.identity.admin.v3
 -tempest.api.identity.v3.test_api_discovery.TestApiDiscovery
