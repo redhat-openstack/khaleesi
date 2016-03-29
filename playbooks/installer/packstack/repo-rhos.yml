@@ -25,6 +25,16 @@
       - name: repolist
         command: yum -d 7 repolist
 
+      - name: deploy custom yum repository
+        get_url:
+            url: "{{ product.repo.repofile_url }}"
+            dest: /etc/yum.repos.d/
+            owner: root
+            group: root
+            mode: 0644
+            force: yes
+        when: "{{ product.repo.repofile_url is defined }}"
+
 - name: Get build details
   hosts: controller
   sudo: no
