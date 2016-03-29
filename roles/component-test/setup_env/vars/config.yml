@@ -1,0 +1,34 @@
+pep8:
+    run: tox -v -e pep8 2>&1 | tee ../logs/testrun.log;
+
+unittest:
+    run: tox -v -e py27 2>&1 | tee ../logs/testrun.log;
+
+functional:
+    run: tox -v -e functional 2>&1 | tee ../logs/testrun.log;
+
+api:
+    run: tox -v -e api 2>&1 | tee ../logs/testrun.log;
+
+rpm_deps: [ gcc ]
+remove_rpm: []
+
+virt_run_config:
+    run: >
+        set -o pipefail;
+        rpm -qa | sort > installed-rpms.txt;
+        sudo pip install -U tox;
+        {{ hostvars[inventory_hostname][tester.component.tox_target]['run'] }}
+
+    archive:
+        - ../logs/testrun.log
+        - installed-rpms.txt
+
+test_config:
+    virt:
+        default:
+            setup:
+                install: "{{ rpm_deps }}"
+                remove: "{{ remove_rpm }}"
+            run: "{{ virt_run_config.run }}"
+            archive: "{{ virt_run_config.archive }}"
