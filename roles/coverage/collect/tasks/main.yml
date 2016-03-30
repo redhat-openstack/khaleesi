@@ -1,0 +1,19 @@
+- name: stop all services so they write out data files
+  shell: openstack-service stop
+  ignore_errors: yes
+
+- name: aggregate covereage data per host
+  shell: /coverage/collect.sh combine
+  args:
+      chdir: /coverage
+  when: inventory_hostname != groups['controller'][0]
+
+- name: copy coverage data to first controller
+  synchronize:
+      src: /coverage/combined/data
+      dest: /coverage/combined/data.{{ inventory_hostname }}
+      mode: pull
+      rsync_opts: "--rsh 'ssh -i /root/.ssh/id_rsa' --delay-updates"
+      set_remote_user: no # do rsync as root, not cloud-user as defined in inventory
+  when: inventory_hostname != groups['controller'][0]
+  delegate_to: "{{ groups['controller'][0] }}"

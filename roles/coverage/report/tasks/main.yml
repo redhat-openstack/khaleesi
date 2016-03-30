@@ -1,44 +1,46 @@
-- name: Ensure required rpms for logging are installed
+- name: ensure required rpms for logging are installed
   yum: name={{ item }} state=present
   with_items:
     - xz
     - tar
 
-- name: Stop all services so they write out data files
-  shell: openstack-service stop
-  ignore_errors: yes
-
-
-# TODO(psedlak): combine results from all nodes together.
-# aggregate all data files on one machine (first from controller group)
-# and combine + generate report there
-#
-# use synchronize + method=pull/push + delegate_to
-
-- name: generate coverage report
+- name: generate html coverage report
   shell: /coverage/collect.sh html
   args:
       chdir: /coverage
 
+- name: generate plain text coverage overview
+  shell: "/coverage/collect.sh report &> ./coverage_{{ inventory_hostname }}/coverage_{{ inventory_hostname }}.txt"
+  args:
+      chdir: /coverage
+
 - name: append combined data file to collected report
-  shell: cp /coverage/combined/data /coverage/combined_data-{{ inventory_hostname }}
+  shell: "cp /coverage/combined/data /coverage/coverage_{{ inventory_hostname }}/combined_data"
 
 - name: pack coverage report
-  shell: "tar cJf ./html_report-{{ inventory_hostname }}.tar.xz ./html_report-{{ inventory_hostname }} ./combined_data-{{ inventory_hostname }}"
+  shell: "tar cJf ./coverage_{{ inventory_hostname }}.tar.xz ./coverage_{{ inventory_hostname }}"
   args:
       chdir: /coverage
 
 - name: fetch log archive and coverage report
   fetch:
-      src: "/coverage/html_report-{{ inventory_hostname }}.tar.xz"
+      src: "/coverage/coverage_{{ inventory_hostname }}.tar.xz"
       flat: yes
-      dest: "../collected_files/coverage-html_report-{{ inventory_hostname }}.tar.xz"
+      dest: "../collected_files/coverage_{{ inventory_hostname }}.tar.xz"
 
 # unarchive is buggy (for one year already and not fixed even in v2 yet)
 # https://github.com/ansible/ansible-modules-core/issues/932
-- name: unpack coverage report on localhost
+- name: unpack coverage report on localhost (html)
   delegate_to: localhost
-  shell: "tar xJf coverage-html_report-{{ inventory_hostname }}.tar.xz"
+  shell: "tar xJf coverage_{{ inventory_hostname }}.tar.xz"
+  sudo: no
+  args:
+      chdir: "{{ base_dir }}/khaleesi/collected_files"
+  when: coverage.unpack_html | default(false)
+
+- name: unpack coverage report on localhost (plaintext overview)
+  delegate_to: localhost
+  shell: "tar xJf coverage_{{ inventory_hostname }}.tar.xz ./coverage_{{ inventory_hostname }}/coverage_{{ inventory_hostname }}.txt --strip=2"
   sudo: no
   args:
       chdir: "{{ base_dir }}/khaleesi/collected_files"

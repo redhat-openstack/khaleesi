@@ -1,4 +1,4 @@
-# .coveragerc to control coverage.py 
+# .coveragerc to control coverage.py
 [run]
 branch = True
 {% if coverage.modules == 'all' %}
@@ -35,4 +35,4 @@ exclude_lines =
 ignore_errors = True
 
 [html]
-directory = /coverage/html_report-{{ inventory_hostname }}
+directory = /coverage/coverage_{{ inventory_hostname }}

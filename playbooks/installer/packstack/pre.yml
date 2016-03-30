@@ -31,7 +31,7 @@
         when: patch is defined
 
 - name: Activate code coverage collecting
-  hosts: openstack_nodes
+  hosts: openstack_nodes:!tester
   gather_facts: yes
   sudo: yes
   roles:

@@ -3,9 +3,18 @@
 - include: install.yml
 - include: test.yml
 
-- name: Create Coverage Report
+- name: Collect coverage data from all nodes
   hosts: openstack_nodes:!tester
   gather_facts: no
   sudo: yes
+  max_fail_percentage: 0
+  roles:
+      - { role: coverage/collect, when: coverage is defined }
+
+- name: Generate coverage report
+  hosts: controller[0]
+  gather_facts: no
+  sudo: yes
+  max_fail_percentage: 0
   roles:
       - { role: coverage/report, when: coverage is defined }
