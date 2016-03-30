@@ -9,6 +9,17 @@
 - name: auth url
   set_fact: keystone_endpoint={{ keystone_endpoint }} | default({{ installer.validate.keystone_endpoint }})
 
+- name: check admin url
+  shell: >
+    source {{ instack_user_home }}/{{ instack_rc_filename }};
+    openstack endpoint list --long -f csv -c AdminURL --quote none | grep 35357;
+  register: ke_temp
+  when: installer.network.protocol is defined and installer.network.protocol == 'ipv6'
+
+- name: use admin url
+  set_fact: keystone_endpoint={{ ke_temp.stdout }}
+  when: installer.network.protocol is defined and installer.network.protocol == 'ipv6'
+
 - name: extract ip and port from endpoint
   urlparse:
       url: '{{ keystone_endpoint }}'
