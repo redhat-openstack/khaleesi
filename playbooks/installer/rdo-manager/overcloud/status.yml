@@ -90,16 +90,6 @@
       shell: journalctl -u openstack-ironic-conductor -u openstack-ironic-api > /var/log/ironic-conductor-api-journal.log
       ignore_errors: yes
 
-- name: Run neutron sanity tests against overcloud controller
-  hosts: overcloud-controller-0
-  gather_facts: no
-  tasks:
-      - name: Run neutron-sanity-check
-        shell: >
-            sanity_parameters=$(grep neutron.conf /usr/lib/systemd/system/neutron-server.service | sed 's/.*bin\/neutron-server//');
-            sudo neutron-sanity-check --nodnsmasq_version $sanity_parameters
-        when: product.full_version == "8-director"
-
 - name: fail playbook when instack-deploy-overcloud fails
   hosts: undercloud
   tasks:

@@ -12,7 +12,7 @@
         shell: >
             grep 'OS_AUTH_URL' {{ instack_user_home }}/overcloudrc | cut -d '=' -f2
 
-      - name: Setup neutron network for floating ips
+      - name: setup neutron network for floating ips
         register: public_network_uuid_result
         quantum_network:
             state: present
@@ -42,12 +42,6 @@
             allocation_pool_start: "{{ hw_env.floating_ip_start }}"
             allocation_pool_end: "{{ hw_env.floating_ip_end }}"
 
-      - name: Set fact for public network uuid
+      - name: set fact for public network uuid
         set_fact:
             public_network_uuid: "{{ public_network_uuid_result.id }}"
-
-      - name: Run neutron-sanity-check
-        shell: >
-            sanity_parameters=$(grep neutron.conf /usr/lib/systemd/system/neutron-server.service | sed 's/.*bin\/neutron-server//');
-            sudo neutron-sanity-check --nodnsmasq_version $sanity_parameters
-        when: product.full_version == "8-director"
