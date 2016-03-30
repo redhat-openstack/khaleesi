@@ -75,6 +75,7 @@
       sudo: yes
       command: ceph status
       ignore_errors: yes
+      when: installer.nodes.cephstorage.scale|int > 0
 
 - name: dump journal logs into /var/log for collection
   hosts: overcloud
