@@ -142,7 +142,8 @@ def _parse_output(module, stdout):
         pattern = re.compile(r'(?P<start>Installed: )(?P<filename>\S+)')
         match = pattern.search(line)
         if not match:
-            module.fail_json("Failed to parse line %s" % line)
+            raise Exception("Failed to parse line %s" % line)
+
         filename = os.path.abspath(match.group("filename"))
         return dict(
             file=os.path.basename(filename),
@@ -152,7 +153,7 @@ def _parse_output(module, stdout):
     filenames = map(installed, file_lines)
     dirs = set(f["repodir"] for f in filenames)
     if len(dirs) > 1:
-        module.fail_json("Found repo files in multiple directories %s" % dirs)
+        raise Exception("Found repo files in multiple directories %s" % dirs)
     repodir = dirs.pop()
     filenames = set(f["file"] for f in filenames)
 
@@ -167,7 +168,7 @@ def _parse_output(module, stdout):
                              )
         match = pattern.search(line)
         if not match:
-            module.fail_json("Failed to parse line %s" % line)
+            raise Exception("Failed to parse line %s" % line)
         return dict(
             release=match.group("release"),
             version=match.group("version"),
@@ -178,7 +179,9 @@ def _parse_output(module, stdout):
     installed_releases = map(released, release_lines)
     if len(installed_releases) > 2 or (len(installed_releases) == 2 and
                                        set(r["channel"] for r in installed_releases) != set(("ospd", "core"))):
-        module.fail_json(msg="Can't handle more than 2 channels. 1 core, 1 ospd. Found %s" % installed_releases)
+        raise Exception(("Can't handle more than 2 channels."
+                         " 1 core, 1 ospd.  Found %s")
+                        % installed_releases)
 
     return dict(
         repodir=repodir,
@@ -210,7 +213,12 @@ def _get_latest_repos(module, base_cmd, state, release):
         module.fail_json(msg='Requires rhos-release installed. %s: %s' % (cmd, err))
     elif rc:
         module.fail_json(msg='Error: %s: %s' % (cmd, err))
-    summary = _parse_output(module, out)
+
+    try:
+        summary = _parse_output(module, out)
+    except Exception as ex:
+        module.fail_json(msg='%s\ncommand: %s\nrc: %s\nstderr/out: %s\n%s'
+                         % (ex, cmd, rc, out, err))
     module.exit_json(changed=True, **summary)
 
 
