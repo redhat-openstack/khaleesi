@@ -65,7 +65,7 @@
           admin_password: "{{ hostvars[controller_name].admin_password | default('redhat') }}"
           demo_password: "{{ tester.accounts[0].password | default('redhat') }}"
           demo_username: "{{ tester.accounts[0].username | default('demo') }}"
-      tmp_controller_host: "{{ hostvars[controller_name].ansible_default_ipv4.address }}"
+      tmp_controller_host: "{{ hostvars[controller_name].ansible_ssh_host }}"
       services_status:
         enabled_services: "{{ hostvars[controller_name].integration_enabled_services }}"
         compute_services: "{{ hostvars[controller_name].integration_nova_services }}"

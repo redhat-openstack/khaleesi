@@ -49,6 +49,7 @@ tester:
   - nose
   - nose_xunitmp
   - testtools
+  - sauceclient
   accounts:
     - username: 'demo'
       tenant_name: 'demo'
