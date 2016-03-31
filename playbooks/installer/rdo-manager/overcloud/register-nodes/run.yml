@@ -51,12 +51,22 @@
       - name: get nodes UUID
         shell: >
              source {{ instack_user_home }}/stackrc;
-             ironic node-list | grep 'power' |  awk '{print $2}' | tail -3
+             ironic node-list | grep 'power' |  awk '{print $2}'
         register: ironic_node_list_uuid
+
+      - name: find disk size from instackenv.json
+        shell: >
+             cat instackenv.json | grep '"disk": ' |  awk '{print $2}' | sed s/\"//g | sed s/\,//
+        register: disk_size
 
       - name: update nodes with disk size hint
         shell: >
              source {{ instack_user_home }}/stackrc;
-             ironic node-update {{ item }} add properties/root_device='{"size": {{ hw_env.disk_root_device_size | int }}}'
-        with_items: ironic_node_list_uuid.stdout_lines
+             if  [ {{ hw_env.disk_root_device_size | int }} -ge {{ item.1 | int }}  ]; then
+                 ironic node-update {{ item.0 }} add properties/root_device='{"size": {{ hw_env.disk_root_device_size | int }}}'
+             fi
+        with_together:
+            - ironic_node_list_uuid.stdout_lines
+            - disk_size.stdout_lines
         when: (hw_env is defined) and (hw_env.disk_root_device_size is defined) and product.full_version in ["8-director", "mitaka"]
+
