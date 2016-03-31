@@ -47,8 +47,13 @@
   service: name=libvirtd state=stopped
   ignore_errors: true
 
-- name: remove remaining libvirt config
-  command: rm -Rf /etc/libvirt
+# Removing these rpms early so that it can clean up it's
+# repos instead of us blowing them away in next step
+- name: remove any release rpms from the host
+  yum: name={{item}} state=absent
+  with_flattened:
+    - rdo-release
+    - rhos-release
 
 - name: ensure yum repos metadata and cache are clean
   shell: >
@@ -96,18 +101,10 @@
 - name: ensure the network service is enabled
   service: name=network enabled=yes
 
-- name: remove files automation files from /root
-  file: name={{item}} state=absent
-  with_items:
-    - /usr/share/instack-undercloud
-    - /usr/bin/instack-setup-host
-
 - name: remove any instack rpms from the host
   yum: name={{item}} state=absent
   with_flattened:
     - instack-undercloud
-    - rdo-release
-    - rhos-release
     - libvirt
     - libvirt-daemon
     - openvswitch
@@ -130,3 +127,11 @@
     - Wait for host to come back
     - Wait after ssh service is back
 
+- name: remove remaining libvirt config
+  command: rm -Rf /etc/libvirt
+
+- name: remove files automation files from /root
+  file: name={{item}} state=absent
+  with_items:
+    - /usr/share/instack-undercloud
+    - /usr/bin/instack-setup-host
