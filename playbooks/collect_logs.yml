@@ -1,6 +1,6 @@
 ---
 - name: Gather Logs
-  hosts: all:!localhost:!host0
+  hosts: all:!localhost
   gather_facts: no
   sudo: yes
   tasks:
@@ -116,10 +116,17 @@
       file: path=/tmp/{{ inventory_hostname }} state=absent
       ignore_errors: true
 
+    - name: set default archive list
+      set_fact: collect_list='{{ job.archive|join(" ") }}'
+
+    - name: override archive list for this host
+      set_fact: collect_list='{{ job.archive_override[inventory_hostname]|join(" ") }}'
+      when: job.archive_override is defined and job.archive_override[inventory_hostname] is defined
+
     - name: collect logs
       shell: |
         mkdir -p /tmp/{{ inventory_hostname }};
-        for F in $(ls -d1 /var/log/rpm.list /var/log/extra {{ job.archive|join(' ') }}); do
+        for F in $(ls -d1 /var/log/rpm.list /var/log/extra {{ collect_list }}); do
           cp -rL --parents $F /tmp/{{ inventory_hostname }}
         done;
         find /tmp/{{ inventory_hostname }} -type d -print0 | xargs -0 chmod 755;

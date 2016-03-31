@@ -53,6 +53,9 @@ job:
         - /home/stack/tempest/etc/*.conf
         - /home/stack/local_tht
         - /usr/share/openstack-tripleo-heat-templates
+    archive_override:
+        host0:
+            - /home/stack/*.log
 
 defaults:
     deploy: templates
