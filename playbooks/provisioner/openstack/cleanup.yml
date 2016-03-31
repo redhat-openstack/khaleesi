@@ -30,6 +30,7 @@
            internal_network_name: "{{ provisioner.network.network_list.management.name }}"
            state: absent
       with_dict: provisioner.nodes
+      ignore_errors: True
 
 - name: Cleanup Nodes
   hosts: localhost
@@ -46,6 +47,7 @@
 #           wait for deletion until we can delete flaoting ips explicitly.
            wait: "yes"
       with_dict: provisioner.nodes
+      ignore_errors: True
 
 - name: Cleanup Networks
   hosts: net_prov
@@ -63,6 +65,7 @@
       with_items:
         - "{{ provisioner['network']['network_list']['management']['subnet_name'] }}"
         - "{{ provisioner['network']['network_list']['external']['subnet_name'] }}"
+      ignore_errors: True
 
     - name: Unset gateway for router
       quantum_router_gateway:
@@ -72,6 +75,7 @@
           login_tenant_name: "{{ provisioner.tenant_name }}"
           router_name: "{{ provisioner.network.router.name }}"
           state: absent
+      ignore_errors: True
 
     - name: Delete created router
       quantum_router:
@@ -81,6 +85,7 @@
            login_password: "{{ provisioner.password }}"
            login_tenant_name: "{{ provisioner.tenant_name }}"
            name: "{{ provisioner.network.router.name }}"
+      ignore_errors: True
 
     - name: Delete created networks
       quantum_network:
@@ -94,3 +99,5 @@
           - "{{ provisioner.network.network_list.management.name }}"
           - "{{ provisioner.network.network_list.data.name }}"
           - "{{ provisioner.network.network_list.external.name }}"
+      ignore_errors: True
+
