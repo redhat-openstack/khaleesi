@@ -49,6 +49,7 @@
         shell: >
             source {{ instack_user_home }}/stackrc;
             openstack baremetal introspection bulk start;
+        ignore_errors: true
         register: bulk_status
         when: hw_env.env_type != 'ovb_host_cloud'
 
@@ -85,9 +86,13 @@
       - name: set node provision state to available
         shell: >
             source {{ instack_user_home }}/stackrc;
-            ironic node-set-provision-state {{ item }} provide
-        with_items: failed_introspection_nodes.stdout_lines
-        when: failed_introspection_nodes.stdout_lines.0 is defined  and hw_env.env_type != 'ovb_host_cloud'
+            export PROV_STATE=$(ironic node-show {{ item }} | grep ' provision_state ');
+            if [[ $PROV_STATE != *"available"* ]]; then
+                ironic node-set-provision-state {{ item }} provide;
+            fi
+        ignore_errors: true
+        with_items: ironic_node_full_list_uuid.stdout_lines
+        when: hw_env.env_type != 'ovb_host_cloud'
 
       - name: check instrospections status
         register: introspection_result
