@@ -609,7 +609,7 @@
                 pushd khaleesi
                 ansible --version
                 $anscmd -i local_hosts $WORKSPACE/tripleo-quickstart/playbooks/quickstart.yml \
-                --tags "untagged,undercloud-scripts,undercloud-install,undercloud-post-install" \
+                --tags "untagged,environment,provision,undercloud-scripts,undercloud-install,undercloud-post-install" \
                 --extra-vars virthost=$VIRTHOST \
                 --extra-vars local_working_dir=$WORKSPACE/khaleesi/ \
                 --extra-vars image_url="http://artifacts.ci.centos.org/artifacts/rdo/images/{product-version}/delorean/stable/undercloud.qcow2" \
