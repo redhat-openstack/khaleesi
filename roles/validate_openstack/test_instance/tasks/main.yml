@@ -40,15 +40,19 @@
       nics:
         - net-id: "{{ tenant_network_uuid_result_id }}"
       security_groups: default
+  register: test_instance
 
-# the regexp in the grep command matches all and only UIIDv4, so table header and graphics are not counted as nodes
-- name: check if instance was created in other nodes than compute nodes
+- name: dump all test instance infos
+  debug: var=test_instance
+
+- name: print out test instance summary infos
   shell: >
       source {{ instack_user_home }}/{{ instack_rc_filename }};
-      nova list --fields OS-EXT-SRV-ATTR:host | grep -E "[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-4[A-Fa-f0-9]{3}-[89aAbB][A-Fa-f0-9]{3}-[A-Fa-f0-9]{12}" | grep -v compute;
-  register: rogue_compute_nodes
-  failed_when: "rogue_compute_nodes.rc == 0"
-  when: installer.type == "rdo-manager"
+      nova list ;
+      nova show {{ test_instance.id }};
+
+- fail: msg="Test instance was not created in compute node.(OS-EXT-SRV-ATTR:host does not contain the word 'compute')"
+  when:  'test_instance.info["OS-EXT-SRV-ATTR:hypervisor_hostname"]|search("compute") != true and installer.type == "rdo-manager"'
 
 # Assign a floating ip to the instance from an external network
 - name: assign a floating ip to the instance
