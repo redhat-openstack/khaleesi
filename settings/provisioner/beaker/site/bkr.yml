@@ -5,6 +5,7 @@ provisioner:
   whiteboard_triggering_job: !env BUILD_URL
   whiteboard_message: '{{ !lookup provisioner.whiteboard_prefix }},triggered_from:{{ !lookup provisioner.whiteboard_triggering_job }}'
   reserve_host: no
+  server: '{{ !lookup private.provisioner.beaker.server }}'
   network:
     public_subnet_cidr: 172.17.0.0/16
     public_allocation_start: 172.17.0.200

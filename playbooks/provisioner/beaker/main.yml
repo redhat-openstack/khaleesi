@@ -45,13 +45,17 @@
         chmod +x beakerCheckOut.sh
       when: beakerCheckOut_downloaded.stat.exists == True
 
-    - name: Return the Beaker machine if it is checked out
-      shell: ssh -o 'StrictHostKeyChecking=no' root@{{ lookup('env', 'BEAKER_MACHINE') }} "return2beaker.sh"
-      ignore_errors: yes
-      async: 60
-
-    - name: Reboot machine if return2beaker hangs
-      shell: ssh -o 'StrictHostKeyChecking=no' root@{{ lookup('env', 'BEAKER_MACHINE') }} "reboot"
+    - name: Cancel current running jobs to start the new reservation
+      shell: >
+          declare -i CURRENT_RECIPE=$(/bin/bkr system-status {{ lookup('env', 'BEAKER_MACHINE') }} | grep 'Recipe ID:' | sed 's/Recipe ID://');
+          declare -i CURRENT_JOB=$(curl -s {{ provisioner.server }}/recipes/$CURRENT_RECIPE | grep -oP '(?<=Job: J:)\d+');
+          /bin/bkr job-cancel J:$CURRENT_JOB;
+          sleep 40;
+          /bin/bkr system-status {{ lookup('env', 'BEAKER_MACHINE') }} | grep 'Current reservation: '
+      register: system_status
+      until: system_status.stdout.find("None" ) != -1
+      retries: 5
+      delay: 20
       ignore_errors: yes
 
     - name: Provision beaker machine with password
