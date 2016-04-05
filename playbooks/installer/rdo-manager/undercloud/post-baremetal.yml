@@ -43,3 +43,22 @@
         shell: >
             systemctl restart openstack-ironic-conductor
         when: workarounds.enabled is defined and workarounds.enabled|bool
+
+- name:  Set up ovs port for external routing when env requires it
+  hosts: undercloud:&baremetal
+  vars:
+      - ansible_ssh_user: root
+  tasks:
+      - name: copy ifcfg template file
+        template:
+            src: "{{base_dir}}/khaleesi/playbooks/installer/rdo-manager/templates/ifcfg-ovs-vlan.j2"
+            dest: /etc/sysconfig/network-scripts/ifcfg-{{ hw_env.vlan.external.device }}
+            mode: 600
+            owner: root
+            group: root
+        when: (hw_env is defined) and (hw_env.vlan.type == 'external')
+
+      - name: start interface added
+        shell: ifup {{ hw_env.vlan.external.device }}
+        when: (hw_env is defined) and (hw_env.vlan.type == 'external')
+

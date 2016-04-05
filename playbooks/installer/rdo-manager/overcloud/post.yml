@@ -50,3 +50,8 @@
       - name: set fact for public network uuid
         set_fact:
             public_network_uuid: "{{ public_network_uuid_result.id }}"
+
+      - name: reset external network mtu value initially set
+        shell: >
+            sudo ip link set {{ hw_env.vlan.external.device }} mtu {{ hw_env.vlan.external.mtu }}
+        when: (hw_env is defined) and (hw_env.vlan.type == 'external')
