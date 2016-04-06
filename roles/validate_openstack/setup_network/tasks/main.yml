@@ -1,4 +1,8 @@
 ---
+- name: install virt-customize
+  sudo: yes
+  yum: name=libguestfs-tools state=present
+
 - name: set random number as a fact
   set_fact:
     random: "{{ tmp.node_prefix }}"
@@ -36,6 +40,10 @@
   get_url: >
     url="{{ installer.validate.image.url }}{{ installer.validate.image.id }}"
     dest={{ instack_user_home }}/{{ installer.validate.image.id }}
+
+- name: make image accessible from root on console
+  shell: >
+    virt-customize -a {{ instack_user_home }}/{{ installer.validate.image.id }} --root-password password:{{ admin_password }};
 
 # assume that the image is in remote user homedir
 - name: upload image
