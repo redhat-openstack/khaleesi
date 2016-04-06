@@ -1,0 +1,6 @@
+product:
+    full_version: master
+    version:
+        major: 99
+        minor: 0
+        code_name: master

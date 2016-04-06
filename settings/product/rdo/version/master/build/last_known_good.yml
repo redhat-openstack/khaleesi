@@ -1,0 +1,10 @@
+---
+product:
+  build: last_known_good
+  repo:
+    delorean_pin_version: 'current-passed-ci'
+    delorean_mgt_pin_version: 'current-passed-ci'
+
+installer:
+  images:
+      version: !lookup product.build

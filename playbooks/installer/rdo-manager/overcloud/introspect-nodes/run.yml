@@ -106,8 +106,3 @@
             INTROSPECTED_NODES=$(echo "$OUTPUT" | grep -E ' True *\| *None ' | wc -l)
             [ "$TOTAL_NODES" == "$INTROSPECTED_NODES" ]
         when: hw_env.env_type != 'ovb_host_cloud'
-
-      - name: show profile
-        shell: >
-            source {{ instack_user_home }}/stackrc;
-            instack-ironic-deployment  --show-profile;

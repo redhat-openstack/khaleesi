@@ -1,0 +1,10 @@
+---
+product:
+  build: latest
+  repo:
+    puddle_pin_version: 'latest'
+    poodle_pin_version: 'latest'
+
+installer:
+  images:
+      version: !lookup product.build

@@ -56,5 +56,9 @@
             silent: true
         - 'upstream-gate-{project}-{installer}-{product}-{product-version}-{installer-tempest}':
             product-version: mitaka
-            branch: master
+            branch: stable/mitaka
             silent: false
+        - 'upstream-gate-{project}-{installer}-{product}-{product-version}-{installer-tempest}':
+            product-version: master
+            branch: master
+            silent: true

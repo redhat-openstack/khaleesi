@@ -227,6 +227,13 @@
             product-version-repo: delorean
             pin: last_known_good
         - '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}':
+            product-version: master
+            installer-topology:
+                - minimal_ha
+                - minimal
+            product-version-repo: delorean
+            pin: last_known_good
+        - '{installer}-periodic-{provisioner-distro-version}-{product}-{product-version}-{product-version-repo}-{distro}-{installer-deploy}-{installer-env}-{installer-topology}-{network}-{network-variant}-{installer-tempest}':
             product-version: liberty
             installer-topology:
                 - minimal_ha

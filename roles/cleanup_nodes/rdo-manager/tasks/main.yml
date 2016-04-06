@@ -119,6 +119,7 @@
 
 - name: remove any instack rpms from the host
   yum: name={{item}} state=absent
+  ignore_errors: yes
   with_flattened:
     - instack-*
     - rdo-release
@@ -135,6 +136,7 @@
     - python-tuskarclient*
     - python-keystone*
     - python-openstackclient
+    - python-oslo*
     - python-qpid
     - python-ironic*
     - python-eventlet
@@ -142,9 +144,3 @@
     - python-rdomanager-*
     - jq
     - python-tripleo*
-
-- name: remove any instack rpms from the host
-  yum: name={{item}} state=absent
-  ignore_errors: yes
-  with_flattened:
-    - python-oslo*

@@ -1,6 +1,6 @@
 tmp:
     anchors:
-      - &centos_repo_url http://trunk.rdoproject.org/centos7-mitaka/
+      - &centos_repo_url http://trunk.rdoproject.org/centos7-master/
 
 product:
     short_repo: dln
