@@ -67,14 +67,6 @@
         sed -i '/next_hop\: {get_param\: EC2MetadataIp}/a\                -\n                  default: true\n                  next_hop: {get_param: ControlPlaneDefaultRoute}' /home/stack/tripleo-heat-templates/network/config/single-nic-vlans/controller.yaml;
         sed -i '/parameters:/a\  ControlPlaneDefaultRoute:\n    description: The subnet CIDR of the control plane network\n    type: string'  /home/stack/tripleo-heat-templates/network/config/single-nic-vlans/controller.yaml;
 
-    - name: restart openstack services
-      service: name={{item}} state=restarted
-      sudo: yes
-      with_items:
-          - openstack-heat-api
-          - openstack-heat-engine
-          - openstack-nova-api
-
     - name: echo upgrade script delivery command
       register: delivery_upgrade_command
       shell: >

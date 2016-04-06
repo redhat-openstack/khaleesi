@@ -37,25 +37,8 @@
     - name: upgrade undercloud install
       shell: >
         source /home/stack/stackrc;
-        openstack undercloud install &> upgrade_undercloud.log
+        openstack undercloud upgrade &> upgrade_undercloud.log
 
     - name: fail when no package has been updated
       fail: msg="Failed, no package has been updated on the undercloud"
       when: not yum_update_result.changed|bool
-
-    - name: create vlan10 if doesn't exist
-      ignore_errors: yes
-      sudo: yes
-      shell: >
-        ifconfig vlan10;
-        if [[ $? != 0 ]]; then \
-        ovs-vsctl add-port br-ctlplane vlan10 tag=10 -- set interface vlan10 \
-        type=internal; fi
-      when: installer.network.isolation == 'single_nic_vlans'
-
-    - name: set vlan up
-      ignore_errors: yes
-      sudo: yes
-      shell: >
-        ip l set dev vlan10 up; ip addr add 172.16.23.251/24 dev vlan10;
-      when: installer.network.isolation == 'single_nic_vlans'
