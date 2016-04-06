@@ -199,7 +199,7 @@
 
     - name: upload to the artifact server using pubkey auth
       shell:
-        rsync -av {{ base_dir }}/khaleesi/collected_files/ {{ job.rsync_path }}/$BUILD_TAG
+        rsync -av -e 'ssh -oStrictHostKeyChecking=no' {{ base_dir }}/khaleesi/collected_files/ {{ job.rsync_path }}/$BUILD_TAG
       retries: 5
       delay: 60
       ignore_errors: true
