@@ -1,1 +1,5 @@
 use_delorean: true
+
+job:
+    archive:
+        - /home/stack/delorean_rpms/*

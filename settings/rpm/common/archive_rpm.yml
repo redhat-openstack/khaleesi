@@ -1,0 +1,3 @@
+job:
+    archive:
+        - /home/stack/*.rpm

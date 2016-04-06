@@ -1,3 +1,5 @@
+--- !extends:common/archive_rpm.yml
+
 gating_repo: "instack-undercloud"
 patch:
     upstream:
