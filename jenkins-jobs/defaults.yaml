@@ -68,7 +68,7 @@
     scm:
         - git:
             basedir: tripleo-quickstart
-            url: https://github.com/redhat-openstack/tripleo-quickstart.git
+            url: https://git.openstack.org/openstack/tripleo-quickstart.git
             branches:
                 - master
 
