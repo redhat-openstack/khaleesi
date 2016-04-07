@@ -121,26 +121,32 @@
   yum: name={{item}} state=absent
   ignore_errors: yes
   with_flattened:
-    - instack-*
     - rdo-release
     - rhos-release
-    - libvirt
-    - libvirt-daemon
-    - openvswitch
-    - NetworkManager
-    - qemu-*
-    - openstack-*
-    - python-qpid-*
-    - pexpect
-    - python-pexpect
-    - python-tuskarclient*
-    - python-keystone*
-    - python-openstackclient
-    - python-oslo*
-    - python-qpid
-    - python-ironic*
-    - python-eventlet
-    - tripleo-*
-    - python-rdomanager-*
-    - jq
-    - python-tripleo*
+
+- name: find any remaining rpms from director repos
+  shell: "yumdb search from_repo rhelosp-*-director* | egrep -v from_repo | grep -v '^$' | tail -n +2 "
+  register: director_rpms
+
+- name: find any remaining rpms from rhos repos
+  shell: "yumdb search from_repo rhelosp-*-p* | egrep -v from_repo | grep -v '^$' | tail -n +2 "
+  register: rhos_rpms
+
+- name: find any remaining rpms from delorean repos
+  shell: "yumdb search from_repo delorean* | egrep -v from_repo | grep -v '^$' | tail -n +2 "
+  register: delorean_rpms
+
+- name: debug
+  debug: var={{ item }}
+  with_flattened:
+    - director_rpms.stdout_lines
+    - rhos_rpms.stdout_lines
+    - delorean_rpms.stdout_lines
+
+- name: remove any openstack rpms from the host
+  yum: name={{item}} state=absent
+  ignore_errors: yes
+  with_flattened:
+    - director_rpms.stdout_lines
+    - rhos_rpms.stdout_lines
+    - delorean_rpms.stdout_lines
