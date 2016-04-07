@@ -14,3 +14,6 @@ installer:
         'mitaka':
             files:
                 - no_op
+        'master':
+            files:
+                - no_op

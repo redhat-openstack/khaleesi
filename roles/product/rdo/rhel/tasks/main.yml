@@ -1,11 +1,4 @@
 ---
-- name: disable gpgcheck for rdo for every non production repo
-  lineinfile:
-    dest=/etc/yum.repos.d/rdo-release.repo
-    regexp=^gpgcheck=1
-    line=gpgcheck=0
-  when: product.full_version not in ['liberty', 'mitaka'] and product.repo_type != 'production'
-
 - name: Create the upstream delorean repositories for EPEL RDO
   get_url: url="{{ product.repo['delorean'][ansible_distribution][distro.full_version] }}/current/{{ product.repo.delorean.repo_file }}"
             dest=/etc/yum.repos.d/rdo-trunk-release.repo

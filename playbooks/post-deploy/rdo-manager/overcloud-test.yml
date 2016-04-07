@@ -30,6 +30,18 @@
       sudo: yes
       when: product.full_version != "7-director"
 
+    - name: install additional test packages
+      sudo: yes
+      yum: name={{ item }} state=present
+      with_flattened:
+        - python-aodh-tests
+        - python-ceilometer-tests
+        - python-heat-tests
+        - python-ironic-tests
+        - python-neutron-tests
+        - python-sahara-tests
+      when: product.name == 'rdo' and product.full_version not in ['kilo', 'liberty']
+
     - name: execute configure tempest directory
       shell: cd /home/{{ provisioner.remote_user }}/tempest && \
              /usr/share/openstack-tempest*/tools/configure-tempest-directory
