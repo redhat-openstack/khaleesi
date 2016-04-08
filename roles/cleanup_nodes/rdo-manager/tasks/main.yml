@@ -123,6 +123,12 @@
   with_flattened:
     - rdo-release
     - rhos-release
+    - libvirt
+    - libvirt-daemon
+    - openvswitch
+    - NetworkManager
+    - qemu-*
+    - jq
 
 - name: find any remaining rpms from director repos
   shell: "yumdb search from_repo rhelosp-*-director* | egrep -v from_repo | grep -v '^$' | tail -n +2 "
