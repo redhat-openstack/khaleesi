@@ -121,6 +121,7 @@
   yum: name={{item}} state=absent
   ignore_errors: yes
   with_flattened:
+    - instack-*
     - rdo-release
     - rhos-release
     - libvirt
@@ -128,7 +129,21 @@
     - openvswitch
     - NetworkManager
     - qemu-*
+    - openstack-*
+    - python-qpid-*
+    - pexpect
+    - python-pexpect
+    - python-tuskarclient*
+    - python-keystone*
+    - python-openstackclient
+    - python-oslo*
+    - python-qpid
+    - python-ironic*
+    - python-eventlet
+    - tripleo-*
+    - python-rdomanager-*
     - jq
+    - python-tripleo*
 
 - name: find any remaining rpms from director repos
   shell: "yumdb search from_repo rhelosp-*-director* | egrep -v from_repo | grep -v '^$' | tail -n +2 "
