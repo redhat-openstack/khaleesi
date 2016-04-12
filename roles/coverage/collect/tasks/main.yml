@@ -1,3 +1,6 @@
+- name: get openstack-service command
+  yum: name=openstack-utils state=present
+
 - name: stop all services so they write out data files
   shell: openstack-service stop
   ignore_errors: yes
@@ -13,7 +16,7 @@
       src: /coverage/combined/data
       dest: /coverage/combined/data.{{ inventory_hostname }}
       mode: pull
-      rsync_opts: "--rsh 'ssh -i /root/.ssh/id_rsa' --delay-updates"
+      rsync_opts: "--rsh 'ssh -i /root/.ssh/id_rsa -S none -o StrictHostKeyChecking=no' --delay-updates"
       set_remote_user: no # do rsync as root, not cloud-user as defined in inventory
   when: inventory_hostname != groups['controller'][0]
   delegate_to: "{{ groups['controller'][0] }}"
