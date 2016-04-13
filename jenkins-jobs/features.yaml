@@ -1,20 +1,19 @@
 #osp feature virt job
 - job-template:
-    name: 'quickstart-khaleesi-{installer}-{product-version}-{installer-topology}-quickstart-{quickstart-topology}'
-    defaults: rdo-manager-defaults
+    name: 'tripleo-periodic-{product-version-repo}-{product-version}-{feature}-{installer-topology}-{installer-tempest}'
+    defaults: site-defaults
     description: |
         Managed by Jenkins Job Builder. Do not edit via web.
         <p>
         Virthost test job for post deployment features of OSP director e.g. scale out stack, upgrade stack
         <p>
         Documentation available <a href="http://rdo-ci-doc.usersys.redhat.com">http://rdo-ci-doc.usersys.redhat.com</a>
-
     scm:
         - repo-khaleesi
         - repo-khaleesi-settings
-        - repo-tripleo-quickstart
     builders:
-        - ksgen-builder-quickstart-khaleesi-rdo-manager:
+        - builder-tripleo-khaleesi-feature:
+            feature: '{feature}'
             provisioner: 'centosci'
             provisioner-site: 'default'
             provisioner-site-user: 'rdo'
@@ -30,7 +29,6 @@
             installer-images: '{installer-images}'
             installer-post_action: '{installer-post_action}'
             installer-topology: '{installer-topology}'
-            quickstart-topology: '{quickstart-topology}'
             installer-tempest: '{installer-tempest}'
             installer-updates: '{installer-updates}'
             network: '{network}'
@@ -50,33 +48,27 @@
         - timed: '@daily'
 
 - project:
-    name: quickstart-khaleesi-rdo-tripleo
+    name: tripleo-centosci-feature-jobs
     installer: rdo_manager
     installer-deploy: templates
     installer-env: virthost
-    installer-images: import_rdo
+    installer-images: build
+    product-version: liberty
     pin: last_known_good
-    installer-post_action: none
-    installer-tempest: disabled
-    installer-updates: none
-    network: neutron
-    network-isolation: none
-    product: rdo
-    network-variant: ml2-vxlan
-    product-version-repo: delorean
-    distro: centos-7.0
-    provisioner-distro: centos
-    provisioner-distro-version: 7
     jobs:
-        - 'quickstart-khaleesi-{installer}-{product-version}-{installer-topology}-quickstart-{quickstart-topology}':
-            installer-topology: quickstart_minimal
-            quickstart-topology: minimal
-            product-version:
-                - liberty
-                - mitaka
-        - 'quickstart-khaleesi-{installer}-{product-version}-{installer-topology}-quickstart-{quickstart-topology}':
-            installer-topology: quickstart_minimal_ha
-            quickstart-topology: ha
-            product-version:
-                - liberty
-                - mitaka
+        - 'tripleo-periodic-{product-version-repo}-{product-version}-{feature}-{installer-topology}-{installer-tempest}':
+            feature: scale_out
+            installer-post_action: scale_up_delete
+            installer-topology:
+                - minimal_scale_cephstorage
+                - minimal_scale_compute
+            installer-tempest: smoke
+            installer-updates: none
+            network: neutron
+            network-isolation: none
+            product: rdo
+            network-variant: ml2-vxlan
+            product-version-repo: delorean
+            distro: centos-7.0
+            provisioner-distro: centos
+            provisioner-distro-version: 7

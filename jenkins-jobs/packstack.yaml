@@ -1,13 +1,13 @@
 - job-template:
     name: 'packstack-gate_khaleesi-{product}-{product-version}'
-    defaults: rdo-manager-defaults
+    defaults: site-defaults
     triggers:
         - trigger-packstack-gate-khaleesi
     scm:
         - repo-khaleesi-gerrit
         - repo-khaleesi-settings
     builders:
-        - ksgen-builder-packstack:
+        - builder-packstack-khaleesi:
             provisioner-distro: '{provisioner-distro}'
             provisioner-distro-version: '{provisioner-distro-version}'
             product: '{product}'

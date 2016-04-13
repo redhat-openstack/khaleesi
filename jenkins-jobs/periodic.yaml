@@ -1,0 +1,84 @@
+- job-template:
+    name: 'tripleo-periodic-{product-version-repo}-{product-version}-{installer-topology}-{installer-tempest}'
+    defaults: site-defaults
+    triggers:
+        - periodic-trigger
+    scm:
+        - repo-khaleesi
+        - repo-khaleesi-settings
+        - repo-tripleo-quickstart
+    builders:
+        - builder-tripleo-khaleesi-quickstart:
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+    properties:
+        - ownership:
+            owner: whayutin at redhat.com
+            co-owners:
+                - trown at redhat.com
+                - adarazs at redhat.com
+    publishers:
+        - default-publishers
+        - tests-publishers
+        - email:
+            recipients: whayutin@redhat.com trown@redhat.com adarazs@redhat.com
+
+- project:
+    name: tripleo-centosci-periodic-jobs
+    installer: rdo_manager
+    installer-deploy: templates
+    installer-env: virthost
+    installer-images: build
+    installer-post_action: none
+    installer-tempest: smoke
+    network: neutron
+    network-isolation: none
+    product: rdo
+    network-variant: ml2-vxlan
+    distro: centos-7.0
+    provisioner-distro: centos
+    provisioner-distro-version: 7
+    jobs:
+        - 'tripleo-periodic-{product-version-repo}-{product-version}-{installer-topology}-{installer-tempest}':
+            product-version: liberty
+            installer-topology:
+                - quickstart_minimal
+                - quickstart_minimal_ha
+            product-version-repo: delorean
+            pin: last_known_good
+        - 'tripleo-periodic-{product-version-repo}-{product-version}-{installer-topology}-{installer-tempest}':
+            product-version: mitaka
+            installer-topology:
+                - quickstart_minimal
+                - quickstart_minimal_ha
+            product-version-repo: delorean
+            pin: last_known_good
+        - 'tripleo-periodic-{product-version-repo}-{product-version}-{installer-topology}-{installer-tempest}':
+            product-version: master
+            installer-topology:
+                - quickstart_minimal
+                - quickstart_minimal_ha
+            product-version-repo: delorean
+            pin: last_known_good
+        - 'tripleo-periodic-{product-version-repo}-{product-version}-{installer-topology}-{installer-tempest}':
+            product-version: liberty
+            installer-topology:
+                - quickstart_minimal
+                - quickstart_minimal_ha
+            product-version-repo: production
+            pin: latest

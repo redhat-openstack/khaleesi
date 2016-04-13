@@ -1,8 +1,8 @@
 - job:
-    name: 'rdo_manager-gate_job_definitions'
+    name: 'khaleesi-gate-jenkins-jobs'
     defaults: script-defaults
     triggers:
-        - trigger-rdo-manager-gate-khaleesi-jjb
+        - trigger-tripleo-gate-khaleesi-jjb
     scm:
         - repo-khaleesi-gerrit
     builders:

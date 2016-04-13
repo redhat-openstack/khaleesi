@@ -1,5 +1,5 @@
 - defaults:
-    name: rdo-manager-defaults
+    name: site-defaults
     description: |
       <h3> Documentation: <a href=http://khaleesi.readthedocs.org/en/master/>http://khaleesi.readthedocs.org/en/master/</a> </h3>
             <h3> How to understand the names used for these jobs </h3>
@@ -23,8 +23,8 @@
     concurrent: true
     node: khaleesi
     logrotate:
-        daysToKeep: 5
-        artifactDaysToKeep: 5
+        daysToKeep: 30
+        artifactDaysToKeep: 30
     wrappers:
         - ansicolor
         - timestamps
@@ -42,8 +42,8 @@
     concurrent: false
     node: khaleesi
     logrotate:
-        daysToKeep: 5
-        artifactDaysToKeep: 5
+        daysToKeep: 30
+        artifactDaysToKeep: 30
     wrappers:
         - ansicolor
         - timestamps
@@ -187,7 +187,7 @@
             test-stability: True
 
 - trigger:
-    name: trigger-upstream-gate-rdo-manager
+    name: trigger-upstream-gate-tripleo
     triggers:
         - gerrit:
             server-name: 'rdo-ci-openstack.org'
@@ -213,7 +213,7 @@
             silent: '{silent}'
 
 - trigger:
-    name: trigger-rdo-manager-gate-khaleesi
+    name: trigger-tripleo-gate-khaleesi
     triggers:
         - gerrit:
             server-name: 'rdo-ci-centos'
@@ -260,7 +260,7 @@
             custom-url: "* $JOB_NAME $BUILD_URL"
 
 - trigger:
-    name: trigger-rdo-manager-gate-khaleesi-jjb
+    name: trigger-tripleo-gate-khaleesi-jjb
     triggers:
         - gerrit:
             server-name: 'rdo-ci-centos'
@@ -335,7 +335,7 @@
             custom-url: "* $JOB_NAME $BUILD_URL"
 
 - trigger:
-    name: trigger-rdo-manager-gate-khaleesi-settings
+    name: trigger-tripleo-gate-khaleesi-settings
     triggers:
         - gerrit:
             server-name: 'rdo-ci-centos'
@@ -366,7 +366,7 @@
             custom-url: "* $JOB_NAME $BUILD_URL"
 
 - trigger:
-    name: trigger-rdo-manager-gate-instack-undercloud
+    name: trigger-tripleo-gate-instack-undercloud
     triggers:
         - gerrit:
             server-name: 'rdo-ci-centos'
@@ -409,7 +409,7 @@
             custom-url: "* $JOB_NAME $BUILD_URL"
 
 - trigger:
-    name: trigger-rdo-manager-gate-oscplugin
+    name: trigger-tripleo-gate-oscplugin
     triggers:
         - gerrit:
             server-name: 'rdo-ci-centos'

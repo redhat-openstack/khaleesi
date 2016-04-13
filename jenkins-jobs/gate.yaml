@@ -1,0 +1,159 @@
+- job-template:
+    name: 'tripleo-gate-{project}-{product}-{product-version}-{installer-tempest}'
+    defaults: site-defaults
+    triggers:
+        - trigger-upstream-gate-tripleo:
+            branch: '{branch}'
+            project: '{project}'
+            silent: '{silent}'
+    scm:
+        - repo-khaleesi
+        - repo-khaleesi-settings
+    builders:
+        - builder-tripleo-khaleesi-upstream-gates:
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+
+- job-template:
+    name: 'tripleo-gate-khaleesi-{product}-{product-version}-{installer-tempest}'
+    defaults: site-defaults
+    triggers:
+        - trigger-tripleo-gate-khaleesi
+    scm:
+        - repo-khaleesi-gerrit
+        - repo-khaleesi-settings
+    builders:
+        - builder-tripleo-khaleesi:
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+    properties:
+        - ownership:
+            owner: whayutin at redhat.com
+            co-owners:
+                - adarazs at redhat.com
+    publishers:
+        - default-publishers
+        - tests-publishers
+
+- job-template:
+    name: 'tripleo-gate-khaleesi-settings-{product}-{product-version}-{installer-tempest}'
+    defaults: site-defaults
+    triggers:
+        - trigger-tripleo-gate-khaleesi-settings
+    scm:
+        - repo-khaleesi
+        - repo-khaleesi-settings-gerrit
+    builders:
+        - builder-tripleo-khaleesi:
+            provisioner-distro: '{provisioner-distro}'
+            provisioner-distro-version: '{provisioner-distro-version}'
+            product: '{product}'
+            product-version: '{product-version}'
+            product-version-repo: '{product-version-repo}'
+            distro: '{distro}'
+            installer: '{installer}'
+            installer-deploy: '{installer-deploy}'
+            installer-env: '{installer-env}'
+            installer-images: '{installer-images}'
+            installer-post_action: '{installer-post_action}'
+            installer-topology: '{installer-topology}'
+            installer-tempest: '{installer-tempest}'
+            network: '{network}'
+            network-isolation: '{network-isolation}'
+            network-variant: '{network-variant}'
+            pin: '{pin}'
+    properties:
+        - ownership:
+            owner: whayutin at redhat.com
+            co-owners:
+                - adarazs at redhat.com
+    publishers:
+        - default-publishers
+        - tests-publishers
+
+- project:
+    name: tripleo-upstream-gate-jobs-centosci
+    project: instack-undercloud
+    installer: rdo_manager
+    installer-deploy: templates
+    installer-env: virthost
+    installer-images: build
+    installer-post_action: none
+    installer-topology: minimal_no_ceph
+    installer-tempest: smoke
+    network: neutron
+    network-isolation: none
+    network-variant: ml2-vxlan
+    product: rdo
+    product-version-repo: delorean
+    distro: centos-7.0
+    provisioner-distro: centos
+    provisioner-distro-version: 7
+    pin: last_known_good
+    jobs:
+        - 'tripleo-gate-{project}-{product}-{product-version}-{installer-tempest}':
+            product-version: liberty
+            branch: stable/liberty
+            silent: true
+        - 'tripleo-gate-{project}-{product}-{product-version}-{installer-tempest}':
+            product-version: mitaka
+            branch: stable/mitaka
+            silent: false
+        - 'tripleo-gate-{project}-{product}-{product-version}-{installer-tempest}':
+            product-version: master
+            branch: master
+            silent: true
+
+- project:
+    name: tripleo-centosci-gate-jobs
+    installer: rdo_manager
+    installer-deploy: templates
+    installer-env: virthost
+    installer-images: build
+    installer-post_action: none
+    installer-topology: minimal_no_ceph
+    installer-tempest: smoke
+    network: neutron
+    network-isolation: none
+    network-variant: ml2-vxlan
+    product: rdo
+    product-version: mitaka
+    product-version-repo: delorean
+    distro: centos-7.0
+    provisioner-distro: centos
+    provisioner-distro-version: 7
+    pin: last_known_good
+
+    jobs:
+        - 'tripleo-gate-khaleesi-{product}-{product-version}-{installer-tempest}'
+        - 'tripleo-gate-khaleesi-settings-{product}-{product-version}-{installer-tempest}'
