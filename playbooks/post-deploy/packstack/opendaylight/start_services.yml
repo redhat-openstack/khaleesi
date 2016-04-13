@@ -1,12 +1,32 @@
 ---
-- name: Post odl-installation steps
-  hosts: controller
+- name: Post odl-installation steps for all nodes
+  hosts:
+    - controller
+    - compute
   sudo: yes
   tasks:
+      #TODO(abregman): remove when bug 1334732 is resolved
       - name: Set selinux to permissive
         selinux: policy=targeted 
                  state=permissive
 
+      - name: get ovs id
+        shell: ovs-vsctl get Open_vSwitch . _uuid
+        register: ovs_id
+
+      # Setting local_ip to enable tunnelling
+      - name: set local_ip
+        command: "ovs-vsctl set Open_vSwitch {{ ovs_id.stdout }} other_config:local_ip={{ hostvars[inventory_hostname].ansible_default_ipv4.address }}"
+
+      - name: Add public interface to public bridge
+        shell: >
+            sudo ovs-vsctl --no-wait -- --may-exist add-port br-ex eth2;
+            sudo ip link set eth2 up
+
+- name: Post odl-installation steps
+  hosts: controller
+  sudo: yes
+  tasks:
       - name: Start neutron-server service
         service: name=neutron-server
                  state=running
@@ -42,8 +62,3 @@
             cidr: "{{ provisioner.network.network_list.external.nested.subnet_cidr}}"
             allocation_pool_start: "{{ provisioner.network.network_list.external.nested.allocation_pool_start }}"
             allocation_pool_end: "{{ provisioner.network.network_list.external.nested.allocation_pool_end }}"
-
-      - name: Add public interface to public bridge
-        shell: >
-            sudo ovs-vsctl --no-wait -- --may-exist add-port br-ex eth2;
-            sudo ip link set eth2 up

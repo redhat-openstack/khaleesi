@@ -1,6 +1,8 @@
 ---
 - name: Attach ovs to an active opendaylight controller
-  hosts: controller
+  hosts:
+    - controller
+    - compute
   sudo: yes
   tasks:
       - name: Start openvswitch

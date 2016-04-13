@@ -26,7 +26,7 @@
     - name: Configure neutron to use OpenDaylight L3
       shell: >
           sed -i "s/router,//g" /etc/neutron/neutron.conf;
-          sed -i "/^service_plugins/s/$/,networking_odl.l3.l3_odl.OpenDaylightL3RouterPlugin/" /etc/neutron/neutron.conf
+          egrep -q '^service_plugins.*networking_odl.l3.l3_odl.OpenDaylightL3RouterPlugin' /etc/neutron/neutron.conf || sed -i "/^service_plugins/s/$/,networking_odl.l3.l3_odl.OpenDaylightL3RouterPlugin/" /etc/neutron/neutron.conf
 
     - name: Clean neutron ML2 database
       shell: >
