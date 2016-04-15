@@ -1,5 +1,6 @@
 ---
 - include: pre.yml
+- include: ssl.yml
 - include: "pre-{{ installer.env.type }}.yml"
 - include: run.yml
 - include: "post-{{ installer.env.type }}.yml"

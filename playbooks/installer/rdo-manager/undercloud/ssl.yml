@@ -1,0 +1,50 @@
+- name: Group hosts by action - ssl
+  hosts: undercloud
+  gather_facts: no
+  tasks:
+    - group_by: key="ssl"
+      when: installer.ssl
+
+- name: Update yum repo
+  hosts: ssl
+  gather_facts: no
+  tasks:
+    - name: Generate Key and self signed CA
+      command: openssl req -x509 -nodes -newkey rsa:2048 -subj "/CN={{ hw_env.UndercloudVIP }}" -days 3650 -keyout undercloud-key.pem -out undercloud-cacert.pem -extensions v3_ca
+
+    - name: Combine CA and key for HAproxy
+      shell: >
+        cat undercloud-cacert.pem undercloud-key.pem > undercloud.pem
+
+    - name: Combine CA and key for HAproxy
+      sudo: yes
+      shell: >
+        mkdir /etc/pki/instack-certs;
+        cp undercloud.pem /etc/pki/instack-certs;
+        semanage fcontext -a -t etc_t "/etc/pki/instack-certs(/.*)?";
+        restorecon -R /etc/pki/instack-certs;
+
+    - name: Copy self-signed certificat
+      sudo: yes
+      shell: >
+          cp undercloud-cacert.pem /etc/pki/ca-trust/source/anchors/;
+          update-ca-trust extract;
+      when: installer.ssl
+
+    - name: Set the public VIP for undercloud
+      lineinfile:
+        dest: "{{ instack_user_home }}/undercloud.conf"
+        regexp: "^#undercloud_public_vip"
+        line: "undercloud_public_vip = {{ hw_env.UndercloudVIP }}"
+
+    - name: Set the public VIP for undercloud
+      lineinfile:
+        dest: "{{ instack_user_home }}/undercloud.conf"
+        regexp: "^#undercloud_admin_vip"
+        line: "undercloud_admin_vip = {{ hw_env.UndercloudAdminVIP }}"
+
+    - name: Set the public VIP for undercloud
+      lineinfile:
+        dest: "{{ instack_user_home }}/undercloud.conf"
+        regexp: "^#undercloud_service_certificate"
+        line: "undercloud_service_certificate = /etc/pki/instack-certs/undercloud.pem"

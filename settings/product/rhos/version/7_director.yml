@@ -8,3 +8,8 @@ product:
 defaults:
   build: latest
   repo: puddle
+
+workarounds:
+  rhbz1320950:
+    desc: 'os-cloud-config hardcodes SSL ports'
+    enabled: true

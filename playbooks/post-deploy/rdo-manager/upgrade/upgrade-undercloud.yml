@@ -35,6 +35,24 @@
       yum: name=* state=latest
 
     - name: upgrade undercloud install
+      register: upgrade_undercloud
+      ignore_errors: yes
+      shell: >
+        source /home/stack/stackrc;
+        openstack undercloud upgrade &> upgrade_undercloud.log
+
+    - name: restart openstack services rhbz1320950
+      service: name={{item}} state=restarted
+      when: installer.ssl and
+            workarounds.rhbz1320950.enabled
+      sudo: yes
+      with_items:
+          - keepalived
+
+    - name: upgrade undercloud install
+      when: installer.ssl and
+            workarounds.rhbz1320950.enabled and
+            upgrade_undercloud.rc == 1
       shell: >
         source /home/stack/stackrc;
         openstack undercloud upgrade &> upgrade_undercloud.log

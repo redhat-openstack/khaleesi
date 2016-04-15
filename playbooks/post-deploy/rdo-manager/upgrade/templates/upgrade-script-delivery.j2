@@ -12,3 +12,8 @@ export UPGRADE_COMMAND="$UPGRADE_COMMAND -e ~/network-environment.yaml "
 
 export UPGRADE_COMMAND="$UPGRADE_COMMAND  -e tripleo-heat-templates/environments/puppet-pacemaker.yaml -e tripleo-heat-templates/environments/major-upgrade-pacemaker-init.yaml "
 export UPGRADE_COMMAND="$UPGRADE_COMMAND -e custom.yaml "
+
+{% if installer.ssl == True %}
+export UPGRADE_COMMAND="$UPGRADE_COMMAND -e ~/enable-tls.yaml \
+                                       -e ~/inject-trust-anchor.yaml "
+{% endif %}
