@@ -19,7 +19,7 @@ provisioner:
             id: 3
         large:
             name: 'm1.large'
-            id: 4
+            id: 0ea79d73-2422-4ebd-96dc-2bfdb8f960ae
         large_testing:
             name: 'm1.large_testing'
             id: c6e0ad85-81a8-4fbb-a2d9-b0abac52f79b
