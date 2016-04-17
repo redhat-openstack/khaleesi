@@ -104,7 +104,7 @@
       register: compute_uuid
       shell: >
           source {{ instack_user_home }}/stackrc;
-          nova list | grep overcloud-novacompute-0  | awk '{ print $2; }'
+          nova list | grep compute-0  | awk '{ print $2; }'
 
     - name: get ceph uuid
       register: ceph_uuid
