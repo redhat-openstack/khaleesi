@@ -27,6 +27,8 @@
 - name: validate overcloud
   hosts: undercloud
   gather_facts: false
+  vars:
+    - ansible_ssh_user: stack
   roles:
     - validate_openstack/setup_network
     - validate_openstack/test_instance
