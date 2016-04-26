@@ -142,6 +142,15 @@
           choosing-strategy: gerrit
           skip-tag: true
 
+- scm:
+    name: repo-github
+    scm:
+        - git:
+            basedir: "{project}"
+            url: https://github.com/{org}/{project}.git
+            branches:
+                - master
+
 - publisher:
     name: feature-publishers
     publishers:

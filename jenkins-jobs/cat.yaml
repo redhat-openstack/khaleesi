@@ -1,0 +1,131 @@
+- trigger:
+    name: trigger-gate-cat
+    triggers:
+        - gerrit:
+            server-name: 'rdo-ci-centos'
+            trigger-on:
+                - patchset-created-event
+                - draft-published-event
+                - comment-added-contains-event:
+                    comment-contains-value:  '(?i)^(Patch Set [0-9]+:)?( [\w\\+-]*)*(\n\n)?\s*(rdo)? ?(recheck)'
+            projects:
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/ci-ansible-tripleo'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/ansible-role-tripleo-overcloud'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/ansible-role-tripleo-overcloud-validate'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/ansible-role-tripleo-tempest'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/ansible-role-tripleo-overcloud-upgrade'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/ansible-role-tripleo-inventory'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/ansible-role-tripleo-undercloud-post'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+
+            skip-vote:
+                successful: false
+                failed: false
+                unstable: false
+                notbuilt: false
+            failure-message: 'FAILURE'
+            successful-message: 'SUCCESS'
+            unstable-message: 'UNSTABLE'
+            custom-url: "* $JOB_NAME $BUILD_URL"
+
+
+- job:
+    name: 'tripleo-gate-cat'
+    defaults: script-defaults
+    concurrent: true
+    triggers:
+        - trigger-gate-cat
+    scm:
+        - repo-github:
+                org: redhat-openstack
+                project: "ci-ansible-tripleo"
+        - repo-tripleo-quickstart
+        - repo-github:
+                org: redhat-openstack
+                project: "ansible-role-tripleo-overcloud"
+        - repo-github:
+                org: redhat-openstack
+                project: "ansible-role-tripleo-overcloud-validate"
+        - repo-github:
+                org: redhat-openstack
+                project: "ansible-role-tripleo-tempest"
+        - repo-github:
+                org: redhat-openstack
+                project: "ansible-role-tripleo-overcloud-upgrade"
+        - repo-github:
+                org: redhat-openstack
+                project: "ansible-role-tripleo-inventory"
+        - repo-github:
+                org: redhat-openstack
+                project: "ansible-role-tripleo-undercloud-post"
+    builders:
+        - shining-panda:
+            build-environment: virtualenv
+            python-version: system-CPython-2.7
+            nature: shell
+            clear: false
+            use-distribute: true
+            system-site-packages: false
+            ignore-exit-code: false
+            command: |
+                result=0
+                pip install python-cicoclient
+
+                cico node get --arch x86_64 --release 7 --count 1 --retry-count 2 --retry-interval 30 -f csv > provisioned.csv
+                cico inventory
+
+                cat provisioned.csv
+
+                export VIRTHOST=`cat provisioned.csv | tail -1 | cut -d "," -f 3| sed -e 's/"//g'`
+                export VIRTHOST_KEY=`cat provisioned.csv | tail -1 | cut -d "," -f 7| sed -e 's/"//g'`
+
+                pushd ci-ansible-tripleo
+
+                python scripts/get_gate_changes.py $WORKSPACE
+
+                sed -i.bak  "s|git+https://.*openstack/|file://$WORKSPACE/|" requirements.txt
+                sed -i.ba2  "s|.git||" requirements.txt
+
+                ./deploy.sh $VIRTHOST || result=1
+                popd
+
+                cico node done $VIRTHOST_KEY
+                cico inventory
+
+                exit $result
+    properties:
+        - ownership:
+            owner: apetrich at redhat.com
