@@ -28,8 +28,8 @@ provisioner:
                 name: rhel-guest-image-6.7-20150702.0
                 remote_user: cloud-user
             '6.8':
-                id: b32dab9a-3c64-48f6-96e6-24f0f2b34102
-                name: rhel-guest-image-6.8-20160310.0
+                id: c5441272-c332-4def-b0ac-71f52d5e38e0
+                name: rhel-guest-image-6.8-20160425.0
                 remote_user: cloud-user
             '7.0':
                 id: 44ede052-1e0d-40b1-8f49-77a9c7e55a8e
