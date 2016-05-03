@@ -51,6 +51,12 @@
                       - branch-compare-type: 'PLAIN'
                         branch-pattern: 'master'
 
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/ansible-role-tripleo-collect-logs'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+
             skip-vote:
                 successful: false
                 failed: false
@@ -91,6 +97,9 @@
         - repo-github:
                 org: redhat-openstack
                 project: "ansible-role-tripleo-undercloud-post"
+        - repo-github:
+                org: redhat-openstack
+                project: "ansible-role-tripleo-collect-logs"
     builders:
         - shining-panda:
             build-environment: virtualenv
@@ -111,6 +120,7 @@
 
                 export VIRTHOST=`cat provisioned.csv | tail -1 | cut -d "," -f 3| sed -e 's/"//g'`
                 export VIRTHOST_KEY=`cat provisioned.csv | tail -1 | cut -d "," -f 7| sed -e 's/"//g'`
+                echo $VIRTHOST > $WORKSPACE/cico_host.txt
 
                 pushd ci-ansible-tripleo
 
@@ -120,7 +130,16 @@
                 sed -i.ba2  "s|.git||" requirements.txt
 
                 ./deploy.sh $VIRTHOST || result=1
+
                 popd
+
+                pushd ci-ansible-tripleo
+                source $WORKSPACE/ci-ansible-tripleo/.cat/bin/activate
+                source $WORKSPACE/ci-ansible-tripleo/ansible_env
+                export ANSIBLE_INVENTORY=$WORKSPACE/ci-ansible-tripleo/.cat/hosts
+                popd
+
+                ansible-playbook ansible-role-tripleo-collect-logs/samples/collect_logs.yaml -e @ansible-role-tripleo-collect-logs/samples/config/centos_ci.yaml
 
                 cico node done $VIRTHOST_KEY
                 cico inventory
@@ -129,3 +148,18 @@
     properties:
         - ownership:
             owner: apetrich at redhat.com
+    publishers:
+        - archive:
+            artifacts: '**/collected_files/*.tar.gz, **/collect_logs.txt, **/cleanup.txt, **/ksgen_settings.yml, **/full_logs.html'
+        - post-tasks:
+            - matches:
+                - log-text: Build was aborted
+                  operator: AND
+              escalate-status: false
+              script: |
+
+                cico node done `cat $WORKSPACE/cico_host.txt`
+                cico inventory
+
+                source ~/ansible_venv/bin/activate
+
