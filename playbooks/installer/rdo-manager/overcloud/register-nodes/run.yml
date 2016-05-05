@@ -25,7 +25,9 @@
           source {{ instack_user_home }}/stackrc;
           ironic driver-list;
       register: driver_list
-      failed_when: "'pxe_ssh' not in driver_list.stdout"
+      until: driver_list.stdout.find("pxe_ssh") > -1
+      retries: 100
+      delay: 3
 
 - name: register nodes
   hosts: undercloud
