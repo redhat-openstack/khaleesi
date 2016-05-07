@@ -14,7 +14,7 @@
       yum: name={{item}} state=present
       with_items:
         - python-tripleoclient
-      when: product.name == "rdo" or product.full_version == "8-director"
+      when: product.name == "rdo" or product.full_version in ["8-director", "9-director"]
 
     - name: install python-rdomanager-oscplugin
       sudo: yes
