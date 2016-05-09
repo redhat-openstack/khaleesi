@@ -57,6 +57,13 @@
                       - branch-compare-type: 'PLAIN'
                         branch-pattern: 'master'
 
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/ansible-role-tripleo-cleanup-nfo'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+
+
             skip-vote:
                 successful: false
                 failed: false
@@ -100,6 +107,9 @@
         - repo-github:
                 org: redhat-openstack
                 project: "ansible-role-tripleo-collect-logs"
+        - repo-github:
+                org: redhat-openstack
+                project: "ansible-role-tripleo-cleanup-nfo"
     builders:
         - shining-panda:
             build-environment: virtualenv
