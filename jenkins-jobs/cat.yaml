@@ -115,7 +115,7 @@
             build-environment: virtualenv
             python-version: system-CPython-2.7
             nature: shell
-            clear: false
+            clear: true
             use-distribute: true
             system-site-packages: false
             ignore-exit-code: false
@@ -149,7 +149,7 @@
                 export ANSIBLE_INVENTORY=$WORKSPACE/ci-ansible-tripleo/.cat/hosts
                 popd
 
-                ansible-playbook ansible-role-tripleo-collect-logs/samples/collect_logs.yaml -e @ansible-role-tripleo-collect-logs/samples/config/centos_ci.yaml
+                ansible-playbook ansible-role-tripleo-collect-logs/samples/collect_logs.yaml -e @ansible-role-tripleo-collect-logs/samples/config/centos_ci.yaml || true
 
                 cico node done $VIRTHOST_KEY
                 cico inventory
