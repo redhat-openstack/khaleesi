@@ -2,4 +2,7 @@
 - include: provision.yml
 - include: install.yml
 - include: adhoc/sahara/main.yml
-- include: test.yml
+- include: tester/{{ tester.type }}/pre.yml
+- include: adhoc/sahara/tempest.yml
+- include: tester/{{ tester.type }}/run.yml
+- include: tester/{{ tester.type }}/post.yml

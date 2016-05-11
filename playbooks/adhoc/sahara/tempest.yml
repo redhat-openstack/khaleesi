@@ -1,0 +1,29 @@
+---
+- name: Fix tempest configuration
+  hosts: tester
+  vars:
+      sahara_plugins:
+          '6.0':
+              - hdp
+          '7.0':
+              - hdp
+              - cdh
+          '8.0':
+              - hdp
+              - cdh
+          '9.0':
+              - hdp
+              - cdh
+      sahara_tempest_plugins_section:
+          '5.0': 'data_processing-feature-enabled'
+          '6.0': 'data_processing-feature-enabled'
+          '7.0': 'data_processing-feature-enabled'
+  tasks:
+      - name: add the available Sahara plugins to Tempest config
+        ini_file:
+            dest: "~/{{ tester.dir }}/etc/tempest.conf"
+            section: "{{ sahara_tempest_plugins_section[product.full_version]|default('data-processing-feature-enabled') }}"
+            option: "plugins"
+            value: "{{ sahara_plugins[product.full_version] | join(',') }}"
+        when: product.name == "rhos" and tester.type == "tempest"
+              and sahara_plugins[product.full_version] is defined
