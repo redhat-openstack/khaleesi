@@ -139,7 +139,7 @@
                 sed -i.bak  "s|git+https://.*openstack/|file://$WORKSPACE/|" requirements.txt
                 sed -i.ba2  "s|.git||" requirements.txt
 
-                ./deploy.sh $VIRTHOST || result=1
+                ./deploy.sh -f config/general_config/net-iso.yml $VIRTHOST || result=1
 
                 popd
 
