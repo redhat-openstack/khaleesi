@@ -58,6 +58,12 @@
                         branch-pattern: 'master'
 
                 - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/ansible-role-tripleo-gate'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
+
+                - project-compare-type: 'PLAIN'
                   project-pattern: 'redhat-openstack/ansible-role-tripleo-cleanup-nfo'
                   branches:
                       - branch-compare-type: 'PLAIN'
@@ -107,6 +113,9 @@
         - repo-github:
                 org: redhat-openstack
                 project: "ansible-role-tripleo-collect-logs"
+        - repo-github:
+                org: redhat-openstack
+                project: "ansible-role-tripleo-gate"
         - repo-github:
                 org: redhat-openstack
                 project: "ansible-role-tripleo-cleanup-nfo"
