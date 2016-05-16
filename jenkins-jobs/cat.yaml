@@ -69,6 +69,11 @@
                       - branch-compare-type: 'PLAIN'
                         branch-pattern: 'master'
 
+                - project-compare-type: 'PLAIN'
+                  project-pattern: 'redhat-openstack/ansible-role-tripleo-overcloud-scale-nodes'
+                  branches:
+                      - branch-compare-type: 'PLAIN'
+                        branch-pattern: 'master'
 
             skip-vote:
                 successful: false
@@ -119,6 +124,9 @@
         - repo-github:
                 org: redhat-openstack
                 project: "ansible-role-tripleo-cleanup-nfo"
+        - repo-github:
+                org: redhat-openstack
+                project: "ansible-role-tripleo-overcloud-scale-nodes"
     builders:
         - shining-panda:
             build-environment: virtualenv
