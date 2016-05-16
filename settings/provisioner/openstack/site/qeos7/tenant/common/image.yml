@@ -2,16 +2,16 @@ provisioner:
     images:
         centos:
             '7.0':
-                id: f0946f26-ff90-4cd7-a2db-c03820acf13e
-                name: CentOS-7-x86_64-GenericCloud-20140829_01.qcow2
+                id: 7a5acb2a-6c52-4e90-bc47-71b112c2015a
+                name: CentOS-7-x86_64-GenericCloud-1604
                 remote_user: centos
             '7.1':
-                id: c064b47b-f1a3-47cc-8634-c774f4023fcc
-                name: CentOS-7.1.1503-x86_64-GenericCloud.qcow2
+                id: 7a5acb2a-6c52-4e90-bc47-71b112c2015a
+                name: CentOS-7-x86_64-GenericCloud-1604
                 remote_user: centos
             '7':
-                id: c064b47b-f1a3-47cc-8634-c774f4023fcc
-                name: CentOS-7.1.1503-x86_64-GenericCloud.qcow2
+                id: 7a5acb2a-6c52-4e90-bc47-71b112c2015a
+                name: CentOS-7-x86_64-GenericCloud-1604
                 remote_user: centos
         fedora:
             '23':
