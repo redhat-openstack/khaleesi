@@ -4,4 +4,5 @@
 - include: stop_services.yml
 - include: install_odl_driver.yml
 - include: configure_neutron.yml
+- include: configure_nova.yml
 - include: start_services.yml

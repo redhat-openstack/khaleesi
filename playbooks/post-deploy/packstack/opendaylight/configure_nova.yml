@@ -1,0 +1,10 @@
+- name: Configure nova
+  hosts: controller
+  sudo: yes
+  tasks:
+    - name: Set force_config_drive
+      ini_file:
+          dest="/etc/nova/nova.conf"
+          section=DEFAULT
+          option=force_config_drive
+          value=False

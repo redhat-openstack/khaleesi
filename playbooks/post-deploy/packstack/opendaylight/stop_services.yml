@@ -4,10 +4,23 @@
     - controller
   sudo: yes
   tasks:
-    - name: Stop neutron-server
-      service: name=neutron-server
+    - name: Stop neutron services
+      service: name={{ item }}
                state=stopped
+      with_items:
+        - 'neutron-server'
+        - 'neutron-dhcp-agent'
+        - 'neutron-metadata-agent'
 
+#    - name: Stop nova services
+#      service: name={{ item }}
+#               state=stopped
+#      with_items:
+#        - 'openstack-nova-scheduler'
+#        - 'openstack-nova-api'
+#        - 'openstack-nova-conductor'
+#        - 'openstack-nova-compute'
+        
 - name: Stop networking services
   hosts:
     - controller

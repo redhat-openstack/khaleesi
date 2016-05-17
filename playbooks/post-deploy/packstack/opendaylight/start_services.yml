@@ -27,9 +27,22 @@
   hosts: controller
   sudo: yes
   tasks:
-      - name: Start neutron-server service
-        service: name=neutron-server
+      - name: Start neutron services
+        service: name={{ item }}
                  state=running
+        with_items:
+          - 'neutron-server'
+          - 'neutron-dhcp-agent'
+          - 'neutron-metadata-agent'
+
+      - name: Start nova services
+        service: name={{ item }}
+                 state=running
+        with_items:
+          - 'openstack-nova-scheduler'
+          - 'openstack-nova-api'
+          - 'openstack-nova-conductor'
+          - 'openstack-nova-compute'
 
       # Required for running tests
       - name: Create an external network

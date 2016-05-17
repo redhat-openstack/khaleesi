@@ -12,6 +12,16 @@
           - { option: 'mechanism_drivers', value: 'opendaylight' }
           - { option: 'tenant_network_types', value: 'vxlan' }
 
+    - name: Configure dhcp_agent.ini
+      ini_file:
+          dest="/etc/neutron/dhcp_agent.ini"
+          section="DEFAULT"
+          option={{ item }}
+          value='True'
+      with_items:
+          - 'force_metadata'
+          - 'enable_isolated_metadata'
+
     - name: Add opendaylight to ML2 configuration
       ini_file:
           dest="/etc/neutron/plugins/ml2/ml2_conf.ini"
