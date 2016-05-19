@@ -8,7 +8,7 @@ distro:
             '21':
                 remote_user: fedora
                 guest_image_name: "Fedora-Cloud-Base-20141203-21.x86_64.qcow2"
-                remote_file_server: "https://dl.fedoraproject.org/pub/fedora/linux/releases/21/Cloud/Images/x86_64/"
+                remote_file_server: "http://archives.fedoraproject.org/pub/archive/fedora/linux/releases/21/Cloud/Images/x86_64/"
     config:
         reboot_delay: 1
         initial_boot_timeout: 180 #seconds
