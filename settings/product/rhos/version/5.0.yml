@@ -11,4 +11,4 @@ tester:
 
 workarounds:
     lp1408987: {}
-    bz1138740: {}
+    rhbz1138740: {}

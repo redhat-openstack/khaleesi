@@ -11,3 +11,4 @@ tester:
 
 workarounds:
     bz1261491: {}
+    rhbz1138740: {}

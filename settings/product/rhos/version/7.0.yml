@@ -8,3 +8,4 @@ product:
 workarounds:
     rhbz1299563: {}
     rhbz1296899: {} # configure swift proxy server properly
+    rhbz1138740: {}
