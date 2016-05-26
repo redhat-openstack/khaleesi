@@ -7,7 +7,7 @@
 - include: provision.yml
 
 - name: Create local repo for patched rpm
-  hosts: controller
+  hosts: openstack_nodes
   tasks:
     - name: Install release tool
       sudo: yes
