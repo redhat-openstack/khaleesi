@@ -3,6 +3,10 @@
   hosts: odl_controller
   sudo: yes
   tasks:
+      - name: Copy patched project to OpenDaylight Controller
+        sudo: no
+        synchronize: src="{{ inventory_dir }}/../{{ patch.gerrit.project }}" dest="/tmp/patched/"
+
       - name: Create the COPR repos required for component tests
         template: src=templates/component-test-copr-repo.j2 dest=/etc/yum.repos.d/component-test-copr.repo
 
@@ -73,7 +77,7 @@
       - name: Run apache-chain-builder and build the opendaylight disturbution
         args:
             chdir: /home/{{ ansible_ssh_user}}/maven-chain-builder
-        shell: "python maven-chain-builder.py opendaylight-chain.ini {{ ansible_ssh_user }}"
+        shell: "python maven-chain-builder.py opendaylight-chain.ini {{ patch.gerrit.project }}"
 
 - name: Prepare opendaylight distribution for run
   hosts: odl_controller
