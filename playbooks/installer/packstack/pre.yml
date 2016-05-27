@@ -20,7 +20,7 @@
       authorized_key: user=root key="{{ lookup('file', '/tmp/ssh_keys/id_rsa.pub') }}"
 
 - name: Enable patched_rpm repo
-  hosts: controller
+  hosts: openstack_nodes
   sudo: yes
   tasks:
       - name: Enable patched_rpms repository
