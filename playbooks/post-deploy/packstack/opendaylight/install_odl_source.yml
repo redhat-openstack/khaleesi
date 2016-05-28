@@ -63,6 +63,7 @@
         args:
             chdir: /home/{{ ansible_ssh_user}}/maven-chain-builder
         shell: >
+            sudo git config --system http.sslverify false;
             sudo sed -i "s/\$TAG_TO_BUILD/rhos-{{ product.full_version }}-patches/g" /home/{{ ansible_ssh_user }}/opendaylight/make-vars;
             /home/{{ ansible_ssh_user }}/opendaylight/make-vars;
             cp /home/{{ ansible_ssh_user}}/opendaylight/opendaylight-chain/opendaylight-chain.ini .;
