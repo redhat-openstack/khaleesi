@@ -86,3 +86,6 @@
   tasks:
       - name: Extract odl distribution to /opt/karaf
         shell: "tar -zxf /tmp/org/opendaylight/ovsdb/karaf/*/*.tar.gz -C /opt && mv /opt/karaf* /opt/opendaylight"
+
+      - name: Make sure ovbsdb is installed
+        shell: sudo sed -i "/^featuresBoot *=/ s/$/,odl-ovsdb-openstack,odl-ovsdb-ui/" /opt/opendaylight/etc/org.apache.karaf.features.cfg
