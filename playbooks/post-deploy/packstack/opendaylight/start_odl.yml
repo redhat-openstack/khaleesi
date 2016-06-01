@@ -13,7 +13,7 @@
     - name: Make openvswitch_t a permissive domain
       command: semanage permissive -a openvswitch_t
 
-- name: Set Iptables rules on opendaylight controller
+- name: Configure opendaylight controller
   hosts:
     - odl_controller
   sudo: yes
@@ -25,6 +25,8 @@
         - "{{ groups.compute }}"
         - "{{ groups.controller }}"
 
+     - name: Change log files size
+       shell: "sed -i -re 's/(log4j.appender.out.maxFileSize=)[^=]*$/\110MB/' /opt/opendaylight/etc/org.ops4j.pax.logging.cfg"
 
 - name: Start OpenDaylight distribution
   hosts:
