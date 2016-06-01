@@ -26,7 +26,10 @@
         - "{{ groups.controller }}"
 
     - name: Change log files size
-      shell: "sed -i -re 's/(log4j.appender.out.maxFileSize=)[^=]*$/\110MB/' /opt/opendaylight/etc/org.ops4j.pax.logging.cfg"
+      replace:
+          dest=/opt/opendaylight/etc/org.ops4j.pax.logging.cfg
+          regexp='(log4j.appender.out.maxFileSize=)[^=]*$'
+          replace='\110MB'
 
 - name: Start OpenDaylight distribution
   hosts:
