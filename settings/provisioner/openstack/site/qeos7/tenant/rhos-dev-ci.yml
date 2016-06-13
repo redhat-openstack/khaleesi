@@ -1,3 +1,59 @@
 --- !extends:common/image.yml
 provisioner:
     tenant_name: rhos-dev-ci
+    network:
+        dynamic_net: true
+        public_net_name: '10.8.184.0/22'
+        router:
+            name: '{{ tmp.node_prefix }}router'
+        network_list:
+            management:
+                name: '{{ tmp.node_prefix }}management'
+                subnet_name: '{{ tmp.node_prefix }}management-subnet'
+                cidr: 192.168.1.0/24
+                dns_nameservers: !lookup private.dns_servers
+                allocation_pool_start: 192.168.1.10
+                allocation_pool_end: 192.168.1.20
+            data:
+                name: '{{ tmp.node_prefix }}data'
+                subnet_name: '{{ tmp.node_prefix }}data-subnet'
+                cidr: 172.16.1.0/24
+                dns_nameservers: !lookup private.dns_servers
+                allocation_pool_start: 172.16.1.10
+                allocation_pool_end: 172.16.1.20
+            external:
+                name: '{{ tmp.node_prefix }}external'
+                subnet_name: '{{ tmp.node_prefix }}external-subnet'
+                cidr: 172.31.0.0/23
+                dns_nameservers: !lookup private.dns_servers
+                allocation_pool_start: 172.31.0.10
+                allocation_pool_end: 172.31.0.20
+                nested:
+                    subnet_cidr: 172.31.0.0/23
+                    subnet_gateway: 172.31.0.1
+                    allocation_pool_start: 172.31.1.10
+                    allocation_pool_end: 172.31.1.100
+
+    flavor:
+        # The list of flavor should be rechecked; right now, 3 is the smaller
+        # with a disk big enough for relevant images. 4 is a bit bigger, so
+        # use it for medium, and keep it for large, as it quite matches the
+        # values for the old qeos. Other flavor should be cleaned up (also
+        # because they are mostly unused right now).
+        # The recheck could lead to a bigger change to flavor definitions
+        # (see CENTRALCI-1189)
+        small:
+            name: 'm1.medium'
+            id: 3
+        medium:
+            name: 'm1.large'
+            id: 4
+        large_testing:
+            name: 'm1.large_testing'
+            id: c6e0ad85-81a8-4fbb-a2d9-b0abac52f79b
+        large_ephemeral:
+            name: 'm1.large_ephemeral'
+            id: a89c1587-aab2-49c2-a60d-4d19ea40bdbc
+        medlarge:
+            name: 'm1.medlarge'
+            id: d4cb47aa-9278-4762-9d89-b8c6693a46e9
