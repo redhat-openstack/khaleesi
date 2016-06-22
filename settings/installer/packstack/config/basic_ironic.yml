@@ -1,0 +1,11 @@
+--- !extends:common/common.yml
+installer:
+    packstack:
+        config:
+            CONFIG_PROVISION_DEMO: n
+            CONFIG_PROVISION_TEMPEST: n
+            CONFIG_SWIFT_INSTALL: n
+            CONFIG_CEILOMETER_INSTALL: n
+            CONFIG_HORIZON_INSTALL: n
+            CONFIG_NAGIOS_INSTALL: n
+            CONFIG_IRONIC_INSTALL: y
