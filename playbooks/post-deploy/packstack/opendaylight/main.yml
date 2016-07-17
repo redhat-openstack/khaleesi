@@ -5,4 +5,5 @@
 - include: install_odl_driver.yml
 - include: configure_neutron.yml
 - include: configure_nova.yml
+- include: setup_tester.yml
 - include: start_services.yml

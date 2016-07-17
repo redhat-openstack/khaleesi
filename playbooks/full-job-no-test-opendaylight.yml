@@ -1,0 +1,4 @@
+---
+- include: provision.yml
+- include: install.yml
+- include: post-deploy/{{ installer.type }}/opendaylight/main.yml

@@ -1,0 +1,58 @@
+- name: Setup password-less connection between tester and OpenDaylight controller
+  hosts: tester
+  tasks:
+    - name: Generate SSH keys
+      user:
+        name=cloud-user
+        generate_ssh_key=yes
+
+    - name: Download public key
+      fetch:
+        src=/home/cloud-user/.ssh/id_rsa.pub
+        dest="{{ inventory_dir }}/tester_id_rsa"
+        flat=yes
+
+    - name: Copy the the key to OpenDaylight controller
+      local_action: shell cat {{ inventory_dir }}/tester_id_rsa | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no cloud-user@{{ hostvars[provisioner.nodes.odl_controller.name].ansible_ssh_host }}  "cat >> /home/cloud-user/.ssh/authorized_keys"
+
+    - name: Copy the the key to OpenStack controller
+      local_action: shell cat {{ inventory_dir }}/tester_id_rsa | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no cloud-user@{{ hostvars[provisioner.nodes.controller.name].ansible_ssh_host }}  "cat >> /home/cloud-user/.ssh/authorized_keys"
+
+    - name: Create hosts file with odl controller
+      local_action: shell echo {{ item }} >> {{ inventory_dir }}/odl-hosts
+      with_items:
+        - '[tester]'
+        - "{{ hostvars[provisioner.nodes.tester.name].ansible_ssh_host }}"
+
+# This is used by other testing projects such as Octario
+- name: Setup OpenDaylight RC file
+  hosts: tester
+  tasks:
+    - name: Create odlrc file
+      shell: |
+        echo "ODL_SYSTEM_IP={{ hostvars[provisioner.nodes.odl_controller.name].ansible_ssh_host }}" >> odlrc;
+        echo "KEYSTONE={{ hostvars[provisioner.nodes.controller.name].ansible_ssh_host }}" >> odlrc;
+        echo "NEUTRON={{ hostvars[provisioner.nodes.controller.name].ansible_ssh_host }}" >> odlrc;
+        echo "OS_USER=cloud-user" >> odlrc;
+        echo "USER_HOME=/home/cloud-user" >> odlrc;
+        echo "BUNDLEFOLDER=opendaylight" >> odlrc;
+        echo "WORKSPACE=/opt" >> odlrc;
+
+# This is changed in order for Robot framework to work properly
+- name: Change shell prompt
+  hosts: odl_controller:controller
+  tasks:
+    - name: Modify PS1 variable to display different shell prompt
+      lineinfile:
+        dest=~/.bashrc
+        line="PS1='{{ ansible_ssh_host }}]>'"
+        
+    - name: Remove requiretty
+      sudo: yes
+      lineinfile:
+        regexp="^\s+\w+\s+requiretty"
+        dest=/etc/sudoers state=absent
+
+    - name: Enable traffic from tester
+      sudo: yes
+      shell: iptables -I INPUT -j ACCEPT -p tcp -s "{{ hostvars[provisioner.nodes.tester.name].ansible_ssh_host  }}"
