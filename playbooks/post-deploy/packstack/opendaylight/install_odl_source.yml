@@ -68,12 +68,6 @@
             /home/{{ ansible_ssh_user }}/opendaylight/make-vars;
             cp /home/{{ ansible_ssh_user}}/opendaylight/opendaylight-chain/opendaylight-chain.ini .;
             cd /home/{{ ansible_ssh_user }}/opendaylight && git checkout -- make-vars && git checkout -- opendaylight-chain/opendaylight-chain.ini && cd -;
-            redhat_version=`cat /home/{{ ansible_ssh_user }}/opendaylight/*/*.ini | grep "redhat_version = " | cut -d= -f2 | xargs`;
-            sed -i "s/\%(redhat_version)s/$redhat_version/g" *.ini;
-            bomver=`cat /home/{{ ansible_ssh_user }}/opendaylight/*/*.ini | grep "bomversion = " | cut -d= -f2 | xargs`;
-            sed -i "s/\%\(bomversion\)s/$bomver/g" *.ini;
-            sed -i "s/skipTests/skipTests=true/g" *.ini;
-            sed -i "s/properties = /\n/g" *.ini
 
       - name: Run apache-chain-builder and build the opendaylight disturbution
         args:
@@ -84,8 +78,13 @@
   hosts: odl_controller
   sudo: yes
   tasks:
-      - name: Extract odl distribution to /opt/karaf
+      - name: Extract odl distribution to /opt/karaf (OSP 8)
         shell: "tar -zxf /tmp/org/opendaylight/ovsdb/karaf/*/*.tar.gz -C /opt && mv /opt/karaf* /opt/opendaylight"
+        when: product.version.major == 8
+
+      - name: Extract odl distribution to /opt/karaf (OSP >= 9)
+        shell: "tar -zxf /tmp/org/opendaylight/netvirt/karaf/*/*.tar.gz -C /opt && mv /opt/karaf* /opt/opendaylight"
+        when: product.version.major >= 9
 
       - name: Make sure ovbsdb is installed
         shell: sudo sed -i "/^featuresBoot *=/ s/$/,odl-ovsdb-openstack,odl-ovsdb-ui/" /opt/opendaylight/etc/org.apache.karaf.features.cfg
