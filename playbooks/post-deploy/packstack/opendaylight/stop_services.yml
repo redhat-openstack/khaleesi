@@ -36,6 +36,16 @@
       service: name=openvswitch
                state=stopped
 
+    - name: Remove ovs
+      yum: name=openvswitch
+           state=absent
+      when: ovs_url is defined
+
+    - name: Install ovs 2.5.0
+      yum: name={{ ovs_url }}
+           state=present
+      when: ovs_url is defined
+
 - name: Remove openvswitch logs and configuration
   hosts:
     - controller
