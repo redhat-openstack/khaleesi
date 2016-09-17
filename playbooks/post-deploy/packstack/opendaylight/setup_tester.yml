@@ -49,9 +49,10 @@
         
     - name: Remove requiretty
       sudo: yes
-      lineinfile:
-        regexp="^\s+\w+\s+requiretty"
-        dest=/etc/sudoers state=absent
+      replace:
+        regexp="^Defaults\s+requiretty$"
+        replace="# Defaults    requiretty"
+        dest=/etc/sudoers
 
     - name: Enable traffic from tester
       sudo: yes
