@@ -16,6 +16,15 @@
 - name: grab short reposlist
   shell: yum repolist all
 
+- name: Install pip and git
+  sudo: yes
+  yum:
+    name={{ item }}
+    state=present
+  with_items:
+      - python-pip
+      - git
+
 - name: install test dependencies rpm needed to run test
   sudo: yes
   yum: pkg={{ item }} state=latest
