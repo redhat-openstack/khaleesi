@@ -4,6 +4,9 @@
   gather_facts: no
   sudo: yes
   tasks:
+    - name: Install python-setuptools for easy_install
+      yum: name=python-setuptools state=present
+
     - name: Install pip
       command: easy_install pip
 
