@@ -304,3 +304,8 @@
             allocation_pool_start: "{{ provisioner.network.network_list.external.nested.allocation_pool_start }}"
             allocation_pool_end: "{{ provisioner.network.network_list.external.nested.allocation_pool_end }}"
         when: installer is defined and installer.network.type == 'neutron'
+
+      - name: Enable tcp traffic
+        sudo: yes
+        shell: iptables -I INPUT -j ACCEPT -p tcp
+        when: tester.type == "tempest"
