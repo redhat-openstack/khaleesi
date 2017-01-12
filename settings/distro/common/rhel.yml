@@ -18,12 +18,16 @@ distro:
             remote_file_server: !lookup private.images.rhel.6.6.remote_file_server
           '6.7':
             remote_user: cloud-user
-            guest_image_name: "rhel-guest-image-6.7-20150427.0.x86_64.qcow2"
+            guest_image_name: "rhel-guest-image-6.7-20160301.1.x86_64.qcow2"
             remote_file_server: !lookup private.images.rhel.6.7.remote_file_server
           '6.8':
             remote_user: cloud-user
             guest_image_name: "rhel-guest-image-6.8-20160425.0"
             remote_file_server: !lookup private.images.rhel.6.8.remote_file_server
+          '6.9':
+            remote_user: cloud-user
+            guest_image_name: "rhel-guest-image-6.9-30.x86_64.qcow2"
+            remote_file_server: !lookup private.images.rhel.6.9.remote_file_server
           '7.0':
             remote_user: cloud-user
             guest_image_name: "rhel-guest-image-7.0-20150126.0.x86_64.qcow2"
