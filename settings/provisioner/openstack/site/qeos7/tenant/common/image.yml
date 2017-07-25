@@ -47,4 +47,7 @@ provisioner:
                 id: ac47d004-c15c-4eb5-a205-ec8beda806e5
                 name: rhel-7.3-server-x86_64-latest
                 remote_user: cloud-user
-
+            '7.4':
+                id: 5b05bda0-52d5-4d3b-8787-481327d9054c
+                name: rhel-7.4-server-x86_64-latest
+                remote_user: cloud-user
