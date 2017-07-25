@@ -3,7 +3,7 @@
 distro:
     name: rhel
     short_name: rh
-    latest_version: '7.3'
+    latest_version: '7.4'
     config:
         ntp_server: !lookup private.ntp_server
         ntp_server_ip: !lookup private.ntp_server_ip
@@ -44,6 +44,11 @@ distro:
             remote_user: cloud-user
             guest_image_name: "rhel-guest-image-7.3-35.x86_64.qcow2"
             remote_file_server: !lookup private.images.rhel.7.3.remote_file_server
+          '7.4':
+            remote_user: cloud-user
+            guest_image_name: "rhel-guest-image-7.4-198.x86_64.qcow2"
+            remote_file_server: !lookup private.images.rhel.7.4.remote_file_server
+
     rhel:
         subscription:
             username: !lookup private.distro.rhel.subscription.username
